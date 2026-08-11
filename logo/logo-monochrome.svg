@@ -1,0 +1,11 @@
+<svg width="400" height="120" viewBox="0 0 400 120" xmlns="http://www.w3.org/2000/svg" font-family="'Segoe UI', -apple-system, Roboto, Helvetica, Arial, sans-serif">
+  <g transform="translate(48,58) scale(0.55)">
+    <path d="M-21,-52 L-21,-72 Q-21,-79 -13,-79 L13,-79 Q21,-79 21,-72 L21,-52" fill="none" stroke="#153A52" stroke-width="8" stroke-linecap="round" stroke-linejoin="round"/>
+    <rect x="-47" y="-52" width="94" height="108" rx="18" fill="#153A52"/>
+    <rect x="-47" y="-16" width="94" height="22" fill="#FFFFFF"/>
+    <rect x="-10" y="-19" width="20" height="28" rx="5" fill="#153A52"/>
+    <circle cx="-26" cy="63" r="9" fill="#153A52"/>
+    <circle cx="26" cy="63" r="9" fill="#153A52"/>
+  </g>
+  <text x="102" y="72" font-size="31" font-weight="800" fill="#153A52" letter-spacing="-0.6">DropShopping</text>
+</svg>

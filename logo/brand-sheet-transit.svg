@@ -1,0 +1,62 @@
+<svg width="1000" height="620" viewBox="0 0 1000 620" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" font-family="'Noto Sans CJK KR',sans-serif">
+<defs>
+<linearGradient id="tile" x1="0" y1="0" x2="1" y2="1">
+<stop offset="0" stop-color="#2E74F6"/><stop offset="1" stop-color="#14C3EC"/>
+</linearGradient>
+<linearGradient id="tileDark" x1="0" y1="0" x2="1" y2="1">
+<stop offset="0" stop-color="#12324F"/><stop offset="1" stop-color="#0C2238"/>
+</linearGradient>
+<radialGradient id="glow" cx="0.5" cy="0.5" r="0.5">
+<stop offset="0" stop-color="#FFFFFF" stop-opacity="0.28"/><stop offset="1" stop-color="#FFFFFF" stop-opacity="0"/>
+</radialGradient>
+<g id="mark">
+<!-- incoming path -->
+<path d="M44,172 Q70,150 92,124" fill="none" stroke="#FFFFFF" stroke-opacity="0.9" stroke-width="4.5" stroke-linecap="round" stroke-dasharray="1.5 9"/>
+<!-- outgoing path -->
+<path d="M116,104 Q142,84 168,58" fill="none" stroke="#FFFFFF" stroke-opacity="0.9" stroke-width="4.5" stroke-linecap="round" stroke-dasharray="1.5 9"/>
+<!-- transfer node -->
+<circle cx="104" cy="114" r="17" fill="none" stroke="#FFC22E" stroke-width="3" stroke-opacity="0.55"/>
+<circle cx="104" cy="114" r="10.5" fill="#FFC22E"/>
+<circle cx="104" cy="114" r="3.8" fill="#FFFFFF"/>
+<!-- plane -->
+<g transform="translate(168,58) rotate(40)">
+<path d="M0,-30 L3,-22 L3,18 L1.5,23 L-1.5,23 L-3,18 L-3,-22 Z" fill="#FFFFFF"/>
+<path d="M-24,10 L0,-5 L24,10 L0,2 Z" fill="#FFFFFF"/>
+<path d="M-9,23 L0,14 L9,23 L0,18 Z" fill="#FFFFFF"/>
+</g>
+</g>
+</defs>
+  <rect width="1000" height="620" fill="#F1F5FA"/>
+  <!-- app icon -->
+  <g transform="translate(90,80)">
+    <rect width="220" height="220" rx="52" fill="url(#tile)"/>
+    <circle cx="80" cy="80" r="120" fill="url(#glow)"/>
+    <use xlink:href="#mark"/>
+  </g>
+  <text x="200" y="336" text-anchor="middle" fill="#5E7185" font-size="14" letter-spacing="2" font-weight="600">APP ICON</text>
+  <!-- horizontal lockup -->
+  <g transform="translate(390,110)">
+    <rect width="120" height="120" rx="30" fill="url(#tile)"/>
+    <g transform="scale(0.545)"><use xlink:href="#mark"/></g>
+    <text x="140" y="52" font-size="41" font-weight="800" letter-spacing="-0.8"><tspan fill="#F2A81C">Drop</tspan><tspan fill="#153A52">Shopping</tspan></text>
+    <text x="142" y="82" fill="#5E7185" font-size="13" letter-spacing="2.2" font-weight="600">FOR TRANSIT TRAVELERS · ICN</text>
+  </g>
+  <text x="390" y="290" fill="#5E7185" font-size="14" letter-spacing="2" font-weight="600">HORIZONTAL LOCKUP</text>
+  <line x1="90" y1="380" x2="910" y2="380" stroke="#D8E2EE" stroke-width="1.5"/>
+  <!-- reversed -->
+  <g transform="translate(90,420)">
+    <rect width="360" height="140" rx="22" fill="url(#tileDark)"/>
+    <g transform="translate(16,10) scale(0.55)"><use xlink:href="#mark"/></g>
+    <text x="150" y="62" font-size="30" font-weight="800" letter-spacing="-0.6"><tspan fill="#FFC22E">Drop</tspan><tspan fill="#FFFFFF">Shopping</tspan></text>
+    <text x="152" y="86" fill="#8FB6C8" font-size="11" letter-spacing="2" font-weight="600">환승 여행자를 위한 인천 컨시어지</text>
+  </g>
+  <!-- palette -->
+  <g transform="translate(500,430)">
+    <text x="0" y="-8" fill="#5E7185" font-size="11" letter-spacing="2" font-weight="600">BRAND COLORS</text>
+    <rect x="0" y="0" width="52" height="52" rx="12" fill="#2E74F6"/><text x="26" y="70" text-anchor="middle" fill="#5E7185" font-size="10">#2E74F6</text>
+    <rect x="70" y="0" width="52" height="52" rx="12" fill="#14C3EC"/><text x="96" y="70" text-anchor="middle" fill="#5E7185" font-size="10">#14C3EC</text>
+    <rect x="140" y="0" width="52" height="52" rx="12" fill="#FFC22E"/><text x="166" y="70" text-anchor="middle" fill="#5E7185" font-size="10">#FFC22E</text>
+    <rect x="210" y="0" width="52" height="52" rx="12" fill="#153A52"/><text x="236" y="70" text-anchor="middle" fill="#5E7185" font-size="10">#153A52</text>
+    <rect x="280" y="0" width="52" height="52" rx="12" fill="#F1F5FA" stroke="#D8E2EE"/><text x="306" y="70" text-anchor="middle" fill="#5E7185" font-size="10">#F1F5FA</text>
+  </g>
+</svg>

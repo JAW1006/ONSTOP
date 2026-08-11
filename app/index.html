@@ -1,0 +1,764 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>DropShopping · Prototype</title>
+<link rel="icon" href="assets/logo-mark.png" />
+<style>html,body{margin:0;padding:0;background:#E6ECF6}</style>
+<script type="importmap">
+{
+  "imports": {
+    "react": "https://esm.sh/react@18.3.1",
+    "react-dom": "https://esm.sh/react-dom@18.3.1?external=react",
+    "react-dom/client": "https://esm.sh/react-dom@18.3.1/client?external=react",
+    "lucide-react": "https://esm.sh/lucide-react@0.436.0?external=react"
+  }
+}
+</script>
+<script src="https://unpkg.com/@babel/standalone@7.25.6/babel.min.js"></script>
+</head>
+<body>
+<div id="root"></div>
+<div id="loading" style="font-family:-apple-system,sans-serif;color:#5E7185;text-align:center;padding:40px">불러오는 중… (인터넷 연결 필요)</div>
+
+<script type="text/babel" data-type="module" data-presets="react">
+import React, { useState } from "react";
+import { createRoot } from "react-dom/client";
+import {
+  Plane, PlaneLanding, Bell, Clock, Bed, Droplets, Luggage, MapPin,
+  Utensils, Sparkles, ShoppingBag, Scissors, Coffee, Check, ChevronRight,
+  ChevronLeft, Home as HomeIcon, Search, User, CalendarCheck, Ticket,
+  ShieldCheck, Route, Camera, Waves,
+} from "lucide-react";
+
+/* ---------- brand palette (DropShopping) ---------- */
+const C = {
+  blue: "#2F7BE6", blueDeep: "#164FAE", ink: "#153A52",
+  gold: "#F2B134", goldDeep: "#D9971A", red: "#E23B3B", lime: "#8DBE36",
+  bg: "#F1F5FA", card: "#FFFFFF", tint: "#EAF1FB",
+  sub: "#5E7185", faint: "#A9B4C4", line: "#E3EAF3", white: "#FFFFFF",
+};
+const grad = `linear-gradient(135deg, ${C.blue}, ${C.blueDeep})`;
+
+/* ---------- brand logo ---------- */
+const Brand = ({ h = 30, dark = true }) => (
+  <div style={{ display: "inline-flex", alignItems: "center", gap: Math.round(h * 0.34) }}>
+    <img src="assets/logo-mark.png" alt="DropShopping" style={{ height: h, width: "auto", display: "block" }} />
+    <span style={{ fontSize: Math.round(h * 0.66), fontWeight: 800, letterSpacing: -0.4, lineHeight: 1 }}>
+      <span style={{ color: dark ? "#fff" : C.ink }}>Drop</span><span style={{ color: C.gold }}>Shopping</span>
+    </span>
+  </div>
+);
+
+/* ---------- ui helpers ---------- */
+const Card = ({ children, style }) => (
+  <div style={{ background: C.card, borderRadius: 18, boxShadow: "0 2px 14px rgba(40,70,130,0.07)", ...style }}>{children}</div>
+);
+const Chip = ({ children, active, onClick }) => (
+  <button onClick={onClick} style={{ border: "none", cursor: "pointer", padding: "6px 12px", borderRadius: 999, fontSize: 12, fontWeight: 600, whiteSpace: "nowrap", background: active ? C.blue : C.tint, color: active ? "#fff" : C.blueDeep }}>{children}</button>
+);
+const PrimaryBtn = ({ children, onClick, style }) => (
+  <button onClick={onClick} style={{ width: "100%", border: "none", cursor: "pointer", padding: "15px 0", borderRadius: 14, background: grad, color: "#fff", fontSize: 15, fontWeight: 700, boxShadow: "0 6px 16px rgba(47,123,230,0.32)", ...style }}>{children}</button>
+);
+const SectionHead = ({ title, sub, onMore }) => (
+  <div style={{ display: "flex", alignItems: "flex-end", justifyContent: "space-between", marginBottom: 12 }}>
+    <div>
+      <div style={{ fontSize: 16, fontWeight: 800, color: C.ink }}>{title}</div>
+      {sub && <div style={{ fontSize: 11, color: C.faint, marginTop: 2 }}>{sub}</div>}
+    </div>
+    {onMore && <button onClick={onMore} style={{ border: "none", background: "none", cursor: "pointer", display: "flex", alignItems: "center", gap: 2, color: C.sub, fontSize: 12 }}>더보기 <ChevronRight size={14} /></button>}
+  </div>
+);
+const Photo = ({ icon, tint, h = 96, badge }) => (
+  <div style={{ position: "relative", height: h, borderRadius: 12, background: tint, display: "flex", alignItems: "center", justifyContent: "center", overflow: "hidden" }}>
+    {badge && <span style={{ position: "absolute", top: 8, left: 8, background: C.blue, color: "#fff", fontSize: 10, fontWeight: 700, padding: "3px 8px", borderRadius: 999 }}>{badge}</span>}
+    <div style={{ opacity: 0.55 }}>{icon}</div>
+  </div>
+);
+
+/* ---------- data ---------- */
+const LANGS = [{ k: "English", f: "🇺🇸" }, { k: "中文(简体)", f: "🇨🇳" }, { k: "日本語", f: "🇯🇵" }, { k: "Tiếng Việt", f: "🇻🇳" }, { k: "한국어", f: "🇰🇷" }];
+const CATS = [
+  { k: "Food", ko: "맛집", icon: Utensils }, { k: "Massage", ko: "마사지", icon: Sparkles },
+  { k: "Shopping", ko: "쇼핑", icon: ShoppingBag }, { k: "Rest", ko: "휴식", icon: Bed },
+  { k: "Beauty", ko: "뷰티", icon: Scissors }, { k: "Sightseeing", ko: "관광", icon: Camera },
+];
+const ROOMS = [
+  { name: "AIR SKY 데이유즈", dist: "공항 7분", block: "3–9시간", price: 42000, rate: 4.8, cnt: 128, tint: "#BBD3F5", best: true, move: 7, rest: 90 },
+  { name: "운서 스테이", dist: "공항 10분", block: "3–6시간", price: 38000, rate: 4.6, cnt: 93, tint: "#CFE0F5", move: 10, rest: 90 },
+  { name: "영종 캡슐 리프레시", dist: "공항 5분", block: "3–4시간", price: 24000, rate: 4.5, cnt: 76, tint: "#C7E4D6", move: 5, rest: 60 },
+];
+const ROUTE = [
+  { t: "11:00", title: "공항 도착 · 짐 맡기기", sub: "수하물 케어 픽업", ic: Luggage, col: C.red },
+  { t: "11:20", title: "데이유즈 체크인 · 샤워/휴식", sub: "4시간 타임블록", ic: Bed, col: C.blue },
+  { t: "15:30", title: "K-뷰티 · 쇼핑", sub: "선호: 쇼핑", ic: ShoppingBag, col: C.gold },
+  { t: "16:20", title: "카페 & 지역 탐방", sub: "영종도 오션뷰", ic: Coffee, col: C.lime },
+  { t: "17:00", title: "공항 복귀 (여유 30분)", sub: "Time-Safe 알림", ic: PlaneLanding, col: C.ink },
+];
+const LOCAL = [
+  { n: "카페 오션뷰", s: "영종도 · 45분", icon: Coffee, tint: "#F3D9B8" },
+  { n: "마시안 마사지", s: "피로 회복 · 60분", icon: Sparkles, tint: "#E8C4D6" },
+  { n: "차이나타운 맛집", s: "중식 · 50분", icon: Utensils, tint: "#F3C4B8" },
+  { n: "무의도 해변", s: "선셋 · 90분", icon: Waves, tint: "#A9C4E8" },
+];
+const won = (n) => "₩" + n.toLocaleString();
+
+/* ---------- airport API (via local proxy) ---------- */
+const PROXY_BASE = "http://localhost:3001";
+const DEFAULT_ARRIVE = 10 * 60 + 30; // 실시간 조회 실패/미조회 시 데모 폴백값
+const LAYOVER_BUDGET = 360; // 고정 6시간 레이오버 예산(분)
+const hhmm = (m) => `${String(Math.floor(m / 60)).padStart(2, "0")}:${String(m % 60).padStart(2, "0")}`;
+const parseHHMM = (s) => {
+  if (!s || s.length < 3) return null;
+  const h = parseInt(s.slice(0, s.length - 2), 10);
+  const m = parseInt(s.slice(-2), 10);
+  if (Number.isNaN(h) || Number.isNaN(m)) return null;
+  return h * 60 + m;
+};
+async function fetchArrival(flightId) {
+  const res = await fetch(`${PROXY_BASE}/api/flight/arrival?flightId=${encodeURIComponent(flightId)}`);
+  const data = await res.json().catch(() => ({}));
+  if (!res.ok) throw new Error(data.error || `조회 실패 (${res.status})`);
+  const f = data.flights && data.flights[0];
+  if (!f) throw new Error("일치하는 항공편이 없어요");
+  const arriveMin = parseHHMM(f.estimatedDateTime) ?? parseHHMM(f.scheduleDateTime);
+  if (arriveMin == null) throw new Error("도착 시각 정보가 없어요");
+  return { arriveMin, flight: f };
+}
+
+/* ================= APP ================= */
+function App() {
+  const [screen, setScreen] = useState("onboarding");
+  const [step, setStep] = useState(0);
+  const [lang, setLang] = useState("English");
+  const [cats, setCats] = useState(["Shopping", "Rest"]);
+  const [flight, setFlight] = useState("KE085");
+  const [room, setRoom] = useState(ROOMS[0]);
+  const toggle = (k) => setCats((p) => (p.includes(k) ? p.filter((x) => x !== k) : [...p, k]));
+
+  const [flightLookup, setFlightLookup] = useState({ status: "idle" });
+  const lookupFlight = async (flightId) => {
+    if (!flightId) return;
+    setFlightLookup({ status: "loading" });
+    try {
+      const { arriveMin, flight: f } = await fetchArrival(flightId);
+      setFlightLookup({ status: "success", arriveMin, flight: f });
+    } catch (e) {
+      setFlightLookup({ status: "error", message: e.message || "실시간 조회에 실패했어요" });
+    }
+  };
+  const arriveMin = flightLookup.status === "success" ? flightLookup.arriveMin : DEFAULT_ARRIVE;
+  const returnByMin = arriveMin + LAYOVER_BUDGET;
+
+  return (
+    <div style={{ minHeight: "100vh", background: "#E6ECF6", display: "flex", justifyContent: "center", alignItems: "flex-start", padding: "20px 12px", fontFamily: "-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif" }}>
+      <div style={{ width: 390, maxWidth: "100%", height: 800, background: C.bg, borderRadius: 34, overflow: "hidden", position: "relative", boxShadow: "0 20px 60px rgba(30,50,110,0.25)", border: "6px solid #101826" }}>
+        <div style={{ position: "absolute", inset: 0, bottom: screen === "onboarding" ? 0 : 66, overflowY: "auto" }}>
+          {screen === "onboarding" && <Onboarding {...{ step, setStep, lang, setLang, cats, toggle, flight, setFlight, go: () => setScreen("home"), flightLookup, onLookup: lookupFlight, arriveMin, returnByMin }} />}
+          {screen === "home" && <HomeScreen {...{ cats, openRoom: (r) => { setRoom(r); setScreen("booking"); }, setScreen, flight, arrive: arriveMin, returnBy: returnByMin, flightLookup }} />}
+          {screen === "booking" && <Booking room={room} onPay={() => setScreen("confirm")} back={() => setScreen("home")} />}
+          {screen === "confirm" && <Confirm room={room} back={() => setScreen("home")} />}
+          {screen === "luggage" && <Luggagepage back={() => setScreen("home")} />}
+          {screen === "course" && <Course cats={cats} back={() => setScreen("home")} onBook={(r) => { setRoom(r); setScreen("booking"); }} arrive={arriveMin} returnBy={returnByMin} />}
+          {screen === "mypage" && <MyPage />}
+        </div>
+        {screen !== "onboarding" && (
+          <div style={{ position: "absolute", left: 0, right: 0, bottom: 0, height: 66, background: "#fff", borderTop: `1px solid ${C.line}`, display: "flex", alignItems: "center", justifyContent: "space-around", paddingBottom: 4 }}>
+            <Nav icon={HomeIcon} label="홈" active={screen === "home"} onClick={() => setScreen("home")} />
+            <Nav icon={Luggage} label="짐 케어" active={screen === "luggage"} onClick={() => setScreen("luggage")} />
+            <button onClick={() => setScreen("course")} style={{ border: "none", cursor: "pointer", marginTop: -22, width: 56, height: 56, borderRadius: 28, background: grad, color: "#fff", display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", boxShadow: "0 6px 16px rgba(47,123,230,.45)" }}>
+              <Route size={20} /><span style={{ fontSize: 8, marginTop: 1, fontWeight: 700 }}>코스</span>
+            </button>
+            <Nav icon={CalendarCheck} label="예약" active={screen === "confirm" || screen === "booking"} onClick={() => setScreen("confirm")} />
+            <Nav icon={User} label="마이" active={screen === "mypage"} onClick={() => setScreen("mypage")} />
+          </div>
+        )}
+      </div>
+    </div>
+  );
+}
+const Nav = ({ icon: Icon, label, active, onClick }) => (
+  <button onClick={onClick} style={{ border: "none", background: "none", cursor: "pointer", display: "flex", flexDirection: "column", alignItems: "center", gap: 3, color: active ? C.blue : C.faint, width: 60 }}>
+    <Icon size={20} /><span style={{ fontSize: 10, fontWeight: active ? 700 : 500 }}>{label}</span>
+  </button>
+);
+
+/* ---------- ONBOARDING ---------- */
+function Onboarding({ step, setStep, lang, setLang, cats, toggle, flight, setFlight, go, flightLookup, onLookup, arriveMin, returnByMin }) {
+  return (
+    <div style={{ minHeight: "100%", background: grad, display: "flex", flexDirection: "column" }}>
+      <div style={{ padding: "38px 24px 16px", color: "#fff" }}>
+        <Brand h={40} dark />
+        <div style={{ fontSize: 26, fontWeight: 900, marginTop: 18, lineHeight: 1.2 }}>짐은 맡기고,<br />환승 시간을 인천에서</div>
+        <div style={{ fontSize: 12.5, opacity: 0.9, marginTop: 8 }}>Transit · Drop · Fly Light</div>
+      </div>
+      <div style={{ flex: 1, background: C.bg, borderTopLeftRadius: 26, borderTopRightRadius: 26, padding: "20px 20px 28px" }}>
+        <div style={{ display: "flex", gap: 6, justifyContent: "center", marginBottom: 20 }}>
+          {[0, 1, 2].map((i) => <div key={i} style={{ width: i === step ? 22 : 7, height: 7, borderRadius: 999, background: i === step ? C.blue : C.line }} />)}
+        </div>
+
+        {step === 0 && (<>
+          <Title ko="언어를 선택해주세요" en="Choose your language" />
+          <div style={{ display: "flex", flexDirection: "column", gap: 10, marginTop: 16 }}>
+            {LANGS.map((l) => (
+              <button key={l.k} onClick={() => setLang(l.k)} style={row(lang === l.k)}>
+                <span style={{ fontSize: 20 }}>{l.f}</span>
+                <span style={{ flex: 1, textAlign: "left", fontWeight: 600, color: C.ink }}>{l.k}</span>
+                {lang === l.k && <Check size={18} color={C.blue} />}
+              </button>
+            ))}
+          </div>
+          <PrimaryBtn onClick={() => setStep(1)} style={{ marginTop: 20 }}>다음</PrimaryBtn>
+        </>)}
+
+        {step === 1 && (<>
+          <Title ko="관심 있는 활동을 골라주세요" en="Pick your interests" note="복수 선택 · Time-Fit 추천에 사용" />
+          <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr 1fr", gap: 10, marginTop: 16 }}>
+            {CATS.map((c) => {
+              const on = cats.includes(c.k); const Icon = c.icon;
+              return (
+                <button key={c.k} onClick={() => toggle(c.k)} style={{ border: on ? `2px solid ${C.blue}` : `1.5px solid ${C.line}`, background: on ? C.tint : "#fff", borderRadius: 14, padding: "16px 6px", cursor: "pointer", display: "flex", flexDirection: "column", alignItems: "center", gap: 8 }}>
+                  <Icon size={22} color={on ? C.blue : C.sub} />
+                  <span style={{ fontSize: 12, fontWeight: 700, color: on ? C.blueDeep : C.ink }}>{c.ko}</span>
+                </button>
+              );
+            })}
+          </div>
+          <PrimaryBtn onClick={() => setStep(2)} style={{ marginTop: 20 }}>다음</PrimaryBtn>
+        </>)}
+
+        {step === 2 && (<>
+          <Title ko="환승 항공편을 입력해주세요" en="Your connecting flight" note="Time-Safe 여유 시간 자동 계산" />
+          <div style={{ marginTop: 16, background: "#fff", border: `1.5px solid ${C.line}`, borderRadius: 14, padding: "14px 16px", display: "flex", alignItems: "center", gap: 10 }}>
+            <Plane size={18} color={C.blue} />
+            <input value={flight} onChange={(e) => setFlight(e.target.value.toUpperCase())} placeholder="예: KE085"
+              style={{ border: "none", outline: "none", fontSize: 17, fontWeight: 700, color: C.ink, width: "100%", background: "transparent" }} />
+            <button onClick={() => onLookup(flight)} disabled={!flight || flightLookup.status === "loading"}
+              style={{ border: "none", cursor: flight ? "pointer" : "not-allowed", padding: "8px 12px", borderRadius: 10, background: C.tint, color: C.blueDeep, fontSize: 12, fontWeight: 700, whiteSpace: "nowrap", flexShrink: 0 }}>
+              {flightLookup.status === "loading" ? "조회 중…" : "실시간 조회"}
+            </button>
+          </div>
+          {flightLookup.status === "error" && (
+            <div style={{ marginTop: 8, fontSize: 11.5, color: C.red }}>{flightLookup.message} · 데모 값({hhmm(DEFAULT_ARRIVE)} 도착 기준)으로 계산할게요.</div>
+          )}
+          <div style={{ marginTop: 14, background: C.ink, borderRadius: 16, padding: "16px 18px", color: "#fff" }}>
+            <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", fontSize: 12, color: "#BFD3F0" }}>
+              <span style={{ display: "flex", alignItems: "center", gap: 8 }}><ShieldCheck size={15} /> TIME-SAFE 계산 결과</span>
+              <span style={{ fontSize: 10, fontWeight: 700, color: flightLookup.status === "success" ? C.lime : "#9FB6D4" }}>
+                {flightLookup.status === "success" ? "인천공항공사 실시간" : "데모 값"}
+              </span>
+            </div>
+            <div style={{ display: "flex", alignItems: "baseline", gap: 8, marginTop: 8 }}>
+              <span style={{ fontSize: 36, fontWeight: 900, color: C.gold }}>{Math.floor(LAYOVER_BUDGET / 60)}시간</span>
+              <span style={{ fontSize: 13, color: "#CFE0F5" }}>공항 밖 체류 가능</span>
+            </div>
+            <div style={{ fontSize: 12.5, color: "#CFE0F5", marginTop: 6, display: "flex", alignItems: "center", gap: 6 }}>
+              <Clock size={13} /> 도착 {hhmm(arriveMin)} · <b style={{ color: "#fff" }}>복귀 추천 {hhmm(returnByMin)}</b>
+            </div>
+            {flightLookup.status === "success" && (
+              <div style={{ fontSize: 11, color: "#9FB6D4", marginTop: 6 }}>
+                {flightLookup.flight.airline} {flightLookup.flight.flightId} · {flightLookup.flight.fromAirport}발 · {flightLookup.flight.terminal || "-"} 터미널 · 게이트 {flightLookup.flight.gate || "-"} · {flightLookup.flight.remark || "정상"}
+              </div>
+            )}
+            <div style={{ fontSize: 11, color: "#9FB6D4", marginTop: 6, display: "flex", alignItems: "center", gap: 6 }}>
+              <Bell size={12} /> 복귀 30분 전 푸시 알림 예약됨
+            </div>
+          </div>
+          <PrimaryBtn onClick={go} style={{ marginTop: 18, display: "flex", alignItems: "center", justifyContent: "center", gap: 6 }}>스마트 코스 추천 <Route size={16} /></PrimaryBtn>
+        </>)}
+      </div>
+    </div>
+  );
+}
+const Title = ({ ko, en, note }) => (
+  <div>
+    <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+      <div style={{ fontSize: 17, fontWeight: 800, color: C.ink }}>{ko}</div>
+      {note && <span style={{ fontSize: 10, color: C.faint, maxWidth: 130, textAlign: "right" }}>{note}</span>}
+    </div>
+    <div style={{ fontSize: 12, color: C.faint, marginTop: 3 }}>{en}</div>
+  </div>
+);
+const row = (on) => ({ display: "flex", alignItems: "center", gap: 12, padding: "14px 16px", borderRadius: 14, border: on ? `2px solid ${C.blue}` : `1.5px solid ${C.line}`, background: on ? C.tint : "#fff", cursor: "pointer" });
+
+/* ---------- HOME ---------- */
+function HomeScreen({ cats, openRoom, setScreen, flight, arrive, returnBy, flightLookup }) {
+  const tags = cats.map((k) => CATS.find((c) => c.k === k)?.ko).filter(Boolean);
+  return (
+    <div>
+      <div style={{ background: grad, padding: "34px 20px 20px", color: "#fff", borderBottomLeftRadius: 22, borderBottomRightRadius: 22 }}>
+        <Brand h={30} dark />
+        <div style={{ fontSize: 21, fontWeight: 900, marginTop: 14 }}>Hello, Traveler! 👋</div>
+        <div style={{ fontSize: 12.5, opacity: 0.9, marginTop: 3 }}>여유 시간에 딱 맞는 인천 코스를 준비했어요.</div>
+      </div>
+
+      <div style={{ padding: "16px 16px 20px" }}>
+        <Card style={{ padding: 15, marginBottom: 16, borderLeft: `4px solid ${C.blue}` }}>
+          <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+            <div style={{ display: "flex", alignItems: "center", gap: 7 }}>
+              <ShieldCheck size={17} color={C.blue} /><span style={{ fontSize: 13.5, fontWeight: 800, color: C.ink }}>Time-Safe · {flight}</span>
+            </div>
+            <span style={{ fontSize: 11, fontWeight: 700, color: flightLookup.status === "success" ? "#2E9E5B" : C.sub, background: flightLookup.status === "success" ? "#E7F7EE" : C.line, padding: "3px 9px", borderRadius: 999 }}>{flightLookup.status === "success" ? "실시간" : "데모값"}</span>
+          </div>
+          <div style={{ display: "flex", alignItems: "flex-end", gap: 14, marginTop: 10 }}>
+            <div><div style={{ fontSize: 28, fontWeight: 900, color: C.blueDeep }}>{Math.floor((returnBy - arrive) / 60)}:00</div><div style={{ fontSize: 10, color: C.faint }}>체류 가능</div></div>
+            <div style={{ flex: 1, fontSize: 12, color: C.sub, lineHeight: 1.5 }}>도착 <b style={{ color: C.ink }}>{hhmm(arrive)}</b><br />공항 복귀 추천 <b style={{ color: C.red }}>{hhmm(returnBy)}</b></div>
+          </div>
+        </Card>
+
+        <SectionHead title="Time-Fit 추천 코스" sub="관심사별로 골라 환승 일정 자동 생성" onMore={() => setScreen("course")} />
+        <div onClick={() => setScreen("course")} style={{ cursor: "pointer", marginBottom: 18 }}>
+          <Card style={{ padding: 16 }}>
+            <div style={{ display: "flex", flexWrap: "wrap", gap: 8, marginBottom: 12 }}>
+              {CATS.map((c) => {
+                const Icon = c.icon; const on = cats.includes(c.k);
+                return (
+                  <span key={c.k} style={{ display: "flex", alignItems: "center", gap: 5, fontSize: 12, fontWeight: 700, padding: "7px 11px", borderRadius: 999, background: on ? C.tint : "#F4F7FB", color: on ? C.blueDeep : C.sub }}>
+                    <Icon size={13} /> {c.ko}
+                  </span>
+                );
+              })}
+            </div>
+            <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between" }}>
+              <div style={{ fontSize: 12.5, color: C.sub }}>카테고리를 골라 <b style={{ color: C.ink }}>나만의 환승 코스</b>를 만들어보세요</div>
+              <span style={{ display: "flex", alignItems: "center", gap: 2, color: C.blue, fontWeight: 800, fontSize: 13 }}>만들기 <ChevronRight size={15} /></span>
+            </div>
+          </Card>
+        </div>
+
+        <SectionHead title="데이유즈 · 타임블록 예약" sub="3–9시간 유연 예약 · 샤워/휴식" onMore={() => openRoom(ROOMS[0])} />
+        <div style={{ display: "flex", gap: 12, overflowX: "auto", paddingBottom: 6, marginBottom: 8 }}>
+          {ROOMS.map((r) => (
+            <div key={r.name} onClick={() => openRoom(r)} style={{ minWidth: 178, cursor: "pointer" }}>
+              <Photo icon={<Bed size={30} color="#fff" />} tint={r.tint} badge={r.best ? "추천" : null} />
+              <div style={{ fontWeight: 800, fontSize: 14, color: C.ink, marginTop: 8 }}>{r.name}</div>
+              <div style={{ fontSize: 11, color: C.faint, marginTop: 2 }}>{r.dist} · {r.block}</div>
+              <div style={{ display: "flex", gap: 8, marginTop: 6, color: C.sub, fontSize: 10 }}>
+                <span style={feat}><Droplets size={11} /> 샤워</span><span style={feat}><Bed size={11} /> 휴식</span><span style={feat}><Luggage size={11} /> 짐보관</span>
+              </div>
+              <div style={{ marginTop: 6, display: "flex", alignItems: "baseline", gap: 4 }}>
+                <span style={{ fontWeight: 800, color: C.ink, fontSize: 15 }}>{won(r.price)}~</span><span style={{ fontSize: 9, color: C.faint }}>/블록</span>
+              </div>
+            </div>
+          ))}
+        </div>
+
+        <div onClick={() => setScreen("luggage")} style={{ background: "#FDECEA", borderRadius: 14, padding: "13px 16px", display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 20, cursor: "pointer" }}>
+          <div>
+            <div style={{ fontWeight: 800, color: C.red, fontSize: 13 }}>수하물 케어 (Luggage-Free)</div>
+            <div style={{ fontSize: 11, color: C.sub, marginTop: 2 }}>공항 보관 · 호텔/상권 배송 → 가볍게 이동</div>
+          </div>
+          <Luggage size={24} color={C.red} />
+        </div>
+
+        <SectionHead title="시간 내 다녀오는 로컬" sub="Time-Fit · 복귀 가능 코스" onMore={() => setScreen("home")} />
+        <div style={{ display: "flex", gap: 6, marginBottom: 12 }}>
+          {["영종도", "송도", "차이나타운", "무의도"].map((t, i) => <Chip key={t} active={i === 0}>{t}</Chip>)}
+        </div>
+        <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 12 }}>
+          {LOCAL.map((l) => {
+            const Icon = l.icon;
+            return (
+              <div key={l.n}>
+                <Photo icon={<Icon size={22} color="#fff" />} tint={l.tint} h={82} />
+                <div style={{ fontSize: 12, fontWeight: 700, color: C.ink, marginTop: 6 }}>{l.n}</div>
+                <div style={{ fontSize: 10, color: C.faint }}>{l.s}</div>
+              </div>
+            );
+          })}
+        </div>
+      </div>
+    </div>
+  );
+}
+const feat = { display: "flex", alignItems: "center", gap: 2 };
+
+/* ---------- BOOKING ---------- */
+function Booking({ room, onPay, back }) {
+  const total = room.price;
+  return (
+    <div>
+      <Top title="데이유즈 예약" sub="Day-use booking" back={back} />
+      <div style={{ padding: 16 }}>
+        <Card style={{ padding: 14, display: "flex", gap: 12, marginBottom: 14 }}>
+          <div style={{ width: 66, height: 66, borderRadius: 12, background: room.tint, display: "flex", alignItems: "center", justifyContent: "center" }}><Bed size={26} color="#fff" /></div>
+          <div style={{ flex: 1 }}>
+            <div style={{ fontWeight: 800, color: C.ink }}>{room.name}</div>
+            <div style={{ fontSize: 11, color: C.faint, marginTop: 3 }}>{room.block} 타임블록 · 11:20 – 15:20</div>
+            <div style={{ fontSize: 11, color: C.faint, marginTop: 2 }}>{room.dist} · 샤워·휴식·짐보관 포함</div>
+          </div>
+        </Card>
+        <Card style={{ padding: 16, marginBottom: 14 }}>
+          <div style={{ fontSize: 13, fontWeight: 800, color: C.ink, marginBottom: 10 }}>결제 내역</div>
+          <Line l="4시간 타임블록" r={won(room.price)} />
+          <div style={{ height: 1, background: C.line, margin: "10px 0" }} />
+          <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+            <span style={{ fontWeight: 800, color: C.ink }}>총 결제금액</span>
+            <span style={{ fontWeight: 900, color: C.blueDeep, fontSize: 18 }}>{won(total)}</span>
+          </div>
+        </Card>
+        <div style={{ fontSize: 11, color: C.faint, marginBottom: 16 }}>간편결제 · Alipay · WeChat Pay · Card</div>
+        <PrimaryBtn onClick={onPay} style={{ display: "flex", alignItems: "center", justifyContent: "center", gap: 6 }}>결제하기 <ChevronRight size={16} /></PrimaryBtn>
+      </div>
+    </div>
+  );
+}
+const Line = ({ l, r, green }) => (
+  <div style={{ display: "flex", justifyContent: "space-between", padding: "5px 0" }}>
+    <span style={{ fontSize: 13, color: C.sub }}>{l}</span>
+    <span style={{ fontSize: 13, fontWeight: 600, color: green ? "#2E9E5B" : C.ink }}>{r}</span>
+  </div>
+);
+
+/* ---------- CONFIRM ---------- */
+function Confirm({ room, back }) {
+  return (
+    <div>
+      <Top title="예약 확인" sub="My booking" back={back} />
+      <div style={{ padding: "8px 16px 16px" }}>
+        <Card style={{ padding: 24, textAlign: "center" }}>
+          <div style={{ display: "inline-flex", alignItems: "center", gap: 6, background: "#E7F7EE", color: "#2E9E5B", padding: "6px 12px", borderRadius: 999, fontSize: 12, fontWeight: 700 }}><Check size={14} /> 예약 완료</div>
+          <div style={{ margin: "20px auto 10px", width: 168, height: 168, background: "#fff", border: `1px solid ${C.line}`, borderRadius: 14, display: "flex", alignItems: "center", justifyContent: "center" }}><QR /></div>
+          <div style={{ fontSize: 12, color: C.faint }}>예약번호</div>
+          <div style={{ fontWeight: 800, color: C.ink, letterSpacing: 1, marginTop: 2 }}>ICN20260708001</div>
+          <div style={{ height: 1, background: C.line, margin: "18px 0" }} />
+          <div style={{ textAlign: "left", display: "flex", flexDirection: "column", gap: 8 }}>
+            <Info l="숙소" r={room.name} /><Info l="타임블록" r={`${room.block} · 11:20–15:20`} />
+            <Info l="포함" r="샤워 · 휴식 · 짐보관" /><Info l="Time-Safe" r="복귀 16:30 · 알림 ON" />
+          </div>
+        </Card>
+        <button onClick={back} style={{ marginTop: 16, width: "100%", border: `1.5px solid ${C.blue}`, background: "#fff", color: C.blue, fontWeight: 700, padding: "13px 0", borderRadius: 12, cursor: "pointer" }}>홈으로</button>
+      </div>
+    </div>
+  );
+}
+const Info = ({ l, r }) => (
+  <div style={{ display: "flex", justifyContent: "space-between" }}>
+    <span style={{ fontSize: 12, color: C.faint }}>{l}</span><span style={{ fontSize: 12, fontWeight: 700, color: C.ink }}>{r}</span>
+  </div>
+);
+const QR = () => {
+  const n = 21, cells = []; let seed = 7;
+  const rnd = () => ((seed = (seed * 1103515245 + 12345) & 0x7fffffff) / 0x7fffffff);
+  for (let y = 0; y < n; y++) for (let x = 0; x < n; x++) {
+    const f = (x < 7 && y < 7) || (x >= n - 7 && y < 7) || (x < 7 && y >= n - 7);
+    const on = f ? (x === 0 || x === 6 || y === 0 || y === 6 || (x >= 2 && x <= 4 && y >= 2 && y <= 4)) : rnd() > 0.55;
+    if (on) cells.push(<rect key={`${x}-${y}`} x={x} y={y} width={1} height={1} fill={C.ink} />);
+  }
+  return <svg viewBox={`0 0 ${n} ${n}`} width={150} height={150} shapeRendering="crispEdges">{cells}</svg>;
+};
+
+/* ---------- LUGGAGE ---------- */
+function Luggagepage({ back }) {
+  const opts = [
+    { t: "공항 내 보관", d: "T1 · T2 스마트 락커 즉시 보관", p: "₩7,000~", ic: Luggage },
+    { t: "호텔로 배송", d: "데이유즈 숙소로 짐 픽업·배송", p: "₩12,000~", ic: Bed },
+    { t: "상권으로 배송", d: "영종도·차이나타운 거점 수령", p: "₩12,000~", ic: MapPin },
+  ];
+  return (
+    <div>
+      <Top title="수하물 케어" sub="Luggage-Free" back={back} />
+      <div style={{ padding: 16 }}>
+        <div style={{ background: "#FDECEA", borderRadius: 14, padding: "14px 16px", marginBottom: 16, fontSize: 12.5, color: C.ink, lineHeight: 1.5 }}>
+          무거운 캐리어는 맡기고 <b style={{ color: C.red }}>가볍게</b> 이동하세요. 항공편 복귀 시간에 맞춰 짐을 공항으로 되돌려 드립니다.
+        </div>
+        <div style={{ display: "flex", flexDirection: "column", gap: 12 }}>
+          {opts.map((o) => {
+            const Icon = o.ic;
+            return (
+              <Card key={o.t} style={{ padding: 14, display: "flex", alignItems: "center", gap: 13 }}>
+                <div style={{ width: 46, height: 46, borderRadius: 12, background: C.tint, display: "flex", alignItems: "center", justifyContent: "center" }}><Icon size={20} color={C.blue} /></div>
+                <div style={{ flex: 1 }}>
+                  <div style={{ fontWeight: 700, color: C.ink, fontSize: 14 }}>{o.t}</div>
+                  <div style={{ fontSize: 11, color: C.faint, marginTop: 2 }}>{o.d}</div>
+                </div>
+                <div style={{ fontWeight: 800, color: C.blueDeep, fontSize: 13 }}>{o.p}</div>
+              </Card>
+            );
+          })}
+        </div>
+      </div>
+    </div>
+  );
+}
+
+/* ---------- MY PAGE ---------- */
+function MyPage() {
+  const menu = [{ icon: CalendarCheck, l: "예약 내역" }, { icon: Ticket, l: "쿠폰" }, { icon: Bell, l: "Time-Safe 알림" }, { icon: User, l: "여권 인증" }, { icon: Search, l: "언어 설정", r: "English" }];
+  return (
+    <div>
+      <Top title="마이 페이지" sub="My page" />
+      <div style={{ padding: 16 }}>
+        <Card style={{ padding: 18, display: "flex", alignItems: "center", gap: 14, marginBottom: 16 }}>
+          <div style={{ width: 52, height: 52, borderRadius: 999, background: grad, display: "flex", alignItems: "center", justifyContent: "center" }}><User size={24} color="#fff" /></div>
+          <div style={{ flex: 1 }}><div style={{ fontWeight: 800, color: C.ink }}>Hello, Traveler!</div><div style={{ fontSize: 11, color: C.faint, marginTop: 2 }}>포인트 2,450P</div></div>
+        </Card>
+        <Card style={{ overflow: "hidden" }}>
+          {menu.map((m, i) => {
+            const Icon = m.icon;
+            return (
+              <div key={m.l} style={{ display: "flex", alignItems: "center", gap: 12, padding: "15px 16px", borderBottom: i < menu.length - 1 ? `1px solid ${C.line}` : "none" }}>
+                <Icon size={18} color={C.sub} /><span style={{ flex: 1, fontSize: 14, color: C.ink }}>{m.l}</span>
+                {m.r && <span style={{ fontSize: 12, color: C.faint }}>{m.r}</span>}<ChevronRight size={16} color={C.faint} />
+              </div>
+            );
+          })}
+        </Card>
+      </div>
+    </div>
+  );
+}
+
+/* ---------- COURSE BUILDER ---------- */
+const CAT_META = {
+  Food: { ko: "맛집", icon: Utensils, col: C.gold },
+  Massage: { ko: "마사지", icon: Sparkles, col: C.lime },
+  Shopping: { ko: "쇼핑", icon: ShoppingBag, col: C.blue },
+  Rest: { ko: "휴식", icon: Bed, col: C.ink },
+  Beauty: { ko: "뷰티", icon: Scissors, col: C.red },
+  Sightseeing: { ko: "관광", icon: Camera, col: C.lime },
+};
+const ACT_KEYS = ["Food", "Massage", "Shopping", "Beauty", "Sightseeing"];
+const ACT_CATS = CATS.filter((c) => ACT_KEYS.includes(c.k));
+const AD_PLACES = new Set(["올리브영 K-뷰티", "차이나타운 딤섬", "공항 스파 발마사지", "스카이72 아울렛"]);
+const PARTNERS = [
+  { n: "신라면세점 시내픽업", d: "환승 중 주문 → 공항 수령", icon: ShoppingBag, tint: "#CFE0F5" },
+  { n: "올리브영 K-뷰티", d: "제휴 여행자 전용 혜택", icon: Sparkles, tint: "#E8C4D6" },
+  { n: "공항 프리미엄 라운지", d: "복귀 대기 시간에 이용", icon: Coffee, tint: "#C7E4D6" },
+];
+const PLACES = {
+  Food: [
+    { name: "차이나타운 딤섬", area: "인천 차이나타운", move: 40, dur: 60, price: 18000, tint: "#F3C4B8" },
+    { name: "신포국제시장 먹거리", area: "인천 신포동", move: 45, dur: 50, price: 12000, tint: "#F7D9B0" },
+    { name: "영종 해물칼국수", area: "영종도", move: 15, dur: 45, price: 14000, tint: "#F3D9B8" },
+  ],
+  Massage: [
+    { name: "공항 스파 발마사지", area: "공항 내", move: 5, dur: 60, price: 45000, tint: "#E8C4D6" },
+    { name: "마시안 아로마테라피", area: "영종도", move: 20, dur: 90, price: 70000, tint: "#E3C4E8" },
+    { name: "스카이 릴렉스 마사지", area: "운서동", move: 12, dur: 60, price: 50000, tint: "#D6C4E8" },
+  ],
+  Shopping: [
+    { name: "스카이72 아울렛", area: "영종도", move: 15, dur: 90, price: 0, tint: "#BBD3F5" },
+    { name: "올리브영 K-뷰티", area: "공항 인근", move: 10, dur: 40, price: 0, tint: "#CFE0F5" },
+    { name: "신세계 면세 픽업", area: "공항 T1", move: 5, dur: 30, price: 0, tint: "#C7E4D6" },
+  ],
+  Rest: [
+    { name: "캡슐 데이유즈", area: "공항 5분", move: 5, dur: 120, price: 24000, tint: "#BBD3F5" },
+    { name: "스파온에어 찜질", area: "영종도", move: 18, dur: 90, price: 15000, tint: "#CFE0F5" },
+    { name: "프리미엄 라운지", area: "공항 T1", move: 5, dur: 60, price: 39000, tint: "#C7E4D6" },
+  ],
+  Beauty: [
+    { name: "K-뷰티 메이크업", area: "영종도", move: 15, dur: 60, price: 55000, tint: "#E8C4D6" },
+    { name: "헤어 스타일링", area: "운서동", move: 12, dur: 50, price: 40000, tint: "#F3C4B8" },
+    { name: "네일 케어", area: "공항 인근", move: 10, dur: 45, price: 35000, tint: "#F7D9B0" },
+  ],
+  Sightseeing: [
+    { name: "무의도 해변", area: "무의도", move: 40, dur: 90, price: 0, tint: "#A9C4E8" },
+    { name: "을왕리 선셋", area: "영종도", move: 25, dur: 60, price: 0, tint: "#F3D9B8" },
+    { name: "인천대교 뷰포인트", area: "영종도", move: 20, dur: 30, price: 0, tint: "#BBD3F5" },
+    { name: "차이나타운 벽화거리", area: "인천", move: 40, dur: 45, price: 0, tint: "#F3C4B8" },
+  ],
+};
+const PREP = 20;                 // 짐 맡기기/준비
+
+function Course({ cats, back, onBook, arrive, returnBy }) {
+  const BUDGET = returnBy - arrive; // 분
+  const initSel = (cats && cats.length) ? cats.filter((k) => k !== "Rest" && CAT_META[k]) : ["Shopping"];
+  const [room, setRoom] = useState(null);
+  const [sel, setSel] = useState(initSel.length ? initSel : ["Shopping"]);
+  const [plan, setPlan] = useState([]);
+  const inPlan = (p) => plan.some((x) => x.name === p.name);
+  const toggleCat = (k) => setSel((prev) => (prev.includes(k) ? prev.filter((x) => x !== k) : [...prev, k]));
+  const toggle = (p) => setPlan((prev) => (inPlan(p) ? prev.filter((x) => x.name !== p.name) : [...prev, p]));
+  const remove = (name) => setPlan((prev) => prev.filter((x) => x.name !== name));
+
+  const computeUsed = (arr) => {
+    let c = PREP;
+    if (room) c += room.move + room.rest;
+    arr.forEach((p) => { c += p.move + p.dur; });
+    c += arr.length ? arr[arr.length - 1].move : (room ? room.move : 0);
+    return c;
+  };
+  const fitsWith = (arr) => computeUsed(arr) <= BUDGET;
+  const autoBuild = () => {
+    const chosen = [];
+    (sel.length ? sel : ACT_KEYS).forEach((k) => {
+      const opts = (PLACES[k] || []).map((p) => ({ ...p, cat: k }))
+        .filter((p) => !chosen.some((c) => c.name === p.name))
+        .sort((a, b) => (a.move + a.dur) - (b.move + b.dur));
+      const best = opts.find((p) => fitsWith([...chosen, p]));
+      if (best) chosen.push(best);
+    });
+    setPlan(chosen);
+  };
+
+  let clock = arrive;
+  const steps = [{ t: clock, title: "공항 도착 · 짐 맡기기", sub: "수하물 케어 픽업", col: C.red, icon: Luggage }];
+  clock += PREP;
+  if (room) {
+    clock += room.move;
+    steps.push({ t: clock, title: `${room.name} 체크인`, sub: `데이유즈 거점 · 샤워·휴식 ${room.rest}분 (이동 ${room.move}분)`, col: C.blue, icon: Bed });
+    clock += room.rest;
+  }
+  plan.forEach((p) => {
+    clock += p.move;
+    const m = CAT_META[p.cat];
+    steps.push({ t: clock, title: p.name, sub: `${p.area} · 체류 ${p.dur}분 (이동 ${p.move}분)`, col: m.col, icon: m.icon, name: p.name });
+    clock += p.dur;
+  });
+  const backMove = plan.length ? plan[plan.length - 1].move : (room ? room.move : 0);
+  clock += backMove;
+  steps.push({ t: clock, title: "공항 복귀", sub: "Time-Safe 알림 · 여유 30분", col: C.ink, icon: PlaneLanding });
+  const used = clock - arrive;
+  const remain = BUDGET - used;
+  const over = remain < 0;
+
+  const combined = sel.flatMap((k) => (PLACES[k] || []).map((p) => ({ ...p, cat: k })));
+
+  return (
+    <div>
+      <Top title="환승 코스 만들기" sub="카테고리 → 장소 선택 → 일정 자동 생성" back={back} />
+      <div style={{ padding: 16 }}>
+        <Card style={{ padding: 14, marginBottom: 14, borderLeft: `4px solid ${over ? C.red : C.blue}` }}>
+          <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+            <div style={{ display: "flex", alignItems: "center", gap: 7 }}>
+              <ShieldCheck size={16} color={over ? C.red : C.blue} />
+              <span style={{ fontSize: 13, fontWeight: 800, color: C.ink }}>환승 여유 {Math.floor(BUDGET / 60)}시간</span>
+            </div>
+            <span style={{ fontSize: 12, fontWeight: 800, color: over ? C.red : "#2E9E5B" }}>{over ? `${-remain}분 초과` : `여유 ${remain}분`}</span>
+          </div>
+          <div style={{ height: 8, background: C.line, borderRadius: 999, marginTop: 10, overflow: "hidden" }}>
+            <div style={{ width: `${Math.min(100, (used / BUDGET) * 100)}%`, height: "100%", background: over ? C.red : grad }} />
+          </div>
+          <div style={{ fontSize: 11, color: C.faint, marginTop: 6 }}>도착 {hhmm(arrive)} · 복귀 추천 {hhmm(returnBy)}</div>
+        </Card>
+
+        <div style={{ fontSize: 12, fontWeight: 800, color: C.ink, marginBottom: 8 }}>① 데이유즈 숙소 선택 <span style={{ color: C.red, fontWeight: 700 }}>(필수 · 코스의 거점)</span></div>
+        <div style={{ display: "flex", gap: 10, overflowX: "auto", paddingBottom: 6, marginBottom: 18 }}>
+          {ROOMS.map((r) => {
+            const on = room && room.name === r.name;
+            return (
+              <div key={r.name} onClick={() => setRoom(r)} style={{ minWidth: 152, cursor: "pointer", border: on ? `2px solid ${C.blue}` : `1px solid ${C.line}`, borderRadius: 14, padding: 10, background: on ? C.tint : "#fff", flexShrink: 0 }}>
+                <div style={{ height: 60, borderRadius: 10, background: r.tint, display: "flex", alignItems: "center", justifyContent: "center", position: "relative" }}>
+                  <Bed size={24} color="#fff" />
+                  {on && <span style={{ position: "absolute", top: 6, right: 6, width: 20, height: 20, borderRadius: 999, background: C.blue, display: "flex", alignItems: "center", justifyContent: "center" }}><Check size={13} color="#fff" /></span>}
+                </div>
+                <div style={{ fontSize: 13, fontWeight: 800, color: C.ink, marginTop: 8 }}>{r.name}</div>
+                <div style={{ fontSize: 10.5, color: C.faint, marginTop: 2 }}>{r.dist} · 휴식 {r.rest}분</div>
+                <div style={{ fontSize: 12, fontWeight: 800, color: C.blueDeep, marginTop: 4 }}>{won(r.price)}~</div>
+              </div>
+            );
+          })}
+        </div>
+
+        <div style={{ fontSize: 12, fontWeight: 800, color: C.ink, marginBottom: 8 }}>② 활동 카테고리 합치기 <span style={{ color: C.faint, fontWeight: 500 }}>(복수 선택)</span></div>
+        <div style={{ display: "flex", gap: 6, overflowX: "auto", paddingBottom: 8, marginBottom: 10 }}>
+          {ACT_CATS.map((c) => <Chip key={c.k} active={sel.includes(c.k)} onClick={() => toggleCat(c.k)}>{c.ko}</Chip>)}
+        </div>
+
+        <button onClick={() => room && autoBuild()} disabled={!room} style={{ width: "100%", border: "none", cursor: room ? "pointer" : "not-allowed", padding: "13px 0", borderRadius: 14, background: room ? grad : "#C4D2E4", color: "#fff", fontSize: 14, fontWeight: 800, boxShadow: room ? "0 6px 16px rgba(47,123,230,0.32)" : "none", display: "flex", alignItems: "center", justifyContent: "center", gap: 6, marginBottom: 4 }}>
+          <Route size={16} /> Time-Fit 자동 코스 짜기
+        </button>
+        <div style={{ fontSize: 10.5, color: C.faint, textAlign: "center", marginBottom: 18 }}>OR-Tools 최적화 · 환승시간·이동동선 기준 자동 배치</div>
+
+        <SectionHead title="활동 방문지" sub={room ? (sel.length ? `${sel.map((k) => CAT_META[k].ko).join(" · ")} 합침` : "카테고리를 선택하세요") : "먼저 숙소를 선택하세요"} />
+        <div style={{ display: "flex", flexDirection: "column", gap: 10, marginBottom: 20 }}>
+          {!room && <Card style={{ padding: 20, textAlign: "center", color: C.faint, fontSize: 12 }}>① 데이유즈 숙소를 먼저 선택하면 활동을 담을 수 있어요.</Card>}
+          {room && combined.map((p) => {
+            const on = inPlan(p);
+            const fits = p.move * 2 + p.dur <= BUDGET;
+            const ad = AD_PLACES.has(p.name);
+            const m = CAT_META[p.cat]; const Icon = m.icon;
+            return (
+              <Card key={p.name} style={{ padding: 12, display: "flex", alignItems: "center", gap: 12, border: on ? `2px solid ${C.blue}` : `1px solid ${C.line}` }}>
+                <div style={{ width: 46, height: 46, borderRadius: 12, background: p.tint, display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0 }}><Icon size={20} color="#fff" /></div>
+                <div style={{ flex: 1, minWidth: 0 }}>
+                  <div style={{ display: "flex", alignItems: "center", gap: 6, flexWrap: "wrap" }}>
+                    <span style={{ fontSize: 9, fontWeight: 800, color: "#fff", background: m.col, padding: "2px 6px", borderRadius: 999 }}>{m.ko}</span>
+                    {ad && <span style={{ fontSize: 9, fontWeight: 800, color: C.goldDeep, background: "#FFF3DC", border: "1px solid #F5D089", padding: "1px 6px", borderRadius: 999 }}>제휴 AD</span>}
+                    <span style={{ fontSize: 14, fontWeight: 800, color: C.ink }}>{p.name}</span>
+                  </div>
+                  <div style={{ fontSize: 11, color: C.faint, marginTop: 3 }}>{p.area} · 이동 {p.move}분 · 체류 {p.dur}분</div>
+                  <div style={{ display: "flex", gap: 6, marginTop: 5, alignItems: "center" }}>
+                    <span style={{ fontSize: 10, fontWeight: 700, color: fits ? "#2E9E5B" : C.red, background: fits ? "#E7F7EE" : "#FDECEA", padding: "2px 7px", borderRadius: 999 }}>{fits ? "환승 내 가능" : "시간 빠듯"}</span>
+                    {p.price > 0 && <span style={{ fontSize: 10, color: C.sub }}>{won(p.price)}~</span>}
+                  </div>
+                </div>
+                <button onClick={() => toggle(p)} style={{ flexShrink: 0, width: 34, height: 34, borderRadius: 999, border: "none", cursor: "pointer", background: on ? C.blue : C.tint, color: on ? "#fff" : C.blueDeep, fontSize: 18, fontWeight: 800, display: "flex", alignItems: "center", justifyContent: "center" }}>{on ? <Check size={18} /> : "+"}</button>
+              </Card>
+            );
+          })}
+        </div>
+
+        <SectionHead title="내 환승 일정" sub={room ? `${plan.length}개 활동 · 총 ${Math.floor(used / 60)}시간 ${used % 60}분` : "숙소를 선택하면 일정이 생성돼요"} />
+        {!room ? (
+          <Card style={{ padding: 24, textAlign: "center", color: C.faint, fontSize: 13 }}>
+            <Bed size={26} color={C.faint} /><div style={{ marginTop: 8 }}>데이유즈 숙소를 <b style={{ color: C.blue }}>거점</b>으로 먼저 골라주세요.</div>
+          </Card>
+        ) : (
+          <Card style={{ padding: 16 }}>
+            {steps.map((s, i) => {
+              const Icon = s.icon;
+              return (
+                <div key={i} style={{ display: "flex", gap: 12 }}>
+                  <div style={{ display: "flex", flexDirection: "column", alignItems: "center" }}>
+                    <div style={{ width: 26, height: 26, borderRadius: 999, background: s.col, display: "flex", alignItems: "center", justifyContent: "center" }}><Icon size={14} color="#fff" /></div>
+                    {i < steps.length - 1 && <div style={{ width: 2, flex: 1, minHeight: 16, background: C.line }} />}
+                  </div>
+                  <div style={{ paddingBottom: i < steps.length - 1 ? 12 : 0, flex: 1 }}>
+                    <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+                      <div style={{ fontSize: 13, fontWeight: 700, color: C.ink }}><span style={{ color: over ? C.red : C.blue, marginRight: 8 }}>{hhmm(s.t)}</span>{s.title}</div>
+                      {s.name && <button onClick={() => remove(s.name)} style={{ border: "none", background: "none", cursor: "pointer", color: C.faint, fontSize: 12 }}>삭제</button>}
+                    </div>
+                    <div style={{ fontSize: 11, color: C.faint, marginTop: 2 }}>{s.sub}</div>
+                  </div>
+                </div>
+              );
+            })}
+            {over && <div style={{ marginTop: 10, background: "#FDECEA", borderRadius: 10, padding: "10px 12px", fontSize: 12, color: C.red, fontWeight: 600 }}>환승 시간을 {-remain}분 초과했어요. 장소를 줄이거나 짧은 코스로 바꿔보세요.</div>}
+            <PrimaryBtn onClick={() => onBook && onBook(room)} style={{ marginTop: 16, opacity: over ? 0.6 : 1 }}>이 숙소로 예약하기 →</PrimaryBtn>
+          </Card>
+        )}
+
+        <div style={{ display: "flex", alignItems: "center", gap: 6, marginTop: 24, marginBottom: 4 }}>
+          <div style={{ fontSize: 16, fontWeight: 800, color: C.ink }}>제휴 혜택</div>
+          <span style={{ fontSize: 9, fontWeight: 800, color: C.sub, background: C.line, padding: "2px 6px", borderRadius: 999 }}>AD · 광고</span>
+        </div>
+        <div style={{ fontSize: 11, color: C.faint, marginBottom: 12 }}>일정과 별개로 제공되는 파트너 제안이에요.</div>
+        <div style={{ display: "flex", gap: 12, overflowX: "auto", paddingBottom: 8 }}>
+          {PARTNERS.map((b) => {
+            const Icon = b.icon;
+            return (
+              <div key={b.n} style={{ minWidth: 172, flexShrink: 0, border: `1px solid ${C.line}`, borderRadius: 14, padding: 12, background: "#fff" }}>
+                <div style={{ height: 64, borderRadius: 10, background: b.tint, display: "flex", alignItems: "center", justifyContent: "center", position: "relative" }}>
+                  <Icon size={24} color="#fff" />
+                  <span style={{ position: "absolute", top: 6, left: 6, fontSize: 9, fontWeight: 800, color: C.goldDeep, background: "#FFF3DC", border: "1px solid #F5D089", padding: "1px 6px", borderRadius: 999 }}>제휴</span>
+                </div>
+                <div style={{ fontSize: 13, fontWeight: 800, color: C.ink, marginTop: 8 }}>{b.n}</div>
+                <div style={{ fontSize: 11, color: C.faint, marginTop: 2 }}>{b.d}</div>
+                <div style={{ marginTop: 8, display: "flex", alignItems: "center", gap: 3, color: C.blue, fontSize: 12, fontWeight: 800 }}>혜택 보기 <ChevronRight size={13} /></div>
+              </div>
+            );
+          })}
+        </div>
+      </div>
+    </div>
+  );
+}
+
+/* ---------- shared ---------- */
+function Top({ title, sub, back }) {
+  return (
+    <div style={{ display: "flex", alignItems: "center", gap: 10, padding: "34px 16px 14px", background: "#fff", borderBottom: `1px solid ${C.line}` }}>
+      {back && <button onClick={back} style={{ border: "none", background: "none", cursor: "pointer", padding: 0 }}><ChevronLeft size={22} color={C.ink} /></button>}
+      <div><div style={{ fontWeight: 800, color: C.ink, fontSize: 16 }}>{title}</div>{sub && <div style={{ fontSize: 10, color: C.faint }}>{sub}</div>}</div>
+    </div>
+  );
+}
+
+document.getElementById("loading").remove();
+createRoot(document.getElementById("root")).render(<App />);
+</script>
+</body>
+</html>

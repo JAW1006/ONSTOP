@@ -1,0 +1,56 @@
+<svg width="820" height="340" viewBox="0 0 820 340" xmlns="http://www.w3.org/2000/svg" font-family="'Segoe UI', -apple-system, Roboto, Helvetica, Arial, sans-serif">
+  <defs>
+    <linearGradient id="wD" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#1B3B54"/><stop offset="1" stop-color="#0C2233"/></linearGradient>
+    <linearGradient id="wL" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#EAFBF7"/><stop offset="1" stop-color="#C6F0E9"/></linearGradient>
+    <linearGradient id="wc" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#22C9B7"/><stop offset="1" stop-color="#0E8C84"/></linearGradient>
+
+    <g id="wrapDark">
+      <path d="M-70,10 A70,25 0 0 0 70,10" fill="none" stroke="#6FE9DC" stroke-width="3.4" stroke-linecap="round" stroke-dasharray="0.5 9"/>
+      <path d="M-18,-25 L-18,-42 Q-18,-48 -11,-48 L11,-48 Q18,-48 18,-42 L18,-25" fill="none" stroke="#E8F5F2" stroke-width="7" stroke-linecap="round" stroke-linejoin="round"/>
+      <rect x="-40" y="-25" width="80" height="95" rx="16" fill="url(#wc)"/>
+      <rect x="-40" y="6" width="80" height="19" fill="#FF6B5E"/>
+      <rect x="-8" y="3" width="16" height="25" rx="4" fill="#FFF3EC"/>
+      <line x1="-25" y1="-20" x2="-25" y2="64" stroke="#0B6B65" stroke-width="2.2" stroke-opacity="0.5"/>
+      <line x1="25" y1="-20" x2="25" y2="64" stroke="#0B6B65" stroke-width="2.2" stroke-opacity="0.5"/>
+      <circle cx="-22" cy="76" r="8" fill="#E8F5F2"/><circle cx="22" cy="76" r="8" fill="#E8F5F2"/>
+      <path d="M-70,10 A70,25 0 0 1 70,10" fill="none" stroke="#6FE9DC" stroke-width="3.4" stroke-linecap="round" stroke-dasharray="0.5 9"/>
+      <g transform="translate(46,26) rotate(46) scale(0.85)"><path d="M0,-15 C1.6,-15 2.6,-12 2.6,-8.5 L2.6,-3 L14,3.5 L14,8 L2.6,3.5 L2.6,9 L6,12.5 L6,14.5 L0,12.5 L-6,14.5 L-6,12.5 L-2.6,9 L-2.6,3.5 L-14,8 L-14,3.5 L-2.6,-3 L-2.6,-8.5 C-2.6,-12 -1.6,-15 0,-15 Z" fill="#FF6B5E"/></g>
+    </g>
+
+    <g id="wrapLight">
+      <path d="M-70,10 A70,25 0 0 0 70,10" fill="none" stroke="#0E8C84" stroke-width="3.4" stroke-linecap="round" stroke-dasharray="0.5 9"/>
+      <path d="M-18,-25 L-18,-42 Q-18,-48 -11,-48 L11,-48 Q18,-48 18,-42 L18,-25" fill="none" stroke="#153A52" stroke-width="7" stroke-linecap="round" stroke-linejoin="round"/>
+      <rect x="-40" y="-25" width="80" height="95" rx="16" fill="url(#wc)"/>
+      <rect x="-40" y="6" width="80" height="19" fill="#FF6B5E"/>
+      <rect x="-8" y="3" width="16" height="25" rx="4" fill="#FFF3EC"/>
+      <line x1="-25" y1="-20" x2="-25" y2="64" stroke="#0B6B65" stroke-width="2.2" stroke-opacity="0.5"/>
+      <line x1="25" y1="-20" x2="25" y2="64" stroke="#0B6B65" stroke-width="2.2" stroke-opacity="0.5"/>
+      <circle cx="-22" cy="76" r="8" fill="#153A52"/><circle cx="22" cy="76" r="8" fill="#153A52"/>
+      <path d="M-70,10 A70,25 0 0 1 70,10" fill="none" stroke="#0E8C84" stroke-width="3.4" stroke-linecap="round" stroke-dasharray="0.5 9"/>
+      <g transform="translate(46,26) rotate(46) scale(0.85)"><path d="M0,-15 C1.6,-15 2.6,-12 2.6,-8.5 L2.6,-3 L14,3.5 L14,8 L2.6,3.5 L2.6,9 L6,12.5 L6,14.5 L0,12.5 L-6,14.5 L-6,12.5 L-2.6,9 L-2.6,3.5 L-14,8 L-14,3.5 L-2.6,-3 L-2.6,-8.5 C-2.6,-12 -1.6,-15 0,-15 Z" fill="#FF6B5E"/></g>
+    </g>
+  </defs>
+
+  <rect width="820" height="340" fill="#F7FBFA"/>
+
+  <g transform="translate(70,60)">
+    <rect width="220" height="220" rx="52" fill="url(#wD)"/>
+    <circle cx="110" cy="110" r="92" fill="#FFFFFF" fill-opacity="0.10"/>
+    <use href="#wrapDark" transform="translate(110,90) scale(1.1)"/>
+  </g>
+  <text x="180" y="312" text-anchor="middle" fill="#5E7C79" font-size="13" letter-spacing="1.5" font-weight="600">DARK</text>
+
+  <g transform="translate(300,60)">
+    <rect width="220" height="220" rx="52" fill="url(#wL)"/>
+    <circle cx="110" cy="110" r="92" fill="#FFFFFF" fill-opacity="0.55"/>
+    <use href="#wrapLight" transform="translate(110,90) scale(1.1)"/>
+  </g>
+  <text x="410" y="312" text-anchor="middle" fill="#0E8C84" font-size="13" letter-spacing="1.5" font-weight="700">LIGHT (민트)</text>
+
+  <g transform="translate(530,60)">
+    <rect width="220" height="220" rx="52" fill="#FFFFFF" stroke="#E4F0EE"/>
+    <circle cx="110" cy="110" r="94" fill="none" stroke="#EAF6F4" stroke-width="10"/>
+    <use href="#wrapLight" transform="translate(110,90) scale(1.1)"/>
+  </g>
+  <text x="640" y="312" text-anchor="middle" fill="#5E7C79" font-size="13" letter-spacing="1.5" font-weight="600">WHITE</text>
+</svg>
