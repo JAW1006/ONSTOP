@@ -17,19 +17,22 @@
 }
 </script>
 <script src="https://unpkg.com/@babel/standalone@7.25.6/babel.min.js"></script>
+<!-- 카카오맵 JS SDK: JS 키는 원래 프론트엔드에 공개되는 게 정상(도메인 화이트리스트로 보호) — REST 키와 달리 프록시 불필요.
+     Kakao Developers 앱의 "플랫폼 설정 > Web"에 이 페이지를 여는 도메인(예: http://localhost:3001)을 등록해야 지도가 뜬다. -->
+<script src="https://dapi.kakao.com/v2/maps/sdk.js?appkey=7bcb39edf8f7c80e2932bbcbd43fab06&libraries=services"></script>
 </head>
 <body>
 <div id="root"></div>
 <div id="loading" style="font-family:-apple-system,sans-serif;color:#5E7185;text-align:center;padding:40px">불러오는 중… (인터넷 연결 필요)</div>
 
 <script type="text/babel" data-type="module" data-presets="react">
-import React, { useState } from "react";
+import React, { useState, useEffect, useRef, createContext, useContext } from "react";
 import { createRoot } from "react-dom/client";
 import {
   Plane, PlaneLanding, Bell, Clock, Bed, Droplets, Luggage, MapPin,
   Utensils, Sparkles, ShoppingBag, Scissors, Coffee, Check, ChevronRight,
   ChevronLeft, Home as HomeIcon, Search, User, CalendarCheck, Ticket,
-  ShieldCheck, Route, Camera, Waves,
+  ShieldCheck, Route, Camera, Waves, Footprints, TrainFront, Car, Tag,
 } from "lucide-react";
 
 /* ---------- brand palette (DropShopping) ---------- */
@@ -40,6 +43,213 @@ const C = {
   sub: "#5E7185", faint: "#A9B4C4", line: "#E3EAF3", white: "#FFFFFF",
 };
 const grad = `linear-gradient(135deg, ${C.blue}, ${C.blueDeep})`;
+
+/* ================= I18N ================= */
+// 인천공항공사 API가 실제로 지원하는 언어 코드(K/E/C/J)로 매핑. 베트남어(V)는 API가 지원하지 않아 영어로 폴백.
+const API_LANG = { en: "E", zh: "C", ja: "J", vi: "E", ko: "K" };
+const LANGS = [
+  { k: "en", label: "English", f: "🇺🇸" },
+  { k: "zh", label: "中文(简体)", f: "🇨🇳" },
+  { k: "ja", label: "日本語", f: "🇯🇵" },
+  { k: "vi", label: "Tiếng Việt", f: "🇻🇳" },
+  { k: "ko", label: "한국어", f: "🇰🇷" },
+];
+const STR = {
+  taglineLine1: { ko: "짐은 맡기고,", en: "Drop your bags,", zh: "放下行李,", ja: "荷物は預けて、", vi: "Gửi hành lý lại," },
+  taglineLine2: { ko: "환승 시간을 인천에서", en: "and spend your layover in Incheon", zh: "在仁川度过转机时光", ja: "乗継時間はインチョンで", vi: "và tận hưởng thời gian quá cảnh tại Incheon" },
+  next: { ko: "다음", en: "Next", zh: "下一步", ja: "次へ", vi: "Tiếp theo" },
+  step0Title: { ko: "언어를 선택해주세요", en: "Choose your language", zh: "请选择语言", ja: "言語を選択してください", vi: "Chọn ngôn ngữ của bạn" },
+  step1Title: { ko: "관심 있는 활동을 골라주세요", en: "Pick your interests", zh: "请选择您感兴趣的活动", ja: "興味のあるアクティビティを選んでください", vi: "Chọn hoạt động bạn quan tâm" },
+  step1Note: { ko: "복수 선택 · Time-Fit 추천에 사용", en: "Select multiple · used for Time-Fit recommendations", zh: "可多选 · 用于Time-Fit推荐", ja: "複数選択可・Time-Fitのおすすめに使用", vi: "Chọn nhiều · dùng để gợi ý Time-Fit" },
+  step2Title: { ko: "환승 항공편을 입력해주세요", en: "Enter your transit flights", zh: "请输入您的转机航班", ja: "乗継便を入力してください", vi: "Nhập chuyến bay quá cảnh của bạn" },
+  step2Note: { ko: "Time-Safe 여유 시간 자동 계산", en: "Time-Safe auto-calculates your free time", zh: "Time-Safe 自动计算空闲时间", ja: "Time-Safeが自由時間を自動計算", vi: "Time-Safe tự động tính thời gian rảnh" },
+  arrivalLabel: { ko: "지금 타고 온 도착편", en: "The flight you just arrived on", zh: "您刚搭乘抵达的航班", ja: "今乗ってきた到着便", vi: "Chuyến bay bạn vừa đến" },
+  arrivalPlaceholder: { ko: "예: KE085", en: "e.g. KE085", zh: "例如: KE085", ja: "例: KE085", vi: "VD: KE085" },
+  connLabel: { ko: "다음 연결편", en: "Your next connecting flight", zh: "下一段连接航班", ja: "次の乗継便", vi: "Chuyến bay nối chuyến tiếp theo" },
+  connPlaceholder: { ko: "예: MU2043", en: "e.g. MU2043", zh: "例如: MU2043", ja: "例: MU2043", vi: "VD: MU2043" },
+  lookupBtn: { ko: "실시간 조회", en: "Live lookup", zh: "实时查询", ja: "リアルタイム照会", vi: "Tra cứu trực tiếp" },
+  lookupBtnLoading: { ko: "조회 중…", en: "Looking up…", zh: "查询中…", ja: "照会中…", vi: "Đang tra cứu…" },
+  retryFlightHint: { ko: "편명을 다시 확인하고 조회해주세요.", en: "Please check the flight number and look up again.", zh: "请核对航班号后重新查询。", ja: "便名をご確認の上、再度照会してください。", vi: "Vui lòng kiểm tra lại số hiệu chuyến bay và tra cứu lại." },
+  errNotFound: { ko: "일치하는 항공편이 없어요", en: "No matching flight found", zh: "未找到匹配的航班", ja: "一致する便が見つかりません", vi: "Không tìm thấy chuyến bay phù hợp" },
+  errNoArriveTime: { ko: "도착 시각 정보가 없어요", en: "No arrival time available", zh: "暂无到达时间信息", ja: "到着時刻の情報がありません", vi: "Không có thông tin giờ đến" },
+  errNoDepartTime: { ko: "출발 시각 정보가 없어요", en: "No departure time available", zh: "暂无出发时间信息", ja: "出発時刻の情報がありません", vi: "Không có thông tin giờ khởi hành" },
+  timeSafeHeading: { ko: "TIME-SAFE 계산 결과", en: "TIME-SAFE RESULT", zh: "TIME-SAFE 计算结果", ja: "TIME-SAFE 計算結果", vi: "KẾT QUẢ TIME-SAFE" },
+  statusRealtimeConn: { ko: "출발편 실시간 반영", en: "Live departure applied", zh: "已应用实时出发数据", ja: "出発便のリアルタイム反映", vi: "Đã áp dụng giờ khởi hành trực tiếp" },
+  timeSafeNeedsFlight: { ko: "도착편을 조회하면 환승 시간이 여기에 표시돼요.", en: "Look up your arrival flight to see your layover time here.", zh: "查询到达航班后,中转时间会显示在这里。", ja: "到着便を照会すると、ここに乗継時間が表示されます。", vi: "Tra cứu chuyến bay đến để xem thời gian quá cảnh tại đây." },
+  needFlightHint: { ko: "도착편과 연결편을 모두 실시간 조회해야 다음으로 진행할 수 있어요.", en: "Look up both your arrival and connecting flight to continue.", zh: "需要实时查询到达航班和连接航班才能继续。", ja: "到着便と乗継便を両方リアルタイム照会すると次に進めます。", vi: "Hãy tra cứu trực tiếp cả chuyến bay đến và chuyến bay nối chuyến để tiếp tục." },
+  timeSafeNeedsConnFlight: { ko: "연결편을 조회하면 환승 시간이 계산돼요.", en: "Look up your connecting flight to calculate your layover time.", zh: "查询连接航班后即可计算中转时间。", ja: "乗継便を照会すると乗継時間が計算されます。", vi: "Tra cứu chuyến bay nối chuyến để tính thời gian quá cảnh." },
+  stayAvailable: { ko: "공항 밖 체류 가능", en: "free outside the airport", zh: "可在机场外停留", ja: "空港外で滞在可能", vi: "có thể ở ngoài sân bay" },
+  arriveWord: { ko: "도착", en: "Arrive", zh: "到达", ja: "到着", vi: "Đến" },
+  returnRecWord: { ko: "복귀 추천", en: "Return by", zh: "建议返回", ja: "復帰推奨", vi: "Nên quay lại" },
+  fromLbl: { ko: "출발지", en: "From", zh: "出发地", ja: "出発地", vi: "Từ" },
+  toLbl: { ko: "도착지", en: "To", zh: "目的地", ja: "行き先", vi: "Đến" },
+  terminalLbl: { ko: "터미널", en: "Terminal", zh: "航站楼", ja: "ターミナル", vi: "Nhà ga" },
+  gateLbl: { ko: "게이트", en: "Gate", zh: "登机口", ja: "ゲート", vi: "Cửa" },
+  departsLbl: { ko: "출발", en: "Departs", zh: "起飞", ja: "出発", vi: "Khởi hành" },
+  remarkNormal: { ko: "정상", en: "On time", zh: "正常", ja: "定刻", vi: "Đúng giờ" },
+  bufferAppliedNote: { ko: "탑승 마감 버퍼 {min}분 반영", en: "{min}-min boarding buffer applied", zh: "已计入{min}分钟登机缓冲", ja: "搭乗締切バッファ{min}分を反映", vi: "Đã áp dụng đệm {min} phút trước giờ đóng cửa lên máy bay" },
+  pushNotice: { ko: "복귀 30분 전 푸시 알림 예약됨", en: "Push alert scheduled 30 min before return", zh: "已设置返回前30分钟推送提醒", ja: "復帰30分前にプッシュ通知を予約済み", vi: "Đã đặt thông báo đẩy 30 phút trước khi quay lại" },
+  ctaSmartCourse: { ko: "스마트 코스 추천", en: "Get smart course picks", zh: "智能推荐路线", ja: "スマートコースをおすすめ", vi: "Gợi ý lộ trình thông minh" },
+
+  navHome: { ko: "홈", en: "Home", zh: "首页", ja: "ホーム", vi: "Trang chủ" },
+  navLuggage: { ko: "짐 케어", en: "Luggage", zh: "行李", ja: "荷物ケア", vi: "Hành lý" },
+  navCourse: { ko: "코스", en: "Course", zh: "路线", ja: "コース", vi: "Lộ trình" },
+  navBooking: { ko: "예약", en: "Bookings", zh: "预订", ja: "予約", vi: "Đặt chỗ" },
+  navMy: { ko: "마이", en: "My", zh: "我的", ja: "マイ", vi: "Của tôi" },
+
+  greeting: { ko: "안녕하세요, 여행자님! 👋", en: "Hello, Traveler! 👋", zh: "你好,旅行者!👋", ja: "こんにちは、トラベラーさん!👋", vi: "Xin chào, Nhà du hành! 👋" },
+  homeSub: { ko: "여유 시간에 딱 맞는 인천 코스를 준비했어요.", en: "We've prepped an Incheon course to fit your free time.", zh: "我们为您准备了符合空闲时间的仁川行程。", ja: "自由時間にぴったりの仁川コースをご用意しました。", vi: "Chúng tôi đã chuẩn bị lộ trình Incheon vừa vặn thời gian rảnh của bạn." },
+  realtimeBadge: { ko: "실시간", en: "Live", zh: "实时", ja: "リアルタイム", vi: "Trực tiếp" },
+  demoBadge: { ko: "데모값", en: "Demo", zh: "示例", ja: "デモ", vi: "Demo" },
+  stayAvailableShort: { ko: "체류 가능", en: "Free time", zh: "可停留", ja: "滞在可能", vi: "Thời gian rảnh" },
+  returnRecommend: { ko: "공항 복귀 추천", en: "Recommended return", zh: "建议返回机场", ja: "空港復帰推奨", vi: "Đề xuất quay lại sân bay" },
+  sectionTimeFit: { ko: "Time-Fit 추천 코스", en: "Time-Fit Recommended Course", zh: "Time-Fit 推荐路线", ja: "Time-Fit おすすめコース", vi: "Lộ trình đề xuất Time-Fit" },
+  sectionTimeFitSub: { ko: "관심사별로 골라 환승 일정 자동 생성", en: "Pick your interests to auto-build a transit plan", zh: "按兴趣挑选,自动生成转机行程", ja: "興味に合わせて選ぶと乗継予定を自動生成", vi: "Chọn theo sở thích để tự động tạo lịch quá cảnh" },
+  homeBuildPrefix: { ko: "카테고리를 골라", en: "Pick categories to build", zh: "选择类别,打造", ja: "カテゴリを選んで", vi: "Chọn danh mục để tạo" },
+  homeBuildBold: { ko: "나만의 환승 코스", en: "your own transit course", zh: "专属转机路线", ja: "自分だけの乗継コース", vi: "lộ trình quá cảnh của riêng bạn" },
+  homeBuildSuffix: { ko: "를 만들어보세요", en: "", zh: "", ja: "を作ってみましょう", vi: "" },
+  makeBtn: { ko: "만들기", en: "Build", zh: "制作", ja: "作成", vi: "Tạo" },
+  sectionDayuse: { ko: "데이유즈 · 타임블록 예약", en: "Day-Use · Time Block Booking", zh: "钟点房 · 时段预订", ja: "デイユース・タイムブロック予約", vi: "Day-Use · Đặt theo khung giờ" },
+  sectionDayuseSub: { ko: "3–9시간 유연 예약 · 샤워/휴식", en: "Flexible 3–9 hr booking · shower/rest", zh: "3–9小时灵活预订 · 淋浴/休息", ja: "3–9時間の柔軟予約・シャワー/休憩", vi: "Đặt linh hoạt 3–9 giờ · tắm/nghỉ" },
+  bestBadge: { ko: "추천", en: "Top pick", zh: "推荐", ja: "おすすめ", vi: "Đề xuất" },
+  featShower: { ko: "샤워", en: "Shower", zh: "淋浴", ja: "シャワー", vi: "Tắm" },
+  featRest: { ko: "휴식", en: "Rest", zh: "休息", ja: "休憩", vi: "Nghỉ ngơi" },
+  featLuggage: { ko: "짐보관", en: "Storage", zh: "寄存", ja: "荷物預かり", vi: "Gửi đồ" },
+  perBlock: { ko: "/블록", en: "/block", zh: "/时段", ja: "/ブロック", vi: "/khung giờ" },
+  luggageCareTitle: { ko: "수하물 케어 (Luggage-Free)", en: "Luggage Care (Luggage-Free)", zh: "行李管家 (无负重出行)", ja: "手荷物ケア(Luggage-Free)", vi: "Chăm sóc hành lý (Luggage-Free)" },
+  luggageCareSub: { ko: "공항 보관 · 호텔/상권 배송 → 가볍게 이동", en: "Airport storage · hotel/area delivery → travel light", zh: "机场寄存 · 酒店/商圈配送 → 轻装出行", ja: "空港保管・ホテル/商業エリア配送 → 身軽に移動", vi: "Gửi tại sân bay · giao đến khách sạn/khu mua sắm → di chuyển nhẹ nhàng" },
+  sectionLocal: { ko: "시간 내 다녀오는 로컬", en: "Local spots you can fit in", zh: "时间内可往返的在地体验", ja: "時間内で行けるローカルスポット", vi: "Điểm địa phương vừa thời gian" },
+  sectionLocalSub: { ko: "Time-Fit · 복귀 가능 코스", en: "Time-Fit · courses that get you back in time", zh: "Time-Fit · 可准时返回的路线", ja: "Time-Fit・復帰可能なコース", vi: "Time-Fit · lộ trình đảm bảo quay lại kịp giờ" },
+  moreBtn: { ko: "더보기", en: "More", zh: "更多", ja: "もっと見る", vi: "Xem thêm" },
+
+  bookingTitle: { ko: "데이유즈 예약", en: "Day-Use Booking", zh: "钟点房预订", ja: "デイユース予約", vi: "Đặt chỗ Day-Use" },
+  bookingSub: { ko: "Day-use booking", en: "Book your time block", zh: "预订您的时段", ja: "タイムブロックを予約", vi: "Đặt khung giờ của bạn" },
+  timeBlockWord: { ko: "타임블록", en: "time block", zh: "时段", ja: "タイムブロック", vi: "khung giờ" },
+  includesShowerRestLuggage: { ko: "샤워·휴식·짐보관 포함", en: "Includes shower, rest & luggage storage", zh: "含淋浴·休息·行李寄存", ja: "シャワー・休憩・荷物預かり込み", vi: "Bao gồm tắm, nghỉ ngơi & gửi hành lý" },
+  paymentDetails: { ko: "결제 내역", en: "Payment details", zh: "付款明细", ja: "お支払い内容", vi: "Chi tiết thanh toán" },
+  fourHourBlock: { ko: "4시간 타임블록", en: "4-hour time block", zh: "4小时时段", ja: "4時間タイムブロック", vi: "Khung giờ 4 tiếng" },
+  totalPayment: { ko: "총 결제금액", en: "Total payment", zh: "支付总额", ja: "合計金額", vi: "Tổng thanh toán" },
+  easyPayNote: { ko: "간편결제 · Alipay · WeChat Pay · Card", en: "Easy pay · Alipay · WeChat Pay · Card", zh: "简易支付 · 支付宝 · 微信支付 · 信用卡", ja: "簡単決済・Alipay・WeChat Pay・カード", vi: "Thanh toán nhanh · Alipay · WeChat Pay · Thẻ" },
+  payBtn: { ko: "결제하기", en: "Pay now", zh: "立即支付", ja: "支払う", vi: "Thanh toán" },
+
+  confirmTitle: { ko: "예약 확인", en: "Booking Confirmed", zh: "预订确认", ja: "予約確認", vi: "Xác nhận đặt chỗ" },
+  confirmSub: { ko: "My booking", en: "My booking", zh: "我的预订", ja: "マイ予約", vi: "Đặt chỗ của tôi" },
+  bookingComplete: { ko: "예약 완료", en: "Booking complete", zh: "预订完成", ja: "予約完了", vi: "Đặt chỗ thành công" },
+  bookingNumber: { ko: "예약번호", en: "Booking number", zh: "预订编号", ja: "予約番号", vi: "Mã đặt chỗ" },
+  lodgingLbl: { ko: "숙소", en: "Stay", zh: "住宿", ja: "宿泊先", vi: "Chỗ nghỉ" },
+  includedLbl: { ko: "포함", en: "Included", zh: "含", ja: "含む", vi: "Bao gồm" },
+  confirmIncludedVal: { ko: "샤워 · 휴식 · 짐보관", en: "Shower · rest · luggage storage", zh: "淋浴·休息·行李寄存", ja: "シャワー・休憩・荷物預かり", vi: "Tắm · nghỉ ngơi · gửi hành lý" },
+  confirmReturnAt: { ko: "복귀 {time}", en: "Return by {time}", zh: "建议返回 {time}", ja: "復帰 {time}", vi: "Quay lại {time}" },
+  alertOnLbl: { ko: "알림 ON", en: "Alert ON", zh: "提醒已开启", ja: "通知ON", vi: "Bật thông báo" },
+  homeBtn: { ko: "홈으로", en: "Back to home", zh: "返回首页", ja: "ホームへ", vi: "Về trang chủ" },
+
+  luggageTitle: { ko: "수하물 케어", en: "Luggage Care", zh: "行李管家", ja: "手荷物ケア", vi: "Chăm sóc hành lý" },
+  luggageSub: { ko: "Luggage-Free", en: "Luggage-Free", zh: "无负重出行", ja: "Luggage-Free", vi: "Luggage-Free" },
+  luggageBannerPrefix: { ko: "무거운 캐리어는 맡기고", en: "Check in your heavy suitcase and travel", zh: "寄存沉重的行李箱,", ja: "重いスーツケースは預けて", vi: "Gửi vali nặng lại và di chuyển" },
+  luggageBannerBold: { ko: "가볍게", en: "light", zh: "轻装出行", ja: "身軽に", vi: "nhẹ nhàng" },
+  luggageBannerSuffix: { ko: "이동하세요. 항공편 복귀 시간에 맞춰 짐을 공항으로 되돌려 드립니다.", en: ". We'll return your bags to the airport in time for your flight.", zh: "。我们会在您的航班返程前将行李送回机场。", ja: "移動しましょう。フライトの復帰時間に合わせて荷物を空港へお戻しします。", vi: ". Chúng tôi sẽ trả hành lý về sân bay đúng giờ bay của bạn." },
+  luggageOpt1Title: { ko: "공항 내 보관", en: "In-Airport Storage", zh: "机场内寄存", ja: "空港内保管", vi: "Gửi đồ trong sân bay" },
+  luggageOpt1Desc: { ko: "T1 · T2 스마트 락커 즉시 보관", en: "Instant smart lockers at T1 · T2", zh: "T1·T2智能储物柜即时寄存", ja: "T1・T2スマートロッカーで即時保管", vi: "Tủ khóa thông minh T1 · T2, gửi ngay" },
+  luggageOpt2Title: { ko: "호텔로 배송", en: "Delivery to Hotel", zh: "配送至酒店", ja: "ホテルへ配送", vi: "Giao đến khách sạn" },
+  luggageOpt2Desc: { ko: "데이유즈 숙소로 짐 픽업·배송", en: "Pickup & delivery to your day-use stay", zh: "行李接送至钟点房住宿", ja: "デイユース宿泊先へ荷物ピックアップ・配送", vi: "Lấy và giao hành lý đến chỗ nghỉ Day-Use" },
+  luggageOpt3Title: { ko: "상권으로 배송", en: "Delivery to Shopping Area", zh: "配送至商圈", ja: "商業エリアへ配送", vi: "Giao đến khu mua sắm" },
+  luggageOpt3Desc: { ko: "영종도·차이나타운 거점 수령", en: "Pick up at Yeongjong-do / Chinatown hubs", zh: "在永宗岛·唐人街据点领取", ja: "永宗島・チャイナタウン拠点で受取", vi: "Nhận tại điểm Yeongjong-do · Phố người Hoa" },
+
+  myPageTitle: { ko: "마이 페이지", en: "My Page", zh: "我的页面", ja: "マイページ", vi: "Trang của tôi" },
+  myPageSub: { ko: "My page", en: "My page", zh: "我的页面", ja: "マイページ", vi: "Trang của tôi" },
+  myPageGreeting: { ko: "안녕하세요, 여행자님!", en: "Hello, Traveler!", zh: "你好,旅行者!", ja: "こんにちは、トラベラーさん!", vi: "Xin chào, Nhà du hành!" },
+  pointsLabel: { ko: "포인트 {n}P", en: "{n} pts", zh: "{n}积分", ja: "{n}ポイント", vi: "{n} điểm" },
+  menuBookingHistory: { ko: "예약 내역", en: "Booking History", zh: "预订记录", ja: "予約履歴", vi: "Lịch sử đặt chỗ" },
+  menuCoupon: { ko: "쿠폰", en: "Coupons", zh: "优惠券", ja: "クーポン", vi: "Phiếu giảm giá" },
+  menuTimeSafeAlert: { ko: "Time-Safe 알림", en: "Time-Safe Alerts", zh: "Time-Safe 提醒", ja: "Time-Safe 通知", vi: "Thông báo Time-Safe" },
+  menuPassport: { ko: "여권 인증", en: "Passport Verification", zh: "护照认证", ja: "パスポート認証", vi: "Xác minh hộ chiếu" },
+  menuLangSetting: { ko: "언어 설정", en: "Language Settings", zh: "语言设置", ja: "言語設定", vi: "Cài đặt ngôn ngữ" },
+
+  courseTitle: { ko: "환승 코스 만들기", en: "Build Your Transit Course", zh: "制作转机路线", ja: "乗継コースを作る", vi: "Tạo lộ trình quá cảnh" },
+  courseSub: { ko: "카테고리 → 장소 선택 → 일정 자동 생성", en: "Category → pick spots → auto-schedule", zh: "类别 → 选地点 → 自动生成行程", ja: "カテゴリ → スポット選択 → 予定自動生成", vi: "Danh mục → chọn địa điểm → tự tạo lịch" },
+  layoverFree: { ko: "환승 여유 {h}시간", en: "{h}h transit time", zh: "中转空闲 {h}小时", ja: "乗継の余裕 {h}時間", vi: "Thời gian trống quá cảnh {h} giờ" },
+  overBudget: { ko: "{min}분 초과", en: "{min} min over", zh: "超出{min}分钟", ja: "{min}分オーバー", vi: "Vượt quá {min} phút" },
+  spareBudget: { ko: "여유 {min}분", en: "{min} min to spare", zh: "剩余{min}分钟", ja: "余裕{min}分", vi: "Còn dư {min} phút" },
+  arriveReturnLine: { ko: "도착 {arrive} · 복귀 추천 {return}", en: "Arrive {arrive} · Return by {return}", zh: "到达 {arrive} · 建议返回 {return}", ja: "到着 {arrive} · 復帰推奨 {return}", vi: "Đến {arrive} · Nên quay lại {return}" },
+  step1RoomTitle: { ko: "① 데이유즈 숙소 선택", en: "① Choose your day-use stay", zh: "① 选择钟点房", ja: "① デイユース宿泊先を選択", vi: "① Chọn chỗ nghỉ Day-Use" },
+  step1RoomRequired: { ko: "(필수 · 코스의 거점)", en: "(Required · course home base)", zh: "(必选·行程据点)", ja: "(必須・コースの拠点)", vi: "(Bắt buộc · điểm trung tâm của lộ trình)" },
+  step2CatTitle: { ko: "② 활동 카테고리 합치기", en: "② Add activity categories", zh: "② 添加活动类别", ja: "② アクティビティカテゴリを追加", vi: "② Thêm danh mục hoạt động" },
+  step2CatSub: { ko: "(복수 선택)", en: "(Select multiple)", zh: "(可多选)", ja: "(複数選択可)", vi: "(Chọn nhiều)" },
+  autoBuildBtn: { ko: "Time-Fit 자동 코스 짜기", en: "Auto-build with Time-Fit", zh: "Time-Fit 自动排程", ja: "Time-Fit 自動コース作成", vi: "Tự động lên lịch Time-Fit" },
+  autoBuildNote: { ko: "OR-Tools 최적화 · 환승시간·이동동선 기준 자동 배치", en: "OR-Tools optimized · auto-arranged by layover time & routing", zh: "OR-Tools 优化 · 依中转时间与动线自动安排", ja: "OR-Tools最適化・乗継時間と動線に基づき自動配置", vi: "Tối ưu bằng OR-Tools · tự sắp xếp theo thời gian quá cảnh và lộ trình" },
+  sectionVisitPlaces: { ko: "활동 방문지", en: "Activity spots", zh: "活动地点", ja: "アクティビティスポット", vi: "Địa điểm hoạt động" },
+  selCombined: { ko: "{list} 합침", en: "{list} combined", zh: "已合并 {list}", ja: "{list} を組み合わせ", vi: "Kết hợp {list}" },
+  selChoose: { ko: "카테고리를 선택하세요", en: "Select a category", zh: "请选择类别", ja: "カテゴリを選択してください", vi: "Hãy chọn danh mục" },
+  selChooseRoomFirst: { ko: "먼저 숙소를 선택하세요", en: "Choose your stay first", zh: "请先选择住宿", ja: "先に宿泊先を選択してください", vi: "Hãy chọn chỗ nghỉ trước" },
+  roomFirstHint: { ko: "① 데이유즈 숙소를 먼저 선택하면 활동을 담을 수 있어요.", en: "① Choose a day-use stay first to start adding activities.", zh: "① 先选择钟点房,才能添加活动。", ja: "① デイユース宿泊先を先に選ぶと、アクティビティを追加できます。", vi: "① Chọn chỗ nghỉ Day-Use trước để thêm hoạt động." },
+  fitsInTransit: { ko: "환승 내 가능", en: "Fits in layover", zh: "中转时间内可行", ja: "乗継時間内で可能", vi: "Phù hợp thời gian quá cảnh" },
+  tightTime: { ko: "시간 빠듯", en: "Tight on time", zh: "时间紧张", ja: "時間がタイト", vi: "Thời gian gấp" },
+  adBadge: { ko: "제휴 AD", en: "Partner AD", zh: "合作 广告", ja: "提携 広告", vi: "Đối tác QC" },
+  sectionMySchedule: { ko: "내 환승 일정", en: "My transit schedule", zh: "我的中转行程", ja: "マイ乗継スケジュール", vi: "Lịch trình quá cảnh của tôi" },
+  scheduleSummary: { ko: "{n}개 활동 · 총 {h}시간 {m}분", en: "{n} activities · {h}h {m}m total", zh: "{n}项活动 · 共{h}小时{m}分钟", ja: "{n}件のアクティビティ · 合計{h}時間{m}分", vi: "{n} hoạt động · tổng {h} giờ {m} phút" },
+  scheduleEmptyHint: { ko: "숙소를 선택하면 일정이 생성돼요", en: "Pick a stay to generate your schedule", zh: "选择住宿后将生成行程", ja: "宿泊先を選ぶとスケジュールが作成されます", vi: "Chọn chỗ nghỉ để tạo lịch trình" },
+  pickRoomPrefix: { ko: "데이유즈 숙소를", en: "Choose a day-use stay as your", zh: "请先将钟点房选为", ja: "デイユース宿泊先を", vi: "Hãy chọn chỗ nghỉ Day-Use làm" },
+  pickRoomBold: { ko: "거점", en: "home base", zh: "据点", ja: "拠点", vi: "điểm trung tâm" },
+  pickRoomSuffix: { ko: "으로 먼저 골라주세요.", en: "first.", zh: "。", ja: "として先に選んでください。", vi: " trước tiên." },
+  deleteBtn: { ko: "삭제", en: "Remove", zh: "删除", ja: "削除", vi: "Xóa" },
+  overBudgetWarning: { ko: "환승 시간을 {min}분 초과했어요. 장소를 줄이거나 짧은 코스로 바꿔보세요.", en: "You're {min} min over your transit time. Remove a spot or pick a shorter course.", zh: "已超出中转时间{min}分钟。请减少地点或选择更短的行程。", ja: "乗継時間を{min}分超過しています。スポットを減らすか、短いコースに変更してください。", vi: "Bạn đã vượt quá thời gian quá cảnh {min} phút. Hãy bớt điểm đến hoặc chọn lộ trình ngắn hơn." },
+  bookThisRoomBtn: { ko: "이 숙소로 예약하기 →", en: "Book this stay →", zh: "预订此住宿 →", ja: "この宿泊先を予約する →", vi: "Đặt chỗ nghỉ này →" },
+  courseStepArrive: { ko: "공항 도착 · 짐 맡기기", en: "Arrive at airport · drop luggage", zh: "抵达机场 · 寄存行李", ja: "空港到着・荷物を預ける", vi: "Đến sân bay · gửi hành lý" },
+  courseStepArriveSub: { ko: "수하물 케어 픽업", en: "Luggage care pickup", zh: "行李托管取件", ja: "手荷物ケア受付", vi: "Nhận dịch vụ hành lý" },
+  courseStepRoomCheckin: { ko: "{room} 체크인", en: "Check in at {room}", zh: "入住 {room}", ja: "{room} にチェックイン", vi: "Nhận phòng tại {room}" },
+  courseStepRoomSub: { ko: "데이유즈 거점 · 샤워·휴식 {rest}분 (이동 {move}분)", en: "Day-use base · shower & rest {rest} min (transfer {move} min)", zh: "钟点房据点 · 淋浴休息{rest}分钟(移动{move}分钟)", ja: "デイユース拠点・シャワー休憩{rest}分(移動{move}分)", vi: "Điểm trung tâm Day-Use · tắm & nghỉ {rest} phút (di chuyển {move} phút)" },
+  courseStepPlaceSub: { ko: "{area} · 체류 {dur}분 (이동 {move}분)", en: "{area} · stay {dur} min (transfer {move} min)", zh: "{area} · 停留{dur}分钟(移动{move}分钟)", ja: "{area}・滞在{dur}分(移動{move}分)", vi: "{area} · lưu trú {dur} phút (di chuyển {move} phút)" },
+  courseStepReturn: { ko: "공항 복귀", en: "Return to airport", zh: "返回机场", ja: "空港へ復帰", vi: "Quay lại sân bay" },
+  courseStepReturnSub: { ko: "Time-Safe 알림 · 여유 30분", en: "Time-Safe alert · 30 min buffer", zh: "Time-Safe 提醒 · 预留30分钟", ja: "Time-Safe通知・余裕30分", vi: "Thông báo Time-Safe · dự phòng 30 phút" },
+  mapAllPlacesNote: { ko: "전체 카테고리 장소가 다 표시돼요 · 핀 탭하면 일정에 추가/제거 · 회색 점은 주변 실제 카페·음식점(참고용)", en: "Shows spots from every category · tap a pin to add/remove it from your plan · gray dots are real nearby cafes/restaurants (for reference)", zh: "显示所有类别的地点 · 点击图钉可添加/移除行程 · 灰点是附近实际的咖啡馆/餐厅(仅供参考)", ja: "全カテゴリのスポットを表示・ピンをタップで予定に追加/削除・灰色の点は近隣の実際のカフェ・飲食店(参考用)", vi: "Hiển thị địa điểm ở mọi danh mục · chạm vào ghim để thêm/bớt khỏi lịch trình · chấm xám là quán cà phê/nhà hàng thực tế gần đó (chỉ để tham khảo)" },
+  routeLegend: { ko: "일정에 담긴 순서대로 경로가 그려져요: ●●● 자동차 · ┄┄ 도보 · ⋯⋯ 대중교통", en: "Route follows your plan's order: ●●● car · ┄┄ walk · ⋯⋯ transit", zh: "路线按行程顺序绘制:●●● 驾车 · ┄┄ 步行 · ⋯⋯ 公共交通", ja: "予定の順番どおりに経路を表示: ●●● 車・┄┄ 徒歩・⋯⋯ 公共交通", vi: "Tuyến đường vẽ theo thứ tự lịch trình: ●●● ô tô · ┄┄ đi bộ · ⋯⋯ phương tiện công cộng" },
+  mapUnavailable: { ko: "지도를 불러올 수 없어요. http://localhost:3001 로 열었는지, 카카오 개발자 콘솔에 도메인이 등록됐는지 확인해주세요.", en: "Couldn't load the map. Make sure you opened this at http://localhost:3001 and that the domain is registered in Kakao Developers.", zh: "无法加载地图。请确认您是通过 http://localhost:3001 打开的,并且该域名已在 Kakao Developers 中注册。", ja: "地図を読み込めません。http://localhost:3001 で開いているか、Kakao Developersにドメインが登録されているか確認してください。", vi: "Không tải được bản đồ. Hãy chắc chắn bạn mở trang này tại http://localhost:3001 và tên miền đã được đăng ký trong Kakao Developers." },
+
+  airportMinAway: { ko: "공항 {n}분", en: "{n} min from airport", zh: "距机场{n}分钟", ja: "空港から{n}分", vi: "Cách sân bay {n} phút" },
+  hourRange: { ko: "{a}–{b}시간", en: "{a}–{b} hrs", zh: "{a}–{b}小时", ja: "{a}–{b}時間", vi: "{a}–{b} giờ" },
+  restMinLbl: { ko: "휴식 {n}분", en: "{n} min rest", zh: "休息{n}分钟", ja: "休憩{n}分", vi: "Nghỉ {n} phút" },
+  moveMinLbl: { ko: "이동 {n}분", en: "{n} min transfer", zh: "移动{n}分钟", ja: "移動{n}分", vi: "Di chuyển {n} phút" },
+  stayMinLbl: { ko: "체류 {n}분", en: "{n} min stay", zh: "停留{n}分钟", ja: "滞在{n}分", vi: "Lưu trú {n} phút" },
+  durationMin: { ko: "{n}분", en: "{n} min", zh: "{n}分钟", ja: "{n}分", vi: "{n} phút" },
+  stayHoursOnly: { ko: "{h}시간", en: "{h}h", zh: "{h}小时", ja: "{h}時間", vi: "{h} giờ" },
+  stayHoursMinutes: { ko: "{h}시간 {m}분", en: "{h}h {m}m", zh: "{h}小时{m}分钟", ja: "{h}時間{m}分", vi: "{h} giờ {m} phút" },
+  nextDayLbl: { ko: "익일", en: "Next day", zh: "次日", ja: "翌日", vi: "Hôm sau" },
+  routeLoading: { ko: "실제 이동시간 조회 중…", en: "Looking up real travel times…", zh: "正在查询实际路程时间…", ja: "実際の移動時間を照会中…", vi: "Đang tra cứu thời gian di chuyển thực tế…" },
+  routeLive: { ko: "실제 이동시간(도보·대중교통·자동차) 반영중", en: "Live travel times applied (walk · transit · drive)", zh: "已应用实际路程时间(步行·公交·驾车)", ja: "実際の移動時間(徒歩・公共交通・車)を反映中", vi: "Đang áp dụng thời gian di chuyển thực tế (đi bộ · phương tiện công cộng · lái xe)" },
+};
+function interpolate(str, vars) {
+  if (!vars) return str;
+  return Object.keys(vars).reduce((s, k) => s.split(`{${k}}`).join(String(vars[k])), str);
+}
+const LangCtx = createContext({ code: "en" });
+function useLang() {
+  const { code } = useContext(LangCtx);
+  const t = (key, vars) => {
+    const entry = STR[key];
+    const raw = entry ? (entry[code] ?? entry.ko) : key;
+    return interpolate(raw, vars);
+  };
+  const tr = (obj) => (obj && typeof obj === "object" ? (obj[code] ?? obj.ko) : obj);
+  const fmtTime = (m) => (dayOffset(m) > 0 ? `${t("nextDayLbl")} ${hhmm(m)}` : hhmm(m));
+  return { code, t, tr, fmtTime };
+}
+
+/* ---------- category / area labels (data + course builder share these) ---------- */
+const CAT_LABELS = {
+  Food: { ko: "맛집", en: "Food", zh: "美食", ja: "グルメ", vi: "Ẩm thực" },
+  Massage: { ko: "마사지", en: "Massage", zh: "按摩", ja: "マッサージ", vi: "Massage" },
+  Shopping: { ko: "쇼핑", en: "Shopping", zh: "购物", ja: "ショッピング", vi: "Mua sắm" },
+  Rest: { ko: "휴식", en: "Rest", zh: "休息", ja: "休憩", vi: "Nghỉ ngơi" },
+  Beauty: { ko: "뷰티", en: "Beauty", zh: "美容", ja: "ビューティー", vi: "Làm đẹp" },
+  Sightseeing: { ko: "관광", en: "Sightseeing", zh: "观光", ja: "観光", vi: "Tham quan" },
+  Brand: { ko: "브랜드", en: "Brand", zh: "品牌", ja: "ブランド", vi: "Thương hiệu" },
+};
+const AREA_LABELS = {
+  yeongjong: { ko: "영종도", en: "Yeongjong Island", zh: "永宗岛", ja: "永宗島", vi: "Đảo Yeongjong" },
+  songdo: { ko: "송도", en: "Songdo", zh: "松岛", ja: "松島", vi: "Songdo" },
+  chinatown: { ko: "차이나타운", en: "Chinatown", zh: "唐人街", ja: "チャイナタウン", vi: "Phố người Hoa" },
+  muui: { ko: "무의도", en: "Muui Island", zh: "舞衣岛", ja: "舞衣島", vi: "Đảo Muui" },
+};
 
 /* ---------- brand logo ---------- */
 const Brand = ({ h = 30, dark = true }) => (
@@ -58,18 +268,21 @@ const Card = ({ children, style }) => (
 const Chip = ({ children, active, onClick }) => (
   <button onClick={onClick} style={{ border: "none", cursor: "pointer", padding: "6px 12px", borderRadius: 999, fontSize: 12, fontWeight: 600, whiteSpace: "nowrap", background: active ? C.blue : C.tint, color: active ? "#fff" : C.blueDeep }}>{children}</button>
 );
-const PrimaryBtn = ({ children, onClick, style }) => (
-  <button onClick={onClick} style={{ width: "100%", border: "none", cursor: "pointer", padding: "15px 0", borderRadius: 14, background: grad, color: "#fff", fontSize: 15, fontWeight: 700, boxShadow: "0 6px 16px rgba(47,123,230,0.32)", ...style }}>{children}</button>
+const PrimaryBtn = ({ children, onClick, style, disabled }) => (
+  <button onClick={disabled ? undefined : onClick} disabled={disabled} style={{ width: "100%", border: "none", cursor: disabled ? "not-allowed" : "pointer", padding: "15px 0", borderRadius: 14, background: disabled ? "#C4D2E4" : grad, color: "#fff", fontSize: 15, fontWeight: 700, boxShadow: disabled ? "none" : "0 6px 16px rgba(47,123,230,0.32)", ...style }}>{children}</button>
 );
-const SectionHead = ({ title, sub, onMore }) => (
-  <div style={{ display: "flex", alignItems: "flex-end", justifyContent: "space-between", marginBottom: 12 }}>
-    <div>
-      <div style={{ fontSize: 16, fontWeight: 800, color: C.ink }}>{title}</div>
-      {sub && <div style={{ fontSize: 11, color: C.faint, marginTop: 2 }}>{sub}</div>}
+const SectionHead = ({ title, sub, onMore }) => {
+  const { t } = useLang();
+  return (
+    <div style={{ display: "flex", alignItems: "flex-end", justifyContent: "space-between", marginBottom: 12 }}>
+      <div>
+        <div style={{ fontSize: 16, fontWeight: 800, color: C.ink }}>{title}</div>
+        {sub && <div style={{ fontSize: 11, color: C.faint, marginTop: 2 }}>{sub}</div>}
+      </div>
+      {onMore && <button onClick={onMore} style={{ border: "none", background: "none", cursor: "pointer", display: "flex", alignItems: "center", gap: 2, color: C.sub, fontSize: 12 }}>{t("moreBtn")} <ChevronRight size={14} /></button>}
     </div>
-    {onMore && <button onClick={onMore} style={{ border: "none", background: "none", cursor: "pointer", display: "flex", alignItems: "center", gap: 2, color: C.sub, fontSize: 12 }}>더보기 <ChevronRight size={14} /></button>}
-  </div>
-);
+  );
+};
 const Photo = ({ icon, tint, h = 96, badge }) => (
   <div style={{ position: "relative", height: h, borderRadius: 12, background: tint, display: "flex", alignItems: "center", justifyContent: "center", overflow: "hidden" }}>
     {badge && <span style={{ position: "absolute", top: 8, left: 8, background: C.blue, color: "#fff", fontSize: 10, fontWeight: 700, padding: "3px 8px", borderRadius: 999 }}>{badge}</span>}
@@ -78,37 +291,46 @@ const Photo = ({ icon, tint, h = 96, badge }) => (
 );
 
 /* ---------- data ---------- */
-const LANGS = [{ k: "English", f: "🇺🇸" }, { k: "中文(简体)", f: "🇨🇳" }, { k: "日本語", f: "🇯🇵" }, { k: "Tiếng Việt", f: "🇻🇳" }, { k: "한국어", f: "🇰🇷" }];
 const CATS = [
-  { k: "Food", ko: "맛집", icon: Utensils }, { k: "Massage", ko: "마사지", icon: Sparkles },
-  { k: "Shopping", ko: "쇼핑", icon: ShoppingBag }, { k: "Rest", ko: "휴식", icon: Bed },
-  { k: "Beauty", ko: "뷰티", icon: Scissors }, { k: "Sightseeing", ko: "관광", icon: Camera },
+  { k: "Food", icon: Utensils }, { k: "Massage", icon: Sparkles },
+  { k: "Shopping", icon: ShoppingBag }, { k: "Rest", icon: Bed },
+  { k: "Beauty", icon: Scissors }, { k: "Sightseeing", icon: Camera },
+  { k: "Brand", icon: Tag },
 ];
+// 실제 존재하는 영종도/인천공항 인근 비즈니스 호텔 10곳(모텔 제외, 카카오 로컬 API로 "여행 > 숙박 > 호텔"
+// 카테고리 확인 완료). 좌표는 카카오 주소·장소검색으로 지오코딩한 실제 위치, distMin은 카카오모빌리티로
+// 계산한 공항 기준 실제 이동시간. 다만 데이유즈 시간블록·요금·평점은 공개 예약 API가 없어 여전히 추정치입니다.
 const ROOMS = [
-  { name: "AIR SKY 데이유즈", dist: "공항 7분", block: "3–9시간", price: 42000, rate: 4.8, cnt: 128, tint: "#BBD3F5", best: true, move: 7, rest: 90 },
-  { name: "운서 스테이", dist: "공항 10분", block: "3–6시간", price: 38000, rate: 4.6, cnt: 93, tint: "#CFE0F5", move: 10, rest: 90 },
-  { name: "영종 캡슐 리프레시", dist: "공항 5분", block: "3–4시간", price: 24000, rate: 4.5, cnt: 76, tint: "#C7E4D6", move: 5, rest: 60 },
-];
-const ROUTE = [
-  { t: "11:00", title: "공항 도착 · 짐 맡기기", sub: "수하물 케어 픽업", ic: Luggage, col: C.red },
-  { t: "11:20", title: "데이유즈 체크인 · 샤워/휴식", sub: "4시간 타임블록", ic: Bed, col: C.blue },
-  { t: "15:30", title: "K-뷰티 · 쇼핑", sub: "선호: 쇼핑", ic: ShoppingBag, col: C.gold },
-  { t: "16:20", title: "카페 & 지역 탐방", sub: "영종도 오션뷰", ic: Coffee, col: C.lime },
-  { t: "17:00", title: "공항 복귀 (여유 30분)", sub: "Time-Safe 알림", ic: PlaneLanding, col: C.ink },
+  { id: "grand-hyatt-incheon", name: { ko: "그랜드 하얏트 인천", en: "Grand Hyatt Incheon", zh: "Grand Hyatt Incheon", ja: "Grand Hyatt Incheon", vi: "Grand Hyatt Incheon" }, distMin: 5, hourMin: 3, hourMax: 9, price: 89000, rate: 4.8, cnt: 412, tint: "#BBD3F5", best: true, move: 5, rest: 90, coord: { lat: 37.4406, lng: 126.4574 } },
+  { id: "hyatt-regency-paradise-city", name: { ko: "하얏트 리젠시 인천 파라다이스시티", en: "Hyatt Regency Incheon Paradise City", zh: "Hyatt Regency Incheon Paradise City", ja: "Hyatt Regency Incheon Paradise City", vi: "Hyatt Regency Incheon Paradise City" }, distMin: 7, hourMin: 3, hourMax: 9, price: 95000, rate: 4.9, cnt: 356, tint: "#CFE0F5", move: 7, rest: 90, coord: { lat: 37.4398, lng: 126.4561 } },
+  { id: "paradise-city-hotel", name: { ko: "파라다이스시티호텔", en: "Paradise Hotel & Resort, Paradise City", zh: "Paradise Hotel & Resort, Paradise City", ja: "Paradise Hotel & Resort, Paradise City", vi: "Paradise Hotel & Resort, Paradise City" }, distMin: 8, hourMin: 3, hourMax: 9, price: 78000, rate: 4.7, cnt: 298, tint: "#C7E4D6", move: 8, rest: 90, coord: { lat: 37.4372, lng: 126.4558 } },
+  { id: "best-western-premier-incheon", name: { ko: "베스트웨스턴프리미어 인천에어포트호텔", en: "Best Western Premier Incheon Airport", zh: "Best Western Premier Incheon Airport", ja: "Best Western Premier Incheon Airport", vi: "Best Western Premier Incheon Airport" }, distMin: 7, hourMin: 3, hourMax: 6, price: 52000, rate: 4.5, cnt: 521, tint: "#E8C4D6", move: 7, rest: 90, coord: { lat: 37.4384, lng: 126.4596 } },
+  { id: "the-hotel-yeongjong", name: { ko: "더호텔영종", en: "The Hotel Yeongjong Incheon Airport", zh: "The Hotel Yeongjong Incheon Airport", ja: "The Hotel Yeongjong Incheon Airport", vi: "The Hotel Yeongjong Incheon Airport" }, distMin: 16, hourMin: 3, hourMax: 6, price: 45000, rate: 4.4, cnt: 187, tint: "#F3D9B8", move: 16, rest: 60, coord: { lat: 37.4948, lng: 126.4917 } },
+  { id: "nest-hotel", name: { ko: "네스트호텔", en: "Nest Hotel Incheon", zh: "Nest Hotel Incheon", ja: "Nest Hotel Incheon", vi: "Nest Hotel Incheon" }, distMin: 12, hourMin: 3, hourMax: 9, price: 68000, rate: 4.6, cnt: 143, tint: "#A9C4E8", move: 12, rest: 90, coord: { lat: 37.4248, lng: 126.4279 } },
+  { id: "days-hotel-suites", name: { ko: "데이즈호텔앤스위트 바이윈덤 인천에어포트", en: "Days Hotel & Suites by Wyndham Incheon Airport", zh: "Days Hotel & Suites by Wyndham Incheon Airport", ja: "Days Hotel & Suites by Wyndham Incheon Airport", vi: "Days Hotel & Suites by Wyndham Incheon Airport" }, distMin: 16, hourMin: 3, hourMax: 6, price: 49000, rate: 4.3, cnt: 234, tint: "#D6C4E8", move: 16, rest: 60, coord: { lat: 37.4937, lng: 126.4914 } },
+  { id: "rivera-incheon-airport", name: { ko: "리베라인천에어포트호텔", en: "Rivera Incheon Airport Hotel", zh: "Rivera Incheon Airport Hotel", ja: "Rivera Incheon Airport Hotel", vi: "Rivera Incheon Airport Hotel" }, distMin: 21, hourMin: 3, hourMax: 6, price: 41000, rate: 4.2, cnt: 96, tint: "#F7D9B0", move: 21, rest: 60, coord: { lat: 37.4851, lng: 126.5614 } },
+  { id: "ocean-soleil-view", name: { ko: "오션솔레뷰호텔", en: "Ocean Soleil View Hotel", zh: "Ocean Soleil View Hotel", ja: "Ocean Soleil View Hotel", vi: "Ocean Soleil View Hotel" }, distMin: 23, hourMin: 3, hourMax: 6, price: 55000, rate: 4.5, cnt: 88, tint: "#E3C4E8", move: 23, rest: 60, coord: { lat: 37.4945, lng: 126.5794 } },
+  { id: "ocean-park-nine", name: { ko: "오션파크나인호텔", en: "Ocean Park Nine Hotel", zh: "Ocean Park Nine Hotel", ja: "Ocean Park Nine Hotel", vi: "Ocean Park Nine Hotel" }, distMin: 24, hourMin: 3, hourMax: 6, price: 58000, rate: 4.4, cnt: 72, tint: "#F3C4B8", move: 24, rest: 60, coord: { lat: 37.4928, lng: 126.5792 } },
 ];
 const LOCAL = [
-  { n: "카페 오션뷰", s: "영종도 · 45분", icon: Coffee, tint: "#F3D9B8" },
-  { n: "마시안 마사지", s: "피로 회복 · 60분", icon: Sparkles, tint: "#E8C4D6" },
-  { n: "차이나타운 맛집", s: "중식 · 50분", icon: Utensils, tint: "#F3C4B8" },
-  { n: "무의도 해변", s: "선셋 · 90분", icon: Waves, tint: "#A9C4E8" },
+  { id: "cafe-oceanview", n: { ko: "카페 오션뷰", en: "Cafe Ocean View", zh: "海景咖啡馆", ja: "カフェ オーシャンビュー", vi: "Cafe Ocean View" }, area: { ko: "영종도", en: "Yeongjong Island", zh: "永宗岛", ja: "永宗島", vi: "Đảo Yeongjong" }, min: 45, icon: Coffee, tint: "#F3D9B8" },
+  { id: "masian-massage", n: { ko: "마시안 마사지", en: "Masian Massage", zh: "麻是安按摩", ja: "マシアン マッサージ", vi: "Massage Masian" }, area: { ko: "피로 회복", en: "Fatigue Recovery", zh: "消除疲劳", ja: "疲労回復", vi: "Phục hồi mệt mỏi" }, min: 60, icon: Sparkles, tint: "#E8C4D6" },
+  { id: "chinatown-eats", n: { ko: "차이나타운 맛집", en: "Chinatown Eats", zh: "唐人街美食", ja: "チャイナタウングルメ", vi: "Ẩm thực Phố người Hoa" }, area: { ko: "중식", en: "Chinese Cuisine", zh: "中式料理", ja: "中華料理", vi: "Món Trung Hoa" }, min: 50, icon: Utensils, tint: "#F3C4B8" },
+  { id: "muui-beach", n: { ko: "무의도 해변", en: "Muui Island Beach", zh: "舞衣岛海滩", ja: "ムイド ビーチ", vi: "Bãi biển đảo Muui" }, area: { ko: "선셋", en: "Sunset", zh: "日落", ja: "サンセット", vi: "Hoàng hôn" }, min: 90, icon: Waves, tint: "#A9C4E8" },
 ];
 const won = (n) => "₩" + n.toLocaleString();
 
 /* ---------- airport API (via local proxy) ---------- */
 const PROXY_BASE = "http://localhost:3001";
 const DEFAULT_ARRIVE = 10 * 60 + 30; // 실시간 조회 실패/미조회 시 데모 폴백값
-const LAYOVER_BUDGET = 360; // 고정 6시간 레이오버 예산(분)
-const hhmm = (m) => `${String(Math.floor(m / 60)).padStart(2, "0")}:${String(m % 60).padStart(2, "0")}`;
+const LAYOVER_BUDGET = 360; // 연결편 실시간 조회가 없을 때 쓰는 고정 6시간 레이오버 예산(분)
+const RETURN_BUFFER = 90; // 연결편 출발 X분 전 공항 복귀 권장(보안검색·이동 버퍼)
+const MIN_STAY = 60; // 최소 체류 보장(분) — 연결편이 너무 임박해도 음수 시간이 나오지 않도록
+const hhmm = (m) => {
+  const mm = ((m % 1440) + 1440) % 1440;
+  return `${String(Math.floor(mm / 60)).padStart(2, "0")}:${String(mm % 60).padStart(2, "0")}`;
+};
+const dayOffset = (m) => Math.floor(m / 1440);
 const parseHHMM = (s) => {
   if (!s || s.length < 3) return null;
   const h = parseInt(s.slice(0, s.length - 2), 10);
@@ -116,24 +338,89 @@ const parseHHMM = (s) => {
   if (Number.isNaN(h) || Number.isNaN(m)) return null;
   return h * 60 + m;
 };
-async function fetchArrival(flightId) {
-  const res = await fetch(`${PROXY_BASE}/api/flight/arrival?flightId=${encodeURIComponent(flightId)}`);
+async function fetchArrival(flightId, apiLang) {
+  const res = await fetch(`${PROXY_BASE}/api/flight/arrival?flightId=${encodeURIComponent(flightId)}&lang=${apiLang}`);
   const data = await res.json().catch(() => ({}));
-  if (!res.ok) throw new Error(data.error || `조회 실패 (${res.status})`);
+  if (!res.ok) return { error: data.error || `HTTP ${res.status}` };
   const f = data.flights && data.flights[0];
-  if (!f) throw new Error("일치하는 항공편이 없어요");
+  if (!f) return { error: "errNotFound" };
   const arriveMin = parseHHMM(f.estimatedDateTime) ?? parseHHMM(f.scheduleDateTime);
-  if (arriveMin == null) throw new Error("도착 시각 정보가 없어요");
+  if (arriveMin == null) return { error: "errNoArriveTime" };
   return { arriveMin, flight: f };
+}
+async function fetchDeparture(flightId, apiLang) {
+  const res = await fetch(`${PROXY_BASE}/api/flight/departure?flightId=${encodeURIComponent(flightId)}&lang=${apiLang}`);
+  const data = await res.json().catch(() => ({}));
+  if (!res.ok) return { error: data.error || `HTTP ${res.status}` };
+  const f = data.flights && data.flights[0];
+  if (!f) return { error: "errNotFound" };
+  const departMin = parseHHMM(f.estimatedDateTime) ?? parseHHMM(f.scheduleDateTime);
+  if (departMin == null) return { error: "errNoDepartTime" };
+  return { departMin, flight: f };
+}
+
+/* ---------- routing (via local proxy → 카카오모빌리티 자동차 / ODsay 대중교통 / 도보 추정) ---------- */
+const AIRPORT_COORD = { lat: 37.4460, lng: 126.4522 }; // 인천국제공항 대표 좌표(카카오모빌리티 도로망에 스냅되는 지점으로 보정)
+const WALK_MAX_KM = 1.2; // 이보다 가까우면 도보로 간주(직선거리 기준)
+const TRANSIT_MIN_KM = 6; // 이보다 멀면 대중교통(ODsay) 우선 시도, 실패하면 자동차로 폴백
+const WALK_SPEED_KMH = 4.5;
+
+function haversineKm(a, b) {
+  const R = 6371;
+  const dLat = (b.lat - a.lat) * Math.PI / 180;
+  const dLng = (b.lng - a.lng) * Math.PI / 180;
+  const s = Math.sin(dLat / 2) ** 2 + Math.cos(a.lat * Math.PI / 180) * Math.cos(b.lat * Math.PI / 180) * Math.sin(dLng / 2) ** 2;
+  return R * 2 * Math.atan2(Math.sqrt(s), Math.sqrt(1 - s));
+}
+async function fetchRouteMin(origin, dest) {
+  const url = `${PROXY_BASE}/api/route?originLat=${origin.lat}&originLng=${origin.lng}&destLat=${dest.lat}&destLng=${dest.lng}`;
+  const res = await fetch(url);
+  const data = await res.json().catch(() => ({}));
+  if (!res.ok || data.durationSec == null) throw new Error(data.error || `route lookup failed (${res.status})`);
+  return Math.max(1, Math.round(data.durationSec / 60));
+}
+async function fetchTransitMin(origin, dest) {
+  const url = `${PROXY_BASE}/api/transit?originLat=${origin.lat}&originLng=${origin.lng}&destLat=${dest.lat}&destLng=${dest.lng}`;
+  const res = await fetch(url);
+  const data = await res.json().catch(() => ({}));
+  if (!res.ok || data.durationMin == null) throw new Error(data.error || `transit lookup failed (${res.status})`);
+  return Math.max(1, Math.round(data.durationMin));
+}
+// 직선거리로 도보/대중교통/자동차 중 알맞은 모드를 고르고, 그 모드로 실제 이동시간을 조회한다.
+// 대중교통(ODsay) 조회가 실패하면(키 없음·노선 없음 등) 조용히 자동차(카카오모빌리티)로 폴백한다.
+async function fetchTravelMin(origin, dest) {
+  const km = haversineKm(origin, dest);
+  if (km <= WALK_MAX_KM) {
+    return { min: Math.max(1, Math.round((km / WALK_SPEED_KMH) * 60)), mode: "walk" };
+  }
+  if (km >= TRANSIT_MIN_KM) {
+    try {
+      return { min: await fetchTransitMin(origin, dest), mode: "transit" };
+    } catch {
+      // ODsay 실패 시 자동차로 폴백
+    }
+  }
+  return { min: await fetchRouteMin(origin, dest), mode: "drive" };
+}
+const MODE_ICON = { walk: Footprints, transit: TrainFront, drive: Car };
+// 코스 빌더 지도에 얹을 실제 주변 장소(카카오 로컬 카테고리 검색). FD6=음식점, CE7=카페.
+const NEARBY_CATEGORIES = ["FD6", "CE7"];
+async function fetchNearbyPlaces(coord, categoryCode, radiusM = 1000) {
+  const url = `${PROXY_BASE}/api/places?lat=${coord.lat}&lng=${coord.lng}&category=${categoryCode}&radius=${radiusM}`;
+  const res = await fetch(url);
+  const data = await res.json().catch(() => ({}));
+  if (!res.ok) throw new Error(data.error || `places lookup failed (${res.status})`);
+  return data.places || [];
 }
 
 /* ================= APP ================= */
 function App() {
   const [screen, setScreen] = useState("onboarding");
   const [step, setStep] = useState(0);
-  const [lang, setLang] = useState("English");
+  const [lang, setLang] = useState("en");
   const [cats, setCats] = useState(["Shopping", "Rest"]);
   const [flight, setFlight] = useState("KE085");
+  const [connFlight, setConnFlight] = useState("");
   const [room, setRoom] = useState(ROOMS[0]);
   const toggle = (k) => setCats((p) => (p.includes(k) ? p.filter((x) => x !== k) : [...p, k]));
 
@@ -141,56 +428,77 @@ function App() {
   const lookupFlight = async (flightId) => {
     if (!flightId) return;
     setFlightLookup({ status: "loading" });
-    try {
-      const { arriveMin, flight: f } = await fetchArrival(flightId);
-      setFlightLookup({ status: "success", arriveMin, flight: f });
-    } catch (e) {
-      setFlightLookup({ status: "error", message: e.message || "실시간 조회에 실패했어요" });
-    }
+    const r = await fetchArrival(flightId, API_LANG[lang] || "E");
+    if (r.error) setFlightLookup({ status: "error", error: r.error });
+    else setFlightLookup({ status: "success", arriveMin: r.arriveMin, flight: r.flight });
+  };
+  const [connLookup, setConnLookup] = useState({ status: "idle" });
+  const lookupDeparture = async (flightId) => {
+    if (!flightId) return;
+    setConnLookup({ status: "loading" });
+    const r = await fetchDeparture(flightId, API_LANG[lang] || "E");
+    if (r.error) setConnLookup({ status: "error", error: r.error });
+    else setConnLookup({ status: "success", departMin: r.departMin, flight: r.flight });
   };
   const arriveMin = flightLookup.status === "success" ? flightLookup.arriveMin : DEFAULT_ARRIVE;
-  const returnByMin = arriveMin + LAYOVER_BUDGET;
+  const departMin = connLookup.status === "success" ? connLookup.departMin : null;
+  // 연결편 실시간 출발 시각이 있으면 "출발 - 버퍼"로, 없으면 고정 레이오버 예산으로 계산
+  const returnByMin = departMin != null
+    ? Math.max(arriveMin + MIN_STAY, departMin - RETURN_BUFFER)
+    : arriveMin + LAYOVER_BUDGET;
 
   return (
-    <div style={{ minHeight: "100vh", background: "#E6ECF6", display: "flex", justifyContent: "center", alignItems: "flex-start", padding: "20px 12px", fontFamily: "-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif" }}>
-      <div style={{ width: 390, maxWidth: "100%", height: 800, background: C.bg, borderRadius: 34, overflow: "hidden", position: "relative", boxShadow: "0 20px 60px rgba(30,50,110,0.25)", border: "6px solid #101826" }}>
-        <div style={{ position: "absolute", inset: 0, bottom: screen === "onboarding" ? 0 : 66, overflowY: "auto" }}>
-          {screen === "onboarding" && <Onboarding {...{ step, setStep, lang, setLang, cats, toggle, flight, setFlight, go: () => setScreen("home"), flightLookup, onLookup: lookupFlight, arriveMin, returnByMin }} />}
-          {screen === "home" && <HomeScreen {...{ cats, openRoom: (r) => { setRoom(r); setScreen("booking"); }, setScreen, flight, arrive: arriveMin, returnBy: returnByMin, flightLookup }} />}
-          {screen === "booking" && <Booking room={room} onPay={() => setScreen("confirm")} back={() => setScreen("home")} />}
-          {screen === "confirm" && <Confirm room={room} back={() => setScreen("home")} />}
-          {screen === "luggage" && <Luggagepage back={() => setScreen("home")} />}
-          {screen === "course" && <Course cats={cats} back={() => setScreen("home")} onBook={(r) => { setRoom(r); setScreen("booking"); }} arrive={arriveMin} returnBy={returnByMin} />}
-          {screen === "mypage" && <MyPage />}
-        </div>
-        {screen !== "onboarding" && (
-          <div style={{ position: "absolute", left: 0, right: 0, bottom: 0, height: 66, background: "#fff", borderTop: `1px solid ${C.line}`, display: "flex", alignItems: "center", justifyContent: "space-around", paddingBottom: 4 }}>
-            <Nav icon={HomeIcon} label="홈" active={screen === "home"} onClick={() => setScreen("home")} />
-            <Nav icon={Luggage} label="짐 케어" active={screen === "luggage"} onClick={() => setScreen("luggage")} />
-            <button onClick={() => setScreen("course")} style={{ border: "none", cursor: "pointer", marginTop: -22, width: 56, height: 56, borderRadius: 28, background: grad, color: "#fff", display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", boxShadow: "0 6px 16px rgba(47,123,230,.45)" }}>
-              <Route size={20} /><span style={{ fontSize: 8, marginTop: 1, fontWeight: 700 }}>코스</span>
-            </button>
-            <Nav icon={CalendarCheck} label="예약" active={screen === "confirm" || screen === "booking"} onClick={() => setScreen("confirm")} />
-            <Nav icon={User} label="마이" active={screen === "mypage"} onClick={() => setScreen("mypage")} />
+    <LangCtx.Provider value={{ code: lang }}>
+      <div style={{ minHeight: "100vh", background: "#E6ECF6", display: "flex", justifyContent: "center", alignItems: "flex-start", padding: "20px 12px", fontFamily: "-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif" }}>
+        <div style={{ width: 390, maxWidth: "100%", height: 800, background: C.bg, borderRadius: 34, overflow: "hidden", position: "relative", boxShadow: "0 20px 60px rgba(30,50,110,0.25)", border: "6px solid #101826" }}>
+          <div style={{ position: "absolute", inset: 0, bottom: screen === "onboarding" ? 0 : 66, overflowY: "auto" }}>
+            {screen === "onboarding" && <Onboarding {...{ step, setStep, lang, setLang, cats, toggle, flight, setFlight, go: () => setScreen("home"), flightLookup, onLookup: lookupFlight, connFlight, setConnFlight, connLookup, onLookupDeparture: lookupDeparture, arriveMin, returnByMin }} />}
+            {screen === "home" && <HomeScreen {...{ cats, openRoom: (r) => { setRoom(r); setScreen("booking"); }, setScreen, flight, arrive: arriveMin, returnBy: returnByMin, flightLookup }} />}
+            {screen === "booking" && <Booking room={room} onPay={() => setScreen("confirm")} back={() => setScreen("home")} />}
+            {screen === "confirm" && <Confirm room={room} back={() => setScreen("home")} />}
+            {screen === "luggage" && <Luggagepage back={() => setScreen("home")} />}
+            {screen === "course" && <Course cats={cats} back={() => setScreen("home")} onBook={(r) => { setRoom(r); setScreen("booking"); }} arrive={arriveMin} returnBy={returnByMin} />}
+            {screen === "mypage" && <MyPage lang={lang} />}
           </div>
-        )}
+          {screen !== "onboarding" && (
+            <Nav screen={screen} setScreen={setScreen} />
+          )}
+        </div>
       </div>
+    </LangCtx.Provider>
+  );
+}
+function Nav({ screen, setScreen }) {
+  const { t } = useLang();
+  return (
+    <div style={{ position: "absolute", left: 0, right: 0, bottom: 0, height: 66, background: "#fff", borderTop: `1px solid ${C.line}`, display: "flex", alignItems: "center", justifyContent: "space-around", paddingBottom: 4 }}>
+      <NavItem icon={HomeIcon} label={t("navHome")} active={screen === "home"} onClick={() => setScreen("home")} />
+      <NavItem icon={Luggage} label={t("navLuggage")} active={screen === "luggage"} onClick={() => setScreen("luggage")} />
+      <button onClick={() => setScreen("course")} style={{ border: "none", cursor: "pointer", marginTop: -22, width: 56, height: 56, borderRadius: 28, background: grad, color: "#fff", display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", boxShadow: "0 6px 16px rgba(47,123,230,.45)" }}>
+        <Route size={20} /><span style={{ fontSize: 8, marginTop: 1, fontWeight: 700 }}>{t("navCourse")}</span>
+      </button>
+      <NavItem icon={CalendarCheck} label={t("navBooking")} active={screen === "confirm" || screen === "booking"} onClick={() => setScreen("confirm")} />
+      <NavItem icon={User} label={t("navMy")} active={screen === "mypage"} onClick={() => setScreen("mypage")} />
     </div>
   );
 }
-const Nav = ({ icon: Icon, label, active, onClick }) => (
+const NavItem = ({ icon: Icon, label, active, onClick }) => (
   <button onClick={onClick} style={{ border: "none", background: "none", cursor: "pointer", display: "flex", flexDirection: "column", alignItems: "center", gap: 3, color: active ? C.blue : C.faint, width: 60 }}>
     <Icon size={20} /><span style={{ fontSize: 10, fontWeight: active ? 700 : 500 }}>{label}</span>
   </button>
 );
 
 /* ---------- ONBOARDING ---------- */
-function Onboarding({ step, setStep, lang, setLang, cats, toggle, flight, setFlight, go, flightLookup, onLookup, arriveMin, returnByMin }) {
+function Onboarding({ step, setStep, lang, setLang, cats, toggle, flight, setFlight, go, flightLookup, onLookup, connFlight, setConnFlight, connLookup, onLookupDeparture, arriveMin, returnByMin }) {
+  const { t, tr, fmtTime } = useLang();
+  const stayMin = returnByMin - arriveMin;
+  const stayH = Math.floor(stayMin / 60);
+  const stayM = stayMin % 60;
   return (
     <div style={{ minHeight: "100%", background: grad, display: "flex", flexDirection: "column" }}>
       <div style={{ padding: "38px 24px 16px", color: "#fff" }}>
         <Brand h={40} dark />
-        <div style={{ fontSize: 26, fontWeight: 900, marginTop: 18, lineHeight: 1.2 }}>짐은 맡기고,<br />환승 시간을 인천에서</div>
+        <div style={{ fontSize: 26, fontWeight: 900, marginTop: 18, lineHeight: 1.2 }}>{t("taglineLine1")}<br />{t("taglineLine2")}</div>
         <div style={{ fontSize: 12.5, opacity: 0.9, marginTop: 8 }}>Transit · Drop · Fly Light</div>
       </div>
       <div style={{ flex: 1, background: C.bg, borderTopLeftRadius: 26, borderTopRightRadius: 26, padding: "20px 20px 28px" }}>
@@ -199,98 +507,131 @@ function Onboarding({ step, setStep, lang, setLang, cats, toggle, flight, setFli
         </div>
 
         {step === 0 && (<>
-          <Title ko="언어를 선택해주세요" en="Choose your language" />
+          <Title title={t("step0Title")} />
           <div style={{ display: "flex", flexDirection: "column", gap: 10, marginTop: 16 }}>
             {LANGS.map((l) => (
               <button key={l.k} onClick={() => setLang(l.k)} style={row(lang === l.k)}>
                 <span style={{ fontSize: 20 }}>{l.f}</span>
-                <span style={{ flex: 1, textAlign: "left", fontWeight: 600, color: C.ink }}>{l.k}</span>
+                <span style={{ flex: 1, textAlign: "left", fontWeight: 600, color: C.ink }}>{l.label}</span>
                 {lang === l.k && <Check size={18} color={C.blue} />}
               </button>
             ))}
           </div>
-          <PrimaryBtn onClick={() => setStep(1)} style={{ marginTop: 20 }}>다음</PrimaryBtn>
+          <PrimaryBtn onClick={() => setStep(1)} style={{ marginTop: 20 }}>{t("next")}</PrimaryBtn>
         </>)}
 
         {step === 1 && (<>
-          <Title ko="관심 있는 활동을 골라주세요" en="Pick your interests" note="복수 선택 · Time-Fit 추천에 사용" />
+          <Title title={t("step1Title")} note={t("step1Note")} />
           <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr 1fr", gap: 10, marginTop: 16 }}>
             {CATS.map((c) => {
               const on = cats.includes(c.k); const Icon = c.icon;
               return (
                 <button key={c.k} onClick={() => toggle(c.k)} style={{ border: on ? `2px solid ${C.blue}` : `1.5px solid ${C.line}`, background: on ? C.tint : "#fff", borderRadius: 14, padding: "16px 6px", cursor: "pointer", display: "flex", flexDirection: "column", alignItems: "center", gap: 8 }}>
                   <Icon size={22} color={on ? C.blue : C.sub} />
-                  <span style={{ fontSize: 12, fontWeight: 700, color: on ? C.blueDeep : C.ink }}>{c.ko}</span>
+                  <span style={{ fontSize: 12, fontWeight: 700, color: on ? C.blueDeep : C.ink }}>{tr(CAT_LABELS[c.k])}</span>
                 </button>
               );
             })}
           </div>
-          <PrimaryBtn onClick={() => setStep(2)} style={{ marginTop: 20 }}>다음</PrimaryBtn>
+          <PrimaryBtn onClick={() => setStep(2)} style={{ marginTop: 20 }}>{t("next")}</PrimaryBtn>
         </>)}
 
         {step === 2 && (<>
-          <Title ko="환승 항공편을 입력해주세요" en="Your connecting flight" note="Time-Safe 여유 시간 자동 계산" />
-          <div style={{ marginTop: 16, background: "#fff", border: `1.5px solid ${C.line}`, borderRadius: 14, padding: "14px 16px", display: "flex", alignItems: "center", gap: 10 }}>
-            <Plane size={18} color={C.blue} />
-            <input value={flight} onChange={(e) => setFlight(e.target.value.toUpperCase())} placeholder="예: KE085"
+          <Title title={t("step2Title")} note={t("step2Note")} />
+
+          <div style={{ fontSize: 11, fontWeight: 700, color: C.faint, marginTop: 16, marginBottom: 6 }}>{t("arrivalLabel")}</div>
+          <div style={{ background: "#fff", border: `1.5px solid ${C.line}`, borderRadius: 14, padding: "14px 16px", display: "flex", alignItems: "center", gap: 10 }}>
+            <PlaneLanding size={18} color={C.blue} />
+            <input value={flight} onChange={(e) => setFlight(e.target.value.toUpperCase())} placeholder={t("arrivalPlaceholder")}
               style={{ border: "none", outline: "none", fontSize: 17, fontWeight: 700, color: C.ink, width: "100%", background: "transparent" }} />
             <button onClick={() => onLookup(flight)} disabled={!flight || flightLookup.status === "loading"}
               style={{ border: "none", cursor: flight ? "pointer" : "not-allowed", padding: "8px 12px", borderRadius: 10, background: C.tint, color: C.blueDeep, fontSize: 12, fontWeight: 700, whiteSpace: "nowrap", flexShrink: 0 }}>
-              {flightLookup.status === "loading" ? "조회 중…" : "실시간 조회"}
+              {flightLookup.status === "loading" ? t("lookupBtnLoading") : t("lookupBtn")}
             </button>
           </div>
           {flightLookup.status === "error" && (
-            <div style={{ marginTop: 8, fontSize: 11.5, color: C.red }}>{flightLookup.message} · 데모 값({hhmm(DEFAULT_ARRIVE)} 도착 기준)으로 계산할게요.</div>
+            <div style={{ marginTop: 8, fontSize: 11.5, color: C.red }}>{t(flightLookup.error)} · {t("retryFlightHint")}</div>
           )}
-          <div style={{ marginTop: 14, background: C.ink, borderRadius: 16, padding: "16px 18px", color: "#fff" }}>
-            <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", fontSize: 12, color: "#BFD3F0" }}>
-              <span style={{ display: "flex", alignItems: "center", gap: 8 }}><ShieldCheck size={15} /> TIME-SAFE 계산 결과</span>
-              <span style={{ fontSize: 10, fontWeight: 700, color: flightLookup.status === "success" ? C.lime : "#9FB6D4" }}>
-                {flightLookup.status === "success" ? "인천공항공사 실시간" : "데모 값"}
-              </span>
-            </div>
-            <div style={{ display: "flex", alignItems: "baseline", gap: 8, marginTop: 8 }}>
-              <span style={{ fontSize: 36, fontWeight: 900, color: C.gold }}>{Math.floor(LAYOVER_BUDGET / 60)}시간</span>
-              <span style={{ fontSize: 13, color: "#CFE0F5" }}>공항 밖 체류 가능</span>
-            </div>
-            <div style={{ fontSize: 12.5, color: "#CFE0F5", marginTop: 6, display: "flex", alignItems: "center", gap: 6 }}>
-              <Clock size={13} /> 도착 {hhmm(arriveMin)} · <b style={{ color: "#fff" }}>복귀 추천 {hhmm(returnByMin)}</b>
-            </div>
-            {flightLookup.status === "success" && (
-              <div style={{ fontSize: 11, color: "#9FB6D4", marginTop: 6 }}>
-                {flightLookup.flight.airline} {flightLookup.flight.flightId} · {flightLookup.flight.fromAirport}발 · {flightLookup.flight.terminal || "-"} 터미널 · 게이트 {flightLookup.flight.gate || "-"} · {flightLookup.flight.remark || "정상"}
-              </div>
-            )}
-            <div style={{ fontSize: 11, color: "#9FB6D4", marginTop: 6, display: "flex", alignItems: "center", gap: 6 }}>
-              <Bell size={12} /> 복귀 30분 전 푸시 알림 예약됨
-            </div>
+
+          <div style={{ fontSize: 11, fontWeight: 700, color: C.faint, marginTop: 16, marginBottom: 6 }}>{t("connLabel")}</div>
+          <div style={{ background: "#fff", border: `1.5px solid ${C.line}`, borderRadius: 14, padding: "14px 16px", display: "flex", alignItems: "center", gap: 10 }}>
+            <Plane size={18} color={C.gold} />
+            <input value={connFlight} onChange={(e) => setConnFlight(e.target.value.toUpperCase())} placeholder={t("connPlaceholder")}
+              style={{ border: "none", outline: "none", fontSize: 17, fontWeight: 700, color: C.ink, width: "100%", background: "transparent" }} />
+            <button onClick={() => onLookupDeparture(connFlight)} disabled={!connFlight || connLookup.status === "loading"}
+              style={{ border: "none", cursor: connFlight ? "pointer" : "not-allowed", padding: "8px 12px", borderRadius: 10, background: C.tint, color: C.blueDeep, fontSize: 12, fontWeight: 700, whiteSpace: "nowrap", flexShrink: 0 }}>
+              {connLookup.status === "loading" ? t("lookupBtnLoading") : t("lookupBtn")}
+            </button>
           </div>
-          <PrimaryBtn onClick={go} style={{ marginTop: 18, display: "flex", alignItems: "center", justifyContent: "center", gap: 6 }}>스마트 코스 추천 <Route size={16} /></PrimaryBtn>
+          {connLookup.status === "error" && (
+            <div style={{ marginTop: 8, fontSize: 11.5, color: C.red }}>{t(connLookup.error)} · {t("retryFlightHint")}</div>
+          )}
+
+          {(() => {
+            const bothReady = flightLookup.status === "success" && connLookup.status === "success";
+            return (<>
+              <div style={{ marginTop: 14, background: C.ink, borderRadius: 16, padding: "16px 18px", color: "#fff" }}>
+                <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", fontSize: 12, color: "#BFD3F0" }}>
+                  <span style={{ display: "flex", alignItems: "center", gap: 8 }}><ShieldCheck size={15} /> {t("timeSafeHeading")}</span>
+                  {bothReady && <span style={{ fontSize: 10, fontWeight: 700, color: C.lime }}>{t("statusRealtimeConn")}</span>}
+                </div>
+                {bothReady ? (<>
+                  <div style={{ display: "flex", alignItems: "baseline", gap: 8, marginTop: 8 }}>
+                    <span style={{ fontSize: 36, fontWeight: 900, color: C.gold }}>{stayM ? t("stayHoursMinutes", { h: stayH, m: stayM }) : t("stayHoursOnly", { h: stayH })}</span>
+                    <span style={{ fontSize: 13, color: "#CFE0F5" }}>{t("stayAvailable")}</span>
+                  </div>
+                  <div style={{ fontSize: 12.5, color: "#CFE0F5", marginTop: 6, display: "flex", alignItems: "center", gap: 6 }}>
+                    <Clock size={13} /> {t("arriveWord")} {fmtTime(arriveMin)} · <b style={{ color: "#fff" }}>{t("returnRecWord")} {fmtTime(returnByMin)}</b>
+                  </div>
+                  <div style={{ fontSize: 11, color: "#9FB6D4", marginTop: 6 }}>
+                    {flightLookup.flight.airline} {flightLookup.flight.flightId} · {t("fromLbl")} {flightLookup.flight.fromAirport} · {t("terminalLbl")} {flightLookup.flight.terminal || "-"} · {t("gateLbl")} {flightLookup.flight.gate || "-"} · {flightLookup.flight.remark || t("remarkNormal")}
+                  </div>
+                  <div style={{ fontSize: 11, color: "#9FB6D4", marginTop: 6 }}>
+                    {connLookup.flight.airline} {connLookup.flight.flightId} · {t("toLbl")} {connLookup.flight.toAirport} · {t("departsLbl")} {fmtTime(connLookup.departMin)} · {t("bufferAppliedNote", { min: RETURN_BUFFER })}
+                  </div>
+                  <div style={{ fontSize: 11, color: "#9FB6D4", marginTop: 6, display: "flex", alignItems: "center", gap: 6 }}>
+                    <Bell size={12} /> {t("pushNotice")}
+                  </div>
+                </>) : flightLookup.status === "success" ? (<>
+                  <div style={{ fontSize: 11, color: "#9FB6D4", marginTop: 10 }}>
+                    {flightLookup.flight.airline} {flightLookup.flight.flightId} · {t("fromLbl")} {flightLookup.flight.fromAirport} · {t("terminalLbl")} {flightLookup.flight.terminal || "-"} · {t("gateLbl")} {flightLookup.flight.gate || "-"} · {flightLookup.flight.remark || t("remarkNormal")}
+                  </div>
+                  <div style={{ fontSize: 12.5, color: "#9FB6D4", marginTop: 10, lineHeight: 1.6 }}>{t("timeSafeNeedsConnFlight")}</div>
+                </>) : (
+                  <div style={{ fontSize: 12.5, color: "#9FB6D4", marginTop: 10, lineHeight: 1.6 }}>{t("timeSafeNeedsFlight")}</div>
+                )}
+              </div>
+              <PrimaryBtn onClick={go} disabled={!bothReady} style={{ marginTop: 18, display: "flex", alignItems: "center", justifyContent: "center", gap: 6 }}>{t("ctaSmartCourse")} <Route size={16} /></PrimaryBtn>
+              {!bothReady && (
+                <div style={{ marginTop: 8, fontSize: 11, color: C.faint, textAlign: "center" }}>{t("needFlightHint")}</div>
+              )}
+            </>);
+          })()}
         </>)}
       </div>
     </div>
   );
 }
-const Title = ({ ko, en, note }) => (
+const Title = ({ title, note }) => (
   <div>
     <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
-      <div style={{ fontSize: 17, fontWeight: 800, color: C.ink }}>{ko}</div>
+      <div style={{ fontSize: 17, fontWeight: 800, color: C.ink }}>{title}</div>
       {note && <span style={{ fontSize: 10, color: C.faint, maxWidth: 130, textAlign: "right" }}>{note}</span>}
     </div>
-    <div style={{ fontSize: 12, color: C.faint, marginTop: 3 }}>{en}</div>
   </div>
 );
 const row = (on) => ({ display: "flex", alignItems: "center", gap: 12, padding: "14px 16px", borderRadius: 14, border: on ? `2px solid ${C.blue}` : `1.5px solid ${C.line}`, background: on ? C.tint : "#fff", cursor: "pointer" });
 
 /* ---------- HOME ---------- */
 function HomeScreen({ cats, openRoom, setScreen, flight, arrive, returnBy, flightLookup }) {
-  const tags = cats.map((k) => CATS.find((c) => c.k === k)?.ko).filter(Boolean);
+  const { t, tr, fmtTime } = useLang();
+  const LOCAL_CHIPS = ["yeongjong", "songdo", "chinatown", "muui"];
   return (
     <div>
       <div style={{ background: grad, padding: "34px 20px 20px", color: "#fff", borderBottomLeftRadius: 22, borderBottomRightRadius: 22 }}>
         <Brand h={30} dark />
-        <div style={{ fontSize: 21, fontWeight: 900, marginTop: 14 }}>Hello, Traveler! 👋</div>
-        <div style={{ fontSize: 12.5, opacity: 0.9, marginTop: 3 }}>여유 시간에 딱 맞는 인천 코스를 준비했어요.</div>
+        <div style={{ fontSize: 21, fontWeight: 900, marginTop: 14 }}>{t("greeting")}</div>
+        <div style={{ fontSize: 12.5, opacity: 0.9, marginTop: 3 }}>{t("homeSub")}</div>
       </div>
 
       <div style={{ padding: "16px 16px 20px" }}>
@@ -299,15 +640,15 @@ function HomeScreen({ cats, openRoom, setScreen, flight, arrive, returnBy, fligh
             <div style={{ display: "flex", alignItems: "center", gap: 7 }}>
               <ShieldCheck size={17} color={C.blue} /><span style={{ fontSize: 13.5, fontWeight: 800, color: C.ink }}>Time-Safe · {flight}</span>
             </div>
-            <span style={{ fontSize: 11, fontWeight: 700, color: flightLookup.status === "success" ? "#2E9E5B" : C.sub, background: flightLookup.status === "success" ? "#E7F7EE" : C.line, padding: "3px 9px", borderRadius: 999 }}>{flightLookup.status === "success" ? "실시간" : "데모값"}</span>
+            <span style={{ fontSize: 11, fontWeight: 700, color: flightLookup.status === "success" ? "#2E9E5B" : C.sub, background: flightLookup.status === "success" ? "#E7F7EE" : C.line, padding: "3px 9px", borderRadius: 999 }}>{flightLookup.status === "success" ? t("realtimeBadge") : t("demoBadge")}</span>
           </div>
           <div style={{ display: "flex", alignItems: "flex-end", gap: 14, marginTop: 10 }}>
-            <div><div style={{ fontSize: 28, fontWeight: 900, color: C.blueDeep }}>{Math.floor((returnBy - arrive) / 60)}:00</div><div style={{ fontSize: 10, color: C.faint }}>체류 가능</div></div>
-            <div style={{ flex: 1, fontSize: 12, color: C.sub, lineHeight: 1.5 }}>도착 <b style={{ color: C.ink }}>{hhmm(arrive)}</b><br />공항 복귀 추천 <b style={{ color: C.red }}>{hhmm(returnBy)}</b></div>
+            <div><div style={{ fontSize: 28, fontWeight: 900, color: C.blueDeep }}>{Math.floor((returnBy - arrive) / 60)}:00</div><div style={{ fontSize: 10, color: C.faint }}>{t("stayAvailableShort")}</div></div>
+            <div style={{ flex: 1, fontSize: 12, color: C.sub, lineHeight: 1.5 }}>{t("arriveWord")} <b style={{ color: C.ink }}>{fmtTime(arrive)}</b><br />{t("returnRecommend")} <b style={{ color: C.red }}>{fmtTime(returnBy)}</b></div>
           </div>
         </Card>
 
-        <SectionHead title="Time-Fit 추천 코스" sub="관심사별로 골라 환승 일정 자동 생성" onMore={() => setScreen("course")} />
+        <SectionHead title={t("sectionTimeFit")} sub={t("sectionTimeFitSub")} onMore={() => setScreen("course")} />
         <div onClick={() => setScreen("course")} style={{ cursor: "pointer", marginBottom: 18 }}>
           <Card style={{ padding: 16 }}>
             <div style={{ display: "flex", flexWrap: "wrap", gap: 8, marginBottom: 12 }}>
@@ -315,30 +656,30 @@ function HomeScreen({ cats, openRoom, setScreen, flight, arrive, returnBy, fligh
                 const Icon = c.icon; const on = cats.includes(c.k);
                 return (
                   <span key={c.k} style={{ display: "flex", alignItems: "center", gap: 5, fontSize: 12, fontWeight: 700, padding: "7px 11px", borderRadius: 999, background: on ? C.tint : "#F4F7FB", color: on ? C.blueDeep : C.sub }}>
-                    <Icon size={13} /> {c.ko}
+                    <Icon size={13} /> {tr(CAT_LABELS[c.k])}
                   </span>
                 );
               })}
             </div>
             <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between" }}>
-              <div style={{ fontSize: 12.5, color: C.sub }}>카테고리를 골라 <b style={{ color: C.ink }}>나만의 환승 코스</b>를 만들어보세요</div>
-              <span style={{ display: "flex", alignItems: "center", gap: 2, color: C.blue, fontWeight: 800, fontSize: 13 }}>만들기 <ChevronRight size={15} /></span>
+              <div style={{ fontSize: 12.5, color: C.sub }}>{t("homeBuildPrefix")} <b style={{ color: C.ink }}>{t("homeBuildBold")}</b>{t("homeBuildSuffix")}</div>
+              <span style={{ display: "flex", alignItems: "center", gap: 2, color: C.blue, fontWeight: 800, fontSize: 13 }}>{t("makeBtn")} <ChevronRight size={15} /></span>
             </div>
           </Card>
         </div>
 
-        <SectionHead title="데이유즈 · 타임블록 예약" sub="3–9시간 유연 예약 · 샤워/휴식" onMore={() => openRoom(ROOMS[0])} />
+        <SectionHead title={t("sectionDayuse")} sub={t("sectionDayuseSub")} onMore={() => openRoom(ROOMS[0])} />
         <div style={{ display: "flex", gap: 12, overflowX: "auto", paddingBottom: 6, marginBottom: 8 }}>
           {ROOMS.map((r) => (
-            <div key={r.name} onClick={() => openRoom(r)} style={{ minWidth: 178, cursor: "pointer" }}>
-              <Photo icon={<Bed size={30} color="#fff" />} tint={r.tint} badge={r.best ? "추천" : null} />
-              <div style={{ fontWeight: 800, fontSize: 14, color: C.ink, marginTop: 8 }}>{r.name}</div>
-              <div style={{ fontSize: 11, color: C.faint, marginTop: 2 }}>{r.dist} · {r.block}</div>
+            <div key={r.id} onClick={() => openRoom(r)} style={{ minWidth: 178, cursor: "pointer" }}>
+              <Photo icon={<Bed size={30} color="#fff" />} tint={r.tint} badge={r.best ? t("bestBadge") : null} />
+              <div style={{ fontWeight: 800, fontSize: 14, color: C.ink, marginTop: 8 }}>{tr(r.name)}</div>
+              <div style={{ fontSize: 11, color: C.faint, marginTop: 2 }}>{t("airportMinAway", { n: r.distMin })} · {t("hourRange", { a: r.hourMin, b: r.hourMax })}</div>
               <div style={{ display: "flex", gap: 8, marginTop: 6, color: C.sub, fontSize: 10 }}>
-                <span style={feat}><Droplets size={11} /> 샤워</span><span style={feat}><Bed size={11} /> 휴식</span><span style={feat}><Luggage size={11} /> 짐보관</span>
+                <span style={feat}><Droplets size={11} /> {t("featShower")}</span><span style={feat}><Bed size={11} /> {t("featRest")}</span><span style={feat}><Luggage size={11} /> {t("featLuggage")}</span>
               </div>
               <div style={{ marginTop: 6, display: "flex", alignItems: "baseline", gap: 4 }}>
-                <span style={{ fontWeight: 800, color: C.ink, fontSize: 15 }}>{won(r.price)}~</span><span style={{ fontSize: 9, color: C.faint }}>/블록</span>
+                <span style={{ fontWeight: 800, color: C.ink, fontSize: 15 }}>{won(r.price)}~</span><span style={{ fontSize: 9, color: C.faint }}>{t("perBlock")}</span>
               </div>
             </div>
           ))}
@@ -346,24 +687,24 @@ function HomeScreen({ cats, openRoom, setScreen, flight, arrive, returnBy, fligh
 
         <div onClick={() => setScreen("luggage")} style={{ background: "#FDECEA", borderRadius: 14, padding: "13px 16px", display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 20, cursor: "pointer" }}>
           <div>
-            <div style={{ fontWeight: 800, color: C.red, fontSize: 13 }}>수하물 케어 (Luggage-Free)</div>
-            <div style={{ fontSize: 11, color: C.sub, marginTop: 2 }}>공항 보관 · 호텔/상권 배송 → 가볍게 이동</div>
+            <div style={{ fontWeight: 800, color: C.red, fontSize: 13 }}>{t("luggageCareTitle")}</div>
+            <div style={{ fontSize: 11, color: C.sub, marginTop: 2 }}>{t("luggageCareSub")}</div>
           </div>
           <Luggage size={24} color={C.red} />
         </div>
 
-        <SectionHead title="시간 내 다녀오는 로컬" sub="Time-Fit · 복귀 가능 코스" onMore={() => setScreen("home")} />
+        <SectionHead title={t("sectionLocal")} sub={t("sectionLocalSub")} onMore={() => setScreen("home")} />
         <div style={{ display: "flex", gap: 6, marginBottom: 12 }}>
-          {["영종도", "송도", "차이나타운", "무의도"].map((t, i) => <Chip key={t} active={i === 0}>{t}</Chip>)}
+          {LOCAL_CHIPS.map((k, i) => <Chip key={k} active={i === 0}>{tr(AREA_LABELS[k])}</Chip>)}
         </div>
         <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 12 }}>
           {LOCAL.map((l) => {
             const Icon = l.icon;
             return (
-              <div key={l.n}>
+              <div key={l.id}>
                 <Photo icon={<Icon size={22} color="#fff" />} tint={l.tint} h={82} />
-                <div style={{ fontSize: 12, fontWeight: 700, color: C.ink, marginTop: 6 }}>{l.n}</div>
-                <div style={{ fontSize: 10, color: C.faint }}>{l.s}</div>
+                <div style={{ fontSize: 12, fontWeight: 700, color: C.ink, marginTop: 6 }}>{tr(l.n)}</div>
+                <div style={{ fontSize: 10, color: C.faint }}>{tr(l.area)} · {t("durationMin", { n: l.min })}</div>
               </div>
             );
           })}
@@ -376,30 +717,32 @@ const feat = { display: "flex", alignItems: "center", gap: 2 };
 
 /* ---------- BOOKING ---------- */
 function Booking({ room, onPay, back }) {
+  const { t, tr } = useLang();
   const total = room.price;
+  const blockStr = t("hourRange", { a: room.hourMin, b: room.hourMax });
   return (
     <div>
-      <Top title="데이유즈 예약" sub="Day-use booking" back={back} />
+      <Top title={t("bookingTitle")} sub={t("bookingSub")} back={back} />
       <div style={{ padding: 16 }}>
         <Card style={{ padding: 14, display: "flex", gap: 12, marginBottom: 14 }}>
           <div style={{ width: 66, height: 66, borderRadius: 12, background: room.tint, display: "flex", alignItems: "center", justifyContent: "center" }}><Bed size={26} color="#fff" /></div>
           <div style={{ flex: 1 }}>
-            <div style={{ fontWeight: 800, color: C.ink }}>{room.name}</div>
-            <div style={{ fontSize: 11, color: C.faint, marginTop: 3 }}>{room.block} 타임블록 · 11:20 – 15:20</div>
-            <div style={{ fontSize: 11, color: C.faint, marginTop: 2 }}>{room.dist} · 샤워·휴식·짐보관 포함</div>
+            <div style={{ fontWeight: 800, color: C.ink }}>{tr(room.name)}</div>
+            <div style={{ fontSize: 11, color: C.faint, marginTop: 3 }}>{blockStr} {t("timeBlockWord")} · 11:20 – 15:20</div>
+            <div style={{ fontSize: 11, color: C.faint, marginTop: 2 }}>{t("airportMinAway", { n: room.distMin })} · {t("includesShowerRestLuggage")}</div>
           </div>
         </Card>
         <Card style={{ padding: 16, marginBottom: 14 }}>
-          <div style={{ fontSize: 13, fontWeight: 800, color: C.ink, marginBottom: 10 }}>결제 내역</div>
-          <Line l="4시간 타임블록" r={won(room.price)} />
+          <div style={{ fontSize: 13, fontWeight: 800, color: C.ink, marginBottom: 10 }}>{t("paymentDetails")}</div>
+          <Line l={t("fourHourBlock")} r={won(room.price)} />
           <div style={{ height: 1, background: C.line, margin: "10px 0" }} />
           <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
-            <span style={{ fontWeight: 800, color: C.ink }}>총 결제금액</span>
+            <span style={{ fontWeight: 800, color: C.ink }}>{t("totalPayment")}</span>
             <span style={{ fontWeight: 900, color: C.blueDeep, fontSize: 18 }}>{won(total)}</span>
           </div>
         </Card>
-        <div style={{ fontSize: 11, color: C.faint, marginBottom: 16 }}>간편결제 · Alipay · WeChat Pay · Card</div>
-        <PrimaryBtn onClick={onPay} style={{ display: "flex", alignItems: "center", justifyContent: "center", gap: 6 }}>결제하기 <ChevronRight size={16} /></PrimaryBtn>
+        <div style={{ fontSize: 11, color: C.faint, marginBottom: 16 }}>{t("easyPayNote")}</div>
+        <PrimaryBtn onClick={onPay} style={{ display: "flex", alignItems: "center", justifyContent: "center", gap: 6 }}>{t("payBtn")} <ChevronRight size={16} /></PrimaryBtn>
       </div>
     </div>
   );
@@ -413,22 +756,24 @@ const Line = ({ l, r, green }) => (
 
 /* ---------- CONFIRM ---------- */
 function Confirm({ room, back }) {
+  const { t, tr } = useLang();
+  const blockStr = t("hourRange", { a: room.hourMin, b: room.hourMax });
   return (
     <div>
-      <Top title="예약 확인" sub="My booking" back={back} />
+      <Top title={t("confirmTitle")} sub={t("confirmSub")} back={back} />
       <div style={{ padding: "8px 16px 16px" }}>
         <Card style={{ padding: 24, textAlign: "center" }}>
-          <div style={{ display: "inline-flex", alignItems: "center", gap: 6, background: "#E7F7EE", color: "#2E9E5B", padding: "6px 12px", borderRadius: 999, fontSize: 12, fontWeight: 700 }}><Check size={14} /> 예약 완료</div>
+          <div style={{ display: "inline-flex", alignItems: "center", gap: 6, background: "#E7F7EE", color: "#2E9E5B", padding: "6px 12px", borderRadius: 999, fontSize: 12, fontWeight: 700 }}><Check size={14} /> {t("bookingComplete")}</div>
           <div style={{ margin: "20px auto 10px", width: 168, height: 168, background: "#fff", border: `1px solid ${C.line}`, borderRadius: 14, display: "flex", alignItems: "center", justifyContent: "center" }}><QR /></div>
-          <div style={{ fontSize: 12, color: C.faint }}>예약번호</div>
+          <div style={{ fontSize: 12, color: C.faint }}>{t("bookingNumber")}</div>
           <div style={{ fontWeight: 800, color: C.ink, letterSpacing: 1, marginTop: 2 }}>ICN20260708001</div>
           <div style={{ height: 1, background: C.line, margin: "18px 0" }} />
           <div style={{ textAlign: "left", display: "flex", flexDirection: "column", gap: 8 }}>
-            <Info l="숙소" r={room.name} /><Info l="타임블록" r={`${room.block} · 11:20–15:20`} />
-            <Info l="포함" r="샤워 · 휴식 · 짐보관" /><Info l="Time-Safe" r="복귀 16:30 · 알림 ON" />
+            <Info l={t("lodgingLbl")} r={tr(room.name)} /><Info l={t("timeBlockWord")} r={`${blockStr} · 11:20–15:20`} />
+            <Info l={t("includedLbl")} r={t("confirmIncludedVal")} /><Info l="Time-Safe" r={`${t("confirmReturnAt", { time: "16:30" })} · ${t("alertOnLbl")}`} />
           </div>
         </Card>
-        <button onClick={back} style={{ marginTop: 16, width: "100%", border: `1.5px solid ${C.blue}`, background: "#fff", color: C.blue, fontWeight: 700, padding: "13px 0", borderRadius: 12, cursor: "pointer" }}>홈으로</button>
+        <button onClick={back} style={{ marginTop: 16, width: "100%", border: `1.5px solid ${C.blue}`, background: "#fff", color: C.blue, fontWeight: 700, padding: "13px 0", borderRadius: 12, cursor: "pointer" }}>{t("homeBtn")}</button>
       </div>
     </div>
   );
@@ -451,27 +796,28 @@ const QR = () => {
 
 /* ---------- LUGGAGE ---------- */
 function Luggagepage({ back }) {
+  const { t } = useLang();
   const opts = [
-    { t: "공항 내 보관", d: "T1 · T2 스마트 락커 즉시 보관", p: "₩7,000~", ic: Luggage },
-    { t: "호텔로 배송", d: "데이유즈 숙소로 짐 픽업·배송", p: "₩12,000~", ic: Bed },
-    { t: "상권으로 배송", d: "영종도·차이나타운 거점 수령", p: "₩12,000~", ic: MapPin },
+    { id: "in-airport", tKey: "luggageOpt1Title", dKey: "luggageOpt1Desc", p: "₩7,000~", ic: Luggage },
+    { id: "to-hotel", tKey: "luggageOpt2Title", dKey: "luggageOpt2Desc", p: "₩12,000~", ic: Bed },
+    { id: "to-district", tKey: "luggageOpt3Title", dKey: "luggageOpt3Desc", p: "₩12,000~", ic: MapPin },
   ];
   return (
     <div>
-      <Top title="수하물 케어" sub="Luggage-Free" back={back} />
+      <Top title={t("luggageTitle")} sub={t("luggageSub")} back={back} />
       <div style={{ padding: 16 }}>
         <div style={{ background: "#FDECEA", borderRadius: 14, padding: "14px 16px", marginBottom: 16, fontSize: 12.5, color: C.ink, lineHeight: 1.5 }}>
-          무거운 캐리어는 맡기고 <b style={{ color: C.red }}>가볍게</b> 이동하세요. 항공편 복귀 시간에 맞춰 짐을 공항으로 되돌려 드립니다.
+          {t("luggageBannerPrefix")} <b style={{ color: C.red }}>{t("luggageBannerBold")}</b>{t("luggageBannerSuffix")}
         </div>
         <div style={{ display: "flex", flexDirection: "column", gap: 12 }}>
           {opts.map((o) => {
             const Icon = o.ic;
             return (
-              <Card key={o.t} style={{ padding: 14, display: "flex", alignItems: "center", gap: 13 }}>
+              <Card key={o.id} style={{ padding: 14, display: "flex", alignItems: "center", gap: 13 }}>
                 <div style={{ width: 46, height: 46, borderRadius: 12, background: C.tint, display: "flex", alignItems: "center", justifyContent: "center" }}><Icon size={20} color={C.blue} /></div>
                 <div style={{ flex: 1 }}>
-                  <div style={{ fontWeight: 700, color: C.ink, fontSize: 14 }}>{o.t}</div>
-                  <div style={{ fontSize: 11, color: C.faint, marginTop: 2 }}>{o.d}</div>
+                  <div style={{ fontWeight: 700, color: C.ink, fontSize: 14 }}>{t(o.tKey)}</div>
+                  <div style={{ fontSize: 11, color: C.faint, marginTop: 2 }}>{t(o.dKey)}</div>
                 </div>
                 <div style={{ fontWeight: 800, color: C.blueDeep, fontSize: 13 }}>{o.p}</div>
               </Card>
@@ -484,22 +830,29 @@ function Luggagepage({ back }) {
 }
 
 /* ---------- MY PAGE ---------- */
-function MyPage() {
-  const menu = [{ icon: CalendarCheck, l: "예약 내역" }, { icon: Ticket, l: "쿠폰" }, { icon: Bell, l: "Time-Safe 알림" }, { icon: User, l: "여권 인증" }, { icon: Search, l: "언어 설정", r: "English" }];
+function MyPage({ lang }) {
+  const { t } = useLang();
+  const menu = [
+    { id: "history", icon: CalendarCheck, lKey: "menuBookingHistory" },
+    { id: "coupon", icon: Ticket, lKey: "menuCoupon" },
+    { id: "alert", icon: Bell, lKey: "menuTimeSafeAlert" },
+    { id: "passport", icon: User, lKey: "menuPassport" },
+    { id: "lang", icon: Search, lKey: "menuLangSetting", r: LANGS.find((l) => l.k === lang)?.label },
+  ];
   return (
     <div>
-      <Top title="마이 페이지" sub="My page" />
+      <Top title={t("myPageTitle")} sub={t("myPageSub")} />
       <div style={{ padding: 16 }}>
         <Card style={{ padding: 18, display: "flex", alignItems: "center", gap: 14, marginBottom: 16 }}>
           <div style={{ width: 52, height: 52, borderRadius: 999, background: grad, display: "flex", alignItems: "center", justifyContent: "center" }}><User size={24} color="#fff" /></div>
-          <div style={{ flex: 1 }}><div style={{ fontWeight: 800, color: C.ink }}>Hello, Traveler!</div><div style={{ fontSize: 11, color: C.faint, marginTop: 2 }}>포인트 2,450P</div></div>
+          <div style={{ flex: 1 }}><div style={{ fontWeight: 800, color: C.ink }}>{t("myPageGreeting")}</div><div style={{ fontSize: 11, color: C.faint, marginTop: 2 }}>{t("pointsLabel", { n: "2,450" })}</div></div>
         </Card>
         <Card style={{ overflow: "hidden" }}>
           {menu.map((m, i) => {
             const Icon = m.icon;
             return (
-              <div key={m.l} style={{ display: "flex", alignItems: "center", gap: 12, padding: "15px 16px", borderBottom: i < menu.length - 1 ? `1px solid ${C.line}` : "none" }}>
-                <Icon size={18} color={C.sub} /><span style={{ flex: 1, fontSize: 14, color: C.ink }}>{m.l}</span>
+              <div key={m.id} style={{ display: "flex", alignItems: "center", gap: 12, padding: "15px 16px", borderBottom: i < menu.length - 1 ? `1px solid ${C.line}` : "none" }}>
+                <Icon size={18} color={C.sub} /><span style={{ flex: 1, fontSize: 14, color: C.ink }}>{t(m.lKey)}</span>
                 {m.r && <span style={{ fontSize: 12, color: C.faint }}>{m.r}</span>}<ChevronRight size={16} color={C.faint} />
               </div>
             );
@@ -512,72 +865,240 @@ function MyPage() {
 
 /* ---------- COURSE BUILDER ---------- */
 const CAT_META = {
-  Food: { ko: "맛집", icon: Utensils, col: C.gold },
-  Massage: { ko: "마사지", icon: Sparkles, col: C.lime },
-  Shopping: { ko: "쇼핑", icon: ShoppingBag, col: C.blue },
-  Rest: { ko: "휴식", icon: Bed, col: C.ink },
-  Beauty: { ko: "뷰티", icon: Scissors, col: C.red },
-  Sightseeing: { ko: "관광", icon: Camera, col: C.lime },
+  Food: { icon: Utensils, col: C.gold },
+  Massage: { icon: Sparkles, col: C.lime },
+  Shopping: { icon: ShoppingBag, col: C.blue },
+  Rest: { icon: Bed, col: C.ink },
+  Beauty: { icon: Scissors, col: C.red },
+  Sightseeing: { icon: Camera, col: C.lime },
+  Brand: { icon: Tag, col: C.goldDeep },
 };
-const ACT_KEYS = ["Food", "Massage", "Shopping", "Beauty", "Sightseeing"];
+const ACT_KEYS = ["Food", "Massage", "Shopping", "Beauty", "Sightseeing", "Brand"];
 const ACT_CATS = CATS.filter((c) => ACT_KEYS.includes(c.k));
-const AD_PLACES = new Set(["올리브영 K-뷰티", "차이나타운 딤섬", "공항 스파 발마사지", "스카이72 아울렛"]);
-const PARTNERS = [
-  { n: "신라면세점 시내픽업", d: "환승 중 주문 → 공항 수령", icon: ShoppingBag, tint: "#CFE0F5" },
-  { n: "올리브영 K-뷰티", d: "제휴 여행자 전용 혜택", icon: Sparkles, tint: "#E8C4D6" },
-  { n: "공항 프리미엄 라운지", d: "복귀 대기 시간에 이용", icon: Coffee, tint: "#C7E4D6" },
-];
+// AD_PLACES: 제휴 광고비를 받고 노출되는 자리("제휴 AD" 배지) — Brand 카테고리 장소는 전부 여기 포함.
+const AD_PLACES = new Set(["olive-young-kbeauty", "chinatown-dimsum", "airport-spa-foot", "sky72-outlet", "shilla-pickup", "olive-young-partner", "premium-lounge-partner"]);
+// PLACES는 카카오 로컬 API로 "여행>숙박"이 아닌 실제 업체(음식점/마사지/면세점 등) 카테고리를 교차 검증한
+// 실존 장소입니다. 좌표는 카카오 검색 결과 그대로. 다만 요금/체류시간은 각 업체 공개 예약 API가 없어 추정치입니다.
 const PLACES = {
   Food: [
-    { name: "차이나타운 딤섬", area: "인천 차이나타운", move: 40, dur: 60, price: 18000, tint: "#F3C4B8" },
-    { name: "신포국제시장 먹거리", area: "인천 신포동", move: 45, dur: 50, price: 12000, tint: "#F7D9B0" },
-    { name: "영종 해물칼국수", area: "영종도", move: 15, dur: 45, price: 14000, tint: "#F3D9B8" },
+    { id: "chinatown-dimsum", name: { ko: "원보만두", en: "Wonbo Mandu", zh: "Wonbo Mandu", ja: "Wonbo Mandu", vi: "Wonbo Mandu" }, area: { ko: "인천 차이나타운", en: "Incheon Chinatown", zh: "仁川唐人街", ja: "仁川チャイナタウン", vi: "Phố người Hoa Incheon" }, move: 40, dur: 45, price: 12000, tint: "#F3C4B8", coord: { lat: 37.475256, lng: 126.618969 } },
+    { id: "sinpo-market", name: { ko: "원조신포닭강정", en: "Wonjo Sinpo Dakgangjeong", zh: "Wonjo Sinpo Dakgangjeong", ja: "Wonjo Sinpo Dakgangjeong", vi: "Wonjo Sinpo Dakgangjeong" }, area: { ko: "인천 신포동", en: "Incheon Sinpo-dong", zh: "仁川新浦洞", ja: "仁川新浦洞", vi: "Sinpo-dong, Incheon" }, move: 42, dur: 30, price: 15000, tint: "#F7D9B0", coord: { lat: 37.471749, lng: 126.628113 } },
+    { id: "yeongjong-noodles", name: { ko: "황생가칼국수 인천공항T2점", en: "Hwangsaenggae Kalguksu (ICN T2)", zh: "Hwangsaenggae Kalguksu (ICN T2)", ja: "Hwangsaenggae Kalguksu (ICN T2)", vi: "Hwangsaenggae Kalguksu (ICN T2)" }, area: { ko: "인천공항 제2터미널", en: "ICN Terminal 2", zh: "仁川机场T2", ja: "仁川空港T2", vi: "Sân bay Incheon T2" }, move: 12, dur: 45, price: 13000, tint: "#F3D9B8", coord: { lat: 37.466186, lng: 126.431654 } },
   ],
   Massage: [
-    { name: "공항 스파 발마사지", area: "공항 내", move: 5, dur: 60, price: 45000, tint: "#E8C4D6" },
-    { name: "마시안 아로마테라피", area: "영종도", move: 20, dur: 90, price: 70000, tint: "#E3C4E8" },
-    { name: "스카이 릴렉스 마사지", area: "운서동", move: 12, dur: 60, price: 50000, tint: "#D6C4E8" },
+    { id: "airport-spa-foot", name: { ko: "바디케어(서편) 인천공항T2", en: "Body Care Foot Massage (ICN T2 West)", zh: "Body Care Foot Massage (ICN T2 West)", ja: "Body Care Foot Massage (ICN T2 West)", vi: "Body Care Foot Massage (ICN T2 West)" }, area: { ko: "인천공항 제2터미널", en: "ICN Terminal 2", zh: "仁川机场T2", ja: "仁川空港T2", vi: "Sân bay Incheon T2" }, move: 12, dur: 60, price: 45000, tint: "#E8C4D6", coord: { lat: 37.465221, lng: 126.432204 } },
+    { id: "masian-aroma", name: { ko: "프라나마사지", en: "Prana Massage", zh: "Prana Massage", ja: "Prana Massage", vi: "Prana Massage" }, area: { ko: "인천공항 제2터미널", en: "ICN Terminal 2", zh: "仁川机场T2", ja: "仁川空港T2", vi: "Sân bay Incheon T2" }, move: 12, dur: 90, price: 70000, tint: "#E3C4E8", coord: { lat: 37.469249, lng: 126.433209 } },
+    { id: "sky-relax-massage", name: { ko: "허브마사지", en: "Herb Massage", zh: "Herb Massage", ja: "Herb Massage", vi: "Herb Massage" }, area: { ko: "운서동", en: "Unseo-dong", zh: "云西洞", ja: "雲西洞", vi: "Unseo-dong" }, move: 18, dur: 60, price: 50000, tint: "#D6C4E8", coord: { lat: 37.490669, lng: 126.494995 } },
   ],
   Shopping: [
-    { name: "스카이72 아울렛", area: "영종도", move: 15, dur: 90, price: 0, tint: "#BBD3F5" },
-    { name: "올리브영 K-뷰티", area: "공항 인근", move: 10, dur: 40, price: 0, tint: "#CFE0F5" },
-    { name: "신세계 면세 픽업", area: "공항 T1", move: 5, dur: 30, price: 0, tint: "#C7E4D6" },
+    { id: "sky72-outlet", name: { ko: "롯데면세점 인천공항점 T1", en: "Lotte Duty Free (ICN T1)", zh: "Lotte Duty Free (ICN T1)", ja: "Lotte Duty Free (ICN T1)", vi: "Lotte Duty Free (ICN T1)" }, area: { ko: "공항 T1", en: "Airport T1", zh: "机场T1", ja: "空港T1", vi: "Sân bay T1" }, move: 5, dur: 60, price: 0, tint: "#BBD3F5", coord: { lat: 37.451397, lng: 126.451720 } },
+    { id: "olive-young-kbeauty", name: { ko: "올리브영 인천공항T1점", en: "Olive Young (ICN T1)", zh: "Olive Young (ICN T1)", ja: "Olive Young (ICN T1)", vi: "Olive Young (ICN T1)" }, area: { ko: "공항 T1", en: "Airport T1", zh: "机场T1", ja: "空港T1", vi: "Sân bay T1" }, move: 5, dur: 30, price: 0, tint: "#CFE0F5", coord: { lat: 37.449129, lng: 126.451059 } },
+    { id: "shinsegae-dutyfree", name: { ko: "신세계면세점 인천공항T1점", en: "Shinsegae Duty Free (ICN T1)", zh: "Shinsegae Duty Free (ICN T1)", ja: "Shinsegae Duty Free (ICN T1)", vi: "Shinsegae Duty Free (ICN T1)" }, area: { ko: "공항 T1", en: "Airport T1", zh: "机场T1", ja: "空港T1", vi: "Sân bay T1" }, move: 5, dur: 30, price: 0, tint: "#C7E4D6", coord: { lat: 37.449417, lng: 126.450593 } },
   ],
   Rest: [
-    { name: "캡슐 데이유즈", area: "공항 5분", move: 5, dur: 120, price: 24000, tint: "#BBD3F5" },
-    { name: "스파온에어 찜질", area: "영종도", move: 18, dur: 90, price: 15000, tint: "#CFE0F5" },
-    { name: "프리미엄 라운지", area: "공항 T1", move: 5, dur: 60, price: 39000, tint: "#C7E4D6" },
+    { id: "capsule-dayuse", name: { ko: "캡슐호텔 다락휴 인천공항T1", en: "Darakhyu Capsule Hotel (ICN T1)", zh: "Darakhyu Capsule Hotel (ICN T1)", ja: "Darakhyu Capsule Hotel (ICN T1)", vi: "Darakhyu Capsule Hotel (ICN T1)" }, area: { ko: "공항 T1", en: "Airport T1", zh: "机场T1", ja: "空港T1", vi: "Sân bay T1" }, move: 5, dur: 120, price: 24000, tint: "#BBD3F5", coord: { lat: 37.447520, lng: 126.451727 } },
+    { id: "spa-on-air", name: { ko: "솔밭해수방 영종점", en: "Solbat Haesubang Jjimjilbang", zh: "Solbat Haesubang Jjimjilbang", ja: "Solbat Haesubang Jjimjilbang", vi: "Solbat Haesubang Jjimjilbang" }, area: { ko: "영종도", en: "Yeongjong Island", zh: "永宗岛", ja: "永宗島", vi: "Đảo Yeongjong" }, move: 8, dur: 90, price: 15000, tint: "#CFE0F5", coord: { lat: 37.440168, lng: 126.430191 } },
+    { id: "premium-lounge", name: { ko: "스카이허브라운지(서편) 인천공항T1", en: "SkyHub Lounge (ICN T1 West)", zh: "SkyHub Lounge (ICN T1 West)", ja: "SkyHub Lounge (ICN T1 West)", vi: "SkyHub Lounge (ICN T1 West)" }, area: { ko: "공항 T1", en: "Airport T1", zh: "机场T1", ja: "空港T1", vi: "Sân bay T1" }, move: 5, dur: 60, price: 39000, tint: "#C7E4D6", coord: { lat: 37.447964, lng: 126.448944 } },
   ],
   Beauty: [
-    { name: "K-뷰티 메이크업", area: "영종도", move: 15, dur: 60, price: 55000, tint: "#E8C4D6" },
-    { name: "헤어 스타일링", area: "운서동", move: 12, dur: 50, price: 40000, tint: "#F3C4B8" },
-    { name: "네일 케어", area: "공항 인근", move: 10, dur: 45, price: 35000, tint: "#F7D9B0" },
+    { id: "kbeauty-makeup", name: { ko: "유니언니", en: "Uni Unnie Makeup", zh: "Uni Unnie Makeup", ja: "Uni Unnie Makeup", vi: "Uni Unnie Makeup" }, area: { ko: "운서동", en: "Unseo-dong", zh: "云西洞", ja: "雲西洞", vi: "Unseo-dong" }, move: 18, dur: 60, price: 55000, tint: "#E8C4D6", coord: { lat: 37.493250, lng: 126.489604 } },
+    { id: "hair-styling", name: { ko: "듀아르헤어", en: "Duard Hair", zh: "Duard Hair", ja: "Duard Hair", vi: "Duard Hair" }, area: { ko: "운서동", en: "Unseo-dong", zh: "云西洞", ja: "雲西洞", vi: "Unseo-dong" }, move: 18, dur: 50, price: 40000, tint: "#F3C4B8", coord: { lat: 37.492261, lng: 126.492412 } },
+    { id: "nail-care", name: { ko: "네일바이담", en: "Nail by Dam", zh: "Nail by Dam", ja: "Nail by Dam", vi: "Nail by Dam" }, area: { ko: "운서동", en: "Unseo-dong", zh: "云西洞", ja: "雲西洞", vi: "Unseo-dong" }, move: 18, dur: 45, price: 35000, tint: "#F7D9B0", coord: { lat: 37.491132, lng: 126.495331 } },
   ],
   Sightseeing: [
-    { name: "무의도 해변", area: "무의도", move: 40, dur: 90, price: 0, tint: "#A9C4E8" },
-    { name: "을왕리 선셋", area: "영종도", move: 25, dur: 60, price: 0, tint: "#F3D9B8" },
-    { name: "인천대교 뷰포인트", area: "영종도", move: 20, dur: 30, price: 0, tint: "#BBD3F5" },
-    { name: "차이나타운 벽화거리", area: "인천", move: 40, dur: 45, price: 0, tint: "#F3C4B8" },
+    { id: "muui-beach-course", name: { ko: "하나개해수욕장", en: "Hanagae Beach", zh: "Hanagae Beach", ja: "Hanagae Beach", vi: "Hanagae Beach" }, area: { ko: "무의도", en: "Muui Island", zh: "舞衣岛", ja: "舞衣島", vi: "Đảo Muui" }, move: 30, dur: 90, price: 0, tint: "#A9C4E8", coord: { lat: 37.384833, lng: 126.409852 } },
+    { id: "eulwangni-sunset", name: { ko: "을왕리해수욕장", en: "Eulwangni Beach", zh: "乙旺里海水浴场", ja: "ウルワンニ海水浴場", vi: "Bãi biển Eulwangni" }, area: { ko: "영종도", en: "Yeongjong Island", zh: "永宗岛", ja: "永宗島", vi: "Đảo Yeongjong" }, move: 25, dur: 60, price: 0, tint: "#F3D9B8", coord: { lat: 37.446292, lng: 126.372737 } },
+    { id: "incheon-bridge", name: { ko: "인천대교기념관", en: "Incheon Bridge Memorial Hall", zh: "仁川大桥纪念馆", ja: "仁川大橋記念館", vi: "Nhà tưởng niệm cầu Incheon" }, area: { ko: "영종도", en: "Yeongjong Island", zh: "永宗岛", ja: "永宗島", vi: "Đảo Yeongjong" }, move: 20, dur: 30, price: 0, tint: "#BBD3F5", coord: { lat: 37.469245, lng: 126.515055 } },
+    { id: "chinatown-mural", name: { ko: "인천차이나타운 삼국지벽화거리", en: "Incheon Chinatown Three Kingdoms Mural Street", zh: "仁川唐人街三国志壁画街", ja: "仁川チャイナタウン三国志壁画通り", vi: "Phố tranh tường Tam Quốc, Phố người Hoa Incheon" }, area: { ko: "인천 차이나타운", en: "Incheon Chinatown", zh: "仁川唐人街", ja: "仁川チャイナタウン", vi: "Phố người Hoa Incheon" }, move: 40, dur: 45, price: 0, tint: "#F3C4B8", coord: { lat: 37.474712, lng: 126.620234 } },
+  ],
+  // 원래는 화면 맨 아래 "제휴 혜택" 캐러셀로만 노출되던 브랜드 카드들 — 이제 다른 카테고리와 동일하게
+  // 방문지 목록/자동 코스 짜기/시간 예산 계산에 합류시켜서 "브랜드를 고르면 자동으로 추천"이 실제로 동작하게 한다.
+  Brand: [
+    { id: "shilla-pickup", name: { ko: "신라면세점 인천공항점", en: "Shilla Duty Free (ICN T1)", zh: "Shilla Duty Free (ICN T1)", ja: "Shilla Duty Free (ICN T1)", vi: "Shilla Duty Free (ICN T1)" }, area: { ko: "공항 T1", en: "Airport T1", zh: "机场T1", ja: "空港T1", vi: "Sân bay T1" }, move: 5, dur: 15, price: 0, tint: "#CFE0F5", coord: { lat: 37.449000, lng: 126.450600 } },
+    { id: "olive-young-partner", name: { ko: "올리브영 인천공항T1점", en: "Olive Young (ICN T1)", zh: "Olive Young (ICN T1)", ja: "Olive Young (ICN T1)", vi: "Olive Young (ICN T1)" }, area: { ko: "공항 T1", en: "Airport T1", zh: "机场T1", ja: "空港T1", vi: "Sân bay T1" }, move: 5, dur: 30, price: 0, tint: "#E8C4D6", coord: { lat: 37.449129, lng: 126.451059 } },
+    { id: "premium-lounge-partner", name: { ko: "스카이허브라운지(서편) 인천공항T1", en: "SkyHub Lounge (ICN T1 West)", zh: "SkyHub Lounge (ICN T1 West)", ja: "SkyHub Lounge (ICN T1 West)", vi: "SkyHub Lounge (ICN T1 West)" }, area: { ko: "공항 T1", en: "Airport T1", zh: "机场T1", ja: "空港T1", vi: "Sân bay T1" }, move: 5, dur: 60, price: 0, tint: "#C7E4D6", coord: { lat: 37.447964, lng: 126.448944 } },
   ],
 };
+const ALL_PLACES = Object.entries(PLACES).flatMap(([k, arr]) => arr.map((p) => ({ ...p, cat: k })));
 const PREP = 20;                 // 짐 맡기기/준비
 
+// 카카오맵 JS SDK로 공항·숙소 3곳·전체 카테고리 장소를 한 지도에 표시. 핀을 탭하면 바로 일정에 추가/제거된다.
+// SDK가 아직 로드 전이거나(도메인 미등록 등) 초기화 중 오류가 나면 조용히 안내 문구로 대체한다.
+function CourseMap({ room, places, plan, onToggle }) {
+  const { t } = useLang();
+  const elRef = useRef(null);
+  const mapObj = useRef(null);
+  const overlaysRef = useRef([]);
+  const [error, setError] = useState(!(typeof window !== "undefined" && window.kakao && window.kakao.maps));
+  const [pois, setPois] = useState([]);
+  const [legs, setLegs] = useState([]); // 확정된 일정 순서를 잇는 구간별 실제 이동수단/시간
+
+  useEffect(() => {
+    if (error || !elRef.current || mapObj.current) return;
+    try {
+      const center = room ? room.coord : AIRPORT_COORD;
+      mapObj.current = new window.kakao.maps.Map(elRef.current, {
+        center: new window.kakao.maps.LatLng(center.lat, center.lng),
+        level: 8,
+      });
+    } catch {
+      setError(true);
+    }
+  }, [error]);
+
+  // 숙소 주변 실제 가게(카페/음식점)를 카카오 로컬 검색으로 가져와 참고용 회색 점으로 얹는다.
+  // 실패해도(키 없음 등) 지도 자체는 그대로 동작하도록 조용히 무시한다.
+  useEffect(() => {
+    if (!room) { setPois([]); return; }
+    let cancelled = false;
+    Promise.all(NEARBY_CATEGORIES.map((c) => fetchNearbyPlaces(room.coord, c).catch(() => [])))
+      .then((lists) => { if (!cancelled) setPois(lists.flat()); });
+    return () => { cancelled = true; };
+  }, [room]);
+
+  // 일정에 장소를 담을 때마다(공항→숙소→장소들→공항) 구간별 실제 이동수단·경로를 다시 계산해서 지도에 선으로 그린다.
+  // 이건 각 구간을 실제로 잇는 경로라 위쪽 시간 예산 카드의 근사치 계산과 약간 다를 수 있다.
+  useEffect(() => {
+    if (!room) { setLegs([]); return; }
+    const seq = [AIRPORT_COORD, room.coord, ...plan.map((p) => p.coord), AIRPORT_COORD];
+    let cancelled = false;
+    Promise.all(
+      seq.slice(0, -1).map((from, i) =>
+        fetchTravelMin(from, seq[i + 1])
+          .then((r) => ({ from, to: seq[i + 1], ...r }))
+          .catch(() => ({ from, to: seq[i + 1], mode: "drive", min: null }))
+      )
+    ).then((results) => { if (!cancelled) setLegs(results); });
+    return () => { cancelled = true; };
+  }, [room, plan]);
+
+  useEffect(() => {
+    if (error || !mapObj.current) return;
+    try {
+      overlaysRef.current.forEach((o) => o.setMap(null));
+      overlaysRef.current = [];
+      const map = mapObj.current;
+      const pinHtml = (color, label) =>
+        `<div style="width:24px;height:24px;border-radius:999px;background:${color};border:2px solid #fff;box-shadow:0 2px 6px rgba(0,0,0,.3);display:flex;align-items:center;justify-content:center;font-size:12px;color:#fff;">${label}</div>`;
+      const addPin = (coord, html, onClick, id) => {
+        const el = document.createElement("div");
+        el.innerHTML = html;
+        el.className = "ds-map-pin";
+        if (id) el.dataset.placeId = id;
+        if (onClick) { el.style.cursor = "pointer"; el.addEventListener("click", onClick); }
+        const overlay = new window.kakao.maps.CustomOverlay({
+          position: new window.kakao.maps.LatLng(coord.lat, coord.lng),
+          content: el,
+          yAnchor: 1,
+        });
+        overlay.setMap(map);
+        overlaysRef.current.push(overlay);
+      };
+      const addPoiPin = (coord, name) => {
+        const el = document.createElement("div");
+        el.className = "ds-poi-pin";
+        el.style.cssText = "position:relative;width:9px;height:9px;border-radius:999px;background:#8DA0B8;border:1.5px solid #fff;box-shadow:0 1px 3px rgba(0,0,0,.3);cursor:pointer;";
+        el.title = name;
+        el.addEventListener("click", () => {
+          const existing = el.querySelector(".ds-poi-label");
+          if (existing) { existing.remove(); return; }
+          const label = document.createElement("div");
+          label.className = "ds-poi-label";
+          label.textContent = name;
+          label.style.cssText = "position:absolute;left:13px;top:-8px;background:#153A52;color:#fff;font-size:10px;font-weight:600;padding:3px 7px;border-radius:6px;white-space:nowrap;box-shadow:0 2px 6px rgba(0,0,0,.25);";
+          el.appendChild(label);
+        });
+        const overlay = new window.kakao.maps.CustomOverlay({
+          position: new window.kakao.maps.LatLng(coord.lat, coord.lng),
+          content: el,
+          yAnchor: 0.5,
+          zIndex: 1,
+        });
+        overlay.setMap(map);
+        overlaysRef.current.push(overlay);
+      };
+      const LEG_STYLE = {
+        walk: { strokeColor: "#8DA0B8", strokeStyle: "shortdash" },
+        transit: { strokeColor: "#2F7BE6", strokeStyle: "shortdot" },
+        drive: { strokeColor: C.blueDeep, strokeStyle: "solid" },
+      };
+      legs.forEach((leg) => {
+        const style = LEG_STYLE[leg.mode] || LEG_STYLE.drive;
+        const polyline = new window.kakao.maps.Polyline({
+          path: [new window.kakao.maps.LatLng(leg.from.lat, leg.from.lng), new window.kakao.maps.LatLng(leg.to.lat, leg.to.lng)],
+          strokeWeight: 4,
+          strokeColor: style.strokeColor,
+          strokeOpacity: 0.85,
+          strokeStyle: style.strokeStyle,
+        });
+        polyline.setMap(map);
+        overlaysRef.current.push(polyline);
+      });
+      pois.forEach((poi) => addPoiPin({ lat: poi.lat, lng: poi.lng }, poi.name));
+      addPin(AIRPORT_COORD, pinHtml(C.ink, "✈"));
+      ROOMS.forEach((r) => addPin(r.coord, pinHtml(room && room.id === r.id ? C.blueDeep : C.faint, "🏨")));
+      places.forEach((p) => {
+        const inPlanNow = plan.some((x) => x.id === p.id);
+        addPin(p.coord, pinHtml(CAT_META[p.cat].col, inPlanNow ? "✓" : "●"), () => onToggle(p), p.id);
+      });
+      if (room) map.setCenter(new window.kakao.maps.LatLng(room.coord.lat, room.coord.lng));
+    } catch {
+      setError(true);
+    }
+  }, [error, room, places, plan, pois, legs]);
+
+  if (error) {
+    return <Card style={{ padding: 20, textAlign: "center", color: C.faint, fontSize: 12 }}>{t("mapUnavailable")}</Card>;
+  }
+  return <div ref={elRef} style={{ width: "100%", height: 320, borderRadius: 14, overflow: "hidden", border: `1px solid ${C.line}` }} />;
+}
+
 function Course({ cats, back, onBook, arrive, returnBy }) {
+  const { t, tr, fmtTime } = useLang();
   const BUDGET = returnBy - arrive; // 분
   const initSel = (cats && cats.length) ? cats.filter((k) => k !== "Rest" && CAT_META[k]) : ["Shopping"];
   const [room, setRoom] = useState(null);
   const [sel, setSel] = useState(initSel.length ? initSel : ["Shopping"]);
   const [plan, setPlan] = useState([]);
-  const inPlan = (p) => plan.some((x) => x.name === p.name);
+  const [routeMin, setRouteMin] = useState({}); // id -> 실제 이동시간(분), 없으면 더미 move로 폴백
+  const [routeMode, setRouteMode] = useState({}); // id -> "walk" | "transit" | "drive"
+  const [routeStatus, setRouteStatus] = useState("idle"); // idle | loading | live | demo
+  const inPlan = (p) => plan.some((x) => x.id === p.id);
   const toggleCat = (k) => setSel((prev) => (prev.includes(k) ? prev.filter((x) => x !== k) : [...prev, k]));
-  const toggle = (p) => setPlan((prev) => (inPlan(p) ? prev.filter((x) => x.name !== p.name) : [...prev, p]));
-  const remove = (name) => setPlan((prev) => prev.filter((x) => x.name !== name));
+  const toggle = (p) => setPlan((prev) => (inPlan(p) ? prev.filter((x) => x.id !== p.id) : [...prev, p]));
+  const remove = (id) => setPlan((prev) => prev.filter((x) => x.id !== id));
+  const moveOf = (item) => routeMin[item.id] ?? item.move;
+
+  const combined = sel.flatMap((k) => (PLACES[k] || []).map((p) => ({ ...p, cat: k })));
+
+  // 숙소(코스 거점)를 고르면 공항→숙소, 숙소→(선택 카테고리의) 각 장소까지 직선거리 기준으로
+  // 도보/대중교통(ODsay)/자동차(카카오모빌리티) 중 알맞은 모드로 실제 이동시간을 조회.
+  // 실패하거나 키가 없으면 조용히 더미 move 값으로 남는다(moveOf의 ?? 폴백).
+  useEffect(() => {
+    if (!room) return;
+    let cancelled = false;
+    setRouteStatus("loading");
+    Promise.all([
+      fetchTravelMin(AIRPORT_COORD, room.coord).then((r) => ({ id: room.id, ...r })).catch(() => null),
+      ...combined.map((p) =>
+        fetchTravelMin(room.coord, p.coord).then((r) => ({ id: p.id, ...r })).catch(() => null)
+      ),
+    ]).then((results) => {
+      if (cancelled) return;
+      const nextMin = {}, nextMode = {};
+      results.forEach((r) => { if (r) { nextMin[r.id] = r.min; nextMode[r.id] = r.mode; } });
+      setRouteMin((prev) => ({ ...prev, ...nextMin }));
+      setRouteMode((prev) => ({ ...prev, ...nextMode }));
+      setRouteStatus(Object.keys(nextMin).length ? "live" : "demo");
+    });
+    return () => { cancelled = true; };
+  }, [room, sel.join(",")]);
 
   const computeUsed = (arr) => {
     let c = PREP;
-    if (room) c += room.move + room.rest;
-    arr.forEach((p) => { c += p.move + p.dur; });
-    c += arr.length ? arr[arr.length - 1].move : (room ? room.move : 0);
+    if (room) c += moveOf(room) + room.rest;
+    arr.forEach((p) => { c += moveOf(p) + p.dur; });
+    c += arr.length ? moveOf(arr[arr.length - 1]) : (room ? moveOf(room) : 0);
     return c;
   };
   const fitsWith = (arr) => computeUsed(arr) <= BUDGET;
@@ -585,8 +1106,8 @@ function Course({ cats, back, onBook, arrive, returnBy }) {
     const chosen = [];
     (sel.length ? sel : ACT_KEYS).forEach((k) => {
       const opts = (PLACES[k] || []).map((p) => ({ ...p, cat: k }))
-        .filter((p) => !chosen.some((c) => c.name === p.name))
-        .sort((a, b) => (a.move + a.dur) - (b.move + b.dur));
+        .filter((p) => !chosen.some((c) => c.id === p.id))
+        .sort((a, b) => (moveOf(a) + a.dur) - (moveOf(b) + b.dur));
       const best = opts.find((p) => fitsWith([...chosen, p]));
       if (best) chosen.push(best);
     });
@@ -594,94 +1115,107 @@ function Course({ cats, back, onBook, arrive, returnBy }) {
   };
 
   let clock = arrive;
-  const steps = [{ t: clock, title: "공항 도착 · 짐 맡기기", sub: "수하물 케어 픽업", col: C.red, icon: Luggage }];
+  const steps = [{ t: clock, title: t("courseStepArrive"), sub: t("courseStepArriveSub"), col: C.red, icon: Luggage }];
   clock += PREP;
   if (room) {
-    clock += room.move;
-    steps.push({ t: clock, title: `${room.name} 체크인`, sub: `데이유즈 거점 · 샤워·휴식 ${room.rest}분 (이동 ${room.move}분)`, col: C.blue, icon: Bed });
+    clock += moveOf(room);
+    steps.push({ t: clock, title: t("courseStepRoomCheckin", { room: tr(room.name) }), sub: t("courseStepRoomSub", { rest: room.rest, move: moveOf(room) }), col: C.blue, icon: Bed });
     clock += room.rest;
   }
   plan.forEach((p) => {
-    clock += p.move;
+    clock += moveOf(p);
     const m = CAT_META[p.cat];
-    steps.push({ t: clock, title: p.name, sub: `${p.area} · 체류 ${p.dur}분 (이동 ${p.move}분)`, col: m.col, icon: m.icon, name: p.name });
+    steps.push({ t: clock, title: tr(p.name), sub: t("courseStepPlaceSub", { area: tr(p.area), dur: p.dur, move: moveOf(p) }), col: m.col, icon: m.icon, id: p.id });
     clock += p.dur;
   });
-  const backMove = plan.length ? plan[plan.length - 1].move : (room ? room.move : 0);
+  const backMove = plan.length ? moveOf(plan[plan.length - 1]) : (room ? moveOf(room) : 0);
   clock += backMove;
-  steps.push({ t: clock, title: "공항 복귀", sub: "Time-Safe 알림 · 여유 30분", col: C.ink, icon: PlaneLanding });
+  steps.push({ t: clock, title: t("courseStepReturn"), sub: t("courseStepReturnSub"), col: C.ink, icon: PlaneLanding });
   const used = clock - arrive;
   const remain = BUDGET - used;
   const over = remain < 0;
 
-  const combined = sel.flatMap((k) => (PLACES[k] || []).map((p) => ({ ...p, cat: k })));
-
   return (
     <div>
-      <Top title="환승 코스 만들기" sub="카테고리 → 장소 선택 → 일정 자동 생성" back={back} />
+      <Top title={t("courseTitle")} sub={t("courseSub")} back={back} />
       <div style={{ padding: 16 }}>
         <Card style={{ padding: 14, marginBottom: 14, borderLeft: `4px solid ${over ? C.red : C.blue}` }}>
           <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
             <div style={{ display: "flex", alignItems: "center", gap: 7 }}>
               <ShieldCheck size={16} color={over ? C.red : C.blue} />
-              <span style={{ fontSize: 13, fontWeight: 800, color: C.ink }}>환승 여유 {Math.floor(BUDGET / 60)}시간</span>
+              <span style={{ fontSize: 13, fontWeight: 800, color: C.ink }}>{t("layoverFree", { h: Math.floor(BUDGET / 60) })}</span>
             </div>
-            <span style={{ fontSize: 12, fontWeight: 800, color: over ? C.red : "#2E9E5B" }}>{over ? `${-remain}분 초과` : `여유 ${remain}분`}</span>
+            <span style={{ fontSize: 12, fontWeight: 800, color: over ? C.red : "#2E9E5B" }}>{over ? t("overBudget", { min: -remain }) : t("spareBudget", { min: remain })}</span>
           </div>
           <div style={{ height: 8, background: C.line, borderRadius: 999, marginTop: 10, overflow: "hidden" }}>
             <div style={{ width: `${Math.min(100, (used / BUDGET) * 100)}%`, height: "100%", background: over ? C.red : grad }} />
           </div>
-          <div style={{ fontSize: 11, color: C.faint, marginTop: 6 }}>도착 {hhmm(arrive)} · 복귀 추천 {hhmm(returnBy)}</div>
+          <div style={{ fontSize: 11, color: C.faint, marginTop: 6 }}>{t("arriveReturnLine", { arrive: fmtTime(arrive), return: fmtTime(returnBy) })}</div>
         </Card>
 
-        <div style={{ fontSize: 12, fontWeight: 800, color: C.ink, marginBottom: 8 }}>① 데이유즈 숙소 선택 <span style={{ color: C.red, fontWeight: 700 }}>(필수 · 코스의 거점)</span></div>
+        <div style={{ fontSize: 12, fontWeight: 800, color: C.ink, marginBottom: 8 }}>{t("step1RoomTitle")} <span style={{ color: C.red, fontWeight: 700 }}>{t("step1RoomRequired")}</span></div>
         <div style={{ display: "flex", gap: 10, overflowX: "auto", paddingBottom: 6, marginBottom: 18 }}>
           {ROOMS.map((r) => {
-            const on = room && room.name === r.name;
+            const on = room && room.id === r.id;
             return (
-              <div key={r.name} onClick={() => setRoom(r)} style={{ minWidth: 152, cursor: "pointer", border: on ? `2px solid ${C.blue}` : `1px solid ${C.line}`, borderRadius: 14, padding: 10, background: on ? C.tint : "#fff", flexShrink: 0 }}>
+              <div key={r.id} onClick={() => setRoom(r)} style={{ minWidth: 152, cursor: "pointer", border: on ? `2px solid ${C.blue}` : `1px solid ${C.line}`, borderRadius: 14, padding: 10, background: on ? C.tint : "#fff", flexShrink: 0 }}>
                 <div style={{ height: 60, borderRadius: 10, background: r.tint, display: "flex", alignItems: "center", justifyContent: "center", position: "relative" }}>
                   <Bed size={24} color="#fff" />
                   {on && <span style={{ position: "absolute", top: 6, right: 6, width: 20, height: 20, borderRadius: 999, background: C.blue, display: "flex", alignItems: "center", justifyContent: "center" }}><Check size={13} color="#fff" /></span>}
                 </div>
-                <div style={{ fontSize: 13, fontWeight: 800, color: C.ink, marginTop: 8 }}>{r.name}</div>
-                <div style={{ fontSize: 10.5, color: C.faint, marginTop: 2 }}>{r.dist} · 휴식 {r.rest}분</div>
+                <div style={{ fontSize: 13, fontWeight: 800, color: C.ink, marginTop: 8 }}>{tr(r.name)}</div>
+                <div style={{ fontSize: 10.5, color: C.faint, marginTop: 2 }}>{t("airportMinAway", { n: r.distMin })} · {t("restMinLbl", { n: r.rest })}</div>
                 <div style={{ fontSize: 12, fontWeight: 800, color: C.blueDeep, marginTop: 4 }}>{won(r.price)}~</div>
               </div>
             );
           })}
         </div>
 
-        <div style={{ fontSize: 12, fontWeight: 800, color: C.ink, marginBottom: 8 }}>② 활동 카테고리 합치기 <span style={{ color: C.faint, fontWeight: 500 }}>(복수 선택)</span></div>
+        <div style={{ fontSize: 12, fontWeight: 800, color: C.ink, marginBottom: 8 }}>{t("step2CatTitle")} <span style={{ color: C.faint, fontWeight: 500 }}>{t("step2CatSub")}</span></div>
         <div style={{ display: "flex", gap: 6, overflowX: "auto", paddingBottom: 8, marginBottom: 10 }}>
-          {ACT_CATS.map((c) => <Chip key={c.k} active={sel.includes(c.k)} onClick={() => toggleCat(c.k)}>{c.ko}</Chip>)}
+          {ACT_CATS.map((c) => <Chip key={c.k} active={sel.includes(c.k)} onClick={() => toggleCat(c.k)}>{tr(CAT_LABELS[c.k])}</Chip>)}
         </div>
 
         <button onClick={() => room && autoBuild()} disabled={!room} style={{ width: "100%", border: "none", cursor: room ? "pointer" : "not-allowed", padding: "13px 0", borderRadius: 14, background: room ? grad : "#C4D2E4", color: "#fff", fontSize: 14, fontWeight: 800, boxShadow: room ? "0 6px 16px rgba(47,123,230,0.32)" : "none", display: "flex", alignItems: "center", justifyContent: "center", gap: 6, marginBottom: 4 }}>
-          <Route size={16} /> Time-Fit 자동 코스 짜기
+          <Route size={16} /> {t("autoBuildBtn")}
         </button>
-        <div style={{ fontSize: 10.5, color: C.faint, textAlign: "center", marginBottom: 18 }}>OR-Tools 최적화 · 환승시간·이동동선 기준 자동 배치</div>
+        <div style={{ fontSize: 10.5, color: C.faint, textAlign: "center", marginBottom: 4 }}>{t("autoBuildNote")}</div>
+        {routeStatus === "loading" && <div style={{ fontSize: 10, color: C.faint, textAlign: "center", marginBottom: 14 }}>{t("routeLoading")}</div>}
+        {routeStatus === "live" && <div style={{ fontSize: 10, color: "#2E9E5B", fontWeight: 700, textAlign: "center", marginBottom: 14 }}>{t("routeLive")}</div>}
+        {routeStatus === "demo" && <div style={{ height: 14 }} />}
 
-        <SectionHead title="활동 방문지" sub={room ? (sel.length ? `${sel.map((k) => CAT_META[k].ko).join(" · ")} 합침` : "카테고리를 선택하세요") : "먼저 숙소를 선택하세요"} />
+        <SectionHead title={t("sectionVisitPlaces")} sub={room ? (sel.length ? t("selCombined", { list: sel.map((k) => tr(CAT_LABELS[k])).join(" · ") }) : t("selChoose")) : t("selChooseRoomFirst")} />
+        {room && (
+          <div style={{ marginBottom: 14 }}>
+            <div style={{ fontSize: 10.5, color: C.faint, marginBottom: 8 }}>{t("mapAllPlacesNote")}</div>
+            <CourseMap room={room} places={ALL_PLACES} plan={plan} onToggle={toggle} />
+            {plan.length > 0 && <div style={{ fontSize: 10.5, color: C.faint, marginTop: 8 }}>{t("routeLegend")}</div>}
+          </div>
+        )}
         <div style={{ display: "flex", flexDirection: "column", gap: 10, marginBottom: 20 }}>
-          {!room && <Card style={{ padding: 20, textAlign: "center", color: C.faint, fontSize: 12 }}>① 데이유즈 숙소를 먼저 선택하면 활동을 담을 수 있어요.</Card>}
+          {!room && <Card style={{ padding: 20, textAlign: "center", color: C.faint, fontSize: 12 }}>{t("roomFirstHint")}</Card>}
           {room && combined.map((p) => {
             const on = inPlan(p);
-            const fits = p.move * 2 + p.dur <= BUDGET;
-            const ad = AD_PLACES.has(p.name);
+            const fits = moveOf(p) * 2 + p.dur <= BUDGET;
+            const ad = AD_PLACES.has(p.id);
             const m = CAT_META[p.cat]; const Icon = m.icon;
+            const ModeIcon = MODE_ICON[routeMode[p.id]];
             return (
-              <Card key={p.name} style={{ padding: 12, display: "flex", alignItems: "center", gap: 12, border: on ? `2px solid ${C.blue}` : `1px solid ${C.line}` }}>
+              <Card key={p.id} style={{ padding: 12, display: "flex", alignItems: "center", gap: 12, border: on ? `2px solid ${C.blue}` : `1px solid ${C.line}` }}>
                 <div style={{ width: 46, height: 46, borderRadius: 12, background: p.tint, display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0 }}><Icon size={20} color="#fff" /></div>
                 <div style={{ flex: 1, minWidth: 0 }}>
                   <div style={{ display: "flex", alignItems: "center", gap: 6, flexWrap: "wrap" }}>
-                    <span style={{ fontSize: 9, fontWeight: 800, color: "#fff", background: m.col, padding: "2px 6px", borderRadius: 999 }}>{m.ko}</span>
-                    {ad && <span style={{ fontSize: 9, fontWeight: 800, color: C.goldDeep, background: "#FFF3DC", border: "1px solid #F5D089", padding: "1px 6px", borderRadius: 999 }}>제휴 AD</span>}
-                    <span style={{ fontSize: 14, fontWeight: 800, color: C.ink }}>{p.name}</span>
+                    <span style={{ fontSize: 9, fontWeight: 800, color: "#fff", background: m.col, padding: "2px 6px", borderRadius: 999 }}>{tr(CAT_LABELS[p.cat])}</span>
+                    {ad && <span style={{ fontSize: 9, fontWeight: 800, color: C.goldDeep, background: "#FFF3DC", border: "1px solid #F5D089", padding: "1px 6px", borderRadius: 999 }}>{t("adBadge")}</span>}
+                    <span style={{ fontSize: 14, fontWeight: 800, color: C.ink }}>{tr(p.name)}</span>
                   </div>
-                  <div style={{ fontSize: 11, color: C.faint, marginTop: 3 }}>{p.area} · 이동 {p.move}분 · 체류 {p.dur}분</div>
+                  <div style={{ fontSize: 11, color: C.faint, marginTop: 3, display: "flex", alignItems: "center", flexWrap: "wrap", gap: 4 }}>
+                    <span>{tr(p.area)} ·</span>
+                    {ModeIcon && <ModeIcon size={11} />}
+                    <span>{t("moveMinLbl", { n: moveOf(p) })} · {t("stayMinLbl", { n: p.dur })}</span>
+                  </div>
                   <div style={{ display: "flex", gap: 6, marginTop: 5, alignItems: "center" }}>
-                    <span style={{ fontSize: 10, fontWeight: 700, color: fits ? "#2E9E5B" : C.red, background: fits ? "#E7F7EE" : "#FDECEA", padding: "2px 7px", borderRadius: 999 }}>{fits ? "환승 내 가능" : "시간 빠듯"}</span>
+                    <span style={{ fontSize: 10, fontWeight: 700, color: fits ? "#2E9E5B" : C.red, background: fits ? "#E7F7EE" : "#FDECEA", padding: "2px 7px", borderRadius: 999 }}>{fits ? t("fitsInTransit") : t("tightTime")}</span>
                     {p.price > 0 && <span style={{ fontSize: 10, color: C.sub }}>{won(p.price)}~</span>}
                   </div>
                 </div>
@@ -691,10 +1225,10 @@ function Course({ cats, back, onBook, arrive, returnBy }) {
           })}
         </div>
 
-        <SectionHead title="내 환승 일정" sub={room ? `${plan.length}개 활동 · 총 ${Math.floor(used / 60)}시간 ${used % 60}분` : "숙소를 선택하면 일정이 생성돼요"} />
+        <SectionHead title={t("sectionMySchedule")} sub={room ? t("scheduleSummary", { n: plan.length, h: Math.floor(used / 60), m: used % 60 }) : t("scheduleEmptyHint")} />
         {!room ? (
           <Card style={{ padding: 24, textAlign: "center", color: C.faint, fontSize: 13 }}>
-            <Bed size={26} color={C.faint} /><div style={{ marginTop: 8 }}>데이유즈 숙소를 <b style={{ color: C.blue }}>거점</b>으로 먼저 골라주세요.</div>
+            <Bed size={26} color={C.faint} /><div style={{ marginTop: 8 }}>{t("pickRoomPrefix")} <b style={{ color: C.blue }}>{t("pickRoomBold")}</b>{t("pickRoomSuffix")}</div>
           </Card>
         ) : (
           <Card style={{ padding: 16 }}>
@@ -708,40 +1242,18 @@ function Course({ cats, back, onBook, arrive, returnBy }) {
                   </div>
                   <div style={{ paddingBottom: i < steps.length - 1 ? 12 : 0, flex: 1 }}>
                     <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
-                      <div style={{ fontSize: 13, fontWeight: 700, color: C.ink }}><span style={{ color: over ? C.red : C.blue, marginRight: 8 }}>{hhmm(s.t)}</span>{s.title}</div>
-                      {s.name && <button onClick={() => remove(s.name)} style={{ border: "none", background: "none", cursor: "pointer", color: C.faint, fontSize: 12 }}>삭제</button>}
+                      <div style={{ fontSize: 13, fontWeight: 700, color: C.ink }}><span style={{ color: over ? C.red : C.blue, marginRight: 8 }}>{fmtTime(s.t)}</span>{s.title}</div>
+                      {s.id && <button onClick={() => remove(s.id)} style={{ border: "none", background: "none", cursor: "pointer", color: C.faint, fontSize: 12 }}>{t("deleteBtn")}</button>}
                     </div>
                     <div style={{ fontSize: 11, color: C.faint, marginTop: 2 }}>{s.sub}</div>
                   </div>
                 </div>
               );
             })}
-            {over && <div style={{ marginTop: 10, background: "#FDECEA", borderRadius: 10, padding: "10px 12px", fontSize: 12, color: C.red, fontWeight: 600 }}>환승 시간을 {-remain}분 초과했어요. 장소를 줄이거나 짧은 코스로 바꿔보세요.</div>}
-            <PrimaryBtn onClick={() => onBook && onBook(room)} style={{ marginTop: 16, opacity: over ? 0.6 : 1 }}>이 숙소로 예약하기 →</PrimaryBtn>
+            {over && <div style={{ marginTop: 10, background: "#FDECEA", borderRadius: 10, padding: "10px 12px", fontSize: 12, color: C.red, fontWeight: 600 }}>{t("overBudgetWarning", { min: -remain })}</div>}
+            <PrimaryBtn onClick={() => onBook && onBook(room)} style={{ marginTop: 16, opacity: over ? 0.6 : 1 }}>{t("bookThisRoomBtn")}</PrimaryBtn>
           </Card>
         )}
-
-        <div style={{ display: "flex", alignItems: "center", gap: 6, marginTop: 24, marginBottom: 4 }}>
-          <div style={{ fontSize: 16, fontWeight: 800, color: C.ink }}>제휴 혜택</div>
-          <span style={{ fontSize: 9, fontWeight: 800, color: C.sub, background: C.line, padding: "2px 6px", borderRadius: 999 }}>AD · 광고</span>
-        </div>
-        <div style={{ fontSize: 11, color: C.faint, marginBottom: 12 }}>일정과 별개로 제공되는 파트너 제안이에요.</div>
-        <div style={{ display: "flex", gap: 12, overflowX: "auto", paddingBottom: 8 }}>
-          {PARTNERS.map((b) => {
-            const Icon = b.icon;
-            return (
-              <div key={b.n} style={{ minWidth: 172, flexShrink: 0, border: `1px solid ${C.line}`, borderRadius: 14, padding: 12, background: "#fff" }}>
-                <div style={{ height: 64, borderRadius: 10, background: b.tint, display: "flex", alignItems: "center", justifyContent: "center", position: "relative" }}>
-                  <Icon size={24} color="#fff" />
-                  <span style={{ position: "absolute", top: 6, left: 6, fontSize: 9, fontWeight: 800, color: C.goldDeep, background: "#FFF3DC", border: "1px solid #F5D089", padding: "1px 6px", borderRadius: 999 }}>제휴</span>
-                </div>
-                <div style={{ fontSize: 13, fontWeight: 800, color: C.ink, marginTop: 8 }}>{b.n}</div>
-                <div style={{ fontSize: 11, color: C.faint, marginTop: 2 }}>{b.d}</div>
-                <div style={{ marginTop: 8, display: "flex", alignItems: "center", gap: 3, color: C.blue, fontSize: 12, fontWeight: 800 }}>혜택 보기 <ChevronRight size={13} /></div>
-              </div>
-            );
-          })}
-        </div>
       </div>
     </div>
   );
