@@ -169,7 +169,15 @@ app.get("/api/route", async (req, res) => {
       return res.status(404).json({ error: "no route found between the given points" });
     }
     const { duration, distance } = route.summary;
-    res.json({ durationSec: duration, distanceM: distance });
+    // 실제 도로를 따라가는 폴리라인 좌표 — sections[].roads[].vertexes가 [lng,lat,lng,lat,...] 평탄 배열로 온다.
+    const path = [];
+    (route.sections || []).forEach((sec) => {
+      (sec.roads || []).forEach((road) => {
+        const v = road.vertexes || [];
+        for (let i = 0; i + 1 < v.length; i += 2) path.push({ lng: v[i], lat: v[i + 1] });
+      });
+    });
+    res.json({ durationSec: duration, distanceM: distance, path });
   } catch (err) {
     res.status(502).json({ error: "failed to reach kakao mobility API", detail: String(err) });
   }
@@ -214,9 +222,8 @@ app.get("/api/places", async (req, res) => {
   }
 });
 
-// ODsay 대중교통(지하철/버스) 경로 API — odsay.com 발급 키 사용.
-// 정확한 응답 스키마는 실제 키로 아직 검증 전이라 방어적으로 파싱한다: result.path[0].info.totalTime이 없으면
-// 그냥 404로 응답해서 프론트가 자동차(카카오모빌리티)로 조용히 폴백하도록 한다.
+// ODsay 대중교통(지하철/버스) 경로 API — odsay.com 발급 키 사용. 응답 스키마는 실제 키로 검증 완료
+// (result.path[0].info.totalTime/payment, subPath[].passStopList.stations[]).
 const ODSAY_API_KEY = process.env.ODSAY_API_KEY;
 const ODSAY_URL = "https://api.odsay.com/v1/api/searchPubTransPathT";
 
@@ -242,12 +249,19 @@ app.get("/api/transit", async (req, res) => {
     if (data.error) {
       return res.status(502).json({ error: data.error.message || "odsay API error" });
     }
-    const path = data.result && Array.isArray(data.result.path) && data.result.path[0];
-    const totalTime = path && path.info && path.info.totalTime;
+    const best = data.result && Array.isArray(data.result.path) && data.result.path[0];
+    const totalTime = best && best.info && best.info.totalTime;
     if (totalTime == null) {
       return res.status(404).json({ error: "no transit route found between the given points" });
     }
-    res.json({ durationMin: totalTime, fare: path.info.payment ?? null });
+    // 지하철/버스 구간(subPath[].passStopList.stations)의 정류장 좌표를 순서대로 이어서 노선 폴리라인을 만든다.
+    // 도보 환승 구간은 좌표가 안 오므로 자연스럽게 건너뛴다(양옆 정류장으로 이미 이어짐).
+    const path = [];
+    (best.subPath || []).forEach((sp) => {
+      const stations = sp.passStopList && sp.passStopList.stations;
+      if (stations) stations.forEach((st) => path.push({ lat: Number(st.y), lng: Number(st.x) }));
+    });
+    res.json({ durationMin: totalTime, fare: best.info.payment ?? null, path: path.length > 1 ? path : null });
   } catch (err) {
     res.status(502).json({ error: "failed to reach odsay API", detail: String(err) });
   }
