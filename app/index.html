@@ -5,7 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1" />
 <title>DropShopping · Prototype</title>
 <link rel="icon" href="assets/logo-mark.png" />
-<style>html,body{margin:0;padding:0;background:#E6ECF6}</style>
+<style>html,body{margin:0;padding:0;background:#E6ECF6}@keyframes ds-spin{to{transform:rotate(360deg)}}.ds-spin{animation:ds-spin 1s linear infinite}</style>
 <script type="importmap">
 {
   "imports": {
@@ -32,7 +32,7 @@ import {
   Plane, PlaneLanding, Bell, Clock, Bed, Droplets, Luggage, MapPin,
   Utensils, Sparkles, ShoppingBag, Scissors, Coffee, Check, ChevronRight,
   ChevronLeft, Home as HomeIcon, Search, User, CalendarCheck, Ticket,
-  ShieldCheck, Route, Camera, Waves, Footprints, TrainFront, Car, Tag,
+  ShieldCheck, Route, Camera, Waves, Footprints, TrainFront, Car, Tag, RefreshCw, X,
 } from "lucide-react";
 
 /* ---------- brand palette (DropShopping) ---------- */
@@ -87,8 +87,12 @@ const STR = {
   gateLbl: { ko: "게이트", en: "Gate", zh: "登机口", ja: "ゲート", vi: "Cửa" },
   departsLbl: { ko: "출발", en: "Departs", zh: "起飞", ja: "出発", vi: "Khởi hành" },
   remarkNormal: { ko: "정상", en: "On time", zh: "正常", ja: "定刻", vi: "Đúng giờ" },
-  bufferAppliedNote: { ko: "탑승 마감 버퍼 {min}분 반영", en: "{min}-min boarding buffer applied", zh: "已计入{min}分钟登机缓冲", ja: "搭乗締切バッファ{min}分を反映", vi: "Đã áp dụng đệm {min} phút trước giờ đóng cửa lên máy bay" },
+  bufferAppliedNote: { ko: "수속 {sec}분 + 게이트마감 {gate}분 + 숙소→공항 이동 {travel}분 = 총 {total}분 버퍼 반영", en: "{sec}min security + {gate}min gate cutoff + {travel}min to airport = {total}min buffer applied", zh: "安检{sec}分钟 + 登机截止{gate}分钟 + 返回机场{travel}分钟 = 共{total}分钟缓冲", ja: "保安検査{sec}分+搭乗締切{gate}分+空港までの移動{travel}分=合計{total}分のバッファを反映", vi: "An ninh {sec} phút + đóng cửa lên máy bay {gate} phút + về sân bay {travel} phút = tổng đệm {total} phút" },
   pushNotice: { ko: "복귀 30분 전 푸시 알림 예약됨", en: "Push alert scheduled 30 min before return", zh: "已设置返回前30分钟推送提醒", ja: "復帰30分前にプッシュ通知を予約済み", vi: "Đã đặt thông báo đẩy 30 phút trước khi quay lại" },
+  flightArriveChangedNotice: { ko: "도착편 시각이 바뀌었어요 · 도착 {old} → {new}", en: "Arrival time changed · {old} → {new}", zh: "到达时间有变动 · {old} → {new}", ja: "到着時刻が変更されました・{old} → {new}", vi: "Giờ đến đã thay đổi · {old} → {new}" },
+  flightDepartChangedNotice: { ko: "연결편 시각이 바뀌었어요 · 복귀 추천 {old} → {new}", en: "Connecting flight time changed · return by {old} → {new}", zh: "连接航班时间有变动 · 建议返回 {old} → {new}", ja: "乗継便の時刻が変更されました・復帰推奨 {old} → {new}", vi: "Giờ bay nối chuyến đã thay đổi · nên quay lại {old} → {new}" },
+  refreshFlightLabel: { ko: "항공편 다시 조회", en: "Refresh flight status", zh: "重新查询航班", ja: "フライトを再照会", vi: "Làm mới thông tin chuyến bay" },
+  dismissNoticeLabel: { ko: "닫기", en: "Dismiss", zh: "关闭", ja: "閉じる", vi: "Đóng" },
   ctaSmartCourse: { ko: "스마트 코스 추천", en: "Get smart course picks", zh: "智能推荐路线", ja: "スマートコースをおすすめ", vi: "Gợi ý lộ trình thông minh" },
 
   navHome: { ko: "홈", en: "Home", zh: "首页", ja: "ホーム", vi: "Trang chủ" },
@@ -324,8 +328,11 @@ const won = (n) => "₩" + n.toLocaleString();
 const PROXY_BASE = "http://localhost:3001";
 const DEFAULT_ARRIVE = 10 * 60 + 30; // 실시간 조회 실패/미조회 시 데모 폴백값
 const LAYOVER_BUDGET = 360; // 연결편 실시간 조회가 없을 때 쓰는 고정 6시간 레이오버 예산(분)
-const RETURN_BUFFER = 90; // 연결편 출발 X분 전 공항 복귀 권장(보안검색·이동 버퍼)
+// 복귀 버퍼 = 수속(보안검색+출국심사) + 게이트 마감 + 숙소→공항 실제 이동시간. 이동시간만 room에 따라 동적으로 바뀐다.
+const SECURITY_BUFFER_MIN = 90; // 수속(보안검색·출국심사) 예상 소요시간
+const GATE_CUTOFF_MIN = 40; // 탑승 마감(게이트 클로징) 버퍼
 const MIN_STAY = 60; // 최소 체류 보장(분) — 연결편이 너무 임박해도 음수 시간이 나오지 않도록
+const FLIGHT_POLL_INTERVAL_MS = 120000; // 온보딩 이후 백그라운드에서 항공편을 재조회하는 주기(2분) — 지연/게이트 변경 반영용
 const hhmm = (m) => {
   const mm = ((m % 1440) + 1440) % 1440;
   return `${String(Math.floor(mm / 60)).padStart(2, "0")}:${String(mm % 60).padStart(2, "0")}`;
@@ -377,14 +384,14 @@ async function fetchRouteMin(origin, dest) {
   const res = await fetch(url);
   const data = await res.json().catch(() => ({}));
   if (!res.ok || data.durationSec == null) throw new Error(data.error || `route lookup failed (${res.status})`);
-  return Math.max(1, Math.round(data.durationSec / 60));
+  return { min: Math.max(1, Math.round(data.durationSec / 60)), path: data.path && data.path.length > 1 ? data.path : null };
 }
 async function fetchTransitMin(origin, dest) {
   const url = `${PROXY_BASE}/api/transit?originLat=${origin.lat}&originLng=${origin.lng}&destLat=${dest.lat}&destLng=${dest.lng}`;
   const res = await fetch(url);
   const data = await res.json().catch(() => ({}));
   if (!res.ok || data.durationMin == null) throw new Error(data.error || `transit lookup failed (${res.status})`);
-  return Math.max(1, Math.round(data.durationMin));
+  return { min: Math.max(1, Math.round(data.durationMin)), path: data.path && data.path.length > 1 ? data.path : null };
 }
 // 직선거리로 도보/대중교통/자동차 중 알맞은 모드를 고르고, 그 모드로 실제 이동시간을 조회한다.
 // 대중교통(ODsay) 조회가 실패하면(키 없음·노선 없음 등) 조용히 자동차(카카오모빌리티)로 폴백한다.
@@ -395,12 +402,14 @@ async function fetchTravelMin(origin, dest) {
   }
   if (km >= TRANSIT_MIN_KM) {
     try {
-      return { min: await fetchTransitMin(origin, dest), mode: "transit" };
+      const { min, path } = await fetchTransitMin(origin, dest);
+      return { min, mode: "transit", path };
     } catch {
       // ODsay 실패 시 자동차로 폴백
     }
   }
-  return { min: await fetchRouteMin(origin, dest), mode: "drive" };
+  const { min, path } = await fetchRouteMin(origin, dest);
+  return { min, mode: "drive", path };
 }
 const MODE_ICON = { walk: Footprints, transit: TrainFront, drive: Car };
 // 코스 빌더 지도에 얹을 실제 주변 장소(카카오 로컬 카테고리 검색). FD6=음식점, CE7=카페.
@@ -424,6 +433,18 @@ function App() {
   const [room, setRoom] = useState(ROOMS[0]);
   const toggle = (k) => setCats((p) => (p.includes(k) ? p.filter((x) => x !== k) : [...p, k]));
 
+  // 복귀 버퍼에 들어가는 "숙소→공항 이동시간"을 실시간으로 계산 — 숙소를 바꾸면 안전 버퍼도 같이 바뀐다.
+  // 실패하면(키 없음 등) room.distMin(카카오 검증된 대표 이동시간) 폴백으로 조용히 유지.
+  const [airportTravelMin, setAirportTravelMin] = useState(room.distMin);
+  useEffect(() => {
+    setAirportTravelMin(room.distMin);
+    let cancelled = false;
+    fetchTravelMin(room.coord, AIRPORT_COORD).then((r) => { if (!cancelled) setAirportTravelMin(r.min); }).catch(() => {});
+    return () => { cancelled = true; };
+  }, [room]);
+  const airportTravelMinRef = useRef(airportTravelMin);
+  useEffect(() => { airportTravelMinRef.current = airportTravelMin; }, [airportTravelMin]);
+
   const [flightLookup, setFlightLookup] = useState({ status: "idle" });
   const lookupFlight = async (flightId) => {
     if (!flightId) return;
@@ -442,22 +463,70 @@ function App() {
   };
   const arriveMin = flightLookup.status === "success" ? flightLookup.arriveMin : DEFAULT_ARRIVE;
   const departMin = connLookup.status === "success" ? connLookup.departMin : null;
-  // 연결편 실시간 출발 시각이 있으면 "출발 - 버퍼"로, 없으면 고정 레이오버 예산으로 계산
+  // 복귀 버퍼 = 수속시간 + 게이트마감 + 숙소→공항 실이동시간(동적). 연결편이 없으면 고정 레이오버 예산으로 계산.
+  const returnBufferMin = SECURITY_BUFFER_MIN + GATE_CUTOFF_MIN + airportTravelMin;
   const returnByMin = departMin != null
-    ? Math.max(arriveMin + MIN_STAY, departMin - RETURN_BUFFER)
+    ? Math.max(arriveMin + MIN_STAY, departMin - returnBufferMin)
     : arriveMin + LAYOVER_BUDGET;
+
+  // 온보딩 이후 항공편 지연·게이트 변경을 반영하기 위한 백그라운드 재조회 + 수동 새로고침.
+  // 값이 실제로 바뀌었을 때만 배너로 알려준다(조용한 실패/무변화는 그냥 무시).
+  const flightLookupRef = useRef(flightLookup);
+  useEffect(() => { flightLookupRef.current = flightLookup; }, [flightLookup]);
+  const connLookupRef = useRef(connLookup);
+  useEffect(() => { connLookupRef.current = connLookup; }, [connLookup]);
+  const [notice, setNotice] = useState(null); // { key, vars } | null
+  const [rechecking, setRechecking] = useState(false);
+  const recheckFlights = async () => {
+    setRechecking(true);
+    const buf = SECURITY_BUFFER_MIN + GATE_CUTOFF_MIN + airportTravelMinRef.current;
+    const prevArrive = flightLookupRef.current.status === "success" ? flightLookupRef.current.arriveMin : null;
+    const prevReturnBy = (() => {
+      const pa = prevArrive ?? DEFAULT_ARRIVE;
+      const pd = connLookupRef.current.status === "success" ? connLookupRef.current.departMin : null;
+      return pd != null ? Math.max(pa + MIN_STAY, pd - buf) : pa + LAYOVER_BUDGET;
+    })();
+    if (flight && flightLookupRef.current.status === "success") {
+      const r = await fetchArrival(flight, API_LANG[lang] || "E");
+      if (!r.error) {
+        setFlightLookup({ status: "success", arriveMin: r.arriveMin, flight: r.flight });
+        if (prevArrive != null && r.arriveMin !== prevArrive) {
+          setNotice({ key: "flightArriveChangedNotice", vars: { old: prevArrive, new: r.arriveMin } });
+        }
+      }
+    }
+    if (connFlight && connLookupRef.current.status === "success") {
+      const rc = await fetchDeparture(connFlight, API_LANG[lang] || "E");
+      if (!rc.error) {
+        setConnLookup({ status: "success", departMin: rc.departMin, flight: rc.flight });
+        const newArrive = flightLookupRef.current.status === "success" ? flightLookupRef.current.arriveMin : DEFAULT_ARRIVE;
+        const newReturnBy = Math.max(newArrive + MIN_STAY, rc.departMin - buf);
+        if (newReturnBy !== prevReturnBy) {
+          setNotice({ key: "flightDepartChangedNotice", vars: { old: prevReturnBy, new: newReturnBy } });
+        }
+      }
+    }
+    setRechecking(false);
+  };
+  useEffect(() => {
+    if (screen === "onboarding") return;
+    if (flightLookup.status !== "success") return;
+    const id = setInterval(recheckFlights, FLIGHT_POLL_INTERVAL_MS);
+    return () => clearInterval(id);
+  }, [screen, flight, connFlight, lang, flightLookup.status]);
 
   return (
     <LangCtx.Provider value={{ code: lang }}>
       <div style={{ minHeight: "100vh", background: "#E6ECF6", display: "flex", justifyContent: "center", alignItems: "flex-start", padding: "20px 12px", fontFamily: "-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif" }}>
         <div style={{ width: 390, maxWidth: "100%", height: 800, background: C.bg, borderRadius: 34, overflow: "hidden", position: "relative", boxShadow: "0 20px 60px rgba(30,50,110,0.25)", border: "6px solid #101826" }}>
+          {screen !== "onboarding" && <FlightNotice notice={notice} onDismiss={() => setNotice(null)} />}
           <div style={{ position: "absolute", inset: 0, bottom: screen === "onboarding" ? 0 : 66, overflowY: "auto" }}>
-            {screen === "onboarding" && <Onboarding {...{ step, setStep, lang, setLang, cats, toggle, flight, setFlight, go: () => setScreen("home"), flightLookup, onLookup: lookupFlight, connFlight, setConnFlight, connLookup, onLookupDeparture: lookupDeparture, arriveMin, returnByMin }} />}
-            {screen === "home" && <HomeScreen {...{ cats, openRoom: (r) => { setRoom(r); setScreen("booking"); }, setScreen, flight, arrive: arriveMin, returnBy: returnByMin, flightLookup }} />}
+            {screen === "onboarding" && <Onboarding {...{ step, setStep, lang, setLang, cats, toggle, flight, setFlight, go: () => setScreen("home"), flightLookup, onLookup: lookupFlight, connFlight, setConnFlight, connLookup, onLookupDeparture: lookupDeparture, arriveMin, returnByMin, airportTravelMin }} />}
+            {screen === "home" && <HomeScreen {...{ cats, openRoom: (r) => { setRoom(r); setScreen("booking"); }, setScreen, flight, arrive: arriveMin, returnBy: returnByMin, flightLookup, onRecheck: recheckFlights, rechecking }} />}
             {screen === "booking" && <Booking room={room} onPay={() => setScreen("confirm")} back={() => setScreen("home")} />}
             {screen === "confirm" && <Confirm room={room} back={() => setScreen("home")} />}
             {screen === "luggage" && <Luggagepage back={() => setScreen("home")} />}
-            {screen === "course" && <Course cats={cats} back={() => setScreen("home")} onBook={(r) => { setRoom(r); setScreen("booking"); }} arrive={arriveMin} returnBy={returnByMin} />}
+            {screen === "course" && <Course cats={cats} back={() => setScreen("home")} onBook={(r) => { setRoom(r); setScreen("booking"); }} arrive={arriveMin} returnBy={returnByMin} onRecheck={recheckFlights} rechecking={rechecking} />}
             {screen === "mypage" && <MyPage lang={lang} />}
           </div>
           {screen !== "onboarding" && (
@@ -466,6 +535,18 @@ function App() {
         </div>
       </div>
     </LangCtx.Provider>
+  );
+}
+function FlightNotice({ notice, onDismiss }) {
+  const { t, fmtTime } = useLang();
+  if (!notice) return null;
+  const vars = { old: fmtTime(notice.vars.old), new: fmtTime(notice.vars.new) };
+  return (
+    <div style={{ position: "absolute", top: 10, left: 10, right: 10, zIndex: 40, background: C.ink, color: "#fff", borderRadius: 12, padding: "10px 12px", display: "flex", alignItems: "center", gap: 8, boxShadow: "0 6px 16px rgba(0,0,0,.25)" }}>
+      <Bell size={14} color={C.gold} style={{ flexShrink: 0 }} />
+      <span style={{ flex: 1, fontSize: 11.5, lineHeight: 1.4 }}>{t(notice.key, vars)}</span>
+      <button onClick={onDismiss} aria-label={t("dismissNoticeLabel")} style={{ border: "none", background: "none", cursor: "pointer", color: "#9FB6D4", padding: 2, flexShrink: 0 }}><X size={15} /></button>
+    </div>
   );
 }
 function Nav({ screen, setScreen }) {
@@ -489,7 +570,7 @@ const NavItem = ({ icon: Icon, label, active, onClick }) => (
 );
 
 /* ---------- ONBOARDING ---------- */
-function Onboarding({ step, setStep, lang, setLang, cats, toggle, flight, setFlight, go, flightLookup, onLookup, connFlight, setConnFlight, connLookup, onLookupDeparture, arriveMin, returnByMin }) {
+function Onboarding({ step, setStep, lang, setLang, cats, toggle, flight, setFlight, go, flightLookup, onLookup, connFlight, setConnFlight, connLookup, onLookupDeparture, arriveMin, returnByMin, airportTravelMin }) {
   const { t, tr, fmtTime } = useLang();
   const stayMin = returnByMin - arriveMin;
   const stayH = Math.floor(stayMin / 60);
@@ -587,7 +668,10 @@ function Onboarding({ step, setStep, lang, setLang, cats, toggle, flight, setFli
                     {flightLookup.flight.airline} {flightLookup.flight.flightId} · {t("fromLbl")} {flightLookup.flight.fromAirport} · {t("terminalLbl")} {flightLookup.flight.terminal || "-"} · {t("gateLbl")} {flightLookup.flight.gate || "-"} · {flightLookup.flight.remark || t("remarkNormal")}
                   </div>
                   <div style={{ fontSize: 11, color: "#9FB6D4", marginTop: 6 }}>
-                    {connLookup.flight.airline} {connLookup.flight.flightId} · {t("toLbl")} {connLookup.flight.toAirport} · {t("departsLbl")} {fmtTime(connLookup.departMin)} · {t("bufferAppliedNote", { min: RETURN_BUFFER })}
+                    {connLookup.flight.airline} {connLookup.flight.flightId} · {t("toLbl")} {connLookup.flight.toAirport} · {t("departsLbl")} {fmtTime(connLookup.departMin)}
+                  </div>
+                  <div style={{ fontSize: 11, color: "#9FB6D4", marginTop: 4 }}>
+                    {t("bufferAppliedNote", { sec: SECURITY_BUFFER_MIN, gate: GATE_CUTOFF_MIN, travel: airportTravelMin, total: SECURITY_BUFFER_MIN + GATE_CUTOFF_MIN + airportTravelMin })}
                   </div>
                   <div style={{ fontSize: 11, color: "#9FB6D4", marginTop: 6, display: "flex", alignItems: "center", gap: 6 }}>
                     <Bell size={12} /> {t("pushNotice")}
@@ -623,7 +707,7 @@ const Title = ({ title, note }) => (
 const row = (on) => ({ display: "flex", alignItems: "center", gap: 12, padding: "14px 16px", borderRadius: 14, border: on ? `2px solid ${C.blue}` : `1.5px solid ${C.line}`, background: on ? C.tint : "#fff", cursor: "pointer" });
 
 /* ---------- HOME ---------- */
-function HomeScreen({ cats, openRoom, setScreen, flight, arrive, returnBy, flightLookup }) {
+function HomeScreen({ cats, openRoom, setScreen, flight, arrive, returnBy, flightLookup, onRecheck, rechecking }) {
   const { t, tr, fmtTime } = useLang();
   const LOCAL_CHIPS = ["yeongjong", "songdo", "chinatown", "muui"];
   return (
@@ -640,7 +724,14 @@ function HomeScreen({ cats, openRoom, setScreen, flight, arrive, returnBy, fligh
             <div style={{ display: "flex", alignItems: "center", gap: 7 }}>
               <ShieldCheck size={17} color={C.blue} /><span style={{ fontSize: 13.5, fontWeight: 800, color: C.ink }}>Time-Safe · {flight}</span>
             </div>
-            <span style={{ fontSize: 11, fontWeight: 700, color: flightLookup.status === "success" ? "#2E9E5B" : C.sub, background: flightLookup.status === "success" ? "#E7F7EE" : C.line, padding: "3px 9px", borderRadius: 999 }}>{flightLookup.status === "success" ? t("realtimeBadge") : t("demoBadge")}</span>
+            <div style={{ display: "flex", alignItems: "center", gap: 6 }}>
+              {onRecheck && flightLookup.status === "success" && (
+                <button onClick={onRecheck} disabled={rechecking} aria-label={t("refreshFlightLabel")} style={{ border: "none", background: "none", cursor: rechecking ? "default" : "pointer", padding: 2, color: C.sub, display: "flex" }}>
+                  <RefreshCw size={14} className={rechecking ? "ds-spin" : ""} />
+                </button>
+              )}
+              <span style={{ fontSize: 11, fontWeight: 700, color: flightLookup.status === "success" ? "#2E9E5B" : C.sub, background: flightLookup.status === "success" ? "#E7F7EE" : C.line, padding: "3px 9px", borderRadius: 999 }}>{flightLookup.status === "success" ? t("realtimeBadge") : t("demoBadge")}</span>
+            </div>
           </div>
           <div style={{ display: "flex", alignItems: "flex-end", gap: 14, marginTop: 10 }}>
             <div><div style={{ fontSize: 28, fontWeight: 900, color: C.blueDeep }}>{Math.floor((returnBy - arrive) / 60)}:00</div><div style={{ fontSize: 10, color: C.faint }}>{t("stayAvailableShort")}</div></div>
@@ -883,22 +974,22 @@ const PLACES = {
   Food: [
     { id: "chinatown-dimsum", name: { ko: "원보만두", en: "Wonbo Mandu", zh: "Wonbo Mandu", ja: "Wonbo Mandu", vi: "Wonbo Mandu" }, area: { ko: "인천 차이나타운", en: "Incheon Chinatown", zh: "仁川唐人街", ja: "仁川チャイナタウン", vi: "Phố người Hoa Incheon" }, move: 40, dur: 45, price: 12000, tint: "#F3C4B8", coord: { lat: 37.475256, lng: 126.618969 } },
     { id: "sinpo-market", name: { ko: "원조신포닭강정", en: "Wonjo Sinpo Dakgangjeong", zh: "Wonjo Sinpo Dakgangjeong", ja: "Wonjo Sinpo Dakgangjeong", vi: "Wonjo Sinpo Dakgangjeong" }, area: { ko: "인천 신포동", en: "Incheon Sinpo-dong", zh: "仁川新浦洞", ja: "仁川新浦洞", vi: "Sinpo-dong, Incheon" }, move: 42, dur: 30, price: 15000, tint: "#F7D9B0", coord: { lat: 37.471749, lng: 126.628113 } },
-    { id: "yeongjong-noodles", name: { ko: "황생가칼국수 인천공항T2점", en: "Hwangsaenggae Kalguksu (ICN T2)", zh: "Hwangsaenggae Kalguksu (ICN T2)", ja: "Hwangsaenggae Kalguksu (ICN T2)", vi: "Hwangsaenggae Kalguksu (ICN T2)" }, area: { ko: "인천공항 제2터미널", en: "ICN Terminal 2", zh: "仁川机场T2", ja: "仁川空港T2", vi: "Sân bay Incheon T2" }, move: 12, dur: 45, price: 13000, tint: "#F3D9B8", coord: { lat: 37.466186, lng: 126.431654 } },
+    { id: "yeongjong-noodles", name: { ko: "7곡제면소 인천영종운서점", en: "7Gok Noodle House (Unseo-dong)", zh: "7Gok Noodle House (Unseo-dong)", ja: "7Gok Noodle House (Unseo-dong)", vi: "7Gok Noodle House (Unseo-dong)" }, area: { ko: "운서동", en: "Unseo-dong", zh: "云西洞", ja: "雲西洞", vi: "Unseo-dong" }, move: 16, dur: 45, price: 13000, tint: "#F3D9B8", coord: { lat: 37.492510, lng: 126.492481 } },
   ],
   Massage: [
-    { id: "airport-spa-foot", name: { ko: "바디케어(서편) 인천공항T2", en: "Body Care Foot Massage (ICN T2 West)", zh: "Body Care Foot Massage (ICN T2 West)", ja: "Body Care Foot Massage (ICN T2 West)", vi: "Body Care Foot Massage (ICN T2 West)" }, area: { ko: "인천공항 제2터미널", en: "ICN Terminal 2", zh: "仁川机场T2", ja: "仁川空港T2", vi: "Sân bay Incheon T2" }, move: 12, dur: 60, price: 45000, tint: "#E8C4D6", coord: { lat: 37.465221, lng: 126.432204 } },
-    { id: "masian-aroma", name: { ko: "프라나마사지", en: "Prana Massage", zh: "Prana Massage", ja: "Prana Massage", vi: "Prana Massage" }, area: { ko: "인천공항 제2터미널", en: "ICN Terminal 2", zh: "仁川机场T2", ja: "仁川空港T2", vi: "Sân bay Incheon T2" }, move: 12, dur: 90, price: 70000, tint: "#E3C4E8", coord: { lat: 37.469249, lng: 126.433209 } },
+    { id: "airport-spa-foot", name: { ko: "더풋샵 메가스타영종점", en: "The Foot Shop (Unseo-dong)", zh: "The Foot Shop (Unseo-dong)", ja: "The Foot Shop (Unseo-dong)", vi: "The Foot Shop (Unseo-dong)" }, area: { ko: "운서동", en: "Unseo-dong", zh: "云西洞", ja: "雲西洞", vi: "Unseo-dong" }, move: 13, dur: 60, price: 45000, tint: "#E8C4D6", coord: { lat: 37.493477, lng: 126.492223 } },
+    { id: "masian-aroma", name: { ko: "레푸스 인천영종점", en: "Repus Foot Care (Unseo-dong)", zh: "Repus Foot Care (Unseo-dong)", ja: "Repus Foot Care (Unseo-dong)", vi: "Repus Foot Care (Unseo-dong)" }, area: { ko: "운서동", en: "Unseo-dong", zh: "云西洞", ja: "雲西洞", vi: "Unseo-dong" }, move: 12, dur: 90, price: 70000, tint: "#E3C4E8", coord: { lat: 37.494898, lng: 126.490059 } },
     { id: "sky-relax-massage", name: { ko: "허브마사지", en: "Herb Massage", zh: "Herb Massage", ja: "Herb Massage", vi: "Herb Massage" }, area: { ko: "운서동", en: "Unseo-dong", zh: "云西洞", ja: "雲西洞", vi: "Unseo-dong" }, move: 18, dur: 60, price: 50000, tint: "#D6C4E8", coord: { lat: 37.490669, lng: 126.494995 } },
   ],
   Shopping: [
-    { id: "sky72-outlet", name: { ko: "롯데면세점 인천공항점 T1", en: "Lotte Duty Free (ICN T1)", zh: "Lotte Duty Free (ICN T1)", ja: "Lotte Duty Free (ICN T1)", vi: "Lotte Duty Free (ICN T1)" }, area: { ko: "공항 T1", en: "Airport T1", zh: "机场T1", ja: "空港T1", vi: "Sân bay T1" }, move: 5, dur: 60, price: 0, tint: "#BBD3F5", coord: { lat: 37.451397, lng: 126.451720 } },
-    { id: "olive-young-kbeauty", name: { ko: "올리브영 인천공항T1점", en: "Olive Young (ICN T1)", zh: "Olive Young (ICN T1)", ja: "Olive Young (ICN T1)", vi: "Olive Young (ICN T1)" }, area: { ko: "공항 T1", en: "Airport T1", zh: "机场T1", ja: "空港T1", vi: "Sân bay T1" }, move: 5, dur: 30, price: 0, tint: "#CFE0F5", coord: { lat: 37.449129, lng: 126.451059 } },
-    { id: "shinsegae-dutyfree", name: { ko: "신세계면세점 인천공항T1점", en: "Shinsegae Duty Free (ICN T1)", zh: "Shinsegae Duty Free (ICN T1)", ja: "Shinsegae Duty Free (ICN T1)", vi: "Shinsegae Duty Free (ICN T1)" }, area: { ko: "공항 T1", en: "Airport T1", zh: "机场T1", ja: "空港T1", vi: "Sân bay T1" }, move: 5, dur: 30, price: 0, tint: "#C7E4D6", coord: { lat: 37.449417, lng: 126.450593 } },
+    { id: "sky72-outlet", name: { ko: "롯데하이마트 영종도롯데마트점", en: "Lotte Hi-Mart (Yeongjong)", zh: "Lotte Hi-Mart (Yeongjong)", ja: "Lotte Hi-Mart (Yeongjong)", vi: "Lotte Hi-Mart (Yeongjong)" }, area: { ko: "운서동", en: "Unseo-dong", zh: "云西洞", ja: "雲西洞", vi: "Unseo-dong" }, move: 14, dur: 60, price: 0, tint: "#BBD3F5", coord: { lat: 37.4925823335266, lng: 126.491329709902 } },
+    { id: "olive-young-kbeauty", name: { ko: "올리브영 운서점", en: "Olive Young (Unseo)", zh: "Olive Young (Unseo)", ja: "Olive Young (Unseo)", vi: "Olive Young (Unseo)" }, area: { ko: "운서동", en: "Unseo-dong", zh: "云西洞", ja: "雲西洞", vi: "Unseo-dong" }, move: 17, dur: 30, price: 0, tint: "#CFE0F5", coord: { lat: 37.49253118561955, lng: 126.49284529121837 } },
+    { id: "shinsegae-dutyfree", name: { ko: "다이소 인천운서동점", en: "Daiso (Unseo-dong)", zh: "Daiso (Unseo-dong)", ja: "Daiso (Unseo-dong)", vi: "Daiso (Unseo-dong)" }, area: { ko: "운서동", en: "Unseo-dong", zh: "云西洞", ja: "雲西洞", vi: "Unseo-dong" }, move: 13, dur: 30, price: 0, tint: "#C7E4D6", coord: { lat: 37.49482774972253, lng: 126.49303669934206 } },
   ],
   Rest: [
-    { id: "capsule-dayuse", name: { ko: "캡슐호텔 다락휴 인천공항T1", en: "Darakhyu Capsule Hotel (ICN T1)", zh: "Darakhyu Capsule Hotel (ICN T1)", ja: "Darakhyu Capsule Hotel (ICN T1)", vi: "Darakhyu Capsule Hotel (ICN T1)" }, area: { ko: "공항 T1", en: "Airport T1", zh: "机场T1", ja: "空港T1", vi: "Sân bay T1" }, move: 5, dur: 120, price: 24000, tint: "#BBD3F5", coord: { lat: 37.447520, lng: 126.451727 } },
+    { id: "capsule-dayuse", name: { ko: "고요101스터디카페", en: "Goyo101 Study Cafe", zh: "Goyo101 Study Cafe", ja: "Goyo101 Study Cafe", vi: "Goyo101 Study Cafe" }, area: { ko: "운서동", en: "Unseo-dong", zh: "云西洞", ja: "雲西洞", vi: "Unseo-dong" }, move: 15, dur: 120, price: 12000, tint: "#BBD3F5", coord: { lat: 37.4919595712246, lng: 126.495069975613 } },
     { id: "spa-on-air", name: { ko: "솔밭해수방 영종점", en: "Solbat Haesubang Jjimjilbang", zh: "Solbat Haesubang Jjimjilbang", ja: "Solbat Haesubang Jjimjilbang", vi: "Solbat Haesubang Jjimjilbang" }, area: { ko: "영종도", en: "Yeongjong Island", zh: "永宗岛", ja: "永宗島", vi: "Đảo Yeongjong" }, move: 8, dur: 90, price: 15000, tint: "#CFE0F5", coord: { lat: 37.440168, lng: 126.430191 } },
-    { id: "premium-lounge", name: { ko: "스카이허브라운지(서편) 인천공항T1", en: "SkyHub Lounge (ICN T1 West)", zh: "SkyHub Lounge (ICN T1 West)", ja: "SkyHub Lounge (ICN T1 West)", vi: "SkyHub Lounge (ICN T1 West)" }, area: { ko: "공항 T1", en: "Airport T1", zh: "机场T1", ja: "空港T1", vi: "Sân bay T1" }, move: 5, dur: 60, price: 39000, tint: "#C7E4D6", coord: { lat: 37.447964, lng: 126.448944 } },
+    { id: "premium-lounge", name: { ko: "테르엔 영종점 힐링센터", en: "Therven Yeongjong Healing Center", zh: "Therven Yeongjong Healing Center", ja: "Therven Yeongjong Healing Center", vi: "Therven Yeongjong Healing Center" }, area: { ko: "운서동", en: "Unseo-dong", zh: "云西洞", ja: "雲西洞", vi: "Unseo-dong" }, move: 14, dur: 60, price: 15000, tint: "#C7E4D6", coord: { lat: 37.4948315434582, lng: 126.492241716604 } },
   ],
   Beauty: [
     { id: "kbeauty-makeup", name: { ko: "유니언니", en: "Uni Unnie Makeup", zh: "Uni Unnie Makeup", ja: "Uni Unnie Makeup", vi: "Uni Unnie Makeup" }, area: { ko: "운서동", en: "Unseo-dong", zh: "云西洞", ja: "雲西洞", vi: "Unseo-dong" }, move: 18, dur: 60, price: 55000, tint: "#E8C4D6", coord: { lat: 37.493250, lng: 126.489604 } },
@@ -914,9 +1005,9 @@ const PLACES = {
   // 원래는 화면 맨 아래 "제휴 혜택" 캐러셀로만 노출되던 브랜드 카드들 — 이제 다른 카테고리와 동일하게
   // 방문지 목록/자동 코스 짜기/시간 예산 계산에 합류시켜서 "브랜드를 고르면 자동으로 추천"이 실제로 동작하게 한다.
   Brand: [
-    { id: "shilla-pickup", name: { ko: "신라면세점 인천공항점", en: "Shilla Duty Free (ICN T1)", zh: "Shilla Duty Free (ICN T1)", ja: "Shilla Duty Free (ICN T1)", vi: "Shilla Duty Free (ICN T1)" }, area: { ko: "공항 T1", en: "Airport T1", zh: "机场T1", ja: "空港T1", vi: "Sân bay T1" }, move: 5, dur: 15, price: 0, tint: "#CFE0F5", coord: { lat: 37.449000, lng: 126.450600 } },
-    { id: "olive-young-partner", name: { ko: "올리브영 인천공항T1점", en: "Olive Young (ICN T1)", zh: "Olive Young (ICN T1)", ja: "Olive Young (ICN T1)", vi: "Olive Young (ICN T1)" }, area: { ko: "공항 T1", en: "Airport T1", zh: "机场T1", ja: "空港T1", vi: "Sân bay T1" }, move: 5, dur: 30, price: 0, tint: "#E8C4D6", coord: { lat: 37.449129, lng: 126.451059 } },
-    { id: "premium-lounge-partner", name: { ko: "스카이허브라운지(서편) 인천공항T1", en: "SkyHub Lounge (ICN T1 West)", zh: "SkyHub Lounge (ICN T1 West)", ja: "SkyHub Lounge (ICN T1 West)", vi: "SkyHub Lounge (ICN T1 West)" }, area: { ko: "공항 T1", en: "Airport T1", zh: "机场T1", ja: "空港T1", vi: "Sân bay T1" }, move: 5, dur: 60, price: 0, tint: "#C7E4D6", coord: { lat: 37.447964, lng: 126.448944 } },
+    { id: "shilla-pickup", name: { ko: "CU 영종공항신도시점", en: "CU Yeongjong Airport-town", zh: "CU Yeongjong Airport-town", ja: "CU Yeongjong Airport-town", vi: "CU Yeongjong Airport-town" }, area: { ko: "운서동", en: "Unseo-dong", zh: "云西洞", ja: "雲西洞", vi: "Unseo-dong" }, move: 14, dur: 15, price: 0, tint: "#CFE0F5", coord: { lat: 37.492741023836, lng: 126.489476424142 } },
+    { id: "olive-young-partner", name: { ko: "올리브영 운서점", en: "Olive Young (Unseo)", zh: "Olive Young (Unseo)", ja: "Olive Young (Unseo)", vi: "Olive Young (Unseo)" }, area: { ko: "운서동", en: "Unseo-dong", zh: "云西洞", ja: "雲西洞", vi: "Unseo-dong" }, move: 17, dur: 30, price: 0, tint: "#E8C4D6", coord: { lat: 37.49253118561955, lng: 126.49284529121837 } },
+    { id: "premium-lounge-partner", name: { ko: "테르엔 영종점 힐링센터", en: "Therven Yeongjong Healing Center", zh: "Therven Yeongjong Healing Center", ja: "Therven Yeongjong Healing Center", vi: "Therven Yeongjong Healing Center" }, area: { ko: "운서동", en: "Unseo-dong", zh: "云西洞", ja: "雲西洞", vi: "Unseo-dong" }, move: 14, dur: 60, price: 0, tint: "#C7E4D6", coord: { lat: 37.4948315434582, lng: 126.492241716604 } },
   ],
 };
 const ALL_PLACES = Object.entries(PLACES).flatMap(([k, arr]) => arr.map((p) => ({ ...p, cat: k })));
@@ -1024,8 +1115,10 @@ function CourseMap({ room, places, plan, onToggle }) {
       };
       legs.forEach((leg) => {
         const style = LEG_STYLE[leg.mode] || LEG_STYLE.drive;
+        // 자동차 구간은 카카오모빌리티가 준 실제 도로 좌표(leg.path)를 따라 그린다 — 없으면(도보/대중교통) 직선으로 폴백.
+        const points = leg.path && leg.path.length > 1 ? leg.path : [leg.from, leg.to];
         const polyline = new window.kakao.maps.Polyline({
-          path: [new window.kakao.maps.LatLng(leg.from.lat, leg.from.lng), new window.kakao.maps.LatLng(leg.to.lat, leg.to.lng)],
+          path: points.map((pt) => new window.kakao.maps.LatLng(pt.lat, pt.lng)),
           strokeWeight: 4,
           strokeColor: style.strokeColor,
           strokeOpacity: 0.85,
@@ -1053,7 +1146,7 @@ function CourseMap({ room, places, plan, onToggle }) {
   return <div ref={elRef} style={{ width: "100%", height: 320, borderRadius: 14, overflow: "hidden", border: `1px solid ${C.line}` }} />;
 }
 
-function Course({ cats, back, onBook, arrive, returnBy }) {
+function Course({ cats, back, onBook, arrive, returnBy, onRecheck, rechecking }) {
   const { t, tr, fmtTime } = useLang();
   const BUDGET = returnBy - arrive; // 분
   const initSel = (cats && cats.length) ? cats.filter((k) => k !== "Rest" && CAT_META[k]) : ["Shopping"];
@@ -1150,7 +1243,14 @@ function Course({ cats, back, onBook, arrive, returnBy }) {
           <div style={{ height: 8, background: C.line, borderRadius: 999, marginTop: 10, overflow: "hidden" }}>
             <div style={{ width: `${Math.min(100, (used / BUDGET) * 100)}%`, height: "100%", background: over ? C.red : grad }} />
           </div>
-          <div style={{ fontSize: 11, color: C.faint, marginTop: 6 }}>{t("arriveReturnLine", { arrive: fmtTime(arrive), return: fmtTime(returnBy) })}</div>
+          <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginTop: 6 }}>
+            <div style={{ fontSize: 11, color: C.faint }}>{t("arriveReturnLine", { arrive: fmtTime(arrive), return: fmtTime(returnBy) })}</div>
+            {onRecheck && (
+              <button onClick={onRecheck} disabled={rechecking} aria-label={t("refreshFlightLabel")} style={{ border: "none", background: "none", cursor: rechecking ? "default" : "pointer", padding: 2, color: C.faint, display: "flex" }}>
+                <RefreshCw size={13} className={rechecking ? "ds-spin" : ""} />
+              </button>
+            )}
+          </div>
         </Card>
 
         <div style={{ fontSize: 12, fontWeight: 800, color: C.ink, marginBottom: 8 }}>{t("step1RoomTitle")} <span style={{ color: C.red, fontWeight: 700 }}>{t("step1RoomRequired")}</span></div>
