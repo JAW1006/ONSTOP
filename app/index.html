@@ -18,7 +18,7 @@
 </script>
 <script src="https://unpkg.com/@babel/standalone@7.25.6/babel.min.js"></script>
 <!-- 카카오맵 JS SDK: JS 키는 원래 프론트엔드에 공개되는 게 정상(도메인 화이트리스트로 보호) — REST 키와 달리 프록시 불필요.
-     Kakao Developers 앱의 "플랫폼 설정 > Web"에 이 페이지를 여는 도메인(예: http://localhost:3001)을 등록해야 지도가 뜬다. -->
+     Kakao Developers 앱의 "플랫폼 설정 > Web"에 이 페이지를 여는 실제 도메인(로컬 개발이면 http://localhost:3001, 배포 후면 배포된 주소)을 등록해야 지도가 뜬다. -->
 <script src="https://dapi.kakao.com/v2/maps/sdk.js?appkey=7bcb39edf8f7c80e2932bbcbd43fab06&libraries=services"></script>
 </head>
 <body>
@@ -207,7 +207,7 @@ const STR = {
   courseStepReturnSub: { ko: "Time-Safe 알림 · 여유 30분", en: "Time-Safe alert · 30 min buffer", zh: "Time-Safe 提醒 · 预留30分钟", ja: "Time-Safe通知・余裕30分", vi: "Thông báo Time-Safe · dự phòng 30 phút" },
   mapAllPlacesNote: { ko: "전체 카테고리 장소가 다 표시돼요 · 핀 탭하면 일정에 추가/제거 · 회색 점은 주변 실제 카페·음식점(참고용)", en: "Shows spots from every category · tap a pin to add/remove it from your plan · gray dots are real nearby cafes/restaurants (for reference)", zh: "显示所有类别的地点 · 点击图钉可添加/移除行程 · 灰点是附近实际的咖啡馆/餐厅(仅供参考)", ja: "全カテゴリのスポットを表示・ピンをタップで予定に追加/削除・灰色の点は近隣の実際のカフェ・飲食店(参考用)", vi: "Hiển thị địa điểm ở mọi danh mục · chạm vào ghim để thêm/bớt khỏi lịch trình · chấm xám là quán cà phê/nhà hàng thực tế gần đó (chỉ để tham khảo)" },
   routeLegend: { ko: "일정에 담긴 순서대로 경로가 그려져요: ●●● 자동차 · ┄┄ 도보 · ⋯⋯ 대중교통", en: "Route follows your plan's order: ●●● car · ┄┄ walk · ⋯⋯ transit", zh: "路线按行程顺序绘制:●●● 驾车 · ┄┄ 步行 · ⋯⋯ 公共交通", ja: "予定の順番どおりに経路を表示: ●●● 車・┄┄ 徒歩・⋯⋯ 公共交通", vi: "Tuyến đường vẽ theo thứ tự lịch trình: ●●● ô tô · ┄┄ đi bộ · ⋯⋯ phương tiện công cộng" },
-  mapUnavailable: { ko: "지도를 불러올 수 없어요. http://localhost:3001 로 열었는지, 카카오 개발자 콘솔에 도메인이 등록됐는지 확인해주세요.", en: "Couldn't load the map. Make sure you opened this at http://localhost:3001 and that the domain is registered in Kakao Developers.", zh: "无法加载地图。请确认您是通过 http://localhost:3001 打开的,并且该域名已在 Kakao Developers 中注册。", ja: "地図を読み込めません。http://localhost:3001 で開いているか、Kakao Developersにドメインが登録されているか確認してください。", vi: "Không tải được bản đồ. Hãy chắc chắn bạn mở trang này tại http://localhost:3001 và tên miền đã được đăng ký trong Kakao Developers." },
+  mapUnavailable: { ko: "지도를 불러올 수 없어요. 이 도메인이 카카오 개발자 콘솔에 등록됐는지 확인해주세요.", en: "Couldn't load the map. Make sure this domain is registered in Kakao Developers.", zh: "无法加载地图。请确认该域名已在 Kakao Developers 中注册。", ja: "地図を読み込めません。このドメインがKakao Developersに登録されているか確認してください。", vi: "Không tải được bản đồ. Hãy chắc chắn tên miền này đã được đăng ký trong Kakao Developers." },
 
   airportMinAway: { ko: "공항 {n}분", en: "{n} min from airport", zh: "距机场{n}分钟", ja: "空港から{n}分", vi: "Cách sân bay {n} phút" },
   hourRange: { ko: "{a}–{b}시간", en: "{a}–{b} hrs", zh: "{a}–{b}小时", ja: "{a}–{b}時間", vi: "{a}–{b} giờ" },
@@ -325,7 +325,9 @@ const LOCAL = [
 const won = (n) => "₩" + n.toLocaleString();
 
 /* ---------- airport API (via local proxy) ---------- */
-const PROXY_BASE = "http://localhost:3001";
+// 같은 Express 서버가 app/도 정적으로 같이 서빙하므로 상대 경로로 두면
+// localhost든 배포된 실제 도메인이든 별도 수정 없이 그대로 동작한다.
+const PROXY_BASE = "";
 const DEFAULT_ARRIVE = 10 * 60 + 30; // 실시간 조회 실패/미조회 시 데모 폴백값
 const LAYOVER_BUDGET = 360; // 연결편 실시간 조회가 없을 때 쓰는 고정 6시간 레이오버 예산(분)
 // 복귀 버퍼 = 수속(보안검색+출국심사) + 게이트 마감 + 숙소→공항 실제 이동시간. 이동시간만 room에 따라 동적으로 바뀐다.
