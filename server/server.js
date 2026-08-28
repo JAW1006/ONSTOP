@@ -247,7 +247,9 @@ app.get("/api/transit", async (req, res) => {
     const apiRes = await fetch(url);
     const data = await apiRes.json().catch(() => ({}));
     if (data.error) {
-      return res.status(502).json({ error: data.error.message || "odsay API error" });
+      // ODsay returns errors as an array of {code, message}, not a single object.
+      const detail = Array.isArray(data.error) ? data.error[0] : data.error;
+      return res.status(502).json({ error: detail?.message || "odsay API error" });
     }
     const best = data.result && Array.isArray(data.result.path) && data.result.path[0];
     const totalTime = best && best.info && best.info.totalTime;
