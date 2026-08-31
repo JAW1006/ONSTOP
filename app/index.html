@@ -162,12 +162,15 @@ const STR = {
   myPageTitle: { ko: "마이 페이지", en: "My Page", zh: "我的页面", ja: "マイページ", vi: "Trang của tôi" },
   myPageSub: { ko: "My page", en: "My page", zh: "我的页面", ja: "マイページ", vi: "Trang của tôi" },
   myPageGreeting: { ko: "안녕하세요, 여행자님!", en: "Hello, Traveler!", zh: "你好,旅行者!", ja: "こんにちは、トラベラーさん!", vi: "Xin chào, Nhà du hành!" },
-  pointsLabel: { ko: "포인트 {n}P", en: "{n} pts", zh: "{n}积分", ja: "{n}ポイント", vi: "{n} điểm" },
+  bookingCountLabel: { ko: "예약 {n}건", en: "{n} bookings", zh: "{n}笔预订", ja: "予約{n}件", vi: "{n} lượt đặt chỗ" },
   menuBookingHistory: { ko: "예약 내역", en: "Booking History", zh: "预订记录", ja: "予約履歴", vi: "Lịch sử đặt chỗ" },
   menuCoupon: { ko: "쿠폰", en: "Coupons", zh: "优惠券", ja: "クーポン", vi: "Phiếu giảm giá" },
   menuTimeSafeAlert: { ko: "Time-Safe 알림", en: "Time-Safe Alerts", zh: "Time-Safe 提醒", ja: "Time-Safe 通知", vi: "Thông báo Time-Safe" },
   menuPassport: { ko: "여권 인증", en: "Passport Verification", zh: "护照认证", ja: "パスポート認証", vi: "Xác minh hộ chiếu" },
   menuLangSetting: { ko: "언어 설정", en: "Language Settings", zh: "语言设置", ja: "言語設定", vi: "Cài đặt ngôn ngữ" },
+  comingSoonLbl: { ko: "준비중", en: "Coming soon", zh: "即将推出", ja: "準備中", vi: "Sắp ra mắt" },
+  noBookingsYet: { ko: "아직 예약 내역이 없어요", en: "No bookings yet", zh: "暂无预订记录", ja: "まだ予約履歴がありません", vi: "Chưa có lượt đặt chỗ nào" },
+  browseRoomsBtn: { ko: "숙소 보러가기", en: "Browse stays", zh: "浏览住宿", ja: "宿泊先を見る", vi: "Xem chỗ nghỉ" },
 
   courseTitle: { ko: "환승 코스 만들기", en: "Build Your Transit Course", zh: "制作转机路线", ja: "乗継コースを作る", vi: "Tạo lộ trình quá cảnh" },
   courseSub: { ko: "카테고리 → 장소 선택 → 일정 자동 생성", en: "Category → pick spots → auto-schedule", zh: "类别 → 选地点 → 自动生成行程", ja: "カテゴリ → スポット選択 → 予定自動生成", vi: "Danh mục → chọn địa điểm → tự tạo lịch" },
@@ -304,17 +307,20 @@ const CATS = [
 // 실제 존재하는 영종도/인천공항 인근 비즈니스 호텔 10곳(모텔 제외, 카카오 로컬 API로 "여행 > 숙박 > 호텔"
 // 카테고리 확인 완료). 좌표는 카카오 주소·장소검색으로 지오코딩한 실제 위치, distMin은 카카오모빌리티로
 // 계산한 공항 기준 실제 이동시간. 다만 데이유즈 시간블록·요금·평점은 공개 예약 API가 없어 여전히 추정치입니다.
+// 2026-08-31 실제 파트너 후보 리스트로 교체. 좌표·공항→숙소 실제 차량 이동시간(move/distMin)은
+// 카카오 로컬(키워드 검색)·카카오모빌리티 API로 조회한 실측값. 요금/평점/리뷰수는 공개 예약 API가
+// 없어 여전히 추정치(다른 항목과 동일한 방식).
 const ROOMS = [
-  { id: "grand-hyatt-incheon", name: { ko: "그랜드 하얏트 인천", en: "Grand Hyatt Incheon", zh: "Grand Hyatt Incheon", ja: "Grand Hyatt Incheon", vi: "Grand Hyatt Incheon" }, distMin: 5, hourMin: 3, hourMax: 9, price: 89000, rate: 4.8, cnt: 412, tint: "#BBD3F5", best: true, move: 5, rest: 90, coord: { lat: 37.4406, lng: 126.4574 } },
-  { id: "hyatt-regency-paradise-city", name: { ko: "하얏트 리젠시 인천 파라다이스시티", en: "Hyatt Regency Incheon Paradise City", zh: "Hyatt Regency Incheon Paradise City", ja: "Hyatt Regency Incheon Paradise City", vi: "Hyatt Regency Incheon Paradise City" }, distMin: 7, hourMin: 3, hourMax: 9, price: 95000, rate: 4.9, cnt: 356, tint: "#CFE0F5", move: 7, rest: 90, coord: { lat: 37.4398, lng: 126.4561 } },
-  { id: "paradise-city-hotel", name: { ko: "파라다이스시티호텔", en: "Paradise Hotel & Resort, Paradise City", zh: "Paradise Hotel & Resort, Paradise City", ja: "Paradise Hotel & Resort, Paradise City", vi: "Paradise Hotel & Resort, Paradise City" }, distMin: 8, hourMin: 3, hourMax: 9, price: 78000, rate: 4.7, cnt: 298, tint: "#C7E4D6", move: 8, rest: 90, coord: { lat: 37.4372, lng: 126.4558 } },
-  { id: "best-western-premier-incheon", name: { ko: "베스트웨스턴프리미어 인천에어포트호텔", en: "Best Western Premier Incheon Airport", zh: "Best Western Premier Incheon Airport", ja: "Best Western Premier Incheon Airport", vi: "Best Western Premier Incheon Airport" }, distMin: 7, hourMin: 3, hourMax: 6, price: 52000, rate: 4.5, cnt: 521, tint: "#E8C4D6", move: 7, rest: 90, coord: { lat: 37.4384, lng: 126.4596 } },
-  { id: "the-hotel-yeongjong", name: { ko: "더호텔영종", en: "The Hotel Yeongjong Incheon Airport", zh: "The Hotel Yeongjong Incheon Airport", ja: "The Hotel Yeongjong Incheon Airport", vi: "The Hotel Yeongjong Incheon Airport" }, distMin: 16, hourMin: 3, hourMax: 6, price: 45000, rate: 4.4, cnt: 187, tint: "#F3D9B8", move: 16, rest: 60, coord: { lat: 37.4948, lng: 126.4917 } },
-  { id: "nest-hotel", name: { ko: "네스트호텔", en: "Nest Hotel Incheon", zh: "Nest Hotel Incheon", ja: "Nest Hotel Incheon", vi: "Nest Hotel Incheon" }, distMin: 12, hourMin: 3, hourMax: 9, price: 68000, rate: 4.6, cnt: 143, tint: "#A9C4E8", move: 12, rest: 90, coord: { lat: 37.4248, lng: 126.4279 } },
-  { id: "days-hotel-suites", name: { ko: "데이즈호텔앤스위트 바이윈덤 인천에어포트", en: "Days Hotel & Suites by Wyndham Incheon Airport", zh: "Days Hotel & Suites by Wyndham Incheon Airport", ja: "Days Hotel & Suites by Wyndham Incheon Airport", vi: "Days Hotel & Suites by Wyndham Incheon Airport" }, distMin: 16, hourMin: 3, hourMax: 6, price: 49000, rate: 4.3, cnt: 234, tint: "#D6C4E8", move: 16, rest: 60, coord: { lat: 37.4937, lng: 126.4914 } },
-  { id: "rivera-incheon-airport", name: { ko: "리베라인천에어포트호텔", en: "Rivera Incheon Airport Hotel", zh: "Rivera Incheon Airport Hotel", ja: "Rivera Incheon Airport Hotel", vi: "Rivera Incheon Airport Hotel" }, distMin: 21, hourMin: 3, hourMax: 6, price: 41000, rate: 4.2, cnt: 96, tint: "#F7D9B0", move: 21, rest: 60, coord: { lat: 37.4851, lng: 126.5614 } },
-  { id: "ocean-soleil-view", name: { ko: "오션솔레뷰호텔", en: "Ocean Soleil View Hotel", zh: "Ocean Soleil View Hotel", ja: "Ocean Soleil View Hotel", vi: "Ocean Soleil View Hotel" }, distMin: 23, hourMin: 3, hourMax: 6, price: 55000, rate: 4.5, cnt: 88, tint: "#E3C4E8", move: 23, rest: 60, coord: { lat: 37.4945, lng: 126.5794 } },
-  { id: "ocean-park-nine", name: { ko: "오션파크나인호텔", en: "Ocean Park Nine Hotel", zh: "Ocean Park Nine Hotel", ja: "Ocean Park Nine Hotel", vi: "Ocean Park Nine Hotel" }, distMin: 24, hourMin: 3, hourMax: 6, price: 58000, rate: 4.4, cnt: 72, tint: "#F3C4B8", move: 24, rest: 60, coord: { lat: 37.4928, lng: 126.5792 } },
+  { id: "hotel-aura-incheon", name: { ko: "호텔 오라 인천공항", en: "Hotel Aura Incheon Airport", zh: "Hotel Aura Incheon Airport", ja: "Hotel Aura Incheon Airport", vi: "Hotel Aura Incheon Airport" }, distMin: 16, hourMin: 3, hourMax: 9, price: 50000, rate: 4.5, cnt: 210, tint: "#BBD3F5", best: true, move: 16, rest: 90, coord: { lat: 37.454078, lng: 126.417850 } },
+  { id: "western-grace-hotel", name: { ko: "웨스턴그레이스호텔", en: "Western Grace Hotel", zh: "Western Grace Hotel", ja: "Western Grace Hotel", vi: "Western Grace Hotel" }, distMin: 26, hourMin: 3, hourMax: 6, price: 43000, rate: 4.3, cnt: 110, tint: "#D6C4E8", move: 26, rest: 60, coord: { lat: 37.490257, lng: 126.581474 } },
+  { id: "skytop-hotel", name: { ko: "영종스카이탑호텔", en: "Skytop Hotel Yeongjong", zh: "Skytop Hotel Yeongjong", ja: "Skytop Hotel Yeongjong", vi: "Skytop Hotel Yeongjong" }, distMin: 19, hourMin: 3, hourMax: 6, price: 46000, rate: 4.4, cnt: 165, tint: "#CFE0F5", move: 19, rest: 60, coord: { lat: 37.491315, lng: 126.500824 } },
+  { id: "jnpark-hotel", name: { ko: "제이앤파크호텔", en: "J&Park Hotel", zh: "J&Park Hotel", ja: "J&Park Hotel", vi: "J&Park Hotel" }, distMin: 19, hourMin: 3, hourMax: 6, price: 47000, rate: 4.3, cnt: 120, tint: "#C7E4D6", move: 19, rest: 60, coord: { lat: 37.445007, lng: 126.379302 } },
+  { id: "goldentulip-yeongjong", name: { ko: "골든튤립 호텔&스위트", en: "Golden Tulip Hotel & Suites", zh: "Golden Tulip Hotel & Suites", ja: "Golden Tulip Hotel & Suites", vi: "Golden Tulip Hotel & Suites" }, distMin: 21, hourMin: 3, hourMax: 6, price: 62000, rate: 4.6, cnt: 380, tint: "#E8C4D6", move: 21, rest: 60, coord: { lat: 37.492261, lng: 126.492412 } },
+  { id: "rivera-incheon-airport", name: { ko: "리베라인천에어포트호텔", en: "Rivera Incheon Airport Hotel", zh: "Rivera Incheon Airport Hotel", ja: "Rivera Incheon Airport Hotel", vi: "Rivera Incheon Airport Hotel" }, distMin: 23, hourMin: 3, hourMax: 6, price: 41000, rate: 4.2, cnt: 96, tint: "#F3D9B8", move: 23, rest: 60, coord: { lat: 37.485060, lng: 126.561361 } },
+  { id: "blueocean-residence-3", name: { ko: "블루오션 레지던스호텔 3차", en: "Blue Ocean Residence Hotel 3", zh: "Blue Ocean Residence Hotel 3", ja: "Blue Ocean Residence Hotel 3", vi: "Blue Ocean Residence Hotel 3" }, distMin: 24, hourMin: 3, hourMax: 6, price: 44000, rate: 4.4, cnt: 140, tint: "#A9C4E8", move: 24, rest: 60, coord: { lat: 37.487023, lng: 126.563144 } },
+  { id: "ocean-park-nine", name: { ko: "오션파크나인호텔", en: "Ocean Park Nine Hotel", zh: "Ocean Park Nine Hotel", ja: "Ocean Park Nine Hotel", vi: "Ocean Park Nine Hotel" }, distMin: 25, hourMin: 3, hourMax: 6, price: 58000, rate: 4.4, cnt: 72, tint: "#F7D9B0", move: 25, rest: 60, coord: { lat: 37.492751, lng: 126.579215 } },
+  { id: "airsky-hotel", name: { ko: "에어스카이호텔", en: "Airsky Hotel", zh: "Airsky Hotel", ja: "Airsky Hotel", vi: "Airsky Hotel" }, distMin: 26, hourMin: 3, hourMax: 6, price: 40000, rate: 4.1, cnt: 85, tint: "#E3C4E8", move: 26, rest: 60, coord: { lat: 37.490775, lng: 126.580487 } },
+  { id: "ocean-soleil-view", name: { ko: "오션솔레뷰호텔", en: "Ocean Soleil View Hotel", zh: "Ocean Soleil View Hotel", ja: "Ocean Soleil View Hotel", vi: "Ocean Soleil View Hotel" }, distMin: 26, hourMin: 3, hourMax: 6, price: 55000, rate: 4.5, cnt: 88, tint: "#F3C4B8", move: 26, rest: 60, coord: { lat: 37.494514, lng: 126.579366 } },
 ];
 const LOCAL = [
   { id: "cafe-oceanview", n: { ko: "카페 오션뷰", en: "Cafe Ocean View", zh: "海景咖啡馆", ja: "カフェ オーシャンビュー", vi: "Cafe Ocean View" }, area: { ko: "영종도", en: "Yeongjong Island", zh: "永宗岛", ja: "永宗島", vi: "Đảo Yeongjong" }, min: 45, icon: Coffee, tint: "#F3D9B8" },
@@ -331,8 +337,8 @@ const PROXY_BASE = "";
 const DEFAULT_ARRIVE = 10 * 60 + 30; // 실시간 조회 실패/미조회 시 데모 폴백값
 const LAYOVER_BUDGET = 360; // 연결편 실시간 조회가 없을 때 쓰는 고정 6시간 레이오버 예산(분)
 // 복귀 버퍼 = 수속(보안검색+출국심사) + 게이트 마감 + 숙소→공항 실제 이동시간. 이동시간만 room에 따라 동적으로 바뀐다.
-const SECURITY_BUFFER_MIN = 90; // 수속(보안검색·출국심사) 예상 소요시간
-const GATE_CUTOFF_MIN = 40; // 탑승 마감(게이트 클로징) 버퍼
+const SECURITY_BUFFER_MIN = 50; // 수속(보안검색·출국심사) 예상 소요시간
+const GATE_CUTOFF_MIN = 30; // 탑승 마감(게이트 클로징) 버퍼 — 출발 20분 전 탑승 마감 기준 + 여유
 const MIN_STAY = 60; // 최소 체류 보장(분) — 연결편이 너무 임박해도 음수 시간이 나오지 않도록
 const FLIGHT_POLL_INTERVAL_MS = 120000; // 온보딩 이후 백그라운드에서 항공편을 재조회하는 주기(2분) — 지연/게이트 변경 반영용
 const hhmm = (m) => {
@@ -430,9 +436,10 @@ function App() {
   const [step, setStep] = useState(0);
   const [lang, setLang] = useState("en");
   const [cats, setCats] = useState(["Shopping", "Rest"]);
-  const [flight, setFlight] = useState("KE085");
-  const [connFlight, setConnFlight] = useState("");
+  const [flight, setFlight] = useState("OZ117"); // TODO: 개발 편의상 오늘자 실제 도착편으로 고정해둠 — 테스트 끝나면 "" 로 되돌릴 것
+  const [connFlight, setConnFlight] = useState("7C1401"); // TODO: 위와 동일, 오늘자 실제 출발편
   const [room, setRoom] = useState(ROOMS[0]);
+  const [bookings, setBookings] = useState([]);
   const toggle = (k) => setCats((p) => (p.includes(k) ? p.filter((x) => x !== k) : [...p, k]));
 
   // 복귀 버퍼에 들어가는 "숙소→공항 이동시간"을 실시간으로 계산 — 숙소를 바꾸면 안전 버퍼도 같이 바뀐다.
@@ -524,12 +531,12 @@ function App() {
           {screen !== "onboarding" && <FlightNotice notice={notice} onDismiss={() => setNotice(null)} />}
           <div style={{ position: "absolute", inset: 0, bottom: screen === "onboarding" ? 0 : 66, overflowY: "auto" }}>
             {screen === "onboarding" && <Onboarding {...{ step, setStep, lang, setLang, cats, toggle, flight, setFlight, go: () => setScreen("home"), flightLookup, onLookup: lookupFlight, connFlight, setConnFlight, connLookup, onLookupDeparture: lookupDeparture, arriveMin, returnByMin, airportTravelMin }} />}
-            {screen === "home" && <HomeScreen {...{ cats, openRoom: (r) => { setRoom(r); setScreen("booking"); }, setScreen, flight, arrive: arriveMin, returnBy: returnByMin, flightLookup, onRecheck: recheckFlights, rechecking }} />}
-            {screen === "booking" && <Booking room={room} onPay={() => setScreen("confirm")} back={() => setScreen("home")} />}
-            {screen === "confirm" && <Confirm room={room} back={() => setScreen("home")} />}
+            {screen === "home" && <HomeScreen {...{ cats, openRoom: (r) => { setRoom(r); setScreen("booking"); }, setScreen, flight, arrive: arriveMin, returnBy: returnByMin, flightLookup, connLookup, airportTravelMin, onRecheck: recheckFlights, rechecking }} />}
+            {screen === "booking" && <Booking room={room} arrive={arriveMin} onPay={() => { setBookings((b) => [makeBooking(room, arriveMin), ...b]); setScreen("confirm"); }} back={() => setScreen("home")} />}
+            {screen === "confirm" && <Confirm booking={bookings[0]} returnBy={returnByMin} back={() => setScreen("home")} />}
             {screen === "luggage" && <Luggagepage back={() => setScreen("home")} />}
             {screen === "course" && <Course cats={cats} back={() => setScreen("home")} onBook={(r) => { setRoom(r); setScreen("booking"); }} arrive={arriveMin} returnBy={returnByMin} onRecheck={recheckFlights} rechecking={rechecking} />}
-            {screen === "mypage" && <MyPage lang={lang} />}
+            {screen === "mypage" && <MyPage lang={lang} setLang={setLang} bookings={bookings} />}
           </div>
           {screen !== "onboarding" && (
             <Nav screen={screen} setScreen={setScreen} />
@@ -709,9 +716,12 @@ const Title = ({ title, note }) => (
 const row = (on) => ({ display: "flex", alignItems: "center", gap: 12, padding: "14px 16px", borderRadius: 14, border: on ? `2px solid ${C.blue}` : `1.5px solid ${C.line}`, background: on ? C.tint : "#fff", cursor: "pointer" });
 
 /* ---------- HOME ---------- */
-function HomeScreen({ cats, openRoom, setScreen, flight, arrive, returnBy, flightLookup, onRecheck, rechecking }) {
+function HomeScreen({ cats, openRoom, setScreen, flight, arrive, returnBy, flightLookup, connLookup, airportTravelMin, onRecheck, rechecking }) {
   const { t, tr, fmtTime } = useLang();
   const LOCAL_CHIPS = ["yeongjong", "songdo", "chinatown", "muui"];
+  const stayMin = returnBy - arrive;
+  const stayH = Math.floor(stayMin / 60);
+  const stayM = stayMin % 60;
   return (
     <div>
       <div style={{ background: grad, padding: "34px 20px 20px", color: "#fff", borderBottomLeftRadius: 22, borderBottomRightRadius: 22 }}>
@@ -736,9 +746,14 @@ function HomeScreen({ cats, openRoom, setScreen, flight, arrive, returnBy, fligh
             </div>
           </div>
           <div style={{ display: "flex", alignItems: "flex-end", gap: 14, marginTop: 10 }}>
-            <div><div style={{ fontSize: 28, fontWeight: 900, color: C.blueDeep }}>{Math.floor((returnBy - arrive) / 60)}:00</div><div style={{ fontSize: 10, color: C.faint }}>{t("stayAvailableShort")}</div></div>
+            <div><div style={{ fontSize: 28, fontWeight: 900, color: C.blueDeep }}>{stayM ? t("stayHoursMinutes", { h: stayH, m: stayM }) : t("stayHoursOnly", { h: stayH })}</div><div style={{ fontSize: 10, color: C.faint }}>{t("stayAvailableShort")}</div></div>
             <div style={{ flex: 1, fontSize: 12, color: C.sub, lineHeight: 1.5 }}>{t("arriveWord")} <b style={{ color: C.ink }}>{fmtTime(arrive)}</b><br />{t("returnRecommend")} <b style={{ color: C.red }}>{fmtTime(returnBy)}</b></div>
           </div>
+          {connLookup?.status === "success" && (
+            <div style={{ fontSize: 10.5, color: C.faint, marginTop: 8 }}>
+              {t("bufferAppliedNote", { sec: SECURITY_BUFFER_MIN, gate: GATE_CUTOFF_MIN, travel: airportTravelMin, total: SECURITY_BUFFER_MIN + GATE_CUTOFF_MIN + airportTravelMin })}
+            </div>
+          )}
         </Card>
 
         <SectionHead title={t("sectionTimeFit")} sub={t("sectionTimeFitSub")} onMore={() => setScreen("course")} />
@@ -809,10 +824,27 @@ function HomeScreen({ cats, openRoom, setScreen, flight, arrive, returnBy, fligh
 const feat = { display: "flex", alignItems: "center", gap: 2 };
 
 /* ---------- BOOKING ---------- */
-function Booking({ room, onPay, back }) {
-  const { t, tr } = useLang();
+// 실제 결제 시점에 예약 1건을 만든다 — Time-Safe 도착시각 기준으로 체크인/체크아웃을 계산.
+function makeBooking(room, arriveMin) {
+  const checkIn = arriveMin + PREP + room.move;
+  const checkOut = checkIn + 4 * 60; // "4시간 타임블록" 고정
+  const now = new Date();
+  const pad = (n) => String(n).padStart(2, "0");
+  return {
+    id: `ICN${now.getFullYear()}${pad(now.getMonth() + 1)}${pad(now.getDate())}${pad(now.getHours())}${pad(now.getMinutes())}${pad(now.getSeconds())}`,
+    room,
+    checkIn,
+    checkOut,
+    price: room.price,
+    bookedAt: now.getTime(),
+  };
+}
+function Booking({ room, arrive, onPay, back }) {
+  const { t, tr, fmtTime } = useLang();
   const total = room.price;
   const blockStr = t("hourRange", { a: room.hourMin, b: room.hourMax });
+  const checkIn = arrive + PREP + room.move;
+  const checkOut = checkIn + 4 * 60;
   return (
     <div>
       <Top title={t("bookingTitle")} sub={t("bookingSub")} back={back} />
@@ -821,7 +853,7 @@ function Booking({ room, onPay, back }) {
           <div style={{ width: 66, height: 66, borderRadius: 12, background: room.tint, display: "flex", alignItems: "center", justifyContent: "center" }}><Bed size={26} color="#fff" /></div>
           <div style={{ flex: 1 }}>
             <div style={{ fontWeight: 800, color: C.ink }}>{tr(room.name)}</div>
-            <div style={{ fontSize: 11, color: C.faint, marginTop: 3 }}>{blockStr} {t("timeBlockWord")} · 11:20 – 15:20</div>
+            <div style={{ fontSize: 11, color: C.faint, marginTop: 3 }}>{blockStr} {t("timeBlockWord")} · {fmtTime(checkIn)} – {fmtTime(checkOut)}</div>
             <div style={{ fontSize: 11, color: C.faint, marginTop: 2 }}>{t("airportMinAway", { n: room.distMin })} · {t("includesShowerRestLuggage")}</div>
           </div>
         </Card>
@@ -848,8 +880,21 @@ const Line = ({ l, r, green }) => (
 );
 
 /* ---------- CONFIRM ---------- */
-function Confirm({ room, back }) {
-  const { t, tr } = useLang();
+function Confirm({ booking, returnBy, back }) {
+  const { t, tr, fmtTime } = useLang();
+  if (!booking) {
+    return (
+      <div>
+        <Top title={t("confirmTitle")} sub={t("confirmSub")} back={back} />
+        <div style={{ padding: "60px 16px", textAlign: "center" }}>
+          <CalendarCheck size={40} color={C.faint} style={{ marginBottom: 12 }} />
+          <div style={{ color: C.faint, fontSize: 13.5 }}>{t("noBookingsYet")}</div>
+          <button onClick={back} style={{ marginTop: 20, border: `1.5px solid ${C.blue}`, background: "#fff", color: C.blue, fontWeight: 700, padding: "13px 24px", borderRadius: 12, cursor: "pointer" }}>{t("browseRoomsBtn")}</button>
+        </div>
+      </div>
+    );
+  }
+  const room = booking.room;
   const blockStr = t("hourRange", { a: room.hourMin, b: room.hourMax });
   return (
     <div>
@@ -859,11 +904,11 @@ function Confirm({ room, back }) {
           <div style={{ display: "inline-flex", alignItems: "center", gap: 6, background: "#E7F7EE", color: "#2E9E5B", padding: "6px 12px", borderRadius: 999, fontSize: 12, fontWeight: 700 }}><Check size={14} /> {t("bookingComplete")}</div>
           <div style={{ margin: "20px auto 10px", width: 168, height: 168, background: "#fff", border: `1px solid ${C.line}`, borderRadius: 14, display: "flex", alignItems: "center", justifyContent: "center" }}><QR /></div>
           <div style={{ fontSize: 12, color: C.faint }}>{t("bookingNumber")}</div>
-          <div style={{ fontWeight: 800, color: C.ink, letterSpacing: 1, marginTop: 2 }}>ICN20260708001</div>
+          <div style={{ fontWeight: 800, color: C.ink, letterSpacing: 1, marginTop: 2 }}>{booking.id}</div>
           <div style={{ height: 1, background: C.line, margin: "18px 0" }} />
           <div style={{ textAlign: "left", display: "flex", flexDirection: "column", gap: 8 }}>
-            <Info l={t("lodgingLbl")} r={tr(room.name)} /><Info l={t("timeBlockWord")} r={`${blockStr} · 11:20–15:20`} />
-            <Info l={t("includedLbl")} r={t("confirmIncludedVal")} /><Info l="Time-Safe" r={`${t("confirmReturnAt", { time: "16:30" })} · ${t("alertOnLbl")}`} />
+            <Info l={t("lodgingLbl")} r={tr(room.name)} /><Info l={t("timeBlockWord")} r={`${blockStr} · ${fmtTime(booking.checkIn)}–${fmtTime(booking.checkOut)}`} />
+            <Info l={t("includedLbl")} r={t("confirmIncludedVal")} /><Info l="Time-Safe" r={`${t("confirmReturnAt", { time: fmtTime(returnBy) })} · ${t("alertOnLbl")}`} />
           </div>
         </Card>
         <button onClick={back} style={{ marginTop: 16, width: "100%", border: `1.5px solid ${C.blue}`, background: "#fff", color: C.blue, fontWeight: 700, padding: "13px 0", borderRadius: 12, cursor: "pointer" }}>{t("homeBtn")}</button>
@@ -923,14 +968,41 @@ function Luggagepage({ back }) {
 }
 
 /* ---------- MY PAGE ---------- */
-function MyPage({ lang }) {
-  const { t } = useLang();
+// 화면 하단 시트 — 가장 가까운 position:absolute 조상(화면 컨테이너, App에서 inset:0로 깔린 div)을 기준으로 꽉 채운다.
+function Sheet({ title, onClose, children }) {
+  return (
+    <div style={{ position: "absolute", inset: 0, zIndex: 50, background: "rgba(16,24,38,0.45)", display: "flex", alignItems: "flex-end" }} onClick={onClose}>
+      <div style={{ background: C.bg, width: "100%", maxHeight: "80%", overflowY: "auto", borderTopLeftRadius: 20, borderTopRightRadius: 20, padding: 18 }} onClick={(e) => e.stopPropagation()}>
+        <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 14 }}>
+          <div style={{ fontWeight: 800, fontSize: 15, color: C.ink }}>{title}</div>
+          <button onClick={onClose} style={{ border: "none", background: "none", cursor: "pointer", color: C.faint, padding: 4 }}><X size={18} /></button>
+        </div>
+        {children}
+      </div>
+    </div>
+  );
+}
+function Switch({ on, onChange }) {
+  return (
+    <button
+      onClick={(e) => { e.stopPropagation(); onChange(!on); }}
+      aria-pressed={on}
+      style={{ width: 40, height: 24, borderRadius: 999, border: "none", cursor: "pointer", background: on ? C.blue : C.line, position: "relative", padding: 0, flexShrink: 0 }}
+    >
+      <div style={{ position: "absolute", top: 2, left: on ? 18 : 2, width: 20, height: 20, borderRadius: "50%", background: "#fff", transition: "left .15s" }} />
+    </button>
+  );
+}
+function MyPage({ lang, setLang, bookings }) {
+  const { t, tr, fmtTime } = useLang();
+  const [panel, setPanel] = useState(null); // "lang" | "history" | null
+  const [alertOn, setAlertOn] = useState(true);
   const menu = [
-    { id: "history", icon: CalendarCheck, lKey: "menuBookingHistory" },
-    { id: "coupon", icon: Ticket, lKey: "menuCoupon" },
-    { id: "alert", icon: Bell, lKey: "menuTimeSafeAlert" },
-    { id: "passport", icon: User, lKey: "menuPassport" },
-    { id: "lang", icon: Search, lKey: "menuLangSetting", r: LANGS.find((l) => l.k === lang)?.label },
+    { id: "history", icon: CalendarCheck, lKey: "menuBookingHistory", onClick: () => setPanel("history") },
+    { id: "coupon", icon: Ticket, lKey: "menuCoupon", soon: true },
+    { id: "alert", icon: Bell, lKey: "menuTimeSafeAlert", toggle: true },
+    { id: "passport", icon: User, lKey: "menuPassport", soon: true },
+    { id: "lang", icon: Search, lKey: "menuLangSetting", r: LANGS.find((l) => l.k === lang)?.label, onClick: () => setPanel("lang") },
   ];
   return (
     <div>
@@ -938,20 +1010,57 @@ function MyPage({ lang }) {
       <div style={{ padding: 16 }}>
         <Card style={{ padding: 18, display: "flex", alignItems: "center", gap: 14, marginBottom: 16 }}>
           <div style={{ width: 52, height: 52, borderRadius: 999, background: grad, display: "flex", alignItems: "center", justifyContent: "center" }}><User size={24} color="#fff" /></div>
-          <div style={{ flex: 1 }}><div style={{ fontWeight: 800, color: C.ink }}>{t("myPageGreeting")}</div><div style={{ fontSize: 11, color: C.faint, marginTop: 2 }}>{t("pointsLabel", { n: "2,450" })}</div></div>
+          <div style={{ flex: 1 }}><div style={{ fontWeight: 800, color: C.ink }}>{t("myPageGreeting")}</div><div style={{ fontSize: 11, color: C.faint, marginTop: 2 }}>{t("bookingCountLabel", { n: bookings.length })}</div></div>
         </Card>
         <Card style={{ overflow: "hidden" }}>
           {menu.map((m, i) => {
             const Icon = m.icon;
             return (
-              <div key={m.id} style={{ display: "flex", alignItems: "center", gap: 12, padding: "15px 16px", borderBottom: i < menu.length - 1 ? `1px solid ${C.line}` : "none" }}>
+              <div
+                key={m.id}
+                onClick={m.onClick}
+                style={{ display: "flex", alignItems: "center", gap: 12, padding: "15px 16px", borderBottom: i < menu.length - 1 ? `1px solid ${C.line}` : "none", cursor: m.onClick ? "pointer" : "default", opacity: m.soon ? 0.5 : 1 }}
+              >
                 <Icon size={18} color={C.sub} /><span style={{ flex: 1, fontSize: 14, color: C.ink }}>{t(m.lKey)}</span>
-                {m.r && <span style={{ fontSize: 12, color: C.faint }}>{m.r}</span>}<ChevronRight size={16} color={C.faint} />
+                {m.r && <span style={{ fontSize: 12, color: C.faint }}>{m.r}</span>}
+                {m.soon && <span style={{ fontSize: 11, color: C.faint }}>{t("comingSoonLbl")}</span>}
+                {m.toggle && <Switch on={alertOn} onChange={setAlertOn} />}
+                {m.onClick && <ChevronRight size={16} color={C.faint} />}
               </div>
             );
           })}
         </Card>
       </div>
+      {panel === "lang" && (
+        <Sheet title={t("menuLangSetting")} onClose={() => setPanel(null)}>
+          <div style={{ display: "flex", flexDirection: "column", gap: 10 }}>
+            {LANGS.map((l) => (
+              <button key={l.k} onClick={() => { setLang(l.k); setPanel(null); }} style={row(lang === l.k)}>
+                <span style={{ fontSize: 20 }}>{l.f}</span>
+                <span style={{ flex: 1, textAlign: "left", fontWeight: 600, color: C.ink }}>{l.label}</span>
+                {lang === l.k && <Check size={18} color={C.blue} />}
+              </button>
+            ))}
+          </div>
+        </Sheet>
+      )}
+      {panel === "history" && (
+        <Sheet title={t("menuBookingHistory")} onClose={() => setPanel(null)}>
+          {bookings.length === 0 ? (
+            <div style={{ textAlign: "center", padding: "40px 0", color: C.faint, fontSize: 13 }}>{t("noBookingsYet")}</div>
+          ) : (
+            <div style={{ display: "flex", flexDirection: "column", gap: 10 }}>
+              {bookings.map((b) => (
+                <Card key={b.id} style={{ padding: 14 }}>
+                  <div style={{ fontWeight: 800, color: C.ink, fontSize: 13 }}>{tr(b.room.name)}</div>
+                  <div style={{ fontSize: 11, color: C.faint, marginTop: 4 }}>{fmtTime(b.checkIn)} – {fmtTime(b.checkOut)} · {won(b.price)}</div>
+                  <div style={{ fontSize: 10, color: C.faint, marginTop: 4 }}>{t("bookingNumber")} {b.id}</div>
+                </Card>
+              ))}
+            </div>
+          )}
+        </Sheet>
+      )}
     </div>
   );
 }
