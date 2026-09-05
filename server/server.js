@@ -196,27 +196,36 @@ app.get("/api/places", async (req, res) => {
     return res.status(500).json({ error: "KAKAO_REST_API_KEY is not configured on the server" });
   }
 
-  const url = new URL(KAKAO_LOCAL_URL);
-  url.searchParams.set("category_group_code", category);
-  url.searchParams.set("x", lng);
-  url.searchParams.set("y", lat);
-  url.searchParams.set("radius", radius || "1000");
-  url.searchParams.set("sort", "distance");
-  url.searchParams.set("size", "15");
-
   try {
-    const apiRes = await fetch(url, { headers: { Authorization: `KakaoAK ${KAKAO_REST_KEY}` } });
-    const data = await apiRes.json().catch(() => ({}));
-    if (!apiRes.ok) {
-      return res.status(502).json({ error: data.message || `kakao local API error (${apiRes.status})` });
+    // 카카오 로컬 카테고리 검색은 한 번에 최대 15개(size)까지만 주므로, 페이지(최대 3장 = 45개)를
+    // 끝까지 넘기면서 다 모은다 — "지도에 있는 가게가 다 안 뜬다"는 문제의 실제 원인이 이 캡이었다.
+    let places = [];
+    for (let page = 1; page <= 3; page++) {
+      const url = new URL(KAKAO_LOCAL_URL);
+      url.searchParams.set("category_group_code", category);
+      url.searchParams.set("x", lng);
+      url.searchParams.set("y", lat);
+      url.searchParams.set("radius", radius || "1500");
+      url.searchParams.set("sort", "distance");
+      url.searchParams.set("size", "15");
+      url.searchParams.set("page", String(page));
+
+      const apiRes = await fetch(url, { headers: { Authorization: `KakaoAK ${KAKAO_REST_KEY}` } });
+      const data = await apiRes.json().catch(() => ({}));
+      if (!apiRes.ok) {
+        if (page === 1) return res.status(502).json({ error: data.message || `kakao local API error (${apiRes.status})` });
+        break; // 이미 1페이지는 받았으니 이후 페이지 실패는 조용히 무시하고 지금까지 모은 것만 반환
+      }
+      const docs = data.documents || [];
+      places.push(...docs.map((d) => ({
+        id: d.id,
+        name: d.place_name,
+        lat: Number(d.y),
+        lng: Number(d.x),
+        category: d.category_name,
+      })));
+      if (data.meta?.is_end !== false || docs.length < 15) break; // 다음 페이지가 없으면 그만 멈춘다
     }
-    const places = (data.documents || []).map((d) => ({
-      id: d.id,
-      name: d.place_name,
-      lat: Number(d.y),
-      lng: Number(d.x),
-      category: d.category_name,
-    }));
     res.json({ places });
   } catch (err) {
     res.status(502).json({ error: "failed to reach kakao local API", detail: String(err) });
