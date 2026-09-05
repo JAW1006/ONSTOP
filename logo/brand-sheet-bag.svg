@@ -41,7 +41,7 @@
   <g transform="translate(390,110)">
     <rect width="120" height="120" rx="30" fill="url(#tile)"/>
     <g transform="scale(0.545)"><use xlink:href="#mark"/></g>
-    <text x="140" y="52" font-size="41" font-weight="800" letter-spacing="-0.8"><tspan fill="#F2A81C">Drop</tspan><tspan fill="#153A52">Shopping</tspan></text>
+    <text x="140" y="52" font-size="41" font-weight="800" letter-spacing="-0.8"><tspan fill="#F2A81C">Time</tspan><tspan fill="#153A52">Stay</tspan></text>
     <text x="142" y="82" fill="#5E7185" font-size="13" letter-spacing="2.2" font-weight="600">FOR TRANSIT TRAVELERS · ICN</text>
   </g>
   <text x="390" y="290" fill="#5E7185" font-size="14" letter-spacing="2" font-weight="600">HORIZONTAL LOCKUP</text>
@@ -50,7 +50,7 @@
   <g transform="translate(90,420)">
     <rect width="360" height="140" rx="22" fill="url(#tileDark)"/>
     <g transform="translate(16,10) scale(0.55)"><use xlink:href="#mark"/></g>
-    <text x="150" y="62" font-size="30" font-weight="800" letter-spacing="-0.6"><tspan fill="#FFC22E">Drop</tspan><tspan fill="#FFFFFF">Shopping</tspan></text>
+    <text x="150" y="62" font-size="30" font-weight="800" letter-spacing="-0.6"><tspan fill="#FFC22E">Time</tspan><tspan fill="#FFFFFF">Stay</tspan></text>
     <text x="152" y="86" fill="#8FB6C8" font-size="11" letter-spacing="2" font-weight="600">환승 여행자를 위한 인천 컨시어지</text>
   </g>
   <!-- palette -->

@@ -36,7 +36,7 @@
     <rect width="120" height="120" rx="30" fill="url(#tile)"/>
     <use href="#carrier" transform="translate(60,64) scale(0.6)"/>
     <text x="140" y="56" font-size="41" font-weight="800" letter-spacing="-0.8">
-      <tspan fill="#FF6B5E">Drop</tspan><tspan fill="#153A52">Shopping</tspan>
+      <tspan fill="#FF6B5E">Time</tspan><tspan fill="#153A52">Stay</tspan>
     </text>
     <text x="142" y="86" fill="#5E7C79" font-size="13.5" letter-spacing="2.6" font-weight="600">DROP YOUR BAGS · TRAVEL LIGHT</text>
   </g>
@@ -53,7 +53,7 @@
       <circle cx="-26" cy="63" r="9" fill="#153A52"/>
       <circle cx="26" cy="63" r="9" fill="#153A52"/>
     </g>
-    <text x="102" y="54" font-size="31" font-weight="800" fill="#153A52" letter-spacing="-0.6">DropShopping</text>
+    <text x="102" y="54" font-size="31" font-weight="800" fill="#153A52" letter-spacing="-0.6">TimeStay</text>
     <text x="104" y="78" fill="#84999A" font-size="11.5" letter-spacing="2.5" font-weight="600">MONOCHROME</text>
   </g>
 
@@ -61,7 +61,7 @@
     <rect x="-20" y="-8" width="372" height="140" rx="22" fill="#0E2B3A"/>
     <use href="#carrier" transform="translate(52,62) scale(0.55)"/>
     <text x="100" y="56" font-size="31" font-weight="800" letter-spacing="-0.6">
-      <tspan fill="#FF7E70">Drop</tspan><tspan fill="#FFFFFF">Shopping</tspan>
+      <tspan fill="#FF7E70">Time</tspan><tspan fill="#FFFFFF">Stay</tspan>
     </text>
     <text x="102" y="80" fill="#8FB6B2" font-size="11.5" letter-spacing="2.5" font-weight="600">REVERSED / DARK</text>
   </g>
