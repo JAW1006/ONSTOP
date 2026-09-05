@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1" />
-<title>DropShopping · Prototype</title>
+<title>TimeStay · Prototype</title>
 <link rel="icon" href="assets/logo-mark.png" />
 <style>html,body{margin:0;padding:0;background:#E6ECF6}@keyframes ds-spin{to{transform:rotate(360deg)}}.ds-spin{animation:ds-spin 1s linear infinite}</style>
 <script type="importmap">
@@ -35,7 +35,7 @@ import {
   ShieldCheck, Route, Camera, Waves, Footprints, TrainFront, Car, Tag, RefreshCw, X,
 } from "lucide-react";
 
-/* ---------- brand palette (DropShopping) ---------- */
+/* ---------- brand palette (TimeStay) ---------- */
 const C = {
   blue: "#2F7BE6", blueDeep: "#164FAE", ink: "#153A52",
   gold: "#F2B134", goldDeep: "#D9971A", red: "#E23B3B", lime: "#8DBE36",
@@ -209,11 +209,14 @@ const STR = {
   courseStepRoomCheckin: { ko: "{room} 체크인", en: "Check in at {room}", zh: "入住 {room}", ja: "{room} にチェックイン", vi: "Nhận phòng tại {room}" },
   courseStepRoomSub: { ko: "데이유즈 거점 · 샤워·휴식 {rest}분 (이동 {move}분)", en: "Day-use base · shower & rest {rest} min (transfer {move} min)", zh: "钟点房据点 · 淋浴休息{rest}分钟(移动{move}分钟)", ja: "デイユース拠点・シャワー休憩{rest}分(移動{move}分)", vi: "Điểm trung tâm Day-Use · tắm & nghỉ {rest} phút (di chuyển {move} phút)" },
   courseStepPlaceSub: { ko: "{area} · 체류 {dur}분 (이동 {move}분)", en: "{area} · stay {dur} min (transfer {move} min)", zh: "{area} · 停留{dur}分钟(移动{move}分钟)", ja: "{area}・滞在{dur}分(移動{move}分)", vi: "{area} · lưu trú {dur} phút (di chuyển {move} phút)" },
+  courseStepPlaceSubNoDur: { ko: "{area} (이동 {move}분)", en: "{area} (transfer {move} min)", zh: "{area}(移动{move}分钟)", ja: "{area}(移動{move}分)", vi: "{area} (di chuyển {move} phút)" },
   courseStepReturn: { ko: "공항 복귀", en: "Return to airport", zh: "返回机场", ja: "空港へ復帰", vi: "Quay lại sân bay" },
   courseStepReturnSub: { ko: "Time-Safe 알림 · 여유 30분", en: "Time-Safe alert · 30 min buffer", zh: "Time-Safe 提醒 · 预留30分钟", ja: "Time-Safe通知・余裕30分", vi: "Thông báo Time-Safe · dự phòng 30 phút" },
-  mapAllPlacesNote: { ko: "전체 카테고리 장소가 다 표시돼요 · 핀 탭하면 일정에 추가/제거 · 회색 점은 주변 실제 카페·음식점(참고용)", en: "Shows spots from every category · tap a pin to add/remove it from your plan · gray dots are real nearby cafes/restaurants (for reference)", zh: "显示所有类别的地点 · 点击图钉可添加/移除行程 · 灰点是附近实际的咖啡馆/餐厅(仅供参考)", ja: "全カテゴリのスポットを表示・ピンをタップで予定に追加/削除・灰色の点は近隣の実際のカフェ・飲食店(参考用)", vi: "Hiển thị địa điểm ở mọi danh mục · chạm vào ghim để thêm/bớt khỏi lịch trình · chấm xám là quán cà phê/nhà hàng thực tế gần đó (chỉ để tham khảo)" },
-  routeLegend: { ko: "일정에 담긴 순서대로 경로가 그려져요: ●●● 자동차 · ┄┄ 도보 · ⋯⋯ 대중교통", en: "Route follows your plan's order: ●●● car · ┄┄ walk · ⋯⋯ transit", zh: "路线按行程顺序绘制:●●● 驾车 · ┄┄ 步行 · ⋯⋯ 公共交通", ja: "予定の順番どおりに経路を表示: ●●● 車・┄┄ 徒歩・⋯⋯ 公共交通", vi: "Tuyến đường vẽ theo thứ tự lịch trình: ●●● ô tô · ┄┄ đi bộ · ⋯⋯ phương tiện công cộng" },
+  mapPickRoomNote: { ko: "지도에 제휴 데이유즈 숙소가 전부 핀으로 떠요 · 핀을 탭하면 그 숙소가 바로 선택돼요", en: "All partner day-use stays show as pins on the map · tap a pin to select that stay", zh: "地图上会显示所有合作钟点房住宿的图钉 · 点击图钉即可选择该住宿", ja: "地図に提携デイユース宿泊先が全てピンで表示されます・ピンをタップするとその宿泊先が選択されます", vi: "Mọi chỗ nghỉ Day-Use đối tác đều hiện thành ghim trên bản đồ · chạm vào ghim để chọn chỗ nghỉ đó" },
+  mapAllPlacesNote: { ko: "숙소 주변 실제 음식점·카페·편의점·마트·관광명소·뷰티(올리브영 등)가 작은 점으로 떠요(지도를 확대해야 나타나요) · 점을 탭하면 정보가 뜨고 거기서 일정에 추가/제거 · 이미 담긴 곳은 순번이 붙은 큰 핀으로 표시 · 병원·약국은 확대 시 참고용 점으로만 표시(일정에는 안 담김)", en: "Real nearby restaurants, cafes, convenience stores, marts, attractions & beauty shops (Olive Young, etc.) show as small dots once you zoom in · tap a dot to see info and add/remove it from your plan there · spots already in your plan show as bigger numbered pins · hospitals & pharmacies show as reference dots when zoomed in (not added to your plan)", zh: "放大地图后,住宿附近的真实餐厅·咖啡馆·便利店·超市·景点·美妆店(Olive Young等)会显示为小点 · 点击小点可查看信息并在其中加入/移出行程 · 已加入行程的地点会显示为带编号的大图钉 · 放大后医院·药店仅以小点显示(仅供参考,不会加入行程)", ja: "地図を拡大すると宿泊先周辺の実際の飲食店・カフェ・コンビニ・マート・観光名所・ビューティー(オリーブヤングなど)が小さな点で表示されます・点をタップすると情報が表示され、そこで予定に追加/削除できます・すでに予定に入っている場所は番号付きの大きなピンで表示・拡大時、病院・薬局は参考用の点のみ表示(予定には追加されません)", vi: "Phóng to bản đồ để thấy nhà hàng, quán cà phê, cửa hàng tiện lợi, siêu thị, điểm tham quan & cửa hàng làm đẹp (Olive Young, v.v.) thực tế gần chỗ nghỉ hiện thành chấm nhỏ · chạm vào chấm để xem thông tin và thêm/bớt khỏi lịch trình ngay tại đó · nơi đã có trong lịch trình hiện thành ghim lớn có đánh số · khi phóng to, bệnh viện & nhà thuốc hiện thành chấm để tham khảo (không thêm vào lịch trình)" },
+  routeLegend: { ko: "선 위 숫자·색이 방문 순서(핀 번호와 동일) · 선 모양은 이동수단: ●●● 자동차 · ┄┄ 도보 · ⋯⋯ 대중교통", en: "Number & color on the line = visit order (matches pin numbers) · line style = mode: ●●● car · ┄┄ walk · ⋯⋯ transit", zh: "线上的数字和颜色代表访问顺序(与图钉编号一致) · 线型代表交通方式:●●● 驾车 · ┄┄ 步行 · ⋯⋯ 公共交通", ja: "線上の番号と色は訪問順(ピン番号と対応)・線の種類は移動手段: ●●● 車・┄┄ 徒歩・⋯⋯ 公共交通", vi: "Số & màu trên đường = thứ tự ghé thăm (khớp số trên ghim) · kiểu đường = phương tiện: ●●● ô tô · ┄┄ đi bộ · ⋯⋯ phương tiện công cộng" },
   mapUnavailable: { ko: "지도를 불러올 수 없어요. 이 도메인이 카카오 개발자 콘솔에 등록됐는지 확인해주세요.", en: "Couldn't load the map. Make sure this domain is registered in Kakao Developers.", zh: "无法加载地图。请确认该域名已在 Kakao Developers 中注册。", ja: "地図を読み込めません。このドメインがKakao Developersに登録されているか確認してください。", vi: "Không tải được bản đồ. Hãy chắc chắn tên miền này đã được đăng ký trong Kakao Developers." },
+  poiRefOnly: { ko: "참고용 · 일정에는 추가할 수 없어요", en: "For reference only · can't be added to your plan", zh: "仅供参考 · 无法加入行程", ja: "参考用・予定には追加できません", vi: "Chỉ để tham khảo · không thể thêm vào lịch trình" },
 
   airportMinAway: { ko: "공항 {n}분", en: "{n} min from airport", zh: "距机场{n}分钟", ja: "空港から{n}分", vi: "Cách sân bay {n} phút" },
   hourRange: { ko: "{a}–{b}시간", en: "{a}–{b} hrs", zh: "{a}–{b}小时", ja: "{a}–{b}時間", vi: "{a}–{b} giờ" },
@@ -266,9 +269,9 @@ const AREA_LABELS = {
 /* ---------- brand logo ---------- */
 const Brand = ({ h = 30, dark = true }) => (
   <div style={{ display: "inline-flex", alignItems: "center", gap: Math.round(h * 0.34) }}>
-    <img src="assets/logo-mark.png" alt="DropShopping" style={{ height: h, width: "auto", display: "block" }} />
+    <img src="assets/logo-mark.png" alt="TimeStay" style={{ height: h, width: "auto", display: "block" }} />
     <span style={{ fontSize: Math.round(h * 0.66), fontWeight: 800, letterSpacing: -0.4, lineHeight: 1 }}>
-      <span style={{ color: dark ? "#fff" : C.ink }}>Drop</span><span style={{ color: C.gold }}>Shopping</span>
+      <span style={{ color: dark ? "#fff" : C.ink }}>Time</span><span style={{ color: C.gold }}>Stay</span>
     </span>
   </div>
 );
@@ -435,8 +438,31 @@ async function fetchTravelMin(origin, dest) {
   return { min, mode: "drive", path };
 }
 const MODE_ICON = { walk: Footprints, transit: TrainFront, drive: Car };
-// 코스 빌더 지도에 얹을 실제 주변 장소(카카오 로컬 카테고리 검색). FD6=음식점, CE7=카페.
-const NEARBY_CATEGORIES = ["FD6", "CE7"];
+// 코스 빌더 지도에 얹을 실제 주변 업종(카카오 로컬 카테고리 검색, category_group_code 기준).
+// 환승객에게 의미 있는 업종만 골랐다 — 학교/유치원/학원/주차장/주유소/지하철역/은행/중개업소/공공기관처럼
+// 여행 동선과 무관한 카테고리는 지도만 어수선해져서 뺐다.
+const NEARBY_CATEGORIES = ["FD6", "CE7", "CS2", "MT1", "AT4", "HP8", "PM9"];
+// 카테고리별 참고용 점 색상 — 코스에 담을 수 있는 실제 방문지(CAT_META, 진한 원+아이콘)와는
+// 확실히 구분되도록 옅은 톤만 쓴다.
+const POI_COLORS = {
+  FD6: "#8DA0B8", // 음식점
+  CE7: "#C9A27A", // 카페
+  CS2: "#8FBF7A", // 편의점
+  MT1: "#7FA8D9", // 대형마트
+  AT4: "#B79AE0", // 관광명소
+  HP8: "#E08A9A", // 병원
+  PM9: "#6FBF9E", // 약국
+};
+// 이 카테고리들은 숙소를 고르면 실제로 일정에 담을 수 있는 방문지로 취급한다(코스 빌더 기존 CAT_META 카테고리에 매핑).
+// 병원(HP8)·약국(PM9)은 "활동"이라 보기 어려워 지도에 참고용 점으로만 남긴다(일정에는 못 담음).
+const POI_ADDABLE_CAT = { FD6: "Food", CE7: "Food", CS2: "Shopping", MT1: "Shopping", AT4: "Sightseeing" };
+// 코스 빌더 지도의 구간별 경로 색상 — 방문 순서(0번째=공항→숙소, 1번째=숙소→첫 방문지, ...)에 맞춰 순환해서 쓴다.
+// 이동수단이 대부분 자동차라 색까지 같으면 구간을 구분 못 하는 문제를 해결하기 위한 것.
+const ROUTE_COLORS = ["#2F7BE6", "#E23B3B", "#2E9E5B", "#D9971A", "#8B5CF6", "#EC4899", "#0EA5A5", "#64748B"];
+// 지도가 처음 뜨는 레벨(8, 영종도 전체)에서는 방문지·참고용 점이 너무 많아 복잡해 보이므로,
+// 네이버지도처럼 이 레벨 이하로 확대해야(숫자가 작을수록 더 확대된 상태) 핀이 나타나게 한다.
+// 공항·숙소 핀은 개수가 적어 항상 보여도 되므로 이 제한을 받지 않는다.
+const PIN_VISIBLE_MAX_LEVEL = 6;
 async function fetchNearbyPlaces(coord, categoryCode, radiusM = 1000) {
   const url = `${PROXY_BASE}/api/places?lat=${coord.lat}&lng=${coord.lng}&category=${categoryCode}&radius=${radiusM}`;
   const res = await fetch(url);
@@ -444,6 +470,16 @@ async function fetchNearbyPlaces(coord, categoryCode, radiusM = 1000) {
   if (!res.ok) throw new Error(data.error || `places lookup failed (${res.status})`);
   return data.places || [];
 }
+// 올리브영·에뛰드처럼 카카오 카테고리 코드(FD6/CE7 등)에 없는 뷰티 리테일 브랜드는 이름으로 직접 찾는다.
+async function fetchPlacesByKeyword(coord, query, radiusM = 3000) {
+  const url = `${PROXY_BASE}/api/places/search?lat=${coord.lat}&lng=${coord.lng}&query=${encodeURIComponent(query)}&radius=${radiusM}`;
+  const res = await fetch(url);
+  const data = await res.json().catch(() => ({}));
+  if (!res.ok) throw new Error(data.error || `keyword places lookup failed (${res.status})`);
+  return data.places || [];
+}
+// 뷰티 카테고리에 실제로 뜰 K-뷰티 리테일 체인 — 인천공항 주변에서 흔한 브랜드 위주로 골랐다.
+const BEAUTY_BRAND_KEYWORDS = ["올리브영", "에뛰드", "이니스프리", "미샤", "네이처리퍼블릭", "더샘", "토니모리"];
 
 /* ================= APP ================= */
 function App() {
@@ -1215,14 +1251,16 @@ const PREP = 20;                 // 짐 맡기기/준비
 
 // 카카오맵 JS SDK로 공항·숙소 3곳·전체 카테고리 장소를 한 지도에 표시. 핀을 탭하면 바로 일정에 추가/제거된다.
 // SDK가 아직 로드 전이거나(도메인 미등록 등) 초기화 중 오류가 나면 조용히 안내 문구로 대체한다.
-function CourseMap({ room, places, plan, onToggle }) {
+// refPois: 일정에 담을 수 없는 참고용 주변 업종(병원/약국) — Course가 조회해서 넘겨준다.
+// 담을 수 있는 업종(음식점/카페/편의점/마트/관광명소)은 이미 Course가 places(=ALL_PLACES + liveAddable)에 합쳐서 넘겨준다.
+function CourseMap({ room, places, refPois, plan, onShowInfo, onSelectRoom }) {
   const { t } = useLang();
   const elRef = useRef(null);
   const mapObj = useRef(null);
   const overlaysRef = useRef([]);
   const [error, setError] = useState(!(typeof window !== "undefined" && window.kakao && window.kakao.maps));
-  const [pois, setPois] = useState([]);
   const [legs, setLegs] = useState([]); // 확정된 일정 순서를 잇는 구간별 실제 이동수단/시간
+  const [zoomLevel, setZoomLevel] = useState(8); // 카카오맵 레벨(작을수록 확대) — 방문지 핀 표시 여부에 쓴다.
 
   useEffect(() => {
     if (error || !elRef.current || mapObj.current) return;
@@ -1232,26 +1270,20 @@ function CourseMap({ room, places, plan, onToggle }) {
         center: new window.kakao.maps.LatLng(center.lat, center.lng),
         level: 8,
       });
+      window.kakao.maps.event.addListener(mapObj.current, "zoom_changed", () => {
+        setZoomLevel(mapObj.current.getLevel());
+      });
     } catch {
       setError(true);
     }
   }, [error]);
 
-  // 숙소 주변 실제 가게(카페/음식점)를 카카오 로컬 검색으로 가져와 참고용 회색 점으로 얹는다.
-  // 실패해도(키 없음 등) 지도 자체는 그대로 동작하도록 조용히 무시한다.
-  useEffect(() => {
-    if (!room) { setPois([]); return; }
-    let cancelled = false;
-    Promise.all(NEARBY_CATEGORIES.map((c) => fetchNearbyPlaces(room.coord, c).catch(() => [])))
-      .then((lists) => { if (!cancelled) setPois(lists.flat()); });
-    return () => { cancelled = true; };
-  }, [room]);
-
-  // 일정에 장소를 담을 때마다(공항→숙소→장소들→공항) 구간별 실제 이동수단·경로를 다시 계산해서 지도에 선으로 그린다.
+  // 일정에 장소를 담을 때마다(공항→숙소→장소들) 구간별 실제 이동수단·경로를 다시 계산해서 지도에 선으로 그린다.
   // 이건 각 구간을 실제로 잇는 경로라 위쪽 시간 예산 카드의 근사치 계산과 약간 다를 수 있다.
+  // 공항 복귀 구간은 아직 지도에 안 그린다 — 정류장 경로에 더해 되돌아가는 선까지 겹치면 너무 복잡해 보여서 뺐다.
   useEffect(() => {
     if (!room) { setLegs([]); return; }
-    const seq = [AIRPORT_COORD, room.coord, ...plan.map((p) => p.coord), AIRPORT_COORD];
+    const seq = [AIRPORT_COORD, room.coord, ...plan.map((p) => p.coord)];
     let cancelled = false;
     Promise.all(
       seq.slice(0, -1).map((from, i) =>
@@ -1285,18 +1317,24 @@ function CourseMap({ room, places, plan, onToggle }) {
         overlay.setMap(map);
         overlaysRef.current.push(overlay);
       };
-      const addPoiPin = (coord, name) => {
+      const addPoiPin = (coord, name, color) => {
         const el = document.createElement("div");
         el.className = "ds-poi-pin";
-        el.style.cssText = "position:relative;width:9px;height:9px;border-radius:999px;background:#8DA0B8;border:1.5px solid #fff;box-shadow:0 1px 3px rgba(0,0,0,.3);cursor:pointer;";
+        el.style.cssText = `position:relative;width:9px;height:9px;border-radius:999px;background:${color || "#8DA0B8"};border:1.5px solid #fff;box-shadow:0 1px 3px rgba(0,0,0,.3);cursor:pointer;`;
         el.title = name;
         el.addEventListener("click", () => {
           const existing = el.querySelector(".ds-poi-label");
           if (existing) { existing.remove(); return; }
           const label = document.createElement("div");
           label.className = "ds-poi-label";
-          label.textContent = name;
           label.style.cssText = "position:absolute;left:13px;top:-8px;background:#153A52;color:#fff;font-size:10px;font-weight:600;padding:3px 7px;border-radius:6px;white-space:nowrap;box-shadow:0 2px 6px rgba(0,0,0,.25);";
+          const nameLine = document.createElement("div");
+          nameLine.textContent = name;
+          const refLine = document.createElement("div");
+          refLine.textContent = t("poiRefOnly");
+          refLine.style.cssText = "font-size:8.5px;font-weight:500;color:#9FB6D4;margin-top:2px;";
+          label.appendChild(nameLine);
+          label.appendChild(refLine);
           el.appendChild(label);
         });
         const overlay = new window.kakao.maps.CustomOverlay({
@@ -1308,37 +1346,133 @@ function CourseMap({ room, places, plan, onToggle }) {
         overlay.setMap(map);
         overlaysRef.current.push(overlay);
       };
-      const LEG_STYLE = {
-        walk: { strokeColor: "#8DA0B8", strokeStyle: "shortdash" },
-        transit: { strokeColor: "#2F7BE6", strokeStyle: "shortdot" },
-        drive: { strokeColor: C.blueDeep, strokeStyle: "solid" },
+      // 네이버지도처럼 후보 방문지는 아이콘이 아니라 작은 점으로만 표시하고, 탭해야 정보 시트가 뜬다
+      // (숙소만 큰 아이콘으로 남긴다). 카테고리 색은 그대로 유지해서 어떤 종류인지는 구분되게 한다.
+      const addPlaceDot = (coord, color, onClick) => {
+        const el = document.createElement("div");
+        el.style.cssText = `width:12px;height:12px;border-radius:999px;background:${color};border:2px solid #fff;box-shadow:0 1px 4px rgba(0,0,0,.35);cursor:pointer;`;
+        el.addEventListener("click", onClick);
+        const overlay = new window.kakao.maps.CustomOverlay({
+          position: new window.kakao.maps.LatLng(coord.lat, coord.lng),
+          content: el,
+          yAnchor: 0.5,
+          zIndex: 1,
+        });
+        overlay.setMap(map);
+        overlaysRef.current.push(overlay);
       };
-      legs.forEach((leg) => {
-        const style = LEG_STYLE[leg.mode] || LEG_STYLE.drive;
+      // 선 중간에 순서 번호 배지를 얹는다 — 색만으로는 톤이 비슷하거나 경로가 겹칠 때 구분이 잘 안 돼서,
+      // 핀에 붙인 것과 같은 번호를 선 위에도 그대로 반복해 색맹·겹침과 무관하게 순서를 알 수 있게 한다.
+      const addLegBadge = (coord, label, color) => {
+        const el = document.createElement("div");
+        el.style.cssText = `width:20px;height:20px;border-radius:999px;background:${color};border:2px solid #fff;box-shadow:0 2px 5px rgba(0,0,0,.35);display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:800;color:#fff;`;
+        el.textContent = label;
+        const overlay = new window.kakao.maps.CustomOverlay({
+          position: new window.kakao.maps.LatLng(coord.lat, coord.lng),
+          content: el,
+          yAnchor: 0.5,
+          zIndex: 2,
+        });
+        overlay.setMap(map);
+        overlaysRef.current.push(overlay);
+      };
+      const midOf = (pts) => pts.length === 2
+        ? { lat: (pts[0].lat + pts[1].lat) / 2, lng: (pts[0].lng + pts[1].lng) / 2 }
+        : pts[Math.floor((pts.length - 1) / 2)];
+      // 네이버지도처럼 선 전체에 진행방향 화살표를 일정 간격으로 계속 깐다 — 카카오맵 SDK엔 화살표
+      // 폴리라인이 없어서 경로를 따라 CSS 삼각형(회전)을 촘촘히 반복해서 흉내낸다.
+      const bearingDeg = (a, b) => {
+        const toRad = (d) => (d * Math.PI) / 180, toDeg = (r) => (r * 180) / Math.PI;
+        const lat1 = toRad(a.lat), lat2 = toRad(b.lat), dLng = toRad(b.lng - a.lng);
+        const y = Math.sin(dLng) * Math.cos(lat2);
+        const x = Math.cos(lat1) * Math.sin(lat2) - Math.sin(lat1) * Math.cos(lat2) * Math.cos(dLng);
+        return (toDeg(Math.atan2(y, x)) + 360) % 360;
+      };
+      const addLegArrow = (coord, deg, color) => {
+        const el = document.createElement("div");
+        el.style.cssText = `width:0;height:0;border-left:5px solid transparent;border-right:5px solid transparent;border-bottom:9px solid ${color};filter:drop-shadow(0 1px 2px rgba(0,0,0,.4));transform:rotate(${deg}deg);`;
+        const overlay = new window.kakao.maps.CustomOverlay({
+          position: new window.kakao.maps.LatLng(coord.lat, coord.lng),
+          content: el,
+          yAnchor: 0.5,
+          zIndex: 2,
+        });
+        overlay.setMap(map);
+        overlaysRef.current.push(overlay);
+      };
+      // 경로를 따라 ARROW_SPACING_KM 간격으로 위치·방향을 뽑아낸다(직선 2점짜리 도보/대중교통 구간도
+      // 실제 거리 기준으로 여러 개가 나오도록 haversineKm 누적 거리로 보간한다). 너무 짧은 구간에서
+      // 화살표가 수십 개씩 나오지 않도록 최대 개수를 둔다.
+      const ARROW_SPACING_KM = 0.35;
+      const ARROW_MAX_PER_LEG = 14;
+      const arrowsAlong = (pts) => {
+        const cum = [0];
+        for (let i = 1; i < pts.length; i++) cum.push(cum[i - 1] + haversineKm(pts[i - 1], pts[i]));
+        const total = cum[cum.length - 1];
+        if (!total) return [];
+        const out = [];
+        let mark = ARROW_SPACING_KM * 0.5, seg = 1; // 시작점 바로 위에 안 겹치게 절반 간격부터 시작
+        while (mark < total && out.length < ARROW_MAX_PER_LEG) {
+          while (seg < pts.length && cum[seg] < mark) seg++;
+          if (seg >= pts.length) break;
+          const a = pts[seg - 1], b = pts[seg];
+          const segLen = cum[seg] - cum[seg - 1];
+          const t = segLen > 0 ? (mark - cum[seg - 1]) / segLen : 0;
+          out.push({ pos: { lat: a.lat + (b.lat - a.lat) * t, lng: a.lng + (b.lng - a.lng) * t }, deg: bearingDeg(a, b) });
+          mark += ARROW_SPACING_KM;
+        }
+        return out;
+      };
+      // 점선 패턴은 이동수단(자동차/도보/대중교통)을, 색은 방문 순서(구간 번호)를 나타낸다 —
+      // 이동수단이 대부분 자동차로 겹쳐서 순서를 구분 못 하던 문제를 색으로(+ 번호 배지·화살표로) 해결한다.
+      const LEG_DASH = { walk: "shortdash", transit: "shortdot", drive: "solid" };
+      legs.forEach((leg, i) => {
+        const dash = LEG_DASH[leg.mode] || LEG_DASH.drive;
+        const color = ROUTE_COLORS[i % ROUTE_COLORS.length];
         // 자동차 구간은 카카오모빌리티가 준 실제 도로 좌표(leg.path)를 따라 그린다 — 없으면(도보/대중교통) 직선으로 폴백.
         const points = leg.path && leg.path.length > 1 ? leg.path : [leg.from, leg.to];
         const polyline = new window.kakao.maps.Polyline({
           path: points.map((pt) => new window.kakao.maps.LatLng(pt.lat, pt.lng)),
           strokeWeight: 4,
-          strokeColor: style.strokeColor,
+          strokeColor: color,
           strokeOpacity: 0.85,
-          strokeStyle: style.strokeStyle,
+          strokeStyle: dash,
         });
         polyline.setMap(map);
         overlaysRef.current.push(polyline);
+        addLegBadge(midOf(points), String(i + 1), color);
+        arrowsAlong(points).forEach(({ pos, deg }) => addLegArrow(pos, deg, color));
       });
-      pois.forEach((poi) => addPoiPin({ lat: poi.lat, lng: poi.lng }, poi.name));
+      // 숙소를 고르기 전엔 제휴 숙소 핀만 보여준다(탭하면 바로 선택됨) — 주변 실제 인프라(방문지 후보·
+      // 참고용 점)는 숙소를 골라야만 뜬다. 숙소를 고른 뒤에도, 처음 지도가 뜨는 레벨(8, 섬 전체)에서는
+      // 후보·참고용 점이 너무 많아 복잡해 보이므로 네이버지도처럼 어느 정도 확대해야(zoomLevel ≤
+      // PIN_VISIBLE_MAX_LEVEL) 나타나게 한다. 단, 이미 일정에 담긴 장소는 확대 여부와 상관없이 항상
+      // 보여준다 — 후보는 숨겨도 되지만 내가 고른 방문지는 언제든 지도에서 바로 확인할 수 있어야 하기 때문.
+      const zoomedIn = zoomLevel <= PIN_VISIBLE_MAX_LEVEL;
       addPin(AIRPORT_COORD, pinHtml(C.ink, "✈"));
-      ROOMS.forEach((r) => addPin(r.coord, pinHtml(room && room.id === r.id ? C.blueDeep : C.faint, "🏨")));
-      places.forEach((p) => {
-        const inPlanNow = plan.some((x) => x.id === p.id);
-        addPin(p.coord, pinHtml(CAT_META[p.cat].col, inPlanNow ? "✓" : "●"), () => onToggle(p), p.id);
-      });
-      if (room) map.setCenter(new window.kakao.maps.LatLng(room.coord.lat, room.coord.lng));
+      ROOMS.forEach((r) => addPin(r.coord, pinHtml(room && room.id === r.id ? C.blueDeep : C.faint, "🏨"), onSelectRoom ? () => onSelectRoom(r) : undefined, `room-${r.id}`));
+      if (room) {
+        if (zoomedIn) {
+          (refPois || []).forEach((poi) => addPoiPin({ lat: poi.lat, lng: poi.lng }, poi.name, POI_COLORS[poi.catCode]));
+        }
+        places.forEach((p) => {
+          // 일정에 담긴 장소는 방문 순번이 붙은 큰 핀으로, 아직 안 담긴 후보는 작은 점으로 그린다 —
+          // 숙소만 아이콘으로 남기고 나머지는 네이버지도처럼 탭해야 정보(그리고 추가/삭제 버튼)가 뜬다.
+          const planIdx = plan.findIndex((x) => x.id === p.id);
+          const inPlan = planIdx !== -1;
+          if (!inPlan && !zoomedIn) return;
+          if (inPlan) {
+            addPin(p.coord, pinHtml(CAT_META[p.cat].col, String(planIdx + 1)), () => onShowInfo(p), p.id);
+          } else {
+            addPlaceDot(p.coord, CAT_META[p.cat].col, () => onShowInfo(p));
+          }
+        });
+        map.setCenter(new window.kakao.maps.LatLng(room.coord.lat, room.coord.lng));
+      }
     } catch {
       setError(true);
     }
-  }, [error, room, places, plan, pois, legs]);
+  }, [error, room, places, plan, refPois, legs, zoomLevel, onSelectRoom, onShowInfo]);
 
   if (error) {
     return <Card style={{ padding: 20, textAlign: "center", color: C.faint, fontSize: 12 }}>{t("mapUnavailable")}</Card>;
@@ -1365,6 +1499,64 @@ function Course({ cats, back, onBook, arrive, returnBy, onRecheck, rechecking })
 
   const combined = sel.flatMap((k) => (PLACES[k] || []).map((p) => ({ ...p, cat: k })));
 
+  // 숙소를 고르면 주변 실제 업종(카카오 로컬)을 가져와서, 방문지로 삼을 만한 카테고리(POI_ADDABLE_CAT에 매핑된
+  // 음식점/카페/편의점/마트/관광명소)는 일정에 담을 수 있는 방문지로 바꾸고, 나머지(병원/약국)는 지도에
+  // 참고용 점으로만 남긴다. 올리브영·에뛰드 같은 뷰티 리테일은 카카오 카테고리 코드가 따로 없어서
+  // 브랜드명 키워드 검색(BEAUTY_BRAND_KEYWORDS)으로 따로 찾아 Beauty에 합친다.
+  // 큐레이션된 PLACES와 달리 체류시간·요금 데이터가 없어 체류시간은 0(표시 안 함), 요금도 0(표시 안 함)으로
+  // 두고, 이동시간만 숙소 기준 실측값을 쓴다.
+  const [liveAddable, setLiveAddable] = useState([]);
+  const [refPois, setRefPois] = useState([]);
+  useEffect(() => {
+    if (!room) { setLiveAddable([]); setRefPois([]); return; }
+    let cancelled = false;
+    const toLivePlace = (p, cat, tint) => {
+      const coord = { lat: p.lat, lng: p.lng };
+      return {
+        id: `live-${p.id}`,
+        name: { ko: p.name, en: p.name, zh: p.name, ja: p.name, vi: p.name },
+        area: { ko: p.category, en: p.category, zh: p.category, ja: p.category, vi: p.category },
+        dur: 0,
+        price: 0,
+        tint,
+        coord,
+        cat,
+        live: true,
+        // 실제 이동시간 조회가 끝나기 전까지 쓸 직선거리 기반 임시값(대략 30km/h) — routeMin이 채워지면 덮어써진다.
+        move: Math.max(1, Math.round(haversineKm(room.coord, coord) * 2)),
+      };
+    };
+    const catFetches = NEARBY_CATEGORIES.map((c) =>
+      fetchNearbyPlaces(room.coord, c).then((list) => list.map((p) => ({ ...p, catCode: c }))).catch(() => [])
+    );
+    const beautyFetches = BEAUTY_BRAND_KEYWORDS.map((q) =>
+      fetchPlacesByKeyword(room.coord, q).catch(() => [])
+    );
+    Promise.all([...catFetches, ...beautyFetches]).then((results) => {
+      if (cancelled) return;
+      const catResults = results.slice(0, catFetches.length).flat();
+      const beautyResults = results.slice(catFetches.length).flat();
+      const addable = [], ref = [];
+      catResults.forEach((p) => {
+        const cat = POI_ADDABLE_CAT[p.catCode];
+        if (!cat) { ref.push(p); return; }
+        addable.push(toLivePlace(p, cat, POI_COLORS[p.catCode]));
+      });
+      const seen = new Set(addable.map((a) => a.id));
+      beautyResults.forEach((p) => {
+        const id = `live-${p.id}`;
+        if (seen.has(id)) return; // 같은 지점이 여러 브랜드 키워드로 중복 검색될 일은 없지만 혹시 몰라 방어
+        seen.add(id);
+        addable.push(toLivePlace(p, "Beauty", "#E8C4D6"));
+      });
+      setLiveAddable(addable);
+      setRefPois(ref);
+    });
+    return () => { cancelled = true; };
+  }, [room]);
+  const liveForSel = liveAddable.filter((p) => sel.includes(p.cat));
+  const allPlaces = [...combined, ...liveForSel];
+
   // 숙소(코스 거점)를 고르면 공항→숙소, 숙소→(선택 카테고리의) 각 장소까지 직선거리 기준으로
   // 도보/대중교통(ODsay)/자동차(카카오모빌리티) 중 알맞은 모드로 실제 이동시간을 조회.
   // 실패하거나 키가 없으면 조용히 더미 move 값으로 남는다(moveOf의 ?? 폴백).
@@ -1374,7 +1566,7 @@ function Course({ cats, back, onBook, arrive, returnBy, onRecheck, rechecking })
     setRouteStatus("loading");
     Promise.all([
       fetchTravelMin(AIRPORT_COORD, room.coord).then((r) => ({ id: room.id, ...r })).catch(() => null),
-      ...combined.map((p) =>
+      ...allPlaces.map((p) =>
         fetchTravelMin(room.coord, p.coord).then((r) => ({ id: p.id, ...r })).catch(() => null)
       ),
     ]).then((results) => {
@@ -1386,7 +1578,7 @@ function Course({ cats, back, onBook, arrive, returnBy, onRecheck, rechecking })
       setRouteStatus(Object.keys(nextMin).length ? "live" : "demo");
     });
     return () => { cancelled = true; };
-  }, [room, sel.join(",")]);
+  }, [room, sel.join(","), liveAddable]);
 
   const computeUsed = (arr) => {
     let c = PREP;
@@ -1399,10 +1591,17 @@ function Course({ cats, back, onBook, arrive, returnBy, onRecheck, rechecking })
   // 방문지 카드의 "환승 내 가능" 배지 — 그 장소 하나만의 왕복이 아니라, 지금 담긴 일정 전체(숙소 체크인 포함)에
   // 이 장소를 더하거나(아직 안 담김) 뺐을 때(이미 담김) 실제로 예산 안에 들어오는지로 판단한다.
   const wouldFit = (p) => computeUsed(inPlan(p) ? plan : [...plan, p]) <= BUDGET;
+  // 예산이 빠듯하면 먼저 채운 카테고리가 유리하므로, 온보딩에서 고른 관심사(cats)를 그 순서대로 먼저 채우고
+  // 그 뒤에 코스 빌더에서 추가로 고른 카테고리를 채운다 — 관심사가 시간에 밀려 빠지는 걸 최소화한다.
   const autoBuild = () => {
+    const pool = sel.length ? sel : ACT_KEYS;
+    const catOrder = [...pool].sort((a, b) => {
+      const ai = cats.indexOf(a), bi = cats.indexOf(b);
+      return (ai === -1 ? Infinity : ai) - (bi === -1 ? Infinity : bi);
+    });
     const chosen = [];
-    (sel.length ? sel : ACT_KEYS).forEach((k) => {
-      const opts = (PLACES[k] || []).map((p) => ({ ...p, cat: k }))
+    catOrder.forEach((k) => {
+      const opts = allPlaces.filter((p) => p.cat === k)
         .filter((p) => !chosen.some((c) => c.id === p.id))
         .sort((a, b) => (moveOf(a) + a.dur) - (moveOf(b) + b.dur));
       const best = opts.find((p) => fitsWith([...chosen, p]));
@@ -1422,7 +1621,8 @@ function Course({ cats, back, onBook, arrive, returnBy, onRecheck, rechecking })
   plan.forEach((p) => {
     clock += moveOf(p);
     const m = CAT_META[p.cat];
-    steps.push({ t: clock, title: tr(p.name), sub: t("courseStepPlaceSub", { area: tr(p.area), dur: p.dur, move: moveOf(p) }), col: m.col, icon: m.icon, id: p.id });
+    const subKey = p.dur > 0 ? "courseStepPlaceSub" : "courseStepPlaceSubNoDur";
+    steps.push({ t: clock, title: tr(p.name), sub: t(subKey, { area: tr(p.area), dur: p.dur, move: moveOf(p) }), col: m.col, icon: m.icon, id: p.id });
     clock += p.dur;
   });
   const backMove = plan.length ? moveOf(plan[plan.length - 1]) : (room ? moveOf(room) : 0);
@@ -1475,6 +1675,12 @@ function Course({ cats, back, onBook, arrive, returnBy, onRecheck, rechecking })
           })}
         </div>
 
+        <div style={{ fontSize: 10.5, color: C.faint, marginBottom: 8 }}>{room ? t("mapAllPlacesNote") : t("mapPickRoomNote")}</div>
+        <div style={{ marginBottom: 18 }}>
+          <CourseMap room={room} places={[...ALL_PLACES, ...liveAddable]} refPois={refPois} plan={plan} onShowInfo={setInfoPlace} onSelectRoom={setRoom} />
+          {room && plan.length > 0 && <div style={{ fontSize: 10.5, color: C.faint, marginTop: 8 }}>{t("routeLegend")}</div>}
+        </div>
+
         <div style={{ fontSize: 12, fontWeight: 800, color: C.ink, marginBottom: 8 }}>{t("step2CatTitle")} <span style={{ color: C.faint, fontWeight: 500 }}>{t("step2CatSub")}</span></div>
         <div style={{ display: "flex", gap: 6, overflowX: "auto", paddingBottom: 8, marginBottom: 10 }}>
           {ACT_CATS.map((c) => <Chip key={c.k} active={sel.includes(c.k)} onClick={() => toggleCat(c.k)}>{tr(CAT_LABELS[c.k])}</Chip>)}
@@ -1489,16 +1695,9 @@ function Course({ cats, back, onBook, arrive, returnBy, onRecheck, rechecking })
         {routeStatus === "demo" && <div style={{ height: 14 }} />}
 
         <SectionHead title={t("sectionVisitPlaces")} sub={room ? (sel.length ? t("selCombined", { list: sel.map((k) => tr(CAT_LABELS[k])).join(" · ") }) : t("selChoose")) : t("selChooseRoomFirst")} />
-        {room && (
-          <div style={{ marginBottom: 14 }}>
-            <div style={{ fontSize: 10.5, color: C.faint, marginBottom: 8 }}>{t("mapAllPlacesNote")}</div>
-            <CourseMap room={room} places={ALL_PLACES} plan={plan} onToggle={toggle} />
-            {plan.length > 0 && <div style={{ fontSize: 10.5, color: C.faint, marginTop: 8 }}>{t("routeLegend")}</div>}
-          </div>
-        )}
         <div style={{ display: "flex", flexDirection: "column", gap: 10, marginBottom: 20 }}>
           {!room && <Card style={{ padding: 20, textAlign: "center", color: C.faint, fontSize: 12 }}>{t("roomFirstHint")}</Card>}
-          {room && combined.map((p) => {
+          {room && allPlaces.map((p) => {
             const on = inPlan(p);
             const fits = wouldFit(p);
             const ad = AD_PLACES.has(p.id);
@@ -1516,7 +1715,7 @@ function Course({ cats, back, onBook, arrive, returnBy, onRecheck, rechecking })
                   <div style={{ fontSize: 11, color: C.faint, marginTop: 3, display: "flex", alignItems: "center", flexWrap: "wrap", gap: 4 }}>
                     <span>{tr(p.area)} ·</span>
                     {ModeIcon && <ModeIcon size={11} />}
-                    <span>{t("moveMinLbl", { n: moveOf(p) })} · {t("stayMinLbl", { n: p.dur })}</span>
+                    <span>{t("moveMinLbl", { n: moveOf(p) })}{p.dur > 0 ? ` · ${t("stayMinLbl", { n: p.dur })}` : ""}</span>
                   </div>
                   <div style={{ display: "flex", gap: 6, marginTop: 5, alignItems: "center" }}>
                     <span style={{ fontSize: 10, fontWeight: 700, color: fits ? "#2E9E5B" : C.red, background: fits ? "#E7F7EE" : "#FDECEA", padding: "2px 7px", borderRadius: 999 }}>{fits ? t("fitsInTransit") : t("tightTime")}</span>
@@ -1574,7 +1773,7 @@ function Course({ cats, back, onBook, arrive, returnBy, onRecheck, rechecking })
               <div style={{ fontSize: 13, color: C.sub }}>{tr(infoPlace.area)}</div>
               <div style={{ display: "flex", gap: 8, flexWrap: "wrap" }}>
                 <span style={{ fontSize: 12, fontWeight: 700, color: C.blueDeep, background: C.tint, padding: "6px 10px", borderRadius: 999 }}>{t("moveMinLbl", { n: moveOf(infoPlace) })}</span>
-                <span style={{ fontSize: 12, fontWeight: 700, color: C.blueDeep, background: C.tint, padding: "6px 10px", borderRadius: 999 }}>{t("stayMinLbl", { n: infoPlace.dur })}</span>
+                {infoPlace.dur > 0 && <span style={{ fontSize: 12, fontWeight: 700, color: C.blueDeep, background: C.tint, padding: "6px 10px", borderRadius: 999 }}>{t("stayMinLbl", { n: infoPlace.dur })}</span>}
                 {infoPlace.price > 0 && <span style={{ fontSize: 12, fontWeight: 700, color: C.blueDeep, background: C.tint, padding: "6px 10px", borderRadius: 999 }}>{won(infoPlace.price)}~</span>}
               </div>
               <span style={{ fontSize: 11, fontWeight: 700, color: infoFits ? "#2E9E5B" : C.red, background: infoFits ? "#E7F7EE" : "#FDECEA", padding: "3px 9px", borderRadius: 999, alignSelf: "flex-start" }}>{infoFits ? t("fitsInTransit") : t("tightTime")}</span>

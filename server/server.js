@@ -211,6 +211,47 @@ app.get("/api/places", async (req, res) => {
       return res.status(502).json({ error: data.message || `kakao local API error (${apiRes.status})` });
     }
     const places = (data.documents || []).map((d) => ({
+      id: d.id,
+      name: d.place_name,
+      lat: Number(d.y),
+      lng: Number(d.x),
+      category: d.category_name,
+    }));
+    res.json({ places });
+  } catch (err) {
+    res.status(502).json({ error: "failed to reach kakao local API", detail: String(err) });
+  }
+});
+
+// 카카오 로컬(키워드 검색) API — 올리브영·에뛰드처럼 카카오의 18개 category_group_code 어디에도
+// 속하지 않는 리테일 브랜드(뷰티 등)를 이름으로 직접 찾을 때 쓴다. 같은 REST API 키를 그대로 쓴다.
+const KAKAO_KEYWORD_URL = "https://dapi.kakao.com/v2/local/search/keyword.json";
+
+app.get("/api/places/search", async (req, res) => {
+  const { lat, lng, query, radius } = req.query;
+  if (!lat || !lng || !query) {
+    return res.status(400).json({ error: "lat, lng, query query params are required" });
+  }
+  if (!KAKAO_REST_KEY) {
+    return res.status(500).json({ error: "KAKAO_REST_API_KEY is not configured on the server" });
+  }
+
+  const url = new URL(KAKAO_KEYWORD_URL);
+  url.searchParams.set("query", query);
+  url.searchParams.set("x", lng);
+  url.searchParams.set("y", lat);
+  url.searchParams.set("radius", radius || "3000");
+  url.searchParams.set("sort", "distance");
+  url.searchParams.set("size", "5");
+
+  try {
+    const apiRes = await fetch(url, { headers: { Authorization: `KakaoAK ${KAKAO_REST_KEY}` } });
+    const data = await apiRes.json().catch(() => ({}));
+    if (!apiRes.ok) {
+      return res.status(502).json({ error: data.message || `kakao local API error (${apiRes.status})` });
+    }
+    const places = (data.documents || []).map((d) => ({
+      id: d.id,
       name: d.place_name,
       lat: Number(d.y),
       lng: Number(d.x),
