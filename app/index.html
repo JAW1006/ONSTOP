@@ -94,6 +94,7 @@ const STR = {
   flightDepartLine: { ko: "{airline} {flightId} · 출발 예정 {time}", en: "{airline} {flightId} · Scheduled departure {time}", zh: "{airline} {flightId} · 预定出发 {time}", ja: "{airline} {flightId}・出発予定 {time}", vi: "{airline} {flightId} · Giờ khởi hành dự kiến {time}" },
   delayedByLbl: { ko: "{n}분 지연", en: "{n} min delayed", zh: "延误{n}分钟", ja: "{n}分遅延", vi: "Trễ {n} phút" },
   bufferAppliedNote: { ko: "수속 {sec}분 + 게이트마감 {gate}분 = 총 {total}분 버퍼 반영(숙소→공항 이동시간은 일단 제외)", en: "{sec}min security + {gate}min gate cutoff = {total}min buffer applied (stay→airport travel time excluded for now)", zh: "安检{sec}分钟 + 登机截止{gate}分钟 = 共{total}分钟缓冲(暂不含住宿→机场移动时间)", ja: "保安検査{sec}分+搭乗締切{gate}分=合計{total}分のバッファを反映(宿泊先→空港の移動時間は今は含みません)", vi: "An ninh {sec} phút + đóng cửa lên máy bay {gate} phút = tổng đệm {total} phút (chưa gồm thời gian di chuyển từ chỗ nghỉ ra sân bay)" },
+  securityWaitLiveBadge: { ko: "출국장 실시간 대기시간 반영(T1)", en: "Live security wait time (T1)", zh: "已反映出境大厅实时等待时间(T1)", ja: "出国場のリアルタイム待ち時間を反映(T1)", vi: "Áp dụng thời gian chờ an ninh thực tế (T1)" },
   pushNotice: { ko: "복귀 30분 전 푸시 알림 예약됨", en: "Push alert scheduled 30 min before return", zh: "已设置返回前30分钟推送提醒", ja: "復帰30分前にプッシュ通知を予約済み", vi: "Đã đặt thông báo đẩy 30 phút trước khi quay lại" },
   flightArriveChangedNotice: { ko: "도착편 시각이 바뀌었어요 · 도착 {old} → {new}", en: "Arrival time changed · {old} → {new}", zh: "到达时间有变动 · {old} → {new}", ja: "到着時刻が変更されました・{old} → {new}", vi: "Giờ đến đã thay đổi · {old} → {new}" },
   flightDepartChangedNotice: { ko: "연결편 시각이 바뀌었어요 · 복귀 추천 {old} → {new}", en: "Connecting flight time changed · return by {old} → {new}", zh: "连接航班时间有变动 · 建议返回 {old} → {new}", ja: "乗継便の時刻が変更されました・復帰推奨 {old} → {new}", vi: "Giờ bay nối chuyến đã thay đổi · nên quay lại {old} → {new}" },
@@ -350,7 +351,7 @@ const PROXY_BASE = "";
 const DEFAULT_ARRIVE = 10 * 60 + 30; // 실시간 조회 실패/미조회 시 데모 폴백값
 const LAYOVER_BUDGET = 360; // 연결편 실시간 조회가 없을 때 쓰는 고정 6시간 레이오버 예산(분)
 // 복귀 버퍼 = 수속(보안검색+출국심사) + 게이트 마감 + 숙소→공항 실제 이동시간. 이동시간만 room에 따라 동적으로 바뀐다.
-const SECURITY_BUFFER_MIN = 50; // 수속(보안검색·출국심사) 예상 소요시간
+const SECURITY_BUFFER_MIN = 50; // 수속(보안검색·출국심사) 예상 소요시간 — 제2터미널(P03)이거나 실시간 조회 실패 시 폴백값
 const GATE_CUTOFF_MIN = 30; // 탑승 마감(게이트 클로징) 버퍼 — 출발 20분 전 탑승 마감 기준 + 여유
 const MIN_STAY = 60; // 외출이 의미 있으려면 최소 이만큼(분)은 남아야 함 — 이보다 적으면 외출 자체를 불가능한 것으로 간주
 const FLIGHT_POLL_INTERVAL_MS = 120000; // 온보딩 이후 백그라운드에서 항공편을 재조회하는 주기(2분) — 지연/게이트 변경 반영용
@@ -398,6 +399,17 @@ async function fetchDeparture(flightId, apiLang) {
   if (departMin == null) return { error: "errNoDepartTime" };
   if (schedMin != null && departMin < schedMin) departMin = schedMin;
   return { departMin, flight: f };
+}
+// 인천공항 출국장 혼잡도 API는 제1터미널(P01)만 게이트별 실시간 대기시간(분)을 준다 — 연결편이
+// 어느 출국장 게이트를 쓸지까지는 알 수 없어서, 그 시점 전체 게이트 평균을 보수적 버퍼로 쓴다.
+// 제2터미널(P03)이거나 조회 실패 시 null을 돌려주고, 호출부는 고정값(SECURITY_BUFFER_MIN)으로 폴백한다.
+async function fetchSecurityWaitMin() {
+  const res = await fetch(`${PROXY_BASE}/api/security-wait`);
+  const data = await res.json().catch(() => ({}));
+  if (!res.ok) return null;
+  const gates = data.gates || [];
+  if (!gates.length) return null;
+  return Math.round(gates.reduce((sum, g) => sum + g.waitTimeMin, 0) / gates.length);
 }
 
 /* ---------- routing (via local proxy → 카카오모빌리티 자동차 / ODsay 대중교통 / 도보 추정) ---------- */
@@ -536,10 +548,21 @@ function App() {
   };
   const arriveMin = flightLookup.status === "success" ? flightLookup.arriveMin : DEFAULT_ARRIVE;
   const departMin = connLookup.status === "success" ? connLookup.departMin : null;
-  // 복귀 버퍼 = 수속시간 + 게이트마감. 연결편이 없으면 고정 레이오버 예산으로 계산.
+  // 연결편이 제1터미널(P01)이면 출국장 혼잡도 API의 실시간 대기시간(분)으로 수속 버퍼를 대체한다 —
+  // 제2터미널(P03)은 이 API 자체에 데이터가 없어 계속 고정값(SECURITY_BUFFER_MIN)을 쓴다.
+  const [securityWaitMin, setSecurityWaitMin] = useState(null);
+  const connTerminal = connLookup.status === "success" ? connLookup.flight.terminal : null;
+  useEffect(() => {
+    if (connTerminal !== "P01") { setSecurityWaitMin(null); return; }
+    let cancelled = false;
+    fetchSecurityWaitMin().then((m) => { if (!cancelled) setSecurityWaitMin(m); }).catch(() => {});
+    return () => { cancelled = true; };
+  }, [connTerminal]);
+  // 복귀 버퍼 = 수속시간(실시간 또는 고정값) + 게이트마감. 연결편이 없으면 고정 레이오버 예산으로 계산.
   // 숙소→공항 이동시간(airportTravelMin)은 일단 버퍼에서 뺐다 — 아직 숙소를 실제로 고르기 전(홈 화면
   // 기본값)에는 그 이동시간이 사용자가 고른 숙소를 반영하지 않아 부정확할 수 있어서.
-  const returnBufferMin = SECURITY_BUFFER_MIN + GATE_CUTOFF_MIN;
+  const securityBufferMin = connTerminal === "P01" && securityWaitMin != null ? securityWaitMin : SECURITY_BUFFER_MIN;
+  const returnBufferMin = securityBufferMin + GATE_CUTOFF_MIN;
   const { canGoOut, returnByMin } = connectionInfo(arriveMin, departMin, returnBufferMin);
 
   // 온보딩 이후 항공편 지연·게이트 변경을 반영하기 위한 백그라운드 재조회 + 수동 새로고침.
@@ -552,7 +575,7 @@ function App() {
   const [rechecking, setRechecking] = useState(false);
   const recheckFlights = async () => {
     setRechecking(true);
-    const buf = SECURITY_BUFFER_MIN + GATE_CUTOFF_MIN;
+    const buf = securityBufferMin + GATE_CUTOFF_MIN;
     const prevArrive = flightLookupRef.current.status === "success" ? flightLookupRef.current.arriveMin : null;
     const prevReturnBy = (() => {
       const pa = prevArrive ?? DEFAULT_ARRIVE;
@@ -572,8 +595,11 @@ function App() {
       const rc = await fetchDeparture(connFlight, API_LANG[lang] || "E");
       if (!rc.error) {
         setConnLookup({ status: "success", departMin: rc.departMin, flight: rc.flight });
+        // 연결편 터미널이 바뀌었을 수도 있으니(드묾) 실시간 대기시간도 같이 새로 받는다.
+        const newBuf = rc.flight.terminal === "P01" ? (await fetchSecurityWaitMin()) ?? SECURITY_BUFFER_MIN : SECURITY_BUFFER_MIN;
+        if (rc.flight.terminal === "P01") setSecurityWaitMin(newBuf);
         const newArrive = flightLookupRef.current.status === "success" ? flightLookupRef.current.arriveMin : DEFAULT_ARRIVE;
-        const newReturnBy = connectionInfo(newArrive, rc.departMin, buf).returnByMin;
+        const newReturnBy = connectionInfo(newArrive, rc.departMin, newBuf + GATE_CUTOFF_MIN).returnByMin;
         if (newReturnBy !== prevReturnBy) {
           setNotice({ key: "flightDepartChangedNotice", vars: { old: prevReturnBy, new: newReturnBy } });
         }
@@ -595,7 +621,7 @@ function App() {
           {screen !== "onboarding" && <FlightNotice notice={notice} onDismiss={() => setNotice(null)} />}
           <div style={{ position: "absolute", inset: 0, bottom: screen === "onboarding" ? 0 : 66, overflowY: "auto" }}>
             {screen === "onboarding" && <Onboarding {...{ step, setStep, lang, setLang, cats, toggle, flight, setFlight, go: () => setScreen("home"), flightLookup, onLookup: lookupFlight, connFlight, setConnFlight, connLookup, onLookupDeparture: lookupDeparture, arriveMin, returnByMin, canGoOut, airportTravelMin }} />}
-            {screen === "home" && <HomeScreen {...{ cats, openRoom: (r) => { setRoom(r); setCoursePlan([]); setScreen("booking"); }, setScreen, setStep, goToCourse, flight, arrive: arriveMin, returnBy: returnByMin, canGoOut, flightLookup, connLookup, airportTravelMin, onRecheck: recheckFlights, rechecking }} />}
+            {screen === "home" && <HomeScreen {...{ cats, openRoom: (r) => { setRoom(r); setCoursePlan([]); setScreen("booking"); }, setScreen, setStep, goToCourse, flight, arrive: arriveMin, returnBy: returnByMin, canGoOut, flightLookup, connLookup, airportTravelMin, onRecheck: recheckFlights, rechecking, securityBufferMin, securityWaitLive: connTerminal === "P01" && securityWaitMin != null }} />}
             {screen === "booking" && <Booking room={room} arrive={arriveMin} returnBy={returnByMin} plan={coursePlan} onPay={(checkIn, hours) => { setBookings((b) => [makeBooking(room, coursePlan, checkIn, hours), ...b]); setScreen("confirm"); }} back={() => setScreen("home")} />}
             {screen === "confirm" && <Confirm booking={bookings[0]} returnBy={returnByMin} back={() => setScreen("home")} />}
             {screen === "luggage" && <Luggagepage back={() => setScreen("home")} />}
@@ -803,7 +829,7 @@ const Title = ({ title, note }) => (
 const row = (on) => ({ display: "flex", alignItems: "center", gap: 12, padding: "14px 16px", borderRadius: 14, border: on ? `2px solid ${C.blue}` : `1.5px solid ${C.line}`, background: on ? C.tint : "#fff", cursor: "pointer" });
 
 /* ---------- HOME ---------- */
-function HomeScreen({ cats, openRoom, setScreen, setStep, goToCourse, flight, arrive, returnBy, canGoOut, flightLookup, connLookup, airportTravelMin, onRecheck, rechecking }) {
+function HomeScreen({ cats, openRoom, setScreen, setStep, goToCourse, flight, arrive, returnBy, canGoOut, flightLookup, connLookup, airportTravelMin, onRecheck, rechecking, securityBufferMin, securityWaitLive }) {
   const { t, tr, fmtTime } = useLang();
   const [hotInfo, setHotInfo] = useState(null);
   const stayMin = returnBy - arrive;
@@ -854,7 +880,8 @@ function HomeScreen({ cats, openRoom, setScreen, setStep, goToCourse, flight, ar
             </div>
             {connLookup?.status === "success" && (
               <div style={{ fontSize: 10.5, color: C.faint, marginTop: 8 }}>
-                {t("bufferAppliedNote", { sec: SECURITY_BUFFER_MIN, gate: GATE_CUTOFF_MIN, total: SECURITY_BUFFER_MIN + GATE_CUTOFF_MIN })}
+                {t("bufferAppliedNote", { sec: securityBufferMin, gate: GATE_CUTOFF_MIN, total: securityBufferMin + GATE_CUTOFF_MIN })}
+                {securityWaitLive && <span style={{ color: C.blue, fontWeight: 700, marginLeft: 4 }}>· {t("securityWaitLiveBadge")}</span>}
               </div>
             )}
           </>) : (
