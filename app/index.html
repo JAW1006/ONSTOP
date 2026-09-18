@@ -98,6 +98,7 @@ const STR = {
   flightArriveChangedNotice: { ko: "도착편 시각이 바뀌었어요 · 도착 {old} → {new}", en: "Arrival time changed · {old} → {new}", zh: "到达时间有变动 · {old} → {new}", ja: "到着時刻が変更されました・{old} → {new}", vi: "Giờ đến đã thay đổi · {old} → {new}" },
   flightDepartChangedNotice: { ko: "연결편 시각이 바뀌었어요 · 복귀 추천 {old} → {new}", en: "Connecting flight time changed · return by {old} → {new}", zh: "连接航班时间有变动 · 建议返回 {old} → {new}", ja: "乗継便の時刻が変更されました・復帰推奨 {old} → {new}", vi: "Giờ bay nối chuyến đã thay đổi · nên quay lại {old} → {new}" },
   refreshFlightLabel: { ko: "항공편 다시 조회", en: "Refresh flight status", zh: "重新查询航班", ja: "フライトを再照会", vi: "Làm mới thông tin chuyến bay" },
+  changeFlightLabel: { ko: "다른 항공편 입력", en: "Enter a different flight", zh: "输入其他航班", ja: "他のフライトを入力", vi: "Nhập chuyến bay khác" },
   dismissNoticeLabel: { ko: "닫기", en: "Dismiss", zh: "关闭", ja: "閉じる", vi: "Đóng" },
   ctaSmartCourse: { ko: "스마트 코스 추천", en: "Get smart course picks", zh: "智能推荐路线", ja: "スマートコースをおすすめ", vi: "Gợi ý lộ trình thông minh" },
 
@@ -594,7 +595,7 @@ function App() {
           {screen !== "onboarding" && <FlightNotice notice={notice} onDismiss={() => setNotice(null)} />}
           <div style={{ position: "absolute", inset: 0, bottom: screen === "onboarding" ? 0 : 66, overflowY: "auto" }}>
             {screen === "onboarding" && <Onboarding {...{ step, setStep, lang, setLang, cats, toggle, flight, setFlight, go: () => setScreen("home"), flightLookup, onLookup: lookupFlight, connFlight, setConnFlight, connLookup, onLookupDeparture: lookupDeparture, arriveMin, returnByMin, canGoOut, airportTravelMin }} />}
-            {screen === "home" && <HomeScreen {...{ cats, openRoom: (r) => { setRoom(r); setCoursePlan([]); setScreen("booking"); }, setScreen, goToCourse, flight, arrive: arriveMin, returnBy: returnByMin, canGoOut, flightLookup, connLookup, airportTravelMin, onRecheck: recheckFlights, rechecking }} />}
+            {screen === "home" && <HomeScreen {...{ cats, openRoom: (r) => { setRoom(r); setCoursePlan([]); setScreen("booking"); }, setScreen, setStep, goToCourse, flight, arrive: arriveMin, returnBy: returnByMin, canGoOut, flightLookup, connLookup, airportTravelMin, onRecheck: recheckFlights, rechecking }} />}
             {screen === "booking" && <Booking room={room} arrive={arriveMin} returnBy={returnByMin} plan={coursePlan} onPay={(checkIn, hours) => { setBookings((b) => [makeBooking(room, coursePlan, checkIn, hours), ...b]); setScreen("confirm"); }} back={() => setScreen("home")} />}
             {screen === "confirm" && <Confirm booking={bookings[0]} returnBy={returnByMin} back={() => setScreen("home")} />}
             {screen === "luggage" && <Luggagepage back={() => setScreen("home")} />}
@@ -802,7 +803,7 @@ const Title = ({ title, note }) => (
 const row = (on) => ({ display: "flex", alignItems: "center", gap: 12, padding: "14px 16px", borderRadius: 14, border: on ? `2px solid ${C.blue}` : `1.5px solid ${C.line}`, background: on ? C.tint : "#fff", cursor: "pointer" });
 
 /* ---------- HOME ---------- */
-function HomeScreen({ cats, openRoom, setScreen, goToCourse, flight, arrive, returnBy, canGoOut, flightLookup, connLookup, airportTravelMin, onRecheck, rechecking }) {
+function HomeScreen({ cats, openRoom, setScreen, setStep, goToCourse, flight, arrive, returnBy, canGoOut, flightLookup, connLookup, airportTravelMin, onRecheck, rechecking }) {
   const { t, tr, fmtTime } = useLang();
   const [hotInfo, setHotInfo] = useState(null);
   const stayMin = returnBy - arrive;
@@ -820,6 +821,9 @@ function HomeScreen({ cats, openRoom, setScreen, goToCourse, flight, arrive, ret
         <Card style={{ padding: 15, marginBottom: 16, borderLeft: `4px solid ${C.blue}` }}>
           <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
             <div style={{ display: "flex", alignItems: "center", gap: 7 }}>
+              <button onClick={() => { setStep(2); setScreen("onboarding"); }} aria-label={t("changeFlightLabel")} style={{ border: "none", background: "none", cursor: "pointer", padding: 0, marginRight: -2, color: C.sub, display: "flex" }}>
+                <ChevronLeft size={17} />
+              </button>
               <ShieldCheck size={17} color={C.blue} /><span style={{ fontSize: 13.5, fontWeight: 800, color: C.ink }}>Time-Safe · {flight}</span>
             </div>
             <div style={{ display: "flex", alignItems: "center", gap: 6 }}>
@@ -1358,6 +1362,7 @@ function CourseMap({ room, places, refPois, plan, onShowInfo, onSelectRoom }) {
   const elRef = useRef(null);
   const mapObj = useRef(null);
   const overlaysRef = useRef([]);
+  const zoomOverlaysRef = useRef([]); // refPois·미담긴 후보 점만 따로 관리 — 확대/축소 때 이것만 다시 그린다
   const [error, setError] = useState(!(typeof window !== "undefined" && window.kakao && window.kakao.maps));
   const [legs, setLegs] = useState([]); // 확정된 일정 순서를 잇는 구간별 실제 이동수단/시간
   const [zoomLevel, setZoomLevel] = useState(8); // 카카오맵 레벨(작을수록 확대) — 방문지 핀 표시 여부에 쓴다.
@@ -1403,6 +1408,10 @@ function CourseMap({ room, places, refPois, plan, onShowInfo, onSelectRoom }) {
     return () => { cancelled = true; };
   }, [room, plan]);
 
+  // 핀·경로선·화살표·배지 — 확대/축소(zoomLevel)와는 무관하게 항상 그대로 있는 것들이라, 줌 이벤트마다
+  // 다시 그릴 필요가 없다. 예전엔 이것들까지 zoomLevel에 걸려있어서 줌할 때마다 전부 지우고 새로
+  // 만드는 바람에(특히 화살표는 구간당 최대 14개) 버벅이거나 핀이 잠깐 사라졌다 다시 나타나는 게
+  // "순간이동"처럼 보였다 — 아래 줌 전용 효과(POI·후보 점)만 zoomLevel에 반응하게 분리했다.
   useEffect(() => {
     if (error || !mapObj.current) return;
     try {
@@ -1421,50 +1430,6 @@ function CourseMap({ room, places, refPois, plan, onShowInfo, onSelectRoom }) {
           position: new window.kakao.maps.LatLng(coord.lat, coord.lng),
           content: el,
           yAnchor: 1,
-        });
-        overlay.setMap(map);
-        overlaysRef.current.push(overlay);
-      };
-      const addPoiPin = (coord, name, color) => {
-        const el = document.createElement("div");
-        el.className = "ds-poi-pin";
-        el.style.cssText = `position:relative;width:9px;height:9px;border-radius:999px;background:${color || "#8DA0B8"};border:1.5px solid #fff;box-shadow:0 1px 3px rgba(0,0,0,.3);cursor:pointer;`;
-        el.title = name;
-        el.addEventListener("click", () => {
-          const existing = el.querySelector(".ds-poi-label");
-          if (existing) { existing.remove(); return; }
-          const label = document.createElement("div");
-          label.className = "ds-poi-label";
-          label.style.cssText = "position:absolute;left:13px;top:-8px;background:#153A52;color:#fff;font-size:10px;font-weight:600;padding:3px 7px;border-radius:6px;white-space:nowrap;box-shadow:0 2px 6px rgba(0,0,0,.25);";
-          const nameLine = document.createElement("div");
-          nameLine.textContent = name;
-          const refLine = document.createElement("div");
-          refLine.textContent = t("poiRefOnly");
-          refLine.style.cssText = "font-size:8.5px;font-weight:500;color:#9FB6D4;margin-top:2px;";
-          label.appendChild(nameLine);
-          label.appendChild(refLine);
-          el.appendChild(label);
-        });
-        const overlay = new window.kakao.maps.CustomOverlay({
-          position: new window.kakao.maps.LatLng(coord.lat, coord.lng),
-          content: el,
-          yAnchor: 0.5,
-          zIndex: 1,
-        });
-        overlay.setMap(map);
-        overlaysRef.current.push(overlay);
-      };
-      // 네이버지도처럼 후보 방문지는 아이콘이 아니라 작은 점으로만 표시하고, 탭해야 정보 시트가 뜬다
-      // (숙소만 큰 아이콘으로 남긴다). 카테고리 색은 그대로 유지해서 어떤 종류인지는 구분되게 한다.
-      const addPlaceDot = (coord, color, onClick) => {
-        const el = document.createElement("div");
-        el.style.cssText = `width:12px;height:12px;border-radius:999px;background:${color};border:2px solid #fff;box-shadow:0 1px 4px rgba(0,0,0,.35);cursor:pointer;`;
-        el.addEventListener("click", onClick);
-        const overlay = new window.kakao.maps.CustomOverlay({
-          position: new window.kakao.maps.LatLng(coord.lat, coord.lng),
-          content: el,
-          yAnchor: 0.5,
-          zIndex: 1,
         });
         overlay.setMap(map);
         overlaysRef.current.push(overlay);
@@ -1551,35 +1516,90 @@ function CourseMap({ room, places, refPois, plan, onShowInfo, onSelectRoom }) {
         addLegBadge(midOf(points), String(i + 1), color);
         arrowsAlong(points).forEach(({ pos, deg }) => addLegArrow(pos, deg, color));
       });
-      // 숙소를 고르기 전엔 제휴 숙소 핀만 보여준다(탭하면 바로 선택됨) — 주변 실제 인프라(방문지 후보·
-      // 참고용 점)는 숙소를 골라야만 뜬다. 숙소를 고른 뒤에도, 처음 지도가 뜨는 레벨(8, 섬 전체)에서는
-      // 후보·참고용 점이 너무 많아 복잡해 보이므로 네이버지도처럼 어느 정도 확대해야(zoomLevel ≤
-      // PIN_VISIBLE_MAX_LEVEL) 나타나게 한다. 단, 이미 일정에 담긴 장소는 확대 여부와 상관없이 항상
-      // 보여준다 — 후보는 숨겨도 되지만 내가 고른 방문지는 언제든 지도에서 바로 확인할 수 있어야 하기 때문.
-      const zoomedIn = zoomLevel <= PIN_VISIBLE_MAX_LEVEL;
       addPin(AIRPORT_COORD, pinHtml(C.ink, "✈"));
       ROOMS.forEach((r) => addPin(r.coord, pinHtml(room && room.id === r.id ? C.blueDeep : C.faint, "🏨"), onSelectRoom ? () => onSelectRoom(r) : undefined, `room-${r.id}`));
+      // 이미 일정에 담긴 장소는 확대 여부와 상관없이 항상 방문 순번이 붙은 핀으로 보여준다 — 후보는
+      // 숨겨도 되지만 내가 고른 방문지는 언제든 지도에서 바로 확인할 수 있어야 하기 때문(아래 줌 전용
+      // 효과의 후보 점과 달리 이건 zoomLevel에 안 걸린다).
       if (room) {
-        if (zoomedIn) {
-          (refPois || []).forEach((poi) => addPoiPin({ lat: poi.lat, lng: poi.lng }, poi.name, POI_COLORS[poi.catCode]));
-        }
         places.forEach((p) => {
-          // 일정에 담긴 장소는 방문 순번이 붙은 큰 핀으로, 아직 안 담긴 후보는 작은 점으로 그린다 —
-          // 숙소만 아이콘으로 남기고 나머지는 네이버지도처럼 탭해야 정보(그리고 추가/삭제 버튼)가 뜬다.
           const planIdx = plan.findIndex((x) => x.id === p.id);
-          const inPlan = planIdx !== -1;
-          if (!inPlan && !zoomedIn) return;
-          if (inPlan) {
-            addPin(p.coord, pinHtml(CAT_META[p.cat].col, String(planIdx + 1)), () => onShowInfo(p), p.id);
-          } else {
-            addPlaceDot(p.coord, CAT_META[p.cat].col, () => onShowInfo(p));
-          }
+          if (planIdx !== -1) addPin(p.coord, pinHtml(CAT_META[p.cat].col, String(planIdx + 1)), () => onShowInfo(p), p.id);
         });
       }
     } catch {
       setError(true);
     }
-  }, [error, room, places, plan, refPois, legs, zoomLevel, onSelectRoom, onShowInfo]);
+  }, [error, room, places, plan, legs, onSelectRoom, onShowInfo]);
+
+  // 참고용 인프라 점(refPois)과 아직 일정에 안 담긴 방문지 후보 점만 여기서 그린다 — 이 두 종류만
+  // 확대 정도(zoomLevel)에 따라 보이고 숨는 대상이라, 줌할 때 이 효과만 다시 실행되면 된다. 위 효과의
+  // 핀·경로선·화살표는 손대지 않아서 줌 중 끊김이 크게 줄어든다.
+  useEffect(() => {
+    if (error || !mapObj.current || !room) { zoomOverlaysRef.current.forEach((o) => o.setMap(null)); zoomOverlaysRef.current = []; return; }
+    try {
+      zoomOverlaysRef.current.forEach((o) => o.setMap(null));
+      zoomOverlaysRef.current = [];
+      const map = mapObj.current;
+      const addPoiPin = (coord, name, color) => {
+        const el = document.createElement("div");
+        el.className = "ds-poi-pin";
+        el.style.cssText = `position:relative;width:9px;height:9px;border-radius:999px;background:${color || "#8DA0B8"};border:1.5px solid #fff;box-shadow:0 1px 3px rgba(0,0,0,.3);cursor:pointer;`;
+        el.title = name;
+        el.addEventListener("click", () => {
+          const existing = el.querySelector(".ds-poi-label");
+          if (existing) { existing.remove(); return; }
+          const label = document.createElement("div");
+          label.className = "ds-poi-label";
+          label.style.cssText = "position:absolute;left:13px;top:-8px;background:#153A52;color:#fff;font-size:10px;font-weight:600;padding:3px 7px;border-radius:6px;white-space:nowrap;box-shadow:0 2px 6px rgba(0,0,0,.25);";
+          const nameLine = document.createElement("div");
+          nameLine.textContent = name;
+          const refLine = document.createElement("div");
+          refLine.textContent = t("poiRefOnly");
+          refLine.style.cssText = "font-size:8.5px;font-weight:500;color:#9FB6D4;margin-top:2px;";
+          label.appendChild(nameLine);
+          label.appendChild(refLine);
+          el.appendChild(label);
+        });
+        const overlay = new window.kakao.maps.CustomOverlay({
+          position: new window.kakao.maps.LatLng(coord.lat, coord.lng),
+          content: el,
+          yAnchor: 0.5,
+          zIndex: 1,
+        });
+        overlay.setMap(map);
+        zoomOverlaysRef.current.push(overlay);
+      };
+      // 네이버지도처럼 후보 방문지는 아이콘이 아니라 작은 점으로만 표시하고, 탭해야 정보 시트가 뜬다
+      // (숙소만 큰 아이콘으로 남긴다). 카테고리 색은 그대로 유지해서 어떤 종류인지는 구분되게 한다.
+      const addPlaceDot = (coord, color, onClick) => {
+        const el = document.createElement("div");
+        el.style.cssText = `width:12px;height:12px;border-radius:999px;background:${color};border:2px solid #fff;box-shadow:0 1px 4px rgba(0,0,0,.35);cursor:pointer;`;
+        el.addEventListener("click", onClick);
+        const overlay = new window.kakao.maps.CustomOverlay({
+          position: new window.kakao.maps.LatLng(coord.lat, coord.lng),
+          content: el,
+          yAnchor: 0.5,
+          zIndex: 1,
+        });
+        overlay.setMap(map);
+        zoomOverlaysRef.current.push(overlay);
+      };
+      // 숙소를 고르기 전엔 제휴 숙소 핀만 보여준다(탭하면 바로 선택됨) — 주변 실제 인프라(방문지 후보·
+      // 참고용 점)는 숙소를 골라야만 뜬다. 숙소를 고른 뒤에도, 처음 지도가 뜨는 레벨(8, 섬 전체)에서는
+      // 후보·참고용 점이 너무 많아 복잡해 보이므로 네이버지도처럼 어느 정도 확대해야(zoomLevel ≤
+      // PIN_VISIBLE_MAX_LEVEL) 나타나게 한다.
+      if (zoomLevel <= PIN_VISIBLE_MAX_LEVEL) {
+        (refPois || []).forEach((poi) => addPoiPin({ lat: poi.lat, lng: poi.lng }, poi.name, POI_COLORS[poi.catCode]));
+        places.forEach((p) => {
+          if (plan.some((x) => x.id === p.id)) return; // 이미 일정에 담긴 장소는 위 효과가 핀으로 그린다
+          addPlaceDot(p.coord, CAT_META[p.cat].col, () => onShowInfo(p));
+        });
+      }
+    } catch {
+      setError(true);
+    }
+  }, [error, room, places, plan, refPois, zoomLevel, onShowInfo]);
 
   if (error) {
     return <Card style={{ padding: 20, textAlign: "center", color: C.faint, fontSize: 12 }}>{t("mapUnavailable")}</Card>;
