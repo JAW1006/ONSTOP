@@ -140,6 +140,49 @@ app.get("/api/flight/departure", async (req, res) => {
   }
 });
 
+// 인천공항 출국장 혼잡도 API — 같은 AIRPORT_SERVICE_KEY로 자동 승인되어 있었다(2026-09-18 확인).
+// 제1여객터미널(P01)의 출국장 1~6번(동/서 게이트별)만 제공 — 제2터미널(P03)은 이 API 자체에 데이터가
+// 없다(공사 공식 사이트 실시간 대기시간 페이지도 T1만 표시). T2 항공편은 이 값을 못 쓰고 서버가 아닌
+// 프론트의 고정 버퍼(SECURITY_BUFFER_MIN)로 폴백해야 한다.
+const CONGESTION_URL = "https://apis.data.go.kr/B551177/statusOfDepartureCongestion/getDepartureCongestion";
+
+app.get("/api/security-wait", async (req, res) => {
+  if (!SERVICE_KEY) {
+    return res.status(500).json({ error: "AIRPORT_SERVICE_KEY is not configured on the server" });
+  }
+
+  const url = new URL(CONGESTION_URL);
+  url.searchParams.set("serviceKey", SERVICE_KEY);
+  url.searchParams.set("type", "json");
+  url.searchParams.set("numOfRows", "50");
+
+  try {
+    const apiRes = await fetch(url);
+    const raw = await apiRes.text();
+    let data;
+    try {
+      data = JSON.parse(raw);
+    } catch {
+      return res.status(502).json({ error: "congestion API returned a non-JSON response", detail: raw.slice(0, 300) });
+    }
+
+    const header = data?.response?.header;
+    if (header && header.resultCode !== "00") {
+      return res.status(502).json({ error: header.resultMsg || "congestion API error", resultCode: header.resultCode });
+    }
+
+    const items = normalizeItems(data?.response?.body?.items);
+    // waitTime="" 인 항목(미운영 게이트)은 숫자로 못 바꾸니 제외.
+    const gates = items
+      .filter((it) => it.terminalId === "P01" && it.waitTime !== "")
+      .map((it) => ({ gateId: it.gateId, waitTimeMin: Number(it.waitTime), waitLength: Number(it.waitLength) || 0 }));
+
+    res.json({ gates });
+  } catch (err) {
+    res.status(502).json({ error: "failed to reach congestion API", detail: String(err) });
+  }
+});
+
 // 카카오모빌리티 길찾기(자동차) API — Kakao Developers 앱의 REST API 키를 그대로 사용.
 const KAKAO_REST_KEY = process.env.KAKAO_REST_API_KEY;
 const KAKAO_DIRECTIONS_URL = "https://apis-navi.kakaomobility.com/v1/directions";
