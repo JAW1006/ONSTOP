@@ -77,9 +77,18 @@ export function averageSecurityWaitMin(gates: { waitTimeMin: number }[]): number
   return Math.round(gates.reduce((sum, g) => sum + g.waitTimeMin, 0) / gates.length);
 }
 
-/** 수속 버퍼: 연결편이 T1이고 실시간 값이 있으면 그 값으로 대체, 아니면 SECURITY_BUFFER_MIN */
+/**
+ * 수속 버퍼: SECURITY_BUFFER_MIN을 하한으로 두고, 연결편이 T1이고 실시간 값이 있으면 더 큰 쪽을 쓴다.
+ * 실시간 값은 조회 시점의 T1 전체 게이트 평균이라 실제 게이트·복귀 시점 값이 아니다(time-safe.md 엣지 케이스).
+ */
 export function securityBufferMin(departureTerminal: string | null, liveWaitMin: number | null): number {
-  return departureTerminal === LIVE_SECURITY_TERMINAL && liveWaitMin != null ? liveWaitMin : SECURITY_BUFFER_MIN;
+  if (departureTerminal !== LIVE_SECURITY_TERMINAL || liveWaitMin == null) return SECURITY_BUFFER_MIN;
+  return Math.max(SECURITY_BUFFER_MIN, liveWaitMin);
+}
+
+/** 실시간 대기시간이 실제로 버퍼를 올렸는가(화면의 "실시간 반영" 배지용) */
+export function isLiveSecurityApplied(departureTerminal: string | null, liveWaitMin: number | null): boolean {
+  return departureTerminal === LIVE_SECURITY_TERMINAL && liveWaitMin != null && liveWaitMin > SECURITY_BUFFER_MIN;
 }
 
 export interface ConnectionInfo {

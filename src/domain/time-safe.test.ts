@@ -6,6 +6,7 @@ import {
   effectiveArrival,
   effectiveDeparture,
   flightDelayMin,
+  isLiveSecurityApplied,
   resolveConnection,
   securityBufferMin,
 } from "./time-safe";
@@ -46,12 +47,20 @@ describe("computeTimeSafe — 기존 동작", () => {
     expect(r.totalConnectionMin).toBeNull();
   });
 
-  it("#5 T1 실시간 대기 12분 → 50분을 대체, 버퍼 42분", () => {
+  it("#5 T1 실시간 대기 12분 → 하한 50분 유지, #1과 같은 3h01m (A3)", () => {
     const r = computeTimeSafe({ arriveMin: 630, departMin: 891, departureTerminal: "P01", liveSecurityWaitMin: 12 });
-    expect(r.securityMin).toBe(12);
-    expect(r.bufferMin).toBe(42);
-    expect(r.returnByMin).toBe(849);
-    expect(r.stayMin).toBe(219);
+    expect(r.securityMin).toBe(50);
+    expect(r.bufferMin).toBe(80);
+    expect(r.returnByMin).toBe(811);
+    expect(r.stayMin).toBe(181);
+  });
+
+  it("#12 T1 실시간 대기 65분 → 65분 사용, 버퍼 95분, 2h46m (A3)", () => {
+    const r = computeTimeSafe({ arriveMin: 630, departMin: 891, departureTerminal: "P01", liveSecurityWaitMin: 65 });
+    expect(r.securityMin).toBe(65);
+    expect(r.bufferMin).toBe(95);
+    expect(r.returnByMin).toBe(796);
+    expect(r.stayMin).toBe(166);
   });
 
 });
@@ -104,14 +113,17 @@ describe("resolveConnection — 자정 넘김(A2)", () => {
   });
 });
 
-describe("securityBufferMin — 기존 동작", () => {
+describe("securityBufferMin — max(기준값, 실시간) (A3)", () => {
   it.each([
-    ["P01", 12, 12],
-    ["P01", null, 50],
-    ["P03", 12, 50],
-    [null, 12, 50],
-  ] as const)("터미널 %s, 실시간 %s → %s분", (terminal, live, expected) => {
+    ["P01", 12, 50, false],
+    ["P01", 50, 50, false],
+    ["P01", 65, 65, true],
+    ["P01", null, 50, false],
+    ["P03", 65, 50, false],
+    [null, 65, 50, false],
+  ] as const)("터미널 %s, 실시간 %s → %s분 (실시간 반영 %s)", (terminal, live, expected, applied) => {
     expect(securityBufferMin(terminal, live)).toBe(expected);
+    expect(isLiveSecurityApplied(terminal, live)).toBe(applied);
   });
 });
 

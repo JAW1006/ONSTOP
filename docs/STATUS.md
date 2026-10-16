@@ -15,7 +15,7 @@
 | # | 결정 | 공식 | 적용 |
 |---|---|---|---|
 | A2 | 자정 넘김: 날짜 우선, 없으면 출발 < 도착이면 익일, 24h 초과 경고 | [time-safe](formulas/time-safe.md) | 적용 |
-| A3 | T1 실시간 대기: `max(기준값, 실시간)` | [time-safe](formulas/time-safe.md) | 대기 |
+| A3 | T1 실시간 대기: `max(기준값, 실시간)` | [time-safe](formulas/time-safe.md) | 적용 |
 | A1 | 버퍼 3분할(입국심사 / 보안검색·출국심사 / 게이트 여유) | [time-safe](formulas/time-safe.md) | 대기 |
 | A5 | 외출 가능 시간 / 코스 가용 시간 용어 분리 | [time-safe](formulas/time-safe.md), [time-fit](formulas/time-fit.md) | 대기 |
 
