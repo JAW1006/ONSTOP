@@ -25,6 +25,10 @@
 | 코스 색·선 | 체류 연한 파랑, 코스 화면 카테고리 배지 회색+아이콘·글자, 청록은 임시(역할 토큰 `--ts-role-route`), 선 모양으로 수단 구분 | [design-tokens](design/design-tokens.md) | 적용 |
 | 요약 패널 | 지도 아래 고정 | [screens/course-map](design/screens/course-map.md) | 적용 |
 | ODsay 선택 필드 | `/api/transit`에 `distanceM`·`busTransitCount`·`subwayTransitCount`(있을 때만). 칩은 값이 없으면 시간만 | [api/environment](api/environment.md) | 적용 |
+| 알림 문구 | 기능 없는 알림 문구 4개 삭제(`timeSafe.pushScheduled`, `course.step.return.sub`, `confirm.alertOn`, `my.menu.timeSafeAlerts`). 복귀 알림 방식은 [ADR-0006](decisions/ADR-0006-return-alert.md)에서 결정 | [i18n-review](design/i18n-review.md) "삭제한 레거시 키" | 적용 |
+| 자동 추천 0곳 | 남은 시간에 들어가는 장소가 없으면 안내 문구(`course.autoBuild.empty`, 미검수) | [screens/course-map](design/screens/course-map.md) | 적용 |
+| 근사값 | 기존 지시대로 유지: 구간 결과 캐시, 조회 중·실패 시 "약 N분". 정확도 보정은 로드맵 | [roadmap](product/roadmap.md) | 유지 |
+| 번역 정책 | **공개 전 모든 번역(레거시 185 + 추가·변경 36)을 원어민 검수**. 검수 표 2개 유지 | [i18n-review](design/i18n-review.md), [i18n-review-legacy](design/i18n-review-legacy.md) | 진행 전 |
 | A7 | 자동 추천 설명 "OR-Tools 최적화 · …" → "시간에 맞춰 자동 추천 · 카테고리마다 남은 시간에 들어가는 장소를 1곳씩 담아요"(5개 언어, 미검수). 버퍼 안내 문구는 홈 이식 때 "예상 소요 반영 …"으로 이미 대체 | [i18n-review](design/i18n-review.md) | 적용 |
 | 탑승동 | 탑승동(P02) 연결편에 T1 출국장 실시간 대기 적용(사용자 결정). 셔틀 버퍼는 미검증·미적용 | [time-safe](formulas/time-safe.md) | 적용 |
 | T2 | 출국장 실시간 대기를 T1·T2 모두(`/api/security-wait/t2` 추가), 홈 배지는 터미널 기준 "T1/T2 실시간 확인 · 현재 N분" 또는 "실시간 아님" | [time-safe](formulas/time-safe.md), [api/incheon-congestion](api/incheon-congestion.md) | 적용 |
@@ -44,13 +48,11 @@
 | # | 내용 | 근거 문서 |
 |---|---|---|
 | A1-값 | 버퍼 값 근거. 현재 ① `ARRIVAL_IMMIGRATION_MIN` 50(기획서) / ② `DEPARTURE_SECURITY_MIN` 50(레거시) / ③ `GATE_MARGIN_MIN` 30(레거시) — 전부 미검증. 입국 대기는 분 단위 공개 API 없음(인원 수만 제공) | [time-safe](formulas/time-safe.md), [조사](results/2026-10-16-arrival-wait-data.md) |
-| 알림 기능 | 알림(푸시) 기능이 없어 다음 레거시 문구는 **새 화면에 쓰지 않는다**: `timeSafe.pushScheduled`("복귀 30분 전 푸시 알림 예약됨"), `course.step.return.sub`("Time-Safe 알림 · 여유 30분" — 코스 일정의 복귀 줄은 "복귀 도착 목표"로 대체), `confirm.alertOn`("알림 ON"), 마이의 `my.menu.timeSafeAlerts` 토글. 알림을 만들지, 문구를 지울지 결정 필요(키는 레거시 대조용으로 JSON에 남김) | [legacy-analysis](results/2026-10-16-legacy-analysis.md) |
 | A9 | 데이유즈 3~9시간(데이터는 대부분 3–6h), 추가 시간 가격 규칙 `TIER_STEP_RATIO` 0.5 근거 | [dayuse-pricing](formulas/dayuse-pricing.md) |
 | A10 | 예약 화면 체크인 계산이 실측이 아닌 정적 이동시간 사용 | [dayuse-pricing](formulas/dayuse-pricing.md) |
 | A13 | 브랜드 컬러: 앱(Blue/Gold) vs 로고 README(Teal/Coral) | [design-tokens](design/design-tokens.md) |
 | 수수료 | 수수료 계산 기준·반올림 | [dayuse-pricing](formulas/dayuse-pricing.md) |
 | 탑승동 셔틀 버퍼 | 탑승동(P02, 게이트 101~132) 출발은 T1 출국장 통과 후 셔틀트레인을 탄다. 이 이동·대기에 별도 버퍼가 필요한지 **미검증** — 지금은 추가 버퍼 없음(게이트 여유 30분 안에 흡수된다고 가정, 근거 없음). 근거 후보는 아래 "탑승동 셔틀트레인 근거" | [time-safe](formulas/time-safe.md) |
-| 신규 문구 번역 | 레거시 이후 추가한 키 5개 **미검수**(ko 원문·en·zh·ja·vi 한 표) | [i18n-review](design/i18n-review.md) |
 | 입국 실시간 | 입국장 대기인원 → 분 환산(창구 수·처리량 가정 필요). 근거 확보 전 보류 권장 | [조사](results/2026-10-16-arrival-wait-data.md) |
 
 ## 탑승동 셔틀트레인 근거 (2026-10-16 조사, 전부 미검증)
@@ -108,7 +110,6 @@
 | 번들 크기 | 메인 JS 605KB(빌드 경고 기준 500KB 초과, 코스 지도 이식 후). 화면 이식이 끝난 뒤 라우트별 지연 로딩(`lazy`)으로 분할 |
 | 로고 이미지 | `logo-mark.png` 405KB(30~40px로 표시) — 레거시와 같은 파일. 작은 PNG/SVG로 교체 검토 |
 | 근사값 정확도 | 구간 근사(직선 1km당 2분)가 실제 대중교통보다 크게 짧다(실측 예: 호텔 오라→차이나타운 ODsay 95분 vs 근사 약 36분). 자동 추천·"환승 내 가능"이 근사로 판정되면 실제 값이 들어온 뒤 초과로 바뀔 수 있음 → 자동 추천 전 후보 구간 미리 조회 또는 대중교통 근사 계수 보정 |
-| 자동 추천 0곳 | 아무 장소도 안 들어가면 안내 문구 없음(레거시 동일) |
 | 구간 상세 시트 | 칩 탭 시 한 줄 정보(수단·시간·거리·환승·요금)만 구현. 노선 단계별 안내 시트는 미구현 |
 | 진행 방향 화살표 | 레거시의 선 위 화살표·구간 번호 배지는 옮기지 않음(칩으로 대체) |
 

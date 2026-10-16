@@ -57,8 +57,8 @@ export function UiShowcase() {
           <KeyValueRow label={t("confirm.stay")} value="Hotel Aura" />
           <KeyValueRow label={t("booking.payment.total")} value="₩50,000" size="md" />
           <div className="flex items-center justify-between">
-            <span className="text-emph text-ink">{t("my.menu.timeSafeAlerts")}</span>
-            <Switch defaultChecked aria-label={t("my.menu.timeSafeAlerts")} />
+            <span className="text-emph text-ink">{t("my.menu.coupons")}</span>
+            <Switch defaultChecked aria-label={t("my.menu.coupons")} />
           </div>
         </Card>
         <Button onClick={() => setSheet(true)}>{t("booking.payment.pay")}</Button>

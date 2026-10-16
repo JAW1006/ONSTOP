@@ -12,7 +12,8 @@
 | 디자인 | [design/components.md](design/components.md) | 초안 | 공통 UI 컴포넌트 목록 |
 | 디자인 | [design/data.md](design/data.md) | 초안 | 숙소·장소 데이터 출처·검증 상태 |
 | 디자인 | [design/i18n-keys.md](design/i18n-keys.md) | 확정 | 레거시 문구 키 → 새 i18n 키 대응표(자동 생성) |
-| 디자인 | [design/i18n-review.md](design/i18n-review.md) | 초안 | 추가 문구 번역 검수 요청 표(ko 원문 + 4개 언어, 자동 생성) |
+| 디자인 | [design/i18n-review.md](design/i18n-review.md) | 초안 | 추가·변경 문구 원어민 검수 표(자동 생성) |
+| 디자인 | [design/i18n-review-legacy.md](design/i18n-review-legacy.md) | 초안 | 레거시에서 옮긴 문구 원어민 검수 표(자동 생성) |
 | 디자인 | [design/screens/](design/screens/README.md) | 초안 | 화면별 명세 |
 | 공식 | [formulas/time-safe.md](formulas/time-safe.md) | 초안 | 실제 외출 가능 시간 |
 | 공식 | [formulas/time-fit.md](formulas/time-fit.md) | 초안 | 코스 시간 예산·자동 추천 |

@@ -52,7 +52,6 @@
     "showMoreCount": "显示更多(还有{{n}}个)"
   },
   "confirm": {
-    "alertOn": "提醒已开启",
     "bookingNumber": "预订编号",
     "complete": "预订完成",
     "included": "含",
@@ -65,6 +64,7 @@
   "course": {
     "autoBuild": {
       "cta": "Time-Fit 自动排程",
+      "empty": "没有能放进剩余时间的地点。请更换类别或选择离机场更近的住宿。",
       "note": "按时间自动推荐 · 每个类别添加一处能放进剩余时间的地点"
     },
     "bookThisStay": "预订此住宿 →",
@@ -146,7 +146,6 @@
         "subNoStay": "{{area}}(移动{{move}}分钟)"
       },
       "return": {
-        "sub": "Time-Safe 提醒 · 预留30分钟",
         "target": "目标到达 {{time}}",
         "title": "返回机场"
       }
@@ -261,8 +260,7 @@
       "bookingHistory": "预订记录",
       "coupons": "优惠券",
       "language": "语言设置",
-      "passport": "护照认证",
-      "timeSafeAlerts": "Time-Safe 提醒"
+      "passport": "护照认证"
     },
     "subtitle": "我的页面",
     "title": "我的页面"
@@ -318,7 +316,6 @@
     "needConnection": "查询连接航班后即可计算中转时间。",
     "outingAvailable": "可在机场外停留",
     "outingAvailableShort": "实际可停留(已扣除缓冲)",
-    "pushScheduled": "已设置返回前30分钟推送提醒",
     "returnBy": "建议返回",
     "returnRecommended": "建议返回机场",
     "security": {

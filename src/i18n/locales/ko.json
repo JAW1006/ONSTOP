@@ -52,7 +52,6 @@
     "showMoreCount": "더보기 ({{n}}곳 더 있음)"
   },
   "confirm": {
-    "alertOn": "알림 ON",
     "bookingNumber": "예약번호",
     "complete": "예약 완료",
     "included": "포함",
@@ -65,6 +64,7 @@
   "course": {
     "autoBuild": {
       "cta": "Time-Fit 자동 코스 짜기",
+      "empty": "남은 시간 안에 들어가는 장소가 없어요. 카테고리를 바꾸거나 공항에서 가까운 숙소를 골라 보세요.",
       "note": "시간에 맞춰 자동 추천 · 카테고리마다 남은 시간에 들어가는 장소를 1곳씩 담아요"
     },
     "bookThisStay": "이 숙소로 예약하기 →",
@@ -146,7 +146,6 @@
         "subNoStay": "{{area}} (이동 {{move}}분)"
       },
       "return": {
-        "sub": "Time-Safe 알림 · 여유 30분",
         "target": "복귀 도착 목표 {{time}}",
         "title": "공항 복귀"
       }
@@ -261,8 +260,7 @@
       "bookingHistory": "예약 내역",
       "coupons": "쿠폰",
       "language": "언어 설정",
-      "passport": "여권 인증",
-      "timeSafeAlerts": "Time-Safe 알림"
+      "passport": "여권 인증"
     },
     "subtitle": "My page",
     "title": "마이 페이지"
@@ -318,7 +316,6 @@
     "needConnection": "연결편을 조회하면 환승 시간이 계산돼요.",
     "outingAvailable": "공항 밖 체류 가능",
     "outingAvailableShort": "실제 체류 가능(버퍼 제외)",
-    "pushScheduled": "복귀 30분 전 푸시 알림 예약됨",
     "returnBy": "복귀 추천",
     "returnRecommended": "공항 복귀 추천",
     "security": {

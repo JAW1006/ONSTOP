@@ -18,6 +18,8 @@ const km = (a: { lat: number; lng: number }, b: { lat: number; lng: number }) =>
 let routeFails = false;
 const departures: Record<string, object> = {
   MU2043: { flightId: "MU2043", airline: "China Eastern", toAirport: "Qingdao", scheduleDateTime: "1451", estimatedDateTime: "1451", terminal: "P02", gate: "129", remark: null },
+  // 13:40 출발 → 외출 가능 정확히 60분(MIN_STAY), 코스 가용 40분
+  TIGHT1: { flightId: "TIGHT1", airline: "Tight Air", toAirport: "Busan", scheduleDateTime: "1340", estimatedDateTime: null, terminal: "P02", gate: "2", remark: null },
   SOON1: { flightId: "SOON1", airline: "Soon Air", toAirport: "Osaka", scheduleDateTime: "1250", estimatedDateTime: null, terminal: "P02", gate: "1", remark: null },
 };
 const fetchMock = vi.fn(async (url: string) => {
@@ -154,6 +156,18 @@ describe("코스 지도 — 자동 추천·저장", () => {
     expect(within(screen.getByRole("navigation")).getAllByRole("link")[2]!.getAttribute("href")).toBe("/course/saved");
     await act(async () => fireEvent.click(screen.getByRole("button", { name: "Edit" })));
     expect(router.state.location.pathname).toBe("/course");
+  });
+});
+
+describe("코스 지도 — 자동 추천 0곳", () => {
+  it("코스 가용 40분에는 아무것도 안 들어감 → 안내 문구, 장소를 담으면 사라짐", async () => {
+    open({ departure: "TIGHT1", room: "hotel-aura-incheon" });
+    await waitFor(() => expect(panel().textContent).toContain("/ available 1h"));
+    await act(async () => fireEvent.click(screen.getByRole("button", { name: /Auto-build with Time-Fit/ })));
+    await waitFor(() => expect(screen.getByText(/No spot fits in the time left/)).toBeTruthy());
+    expect(fakeMap.scene!.pins.filter((p) => p.kind === "place")).toHaveLength(0);
+    await act(async () => fireEvent.click(addButton("Olive Young (Unseo)")));
+    await waitFor(() => expect(screen.queryByText(/No spot fits in the time left/)).toBeNull());
   });
 });
 

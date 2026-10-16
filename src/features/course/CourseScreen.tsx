@@ -50,6 +50,10 @@ export function CourseScreen() {
   const [selectedLeg, setSelectedLeg] = useState<number | null>(null);
   const [showAll, setShowAll] = useState(false);
   const [info, setInfo] = useState<CoursePlace | null>(null);
+  // 자동 추천이 아무것도 못 담았을 때 안내 — 그때 만든 일정·숙소·카테고리가 그대로일 때만 보인다
+  const [emptyResult, setEmptyResult] = useState<{ plan: CoursePlace[]; key: string } | null>(null);
+  const contextKey = `${room?.id}|${cats.join(",")}`;
+  const autoEmpty = !!emptyResult && emptyResult.plan === plan && emptyResult.key === contextKey;
 
   useEffect(() => setSelectedLeg(null), [room?.id, plan.length]);
   useEffect(() => setShowAll(false), [room?.id, cats.join(",")]);
@@ -95,7 +99,9 @@ export function CourseScreen() {
       legsFor,
       availableMin: available,
     });
-    trip.setCoursePlan(picked.map(({ rankMove: _r, ...p }) => p));
+    const next = picked.map(({ rankMove: _r, ...p }) => p);
+    trip.setCoursePlan(next);
+    setEmptyResult(next.length === 0 ? { plan: next, key: contextKey } : null);
   };
   const save = () => {
     if (!room) return;
@@ -180,6 +186,11 @@ export function CourseScreen() {
           <Route size={16} aria-hidden /> {t("course.autoBuild.cta")}
         </Button>
         <p className="mt-1 mb-1 text-center text-micro text-faint">{t("course.autoBuild.note")}</p>
+        {autoEmpty && (
+          <p role="alert" className="mb-1 rounded-md bg-danger-bg px-3 py-2 text-center text-caption font-bold text-role-return">
+            {t("course.autoBuild.empty")}
+          </p>
+        )}
         {room && (
           <p className={cn("mb-3.5 text-center text-micro", model.routeLoading ? "text-faint" : "font-bold text-success")}>
             {model.routeLoading ? t("course.route.loading") : t("course.route.live")}

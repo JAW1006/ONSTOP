@@ -139,5 +139,29 @@
   "course.step.return.target": {
     "stage": "코스 지도 — 일정의 공항 복귀 줄(레거시 \"알림 · 여유 30분\" 대체)",
     "reviewed": false
+  },
+  "timeSafe.pushScheduled": {
+    "stage": "알림 기능 없음 — \"복귀 30분 전 푸시 알림 예약됨\" 삭제(2026-10-16 사용자 지시)",
+    "kind": "removed",
+    "reviewed": true
+  },
+  "course.step.return.sub": {
+    "stage": "알림 기능 없음 — \"Time-Safe 알림 · 여유 30분\" 삭제, 일정 복귀 줄은 course.step.return.target",
+    "kind": "removed",
+    "reviewed": true
+  },
+  "confirm.alertOn": {
+    "stage": "알림 기능 없음 — 예약 확인의 \"알림 ON\" 삭제",
+    "kind": "removed",
+    "reviewed": true
+  },
+  "my.menu.timeSafeAlerts": {
+    "stage": "알림 기능 없음 — 마이의 \"Time-Safe 알림\" 토글 삭제",
+    "kind": "removed",
+    "reviewed": true
+  },
+  "course.autoBuild.empty": {
+    "stage": "코스 지도 — 자동 추천 결과가 0곳일 때 안내",
+    "reviewed": false
   }
 }

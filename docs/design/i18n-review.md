@@ -1,16 +1,17 @@
 # 번역 검수 요청 — 레거시 이후 추가·변경 문구
 
 > 상태: 초안 · 생성: `node scripts/i18n-review-table.mjs` (손으로 고치지 말 것)
-> 미검수 35 / 전체 35 · 원문은 ko, en은 개발자 작성, **zh·ja·vi는 기계 수준 초안**
+> 미검수 36 / 전체 36 · 원문은 ko, en은 개발자 작성, **zh·ja·vi는 기계 수준 초안** · 레거시에서 옮긴 문구는 [i18n-review-legacy](i18n-review-legacy.md)
 
 ## 검수 방법
-- 각 언어 칸의 뜻이 ko 원문과 같은지, 앱 버튼·안내문으로 자연스러운지 확인한다.
+- 각 언어 칸의 뜻이 ko 원문과 같은지, 앱 버튼·안내문으로 자연스러운지 **원어민**이 확인한다(공개 전 전부 대상).
 - `{{이름}}`은 숫자·시각이 들어가는 자리표시자다. **지우거나 이름을 바꾸면 안 된다.**
-- 고칠 문구는 이 표에 메모하거나 `src/i18n/locales/<언어>.json`을 직접 고친 뒤, `src/i18n/added-keys.json`의 `reviewed`를 `true`로 바꾸고 이 표를 다시 만든다.
+- 고칠 문구는 `src/i18n/locales/<언어>.json`을 고친 뒤 검수 완료를 기록하고 이 표를 다시 만든다. 검수 완료는 `src/i18n/added-keys.json`의 `reviewed`를 `true`로.
 
 | 키 | 종류 | 쓰이는 곳 | ko(원문) | en | zh | ja | vi | 상태 |
 |---|---|---|---|---|---|---|---|---|
 | `common.back` | 추가 | 3단계 공통 UI(뒤로 버튼 aria-label) | 뒤로 | Back | 返回 | 戻る | Quay lại | **미검수** |
+| `course.autoBuild.empty` | 추가 | 코스 지도 — 자동 추천 결과가 0곳일 때 안내 | 남은 시간 안에 들어가는 장소가 없어요. 카테고리를 바꾸거나 공항에서 가까운 숙소를 골라 보세요. | No spot fits in the time left. Try other categories or a stay closer to the airport. | 没有能放进剩余时间的地点。请更换类别或选择离机场更近的住宿。 | 残り時間に収まるスポットがありません。カテゴリを変えるか、空港に近い宿泊先を選んでみてください。 | Không có địa điểm nào vừa với thời gian còn lại. Hãy đổi danh mục hoặc chọn chỗ nghỉ gần sân bay hơn. | **미검수** |
 | `course.autoBuild.note` | 레거시 변경 | A7 — 레거시 "OR-Tools 최적화…"를 실제 동작(카테고리별 탐욕 추천)에 맞게 변경 | 시간에 맞춰 자동 추천 · 카테고리마다 남은 시간에 들어가는 장소를 1곳씩 담아요 | Auto-picks to fit your time · adds one spot per category that fits the time left | 按时间自动推荐 · 每个类别添加一处能放进剩余时间的地点 | 時間に合わせて自動おすすめ・カテゴリごとに残り時間に収まるスポットを1件ずつ追加 | Tự động gợi ý theo thời gian · mỗi danh mục thêm 1 địa điểm vừa với thời gian còn lại | **미검수** |
 | `course.header.terminal` | 추가 | 코스 지도 — 헤더 도착 터미널 | 인천 {{terminal}} | Incheon {{terminal}} | 仁川 {{terminal}} | 仁川 {{terminal}} | Incheon {{terminal}} | **미검수** |
 | `course.header.title` | 추가 | 코스 지도 — 헤더 제목 | 내 코스 | My course | 我的路线 | マイコース | Lộ trình của tôi | **미검수** |
@@ -45,3 +46,11 @@
 | `timeSafe.security.notLive` | 추가 | 4단계 T2 연동 — 실시간 대기를 못 받은 경우(탑승동·조회 실패) | 출국장 실시간 아님 · 예상치 사용 | No live security data · using estimate | 无出境大厅实时数据 · 使用预估值 | 出国場のリアルタイム情報なし・予想値を使用 | Không có dữ liệu an ninh trực tiếp · dùng ước tính | **미검수** |
 | `timeSafe.warning.departBeforeArrival` | 추가 | 4단계 Time-Safe — 출발이 도착보다 빠름 경고 | 연결편 출발이 도착보다 빨라요. 항공편을 확인해주세요. | Your connecting flight departs before you arrive. Please check your flights. | 连接航班的出发时间早于到达时间。请确认航班。 | 乗継便の出発が到着より早くなっています。フライトをご確認ください。 | Chuyến bay nối chuyến khởi hành trước khi bạn đến. Vui lòng kiểm tra chuyến bay. | **미검수** |
 | `timeSafe.warning.over24h` | 추가 | 4단계 Time-Safe — 24시간 초과 경고 | 도착부터 출발까지 24시간이 넘어요. 항공편 날짜를 확인해주세요. | More than 24 hours between arrival and departure. Please check your flight dates. | 从到达到出发超过24小时。请确认航班日期。 | 到着から出発まで24時間を超えています。フライトの日付をご確認ください。 | Từ lúc đến đến lúc khởi hành hơn 24 giờ. Vui lòng kiểm tra ngày bay. | **미검수** |
+
+## 삭제한 레거시 키 (검수 대상 아님)
+| 키 | 사유 |
+|---|---|
+| `confirm.alertOn` | 알림 기능 없음 — 예약 확인의 "알림 ON" 삭제 |
+| `course.step.return.sub` | 알림 기능 없음 — "Time-Safe 알림 · 여유 30분" 삭제, 일정 복귀 줄은 course.step.return.target |
+| `my.menu.timeSafeAlerts` | 알림 기능 없음 — 마이의 "Time-Safe 알림" 토글 삭제 |
+| `timeSafe.pushScheduled` | 알림 기능 없음 — "복귀 30분 전 푸시 알림 예약됨" 삭제(2026-10-16 사용자 지시) |
