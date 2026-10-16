@@ -267,6 +267,7 @@
   },
   "timeSafe": {
     "arrive": "도착",
+    "bufferBreakdown": "입국심사 {{immigration}}분 · 보안검색·출국심사 {{security}}분 · 게이트 여유 {{gate}}분 반영",
     "bufferNote": "수속 {{sec}}분 + 게이트마감 {{gate}}분 = 총 {{total}}분 버퍼 반영(숙소→공항 이동시간은 일단 제외)",
     "cannotGoOut": {
       "description": "연결편까지 수속·게이트 마감 시간을 빼면 밖에 나갔다 올 여유가 없어요. 공항 안에서 대기해주세요.",
@@ -282,7 +283,11 @@
     "pushScheduled": "복귀 30분 전 푸시 알림 예약됨",
     "returnBy": "복귀 추천",
     "returnRecommended": "공항 복귀 추천",
-    "totalConnection": "도착~출발 총 환승 시간 {{dur}}"
+    "totalConnection": "도착~출발 총 환승 시간 {{dur}}",
+    "warning": {
+      "departBeforeArrival": "연결편 출발이 도착보다 빨라요. 항공편을 확인해주세요.",
+      "over24h": "도착부터 출발까지 24시간이 넘어요. 항공편 날짜를 확인해주세요."
+    }
   },
   "unit": {
     "hourRange": "{{a}}–{{b}}시간",

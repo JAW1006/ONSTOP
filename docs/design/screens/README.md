@@ -8,7 +8,7 @@
 | 순서 | 화면 | 명세 | 레거시 컴포넌트 | 라우트(안) | 상태 |
 |---|---|---|---|---|---|
 | 0 | 앱 골격(프레임·탭바·라우트) | [app-shell](app-shell.md) | `App`, `Nav` | 전체 | 완료(3단계) |
-| 1 | Time-Safe(온보딩 3단계) | — | `Onboarding` step 0–2 | `/onboarding` | 대기 |
+| 1 | Time-Safe(온보딩 3단계) | [time-safe](time-safe.md) | `Onboarding` step 0–2 | `/onboarding` | 완료 — [비교 기록](../../results/2026-10-16-time-safe-screen.md) |
 | 2 | 홈 | — | `HomeScreen`, `FlightNotice` | `/` | 대기 |
 | 3 | 코스 지도 | — | `Course`, `CourseMap`, `SavedCourseScreen` | `/course`, `/course/saved` | 대기 |
 | 4 | 데이유즈 예약 | — | `Booking`, `Confirm` | `/booking/:roomId`, `/bookings` | 대기 |

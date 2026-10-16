@@ -16,13 +16,21 @@ const flat = Object.fromEntries(
 ) as Record<string, Record<string, string>>;
 const koKeys = Object.keys(flat.ko!).sort();
 
+// 레거시 이후 추가한 키 — 추가할 때 여기와 docs/results(i18n) 기록을 함께 갱신
+const ADDED_KEYS = [
+  "common.back",
+  "timeSafe.bufferBreakdown",
+  "timeSafe.warning.departBeforeArrival",
+  "timeSafe.warning.over24h",
+].sort();
+
 describe("locales", () => {
   it("레거시 190개 문구 + 3단계 이후 추가 키", () => {
     const table = fs.readFileSync("docs/design/i18n-keys.md", "utf8");
     const legacyKeys = [...table.matchAll(/^\| `[\w.]+` \| `([\w.]+)` \|/gm)].map((m) => m[1]!);
     expect(legacyKeys).toHaveLength(190);
     expect(koKeys).toEqual(expect.arrayContaining(legacyKeys));
-    expect(koKeys.filter((k) => !legacyKeys.includes(k))).toEqual(["common.back"]);
+    expect(koKeys.filter((k) => !legacyKeys.includes(k)).sort()).toEqual(ADDED_KEYS);
   });
 
   it.each(LANGUAGE_CODES)("%s: 키 집합이 ko와 같다", (lang) => {

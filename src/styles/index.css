@@ -53,6 +53,12 @@
   --color-disabled: var(--ts-disabled);
   --color-ad-bg: var(--ts-ad-bg);
   --color-ad-border: var(--ts-ad-border);
+  --color-on-dark: var(--ts-on-dark);
+  --color-on-dark-sub: var(--ts-on-dark-sub);
+  --color-on-dark-muted: var(--ts-on-dark-muted);
+  --color-on-dark-danger: var(--ts-on-dark-danger);
+  --color-on-dark-danger-sub: var(--ts-on-dark-danger-sub);
+  --color-on-dark-danger-bg: var(--ts-on-dark-danger-bg);
 
   --radius-sm: var(--ts-radius-sm);
   --radius-md: var(--ts-radius-md);
@@ -60,6 +66,7 @@
   --radius-xl: var(--ts-radius-xl);
   --radius-2xl: var(--ts-radius-sheet);
   --radius-3xl: var(--ts-radius-hero);
+  --radius-panel: var(--ts-radius-panel);
 
   --shadow-card: var(--ts-shadow-card);
   --shadow-primary: var(--ts-shadow-primary);

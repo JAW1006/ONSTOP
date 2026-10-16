@@ -1,11 +1,10 @@
 // @vitest-environment jsdom
-import { cleanup, render, screen } from "@testing-library/react";
+import { cleanup, screen } from "@testing-library/react";
 import { afterEach, beforeEach, describe, expect, it } from "vitest";
-import { createMemoryRouter, RouterProvider } from "react-router";
 import i18n from "@/i18n";
-import { routes } from "@/app/router";
+import { renderApp } from "@/test/render-app";
 
-const renderAt = (path: string) => render(<RouterProvider router={createMemoryRouter(routes, { initialEntries: [path] })} />);
+const renderAt = (path: string, onboarded = true) => renderApp(path, { onboarded });
 const current = () => screen.getAllByRole("link").filter((a) => a.getAttribute("aria-current") === "page").map((a) => a.textContent);
 
 describe("TabBar", () => {
@@ -33,6 +32,12 @@ describe("TabBar", () => {
   it("온보딩에서는 탭바가 없다", () => {
     renderAt("/onboarding");
     expect(screen.queryByRole("navigation")).toBeNull();
+  });
+
+  it("온보딩 전에는 탭 화면에 들어가면 온보딩으로 보낸다", () => {
+    renderAt("/my", false);
+    expect(screen.queryByRole("navigation")).toBeNull();
+    expect(screen.getByRole("heading", { name: "Choose your language" })).toBeTruthy();
   });
 
   it("언어를 바꾸면 탭 이름이 바뀐다", async () => {

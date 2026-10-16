@@ -25,6 +25,13 @@
 - 데이터 이름(숙소·장소명·지역명)은 UI 문구가 아니라 데이터라 4단계에서 데이터 파일로 옮긴다.
 - 복수형(예: "{{n}} bookings")은 레거시처럼 처리하지 않았다. 필요하면 i18next plural 키로 바꾼다.
 
+## 이후 추가한 키
+| 키 | 추가 단계 | 번역 |
+|---|---|---|
+| `common.back` | 3단계(뒤로 버튼 aria-label) | ko/en 확인, zh·ja·vi 미검수 |
+| `timeSafe.bufferBreakdown` | 4단계 Time-Safe | ko/en 확인, zh·ja·vi 미검수 |
+| `timeSafe.warning.over24h`, `timeSafe.warning.departBeforeArrival` | 4단계 Time-Safe | ko/en 확인, zh·ja·vi 미검수 |
+
 ## 다음 할 일
 - [ ] 3단계 컴포넌트·탭바부터 `t()` 사용
 - [ ] A7·요약 문구 결정 시 5개 언어 JSON을 함께 수정(이후 추출 스크립트는 다시 돌리지 않는다)

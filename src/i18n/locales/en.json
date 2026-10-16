@@ -267,6 +267,7 @@
   },
   "timeSafe": {
     "arrive": "Arrive",
+    "bufferBreakdown": "Includes immigration {{immigration}} min · security & exit check {{security}} min · gate margin {{gate}} min",
     "bufferNote": "{{sec}}min security + {{gate}}min gate cutoff = {{total}}min buffer applied (stay→airport travel time excluded for now)",
     "cannotGoOut": {
       "description": "After security and gate cutoff time, there's no time left to leave and come back. Please stay inside the airport.",
@@ -282,7 +283,11 @@
     "pushScheduled": "Push alert scheduled 30 min before return",
     "returnBy": "Return by",
     "returnRecommended": "Recommended return",
-    "totalConnection": "Total connection time {{dur}} (arrival to departure)"
+    "totalConnection": "Total connection time {{dur}} (arrival to departure)",
+    "warning": {
+      "departBeforeArrival": "Your connecting flight departs before you arrive. Please check your flights.",
+      "over24h": "More than 24 hours between arrival and departure. Please check your flight dates."
+    }
   },
   "unit": {
     "hourRange": "{{a}}–{{b}} hrs",

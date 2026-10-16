@@ -267,6 +267,7 @@
   },
   "timeSafe": {
     "arrive": "到达",
+    "bufferBreakdown": "已计入入境审查{{immigration}}分钟 · 安检·出境审查{{security}}分钟 · 登机口预留{{gate}}分钟",
     "bufferNote": "安检{{sec}}分钟 + 登机截止{{gate}}分钟 = 共{{total}}分钟缓冲(暂不含住宿→机场移动时间)",
     "cannotGoOut": {
       "description": "扣除安检和登机截止时间后,已没有足够时间外出往返。请在机场内等候。",
@@ -282,7 +283,11 @@
     "pushScheduled": "已设置返回前30分钟推送提醒",
     "returnBy": "建议返回",
     "returnRecommended": "建议返回机场",
-    "totalConnection": "从到达到出发的总中转时间 {{dur}}"
+    "totalConnection": "从到达到出发的总中转时间 {{dur}}",
+    "warning": {
+      "departBeforeArrival": "连接航班的出发时间早于到达时间。请确认航班。",
+      "over24h": "从到达到出发超过24小时。请确认航班日期。"
+    }
   },
   "unit": {
     "hourRange": "{{a}}–{{b}}小时",

@@ -34,6 +34,14 @@
   --ts-ad-border: #f5d089;
   --ts-overlay: rgb(16 24 38 / 0.45);
 
+  /* ---- color: ink(어두운) 배경 위 글자 — Time-Safe 결과 카드, 항공편 배너 ---- */
+  --ts-on-dark: #cfe0f5;
+  --ts-on-dark-sub: #bfd3f0;
+  --ts-on-dark-muted: #9fb6d4;
+  --ts-on-dark-danger: #ff8a8a;
+  --ts-on-dark-danger-sub: #f0c7c7;
+  --ts-on-dark-danger-bg: rgb(226 59 59 / 0.16);
+
   /* ---- color: category (CAT_META) ---- */
   --ts-cat-food: var(--ts-gold);
   --ts-cat-massage: var(--ts-lime);
@@ -53,6 +61,7 @@
   --ts-radius-xl: 18px;
   --ts-radius-sheet: 20px;
   --ts-radius-hero: 22px;
+  --ts-radius-panel: 26px; /* 온보딩 본문 패널 상단 */
   --ts-radius-pill: 999px;
 
   /* ---- shadow ---- */

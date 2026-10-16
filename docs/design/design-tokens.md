@@ -41,6 +41,15 @@ Tailwind 유틸리티 이름은 3열(`bg-primary`, `text-ink` …).
 | `--ts-ad-bg` / `--ts-ad-border` | `#FFF3DC` / `#F5D089` | `ad-bg` / `ad-border` | 제휴 AD 배지 |
 | `--ts-overlay` | `rgb(16 24 38 / .45)` | — | 바텀시트 딤 |
 
+## 색 — 어두운(ink) 배경 위 (4단계 추가, 레거시 인라인 값)
+| 토큰 | 값 | Tailwind | 쓰임 |
+|---|---|---|---|
+| `--ts-on-dark` | `#CFE0F5` | `on-dark` | 결과 카드 본문 |
+| `--ts-on-dark-sub` | `#BFD3F0` | `on-dark-sub` | 카드 머리줄 |
+| `--ts-on-dark-muted` | `#9FB6D4` | `on-dark-muted` | 항공편 줄, 안내 |
+| `--ts-on-dark-danger` / `-sub` | `#FF8A8A` / `#F0C7C7` | `on-dark-danger` / `-sub` | 외출 불가 제목 / 설명 |
+| `--ts-on-dark-danger-bg` | `rgb(226 59 59 / .16)` | `on-dark-danger-bg` | 외출 불가 박스 |
+
 ## 색 — 카테고리 (`CAT_META`)
 | 카테고리 | 토큰 | 값 |
 |---|---|---|
@@ -68,6 +77,7 @@ Tailwind 유틸리티 이름은 3열(`bg-primary`, `text-ink` …).
 | `--ts-radius-xl` | 18px | `rounded-xl` | 카드 |
 | `--ts-radius-sheet` | 20px | `rounded-2xl` | 바텀시트 상단 |
 | `--ts-radius-hero` | 22px | `rounded-3xl` | 홈 헤더 하단 |
+| `--ts-radius-panel` | 26px | `rounded-t-panel` | 온보딩 본문 패널 상단 |
 | `--ts-radius-pill` | 999px | `rounded-full` | 칩, 배지 |
 
 ## 그림자
@@ -116,3 +126,4 @@ Tailwind 유틸리티 이름은 3열(`bg-primary`, `text-ink` …).
 |---|---|
 | 2026-10-16 | 레거시에서 추출해 초안 작성 |
 | 2026-10-16 | 3단계: 타이포 8단계 스케일 적용, 폰 프레임 토큰 추가 |
+| 2026-10-16 | 4단계 Time-Safe: 어두운 배경 글자색 6개, 패널 반경 추가 |

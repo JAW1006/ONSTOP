@@ -7,15 +7,16 @@
 |---|---|---|
 | 1 | 프로젝트 세팅 + docs 뼈대 + 토큰 + CLAUDE.md | 완료 |
 | 2 | domain 이식 + formulas md + Vitest | 완료 |
-| 3 | 공통 UI 컴포넌트 + 탭바 (+ 직전: i18n JSON 추출) | 완료 — 확인 대기 |
-| 4 | 화면 이식 (Time-Safe → 홈 → 코스 지도 → 예약 → 짐 케어/마이) | 대기 |
+| 3 | 공통 UI 컴포넌트 + 탭바 (+ 직전: i18n JSON 추출) | 완료 |
+| 4 | 화면 이식 (Time-Safe → 홈 → 코스 지도 → 예약 → 짐 케어/마이) | 진행 중 — Time-Safe 완료 |
 | 5 | 레거시 비교 검증 후 `legacy/`로 이동 | 대기 |
 
 ## 브랜치·배포
 | 항목 | 상태 |
 |---|---|
 | 작업 브랜치 | `migration/react-ts` (main 금지 — Render 자동 배포) |
-| push | **실패: `jinhob1006` 계정에 `JAW1006/ONSTOP` 쓰기 권한 없음(403)**. 권한 부여 또는 계정 전환 후 push |
+| push | **보류**(사용자가 권한 해결할 때까지). `jinhob1006` 계정에 `JAW1006/ONSTOP` 쓰기 권한 없음(403) |
+| 백업 | git bundle: `C:UsersOpenLinkONSTOP-backuponstop-migration-react-ts-2026-10-16.bundle` (`migration/react-ts` + `main`, 전체 이력). 복원: `git clone -b migration/react-ts <bundle> <폴더>` |
 
 ## 결정됨
 | # | 결정 | 공식 | 적용 |
@@ -38,6 +39,8 @@
 | A13 | 브랜드 컬러: 앱(Blue/Gold) vs 로고 README(Teal/Coral) | [design-tokens](design/design-tokens.md) |
 | 수수료 | 수수료 계산 기준·반올림 | [dayuse-pricing](formulas/dayuse-pricing.md) |
 | API 형식 | 공항 API `scheduleDateTime`에 날짜 포함 여부 — **사용자 로그 대기**, 받으면 `docs/api/`에 기록. 그 전까지 날짜 처리 미검증 | [api/incheon-flights](api/incheon-flights.md) |
+| 신규 문구 번역 | 레거시 이후 추가한 키(`common.back`, `timeSafe.bufferBreakdown`, `timeSafe.warning.*`)의 zh·ja·vi 번역 **미검수** | [i18n 결과](results/2026-10-16-i18n-extraction.md) |
+| 외출 불가 CTA | 외출 불가여도 "스마트 코스 추천" 버튼이 활성(레거시와 같음) — 막을지 | [time-safe 비교](results/2026-10-16-time-safe-screen.md) |
 | 입국 실시간 | 입국장 대기인원 → 분 환산(창구 수·처리량 가정 필요). 근거 확보 전 보류 권장 | [조사](results/2026-10-16-arrival-wait-data.md) |
 
 ## 자료 갱신 필요

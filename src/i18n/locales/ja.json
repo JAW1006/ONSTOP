@@ -267,6 +267,7 @@
   },
   "timeSafe": {
     "arrive": "到着",
+    "bufferBreakdown": "入国審査{{immigration}}分・保安検査・出国審査{{security}}分・ゲート余裕{{gate}}分を反映",
     "bufferNote": "保安検査{{sec}}分+搭乗締切{{gate}}分=合計{{total}}分のバッファを反映(宿泊先→空港の移動時間は今は含みません)",
     "cannotGoOut": {
       "description": "保安検査と搭乗締切の時間を引くと、外出して戻ってくる余裕がありません。空港内でお待ちください。",
@@ -282,7 +283,11 @@
     "pushScheduled": "復帰30分前にプッシュ通知を予約済み",
     "returnBy": "復帰推奨",
     "returnRecommended": "空港復帰推奨",
-    "totalConnection": "到着〜出発の総乗継時間 {{dur}}"
+    "totalConnection": "到着〜出発の総乗継時間 {{dur}}",
+    "warning": {
+      "departBeforeArrival": "乗継便の出発が到着より早くなっています。フライトをご確認ください。",
+      "over24h": "到着から出発まで24時間を超えています。フライトの日付をご確認ください。"
+    }
   },
   "unit": {
     "hourRange": "{{a}}–{{b}}時間",

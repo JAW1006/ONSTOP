@@ -3,6 +3,7 @@ import { PhoneFrame } from "@/app/PhoneFrame";
 import { PlaceholderPage } from "@/app/PlaceholderPage";
 import { TabLayout } from "@/app/TabLayout";
 import { UiShowcase } from "@/app/UiShowcase";
+import { OnboardingScreen } from "@/features/time-safe/OnboardingScreen";
 
 // 라우트 표: docs/design/screens/app-shell.md. 자리 화면은 4단계에서 features/* 화면으로 교체.
 export const routes: RouteObject[] = [
@@ -10,14 +11,7 @@ export const routes: RouteObject[] = [
     path: "/",
     element: <PhoneFrame />,
     children: [
-      {
-        path: "onboarding",
-        element: (
-          <div className="absolute inset-0 overflow-y-auto">
-            <PlaceholderPage titleKey="onboarding.language.title" />
-          </div>
-        ),
-      },
+      { path: "onboarding", element: <OnboardingScreen /> },
       {
         element: <TabLayout />,
         children: [

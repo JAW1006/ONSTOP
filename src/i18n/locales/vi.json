@@ -267,6 +267,7 @@
   },
   "timeSafe": {
     "arrive": "Đến",
+    "bufferBreakdown": "Đã tính nhập cảnh {{immigration}} phút · an ninh & xuất cảnh {{security}} phút · dự phòng cửa ra máy bay {{gate}} phút",
     "bufferNote": "An ninh {{sec}} phút + đóng cửa lên máy bay {{gate}} phút = tổng đệm {{total}} phút (chưa gồm thời gian di chuyển từ chỗ nghỉ ra sân bay)",
     "cannotGoOut": {
       "description": "Sau khi trừ thời gian an ninh và đóng cửa lên máy bay, bạn không còn đủ thời gian ra ngoài rồi quay lại. Vui lòng chờ trong sân bay.",
@@ -282,7 +283,11 @@
     "pushScheduled": "Đã đặt thông báo đẩy 30 phút trước khi quay lại",
     "returnBy": "Nên quay lại",
     "returnRecommended": "Đề xuất quay lại sân bay",
-    "totalConnection": "Tổng thời gian quá cảnh {{dur}} (từ lúc đến đến lúc khởi hành)"
+    "totalConnection": "Tổng thời gian quá cảnh {{dur}} (từ lúc đến đến lúc khởi hành)",
+    "warning": {
+      "departBeforeArrival": "Chuyến bay nối chuyến khởi hành trước khi bạn đến. Vui lòng kiểm tra chuyến bay.",
+      "over24h": "Từ lúc đến đến lúc khởi hành hơn 24 giờ. Vui lòng kiểm tra ngày bay."
+    }
   },
   "unit": {
     "hourRange": "{{a}}–{{b}} giờ",
