@@ -284,6 +284,10 @@
     "pushScheduled": "Push alert scheduled 30 min before return",
     "returnBy": "Return by",
     "returnRecommended": "Recommended return",
+    "security": {
+      "live": "Live security wait checked ({{terminal}}) · now ~{{n}} min",
+      "notLive": "No live security data · using estimate"
+    },
     "totalConnection": "Total connection time {{dur}} (arrival to departure)",
     "warning": {
       "departBeforeArrival": "Your connecting flight departs before you arrive. Please check your flights.",

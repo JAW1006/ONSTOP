@@ -11,14 +11,17 @@ export const LAYOVER_BUDGET = 360;
 // 버퍼 3요소 구조는 확정(2026-10-16). 값은 미검증 — 보수적 기본값 50/50/30, 근거 확인 후 갱신(docs/STATUS.md "A1-값").
 /** ① 입국심사(도착 후, 짐 찾기 포함, 분) — 기획서 50분, 미검증 */
 export const ARRIVAL_IMMIGRATION_MIN = 50;
-/** ② 출국 보안검색·출국심사(공항 복귀 후, 분) — 레거시 코드 50분, 미검증. T1 실시간 대기의 하한 */
+/** ② 출국 보안검색·출국심사(공항 복귀 후, 분) — 레거시 코드 50분, 미검증. T1·T2 실시간 대기의 하한 */
 export const DEPARTURE_SECURITY_MIN = 50;
 /** ③ 게이트 여유(분) — 레거시 코드 30분("출발 20분 전 탑승 마감 + 여유"), 미검증 */
 export const GATE_MARGIN_MIN = 30;
 /** 외출 가능 시간이 이보다 적으면 외출 불가(분) */
 export const MIN_STAY = 60;
-/** 출국장 실시간 대기시간을 제공하는 터미널 코드(제1터미널) */
-export const LIVE_SECURITY_TERMINAL = "P01";
+/**
+ * 출국장 실시간 대기시간을 제공하는 터미널 코드 → 표시 이름. P01 = 제1터미널(statusOfDepartureCongestion),
+ * P03 = 제2터미널(statusOfDepartureCongestionT2). P02(탑승동)는 실시간 미적용 — docs/STATUS.md 결정 필요
+ */
+export const LIVE_SECURITY_TERMINALS: Readonly<Record<string, "T1" | "T2">> = { P01: "T1", P03: "T2" };
 /** 온보딩 이후 항공편 재조회 주기 */
 export const FLIGHT_POLL_INTERVAL_MS = 120_000;
 

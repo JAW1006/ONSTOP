@@ -18,5 +18,13 @@
   "onboarding.flights.cannotGoOutHint": {
     "stage": "4단계 Time-Safe — 외출 불가 시 CTA 비활성 이유",
     "reviewed": false
+  },
+  "timeSafe.security.live": {
+    "stage": "4단계 T2 연동 — 홈 버퍼 줄의 출국장 실시간 배지(터미널·현재 대기)",
+    "reviewed": false
+  },
+  "timeSafe.security.notLive": {
+    "stage": "4단계 T2 연동 — 실시간 대기를 못 받은 경우(탑승동·조회 실패)",
+    "reviewed": false
   }
 }

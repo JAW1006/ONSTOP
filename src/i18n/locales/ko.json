@@ -284,6 +284,10 @@
     "pushScheduled": "복귀 30분 전 푸시 알림 예약됨",
     "returnBy": "복귀 추천",
     "returnRecommended": "공항 복귀 추천",
+    "security": {
+      "live": "출국장 실시간 확인({{terminal}}) · 현재 대기 약 {{n}}분",
+      "notLive": "출국장 실시간 아님 · 예상치 사용"
+    },
     "totalConnection": "도착~출발 총 환승 시간 {{dur}}",
     "warning": {
       "departBeforeArrival": "연결편 출발이 도착보다 빨라요. 항공편을 확인해주세요.",

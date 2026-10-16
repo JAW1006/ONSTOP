@@ -4,7 +4,7 @@ import {
   DEPARTURE_SECURITY_MIN,
   GATE_MARGIN_MIN,
   LAYOVER_BUDGET,
-  LIVE_SECURITY_TERMINAL,
+  LIVE_SECURITY_TERMINALS,
   MIN_STAY,
   MINUTES_PER_DAY,
 } from "./constants";
@@ -95,15 +95,15 @@ export const DEFAULT_BUFFERS: TimeSafeBuffers = {
 };
 
 /**
- * ② 보안검색·출국심사: 기준값을 하한으로 두고, 연결편이 T1이고 실시간 값이 있으면 더 큰 쪽을 쓴다.
- * 실시간 값은 조회 시점의 T1 전체 게이트 평균이라 실제 게이트·복귀 시점 값이 아니다(time-safe.md 엣지 케이스).
+ * ② 보안검색·출국심사: 기준값을 하한으로 두고, 연결편이 T1·T2이고 실시간 값이 있으면 더 큰 쪽을 쓴다.
+ * 실시간 값은 조회 시점의 그 터미널 전체 게이트 평균이라 실제 게이트·복귀 시점 값이 아니다(time-safe.md 엣지 케이스).
  */
 export function securityBufferMin(
   departureTerminal: string | null,
   liveWaitMin: number | null,
   baseMin: number = DEPARTURE_SECURITY_MIN,
 ): number {
-  if (departureTerminal !== LIVE_SECURITY_TERMINAL || liveWaitMin == null) return baseMin;
+  if (!liveSecurityTerminal(departureTerminal) || liveWaitMin == null) return baseMin;
   return Math.max(baseMin, liveWaitMin);
 }
 
@@ -113,7 +113,12 @@ export function isLiveSecurityApplied(
   liveWaitMin: number | null,
   baseMin: number = DEPARTURE_SECURITY_MIN,
 ): boolean {
-  return departureTerminal === LIVE_SECURITY_TERMINAL && liveWaitMin != null && liveWaitMin > baseMin;
+  return !!liveSecurityTerminal(departureTerminal) && liveWaitMin != null && liveWaitMin > baseMin;
+}
+
+/** 연결편 터미널이 실시간 출국장 대기를 제공하면 "T1"/"T2", 아니면 null */
+export function liveSecurityTerminal(departureTerminal: string | null): "T1" | "T2" | null {
+  return (departureTerminal && LIVE_SECURITY_TERMINALS[departureTerminal]) || null;
 }
 
 export interface TimeSafeInput {

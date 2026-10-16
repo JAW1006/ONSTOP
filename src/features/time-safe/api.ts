@@ -45,10 +45,12 @@ export async function fetchDeparture(flightId: string, apiLang: string): Promise
   return flight;
 }
 
-/** T1 출국장 전체 게이트 평균 대기(분). 실패·데이터 없음이면 null(→ 기준값 사용) */
-export async function fetchSecurityWaitMin(): Promise<number | null> {
+const SECURITY_WAIT_PATH = { T1: "/api/security-wait", T2: "/api/security-wait/t2" } as const;
+
+/** 터미널 출국장 전체 게이트 평균 대기(분). 실패·데이터 없음이면 null(→ 기준값 사용) */
+export async function fetchSecurityWaitMin(terminal: "T1" | "T2"): Promise<number | null> {
   try {
-    const res = await fetch("/api/security-wait");
+    const res = await fetch(SECURITY_WAIT_PATH[terminal]);
     if (!res.ok) return null;
     const data = (await res.json()) as { gates?: { waitTimeMin: number }[] };
     return averageSecurityWaitMin(data.gates ?? []);

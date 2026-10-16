@@ -284,6 +284,10 @@
     "pushScheduled": "Đã đặt thông báo đẩy 30 phút trước khi quay lại",
     "returnBy": "Nên quay lại",
     "returnRecommended": "Đề xuất quay lại sân bay",
+    "security": {
+      "live": "Đã kiểm tra thời gian chờ an ninh trực tiếp ({{terminal}}) · hiện khoảng {{n}} phút",
+      "notLive": "Không có dữ liệu an ninh trực tiếp · dùng ước tính"
+    },
     "totalConnection": "Tổng thời gian quá cảnh {{dur}} (từ lúc đến đến lúc khởi hành)",
     "warning": {
       "departBeforeArrival": "Chuyến bay nối chuyến khởi hành trước khi bạn đến. Vui lòng kiểm tra chuyến bay.",

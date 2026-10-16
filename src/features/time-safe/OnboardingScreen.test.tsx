@@ -113,7 +113,7 @@ describe("항공편 조회 + Time-Safe", () => {
     expect(card().textContent).toContain("security & exit check ~65 min");
   });
 
-  it("T2 연결편은 출국장 대기를 조회하지 않는다", async () => {
+  it("탑승동(P02) 연결편은 출국장 대기를 조회하지 않는다", async () => {
     renderApp("/onboarding?step=2");
     await lookUp(ARR, "KE085");
     await lookUp(DEP, "MU2043");

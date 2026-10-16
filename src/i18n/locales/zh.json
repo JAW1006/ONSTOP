@@ -284,6 +284,10 @@
     "pushScheduled": "已设置返回前30分钟推送提醒",
     "returnBy": "建议返回",
     "returnRecommended": "建议返回机场",
+    "security": {
+      "live": "已查看出境大厅实时等待（{{terminal}}）· 当前约{{n}}分钟",
+      "notLive": "无出境大厅实时数据 · 使用预估值"
+    },
     "totalConnection": "从到达到出发的总中转时间 {{dur}}",
     "warning": {
       "departBeforeArrival": "连接航班的出发时间早于到达时间。请确认航班。",

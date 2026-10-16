@@ -284,6 +284,10 @@
     "pushScheduled": "復帰30分前にプッシュ通知を予約済み",
     "returnBy": "復帰推奨",
     "returnRecommended": "空港復帰推奨",
+    "security": {
+      "live": "出国場リアルタイム確認（{{terminal}}）・現在 約{{n}}分",
+      "notLive": "出国場のリアルタイム情報なし・予想値を使用"
+    },
     "totalConnection": "到着〜出発の総乗継時間 {{dur}}",
     "warning": {
       "departBeforeArrival": "乗継便の出発が到着より早くなっています。フライトをご確認ください。",

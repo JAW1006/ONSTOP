@@ -15,7 +15,7 @@ export function TimeSafeSummaryCard() {
   const { t } = useTranslation();
   const fmt = useTimeFormat();
   const { arrivalFlightId } = useTrip();
-  const { arrival, departure, connection, result, refetchAll, isRefetching, liveSecurityApplied } = useTimeSafe();
+  const { arrival, departure, connection, result, refetchAll, isRefetching, liveSecurity } = useTimeSafe();
   const live = !!arrival.data;
   const arriveMin = connection?.arriveMin ?? DEFAULT_ARRIVE;
 
@@ -84,7 +84,12 @@ export function TimeSafeSummaryCard() {
                 security: result.securityMin,
                 gate: result.gateMarginMin,
               })}
-              {liveSecurityApplied && <span className="ml-1 font-bold text-blue">· {t("timeSafe.liveSecurityWait")}</span>}
+              <span className={cn("ml-1 font-bold", liveSecurity.terminal ? "text-blue" : "text-sub")}>
+                ·{" "}
+                {liveSecurity.terminal
+                  ? t("timeSafe.security.live", { terminal: liveSecurity.terminal, n: liveSecurity.waitMin })
+                  : t("timeSafe.security.notLive")}
+              </span>
             </p>
           )}
         </>

@@ -15,12 +15,14 @@
 | 항목 | 상태 |
 |---|---|
 | 작업 브랜치 | `migration/react-ts` (main 금지 — Render 자동 배포) |
-| push | **보류**(사용자가 권한 해결할 때까지). `jinhob1006` 계정에 `JAW1006/ONSTOP` 쓰기 권한 없음(403) |
+| push | 가능 — 이 저장소만 `credential.https://github.com.username = JAW1006`(로컬 설정). `main`에는 올리지 않음 |
 | 백업 | git bundle: `C:UsersOpenLinkONSTOP-backuponstop-migration-react-ts-2026-10-16.bundle` (`migration/react-ts` + `main`, 전체 이력). 복원: `git clone -b migration/react-ts <bundle> <폴더>` |
 
 ## 결정됨
 | # | 결정 | 공식 | 적용 |
 |---|---|---|---|
+| T2 | 출국장 실시간 대기를 T1·T2 모두(`/api/security-wait/t2` 추가), 홈 배지는 터미널 기준 "T1/T2 실시간 확인 · 현재 N분" 또는 "실시간 아님" | [time-safe](formulas/time-safe.md), [api/incheon-congestion](api/incheon-congestion.md) | 적용 |
+| API 형식 | 항공편 시각은 `HHMM`만(날짜 없음) — 2026-10-16 실제 호출로 확인. A2 날짜 경로·24h 경고는 현재 API로는 쓰이지 않음 | [api/incheon-flights](api/incheon-flights.md) | 확인 |
 | A2 | 자정 넘김: 날짜 우선, 없으면 출발 < 도착이면 익일, 24h 초과 경고 | [time-safe](formulas/time-safe.md) | 적용 (날짜 경로는 API 미검증) |
 | A3 | T1 출국 실시간 대기: `max(기준값, 실시간)` | [time-safe](formulas/time-safe.md) | 적용 |
 | A1 | 버퍼 3요소 구조 확정(입국심사 / 출국 보안검색·출국심사 / 게이트 여유), 기본값 50/50/30 | [time-safe](formulas/time-safe.md) | 적용 — **값은 미검증** |
@@ -40,9 +42,16 @@
 | A10 | 예약 화면 체크인 계산이 실측이 아닌 정적 이동시간 사용 | [dayuse-pricing](formulas/dayuse-pricing.md) |
 | A13 | 브랜드 컬러: 앱(Blue/Gold) vs 로고 README(Teal/Coral) | [design-tokens](design/design-tokens.md) |
 | 수수료 | 수수료 계산 기준·반올림 | [dayuse-pricing](formulas/dayuse-pricing.md) |
-| API 형식 | 공항 API `scheduleDateTime`에 날짜 포함 여부 — **사용자 로그 대기**, 받으면 `docs/api/`에 기록. 그 전까지 날짜 처리 미검증 | [api/incheon-flights](api/incheon-flights.md) |
+| 탑승동(P02) | 탑승동 출발편(실제 출발편의 약 15%)에 T1 출국장 실시간 대기를 적용할지. 지금은 미적용(기준값) | [api/incheon-flights](api/incheon-flights.md), [time-safe](formulas/time-safe.md) |
 | 신규 문구 번역 | 레거시 이후 추가한 키 5개 **미검수**(ko 원문·en·zh·ja·vi 한 표) | [i18n-review](design/i18n-review.md) |
 | 입국 실시간 | 입국장 대기인원 → 분 환산(창구 수·처리량 가정 필요). 근거 확보 전 보류 권장 | [조사](results/2026-10-16-arrival-wait-data.md) |
+
+## 사용자 조치 필요
+| # | 내용 |
+|---|---|
+| 카카오맵 제품 | 카카오 앱 "모빌리티"에 **카카오맵 제품이 꺼져 있어** 로컬 검색(`/api/places*`, 코스 지도 주변 가게)이 403. 같은 앱 JavaScript 키로 띄우는 지도도 같은 이유로 실패할 수 있음 → Kakao Developers > 앱 > 제품 설정 > 카카오맵 활성화 |
+| 카카오맵 도메인 | 플랫폼 > Web에 `http://localhost:5173`(+ IP로 열면 `http://127.0.0.1:5173`) 등록 |
+| ODsay 키 | `server/.env`의 `ODSAY_API_KEY` 비어 있음 → 대중교통 구간은 자동차 경로로 대체됨 |
 
 ## 자료 갱신 필요
 | # | 내용 |

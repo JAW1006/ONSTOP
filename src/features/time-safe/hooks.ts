@@ -1,9 +1,9 @@
 import { useQuery } from "@tanstack/react-query";
 import { useTranslation } from "react-i18next";
 import { useTrip } from "@/app/trip-state";
-import { DEFAULT_ARRIVE, FLIGHT_POLL_INTERVAL_MS, LIVE_SECURITY_TERMINAL } from "@/domain/constants";
+import { DEFAULT_ARRIVE, FLIGHT_POLL_INTERVAL_MS } from "@/domain/constants";
 import { dayOffset, hhmm } from "@/domain/time";
-import { computeTimeSafe, isLiveSecurityApplied, resolveConnection } from "@/domain/time-safe";
+import { computeTimeSafe, isLiveSecurityApplied, liveSecurityTerminal, resolveConnection } from "@/domain/time-safe";
 import { AIRPORT_API_LANG, DEFAULT_LANGUAGE, LANGUAGE_CODES, type LanguageCode } from "@/i18n/languages";
 import { fetchArrival, fetchDeparture, fetchSecurityWaitMin } from "./api";
 
@@ -38,13 +38,14 @@ export function useDepartureLookup() {
   });
 }
 
-/** 연결편이 T1일 때만 출국장 실시간 대기 조회 */
+/** 연결편이 T1·T2일 때만 그 터미널 출국장 실시간 대기 조회 */
 export function useSecurityWait(departureTerminal: string | null) {
   const { onboarded } = useTrip();
+  const terminal = liveSecurityTerminal(departureTerminal);
   return useQuery({
-    queryKey: ["securityWait"],
-    queryFn: fetchSecurityWaitMin,
-    enabled: departureTerminal === LIVE_SECURITY_TERMINAL,
+    queryKey: ["securityWait", terminal],
+    queryFn: () => fetchSecurityWaitMin(terminal!),
+    enabled: !!terminal,
     retry: false,
     refetchInterval: onboarded ? FLIGHT_POLL_INTERVAL_MS : false,
   });
@@ -76,6 +77,8 @@ export function useTimeSafe() {
     isRefetching: arrival.isFetching || departure.isFetching || securityWait.isFetching,
     bothReady: !!arrival.data && !!departure.data && connection?.departMin != null,
     liveSecurityApplied: isLiveSecurityApplied(departureTerminal, liveSecurityWaitMin),
+    /** 배지용: 실시간 대기를 받은 터미널("T1"/"T2")과 그 평균. 못 받았으면 terminal null */
+    liveSecurity: { terminal: liveSecurityWaitMin != null ? liveSecurityTerminal(departureTerminal) : null, waitMin: liveSecurityWaitMin },
   };
 }
 

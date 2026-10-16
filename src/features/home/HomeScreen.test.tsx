@@ -9,6 +9,7 @@ type Flight = Record<string, string | null>;
 let arrivals: Record<string, Flight>;
 let departures: Record<string, Flight>;
 let securityGates: { waitTimeMin: number }[];
+let securityGatesT2: { waitTimeMin: number }[];
 
 const fetchMock = vi.fn(async (url: string) => {
   const u = new URL(url, "http://localhost");
@@ -17,6 +18,7 @@ const fetchMock = vi.fn(async (url: string) => {
   if (u.pathname === "/api/flight/arrival") return arrivals[id] ? json(200, { flights: [arrivals[id]] }) : json(404, {});
   if (u.pathname === "/api/flight/departure") return departures[id] ? json(200, { flights: [departures[id]] }) : json(404, {});
   if (u.pathname === "/api/security-wait") return json(200, { gates: securityGates });
+  if (u.pathname === "/api/security-wait/t2") return json(200, { gates: securityGatesT2 });
   return json(500, {});
 });
 
@@ -28,9 +30,11 @@ beforeEach(async () => {
   departures = {
     MU2043: { flightId: "MU2043", airline: "China Eastern", toAirport: "Qingdao", scheduleDateTime: "1451", estimatedDateTime: "1451", terminal: "P02", gate: "129", remark: null },
     SOON1: { flightId: "SOON1", airline: "Soon Air", toAirport: "Osaka", scheduleDateTime: "1250", estimatedDateTime: null, terminal: "P02", gate: "1", remark: null },
+    T2DEP: { flightId: "T2DEP", airline: "T2 Air", toAirport: "Tokyo", scheduleDateTime: "1451", estimatedDateTime: null, terminal: "P03", gate: "250", remark: null },
     T1DEP: { flightId: "T1DEP", airline: "T1 Air", toAirport: "Hanoi", scheduleDateTime: "1451", estimatedDateTime: null, terminal: "P01", gate: "40", remark: null },
   };
   securityGates = [{ waitTimeMin: 60 }, { waitTimeMin: 70 }];
+  securityGatesT2 = [{ waitTimeMin: 70 }];
   vi.stubGlobal("fetch", fetchMock);
   fetchMock.mockClear();
   await i18n.changeLanguage("en");
@@ -56,7 +60,10 @@ describe("홈 — Time-Safe 카드", () => {
     expect(c.textContent).toContain("Recommended return 13:31");
     expect(c.textContent).toContain("Estimated times applied: immigration ~50 min");
     expect(within(c).getByText("Live")).toBeTruthy();
-    expect(c.textContent).not.toContain("Live security wait time");
+    // MU2043은 탑승동(P02) — 실시간 대기 없음
+    expect(c.textContent).toContain("No live security data · using estimate");
+    expect(fetchMock).not.toHaveBeenCalledWith("/api/security-wait");
+    expect(fetchMock).not.toHaveBeenCalledWith("/api/security-wait/t2");
   });
 
   it("지연 배지: 예정 10:15 → 예상 10:30 = 15분 지연", async () => {
@@ -64,17 +71,34 @@ describe("홈 — Time-Safe 카드", () => {
     await waitFor(() => expect(card().textContent).toContain("15 min delayed"));
   });
 
-  it("#12 T1 연결편, 실시간 65분 > 50 → 1h 56m + 실시간 배지", async () => {
+  it("#12 T1 연결편, 실시간 65분 > 50 → 1h 56m + T1 실시간 배지", async () => {
     home("KE085", "T1DEP");
     await waitFor(() => expect(card().textContent).toContain("1h 56m"));
-    expect(card().textContent).toContain("Live security wait time (T1)");
+    expect(card().textContent).toContain("Live security wait checked (T1) · now ~65 min");
+    expect(fetchMock).toHaveBeenCalledWith("/api/security-wait");
   });
 
-  it("T1 실시간 20분 < 50 → 기준값 유지, 배지 없음(A3)", async () => {
+  it("T2 연결편, 실시간 70분 → /api/security-wait/t2, 1h 51m + T2 실시간 배지", async () => {
+    home("KE085", "T2DEP");
+    await waitFor(() => expect(card().textContent).toContain("1h 51m"));
+    expect(card().textContent).toContain("Live security wait checked (T2) · now ~70 min");
+    expect(fetchMock).toHaveBeenCalledWith("/api/security-wait/t2");
+    expect(fetchMock).not.toHaveBeenCalledWith("/api/security-wait");
+  });
+
+  it("T2 실시간 조회 실패 → 기준값, '실시간 아님' 배지", async () => {
+    securityGatesT2 = [];
+    home("KE085", "T2DEP");
+    await waitFor(() => expect(card().textContent).toContain("2h 11m"));
+    expect(card().textContent).toContain("No live security data · using estimate");
+  });
+
+  it("T1 실시간 20분 < 50 → 기준값 50 유지(A3), 배지는 실제 대기 20분 표시", async () => {
     securityGates = [{ waitTimeMin: 20 }];
     home("KE085", "T1DEP");
-    await waitFor(() => expect(card().textContent).toContain("2h 11m"));
-    expect(card().textContent).not.toContain("Live security wait time");
+    await waitFor(() => expect(card().textContent).toContain("Live security wait checked (T1) · now ~20 min"));
+    expect(card().textContent).toContain("2h 11m");
+    expect(card().textContent).toContain("security & exit check ~50 min");
   });
 
   it("#3 외출 불가 → 경고 박스, Time-Fit 카드 비활성·더보기 없음", async () => {
