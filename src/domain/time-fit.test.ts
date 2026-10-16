@@ -51,7 +51,7 @@ describe("wouldFit", () => {
 });
 
 describe("buildCourseTimeline", () => {
-  it("#5 10:30 출발(입국심사 0), 숙소 16분, 더풋샵 — 시각은 기존과 동일", () => {
+  it("#5 공항 밖 10:30, 숙소 16분, 더풋샵 — 시각은 기존과 동일", () => {
     const t = buildCourseTimeline(630, AURA_MOVE, [footShop]);
     expect(t.checkInAt).toBe(666);
     expect(t.stops).toEqual([{ arriveAt: 679, leaveAt: 739 }]);

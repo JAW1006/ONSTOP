@@ -10,6 +10,7 @@
 | **코스 가용 시간** | 외출 가능 시간 − 코스 준비(`COURSE_PREP_MIN`, 20분). 코스 빌더 예산과 "환승 내 가능" 판단 기준. | `courseAvailableMin()` | [time-fit](formulas/time-fit.md) |
 | 코스 사용 시간 | 공항→숙소 + Σ(숙소→장소 + 체류) + 복귀 구간. 준비 시간 제외. | `courseUsedMin()` | [time-fit](formulas/time-fit.md) |
 | 남는 시간 / 초과 | 코스 가용 시간 − 코스 사용 시간. 음수면 초과. | — | [time-fit](formulas/time-fit.md) |
+| 일정 요약 | 화면 표기 "사용 X / 가용 Y". 사용·가용에 준비 시간을 어느 쪽에 넣을지 **확인 필요**([STATUS](STATUS.md)) | — | — |
 | 총 환승 시간 | 도착 ~ 연결편 출발. 버퍼를 빼기 전. | `totalConnectionMin` | [time-safe](formulas/time-safe.md) |
 | 공항 밖 시각 | 도착 + 입국심사 버퍼. 외출 가능 시간의 시작점. | `exitAtMin` | [time-safe](formulas/time-safe.md) |
 | 공항 복귀 추천 시각 | 연결편 출발 − 복귀 버퍼. 외출 불가면 공항 밖 시각. | `returnByMin` | [time-safe](formulas/time-safe.md) |
@@ -19,7 +20,7 @@
 | 용어 | 정의 | 코드 이름 |
 |---|---|---|
 | ① 입국심사 버퍼 | 도착 후 입국심사 + 짐 찾기. 공항 밖 시각을 늦춘다. | `ARRIVAL_IMMIGRATION_MIN` |
-| ② 보안검색·출국심사 버퍼 | 공항 복귀 후 보안검색 + 출국심사. T1 실시간 대기는 이 값의 하한 방식으로만 반영. | `DEPARTURE_SECURITY_MIN` |
+| ② 출국 보안검색·출국심사 버퍼 | 공항 복귀 후 보안검색 + 출국심사. T1 실시간 대기는 이 값의 하한 방식으로만 반영. | `DEPARTURE_SECURITY_MIN` |
 | ③ 게이트 여유 | 탑승 마감 전 게이트 도착 여유. | `GATE_MARGIN_MIN` |
 | 복귀 버퍼 | ② + ③ | `returnBufferMin` |
 | 코스 준비 | 짐 맡기기 등. **Time-Safe에는 넣지 않고** 코스 가용 시간·체크인 계산에서만 뺀다. | `COURSE_PREP_MIN` |

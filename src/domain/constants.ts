@@ -8,10 +8,10 @@ export const MINUTES_PER_DAY = 1440;
 export const DEFAULT_ARRIVE = 10 * 60 + 30;
 /** 연결편 미조회 시 고정 체류 예산(분) */
 export const LAYOVER_BUDGET = 360;
-// 버퍼 3개 구성 요소. 값과 합계는 근거 확인 후 사용자가 확정한다(docs/STATUS.md "A1-값").
-/** ① 입국심사(도착 후, 짐 찾기 포함, 분) — 미정. 0 = 기존 동작 유지. 후보: 기획서 50분(미검증) */
-export const ARRIVAL_IMMIGRATION_MIN = 0;
-/** ② 보안검색·출국심사(공항 복귀 후, 분) — 레거시 코드 50분, 미검증. T1 실시간 대기의 하한 */
+// 버퍼 3요소 구조는 확정(2026-10-16). 값은 미검증 — 보수적 기본값 50/50/30, 근거 확인 후 갱신(docs/STATUS.md "A1-값").
+/** ① 입국심사(도착 후, 짐 찾기 포함, 분) — 기획서 50분, 미검증 */
+export const ARRIVAL_IMMIGRATION_MIN = 50;
+/** ② 출국 보안검색·출국심사(공항 복귀 후, 분) — 레거시 코드 50분, 미검증. T1 실시간 대기의 하한 */
 export const DEPARTURE_SECURITY_MIN = 50;
 /** ③ 게이트 여유(분) — 레거시 코드 30분("출발 20분 전 탑승 마감 + 여유"), 미검증 */
 export const GATE_MARGIN_MIN = 30;

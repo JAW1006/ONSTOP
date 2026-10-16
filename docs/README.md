@@ -16,6 +16,7 @@
 | 공식 | [formulas/dayuse-pricing.md](formulas/dayuse-pricing.md) | 초안 | 데이유즈 타임블록 가격·수수료 |
 | 공식 | [formulas/som.md](formulas/som.md) | 초안 | TAM/SAM/SOM |
 | 결정 | [decisions/ADR-0001-react-migration.md](decisions/ADR-0001-react-migration.md) | 확정 | React 마이그레이션 |
+| API | [api/](api/README.md) | 초안 | 외부 API 실제 응답 샘플·필드 형식 |
 | 결과 | [results/](results/) | — | 날짜-주제.md 실험·검증 기록 |
 | 이력 | [changelog.md](changelog.md) | — | 한 줄 변경 기록 |
 
