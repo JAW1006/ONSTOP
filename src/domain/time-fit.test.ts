@@ -115,3 +115,38 @@ describe("이동시간 — 기존 동작", () => {
     expect(transitMin(52.4)).toBe(52);
   });
 });
+
+// 2026-10-16 레거시 화면(app/index.html)을 모의 API(자동차 1km당 2분, 대중교통 1km당 3분)로 실제 조작해 읽은 값.
+// 옮긴 레거시 함수가 이 관측값과 같아야 이식이 맞다 — docs/results/2026-10-16-course-map-compare.md
+describe("레거시 화면 관측값 = 레거시 함수(이식 확인)", () => {
+  // 레거시 화면의 "총 N분"은 준비 20분 포함 → courseUsedMin(준비 제외) + COURSE_PREP_MIN과 비교
+  const total = (roomMove: number, stops: { move: number; dur: number }[]) => courseUsedMin(roomMove, stops) + 20;
+  const ROOM = 6; // 공항→호텔 오라
+  const himart = { id: "sky72-outlet", cat: "Shopping", move: 23, dur: 60 };
+  const olive = { id: "olive-young-kbeauty", cat: "Shopping", move: 24, dur: 30 };
+  const daiso = { id: "shinsegae-dutyfree", cat: "Shopping", move: 24, dur: 30 };
+
+  it("장소 0개: 총 0시간 32분, 체크인 10:56, 복귀 11:02", () => {
+    expect(total(ROOM, [])).toBe(32);
+    const tl = buildCourseTimeline(630, ROOM, []);
+    expect([tl.checkInAt, tl.returnAt]).toEqual([656, 662]);
+  });
+  it("하이마트 1곳: 총 2시간 12분, 도착 11:19, 복귀 12:42", () => {
+    expect(total(ROOM, [himart])).toBe(132);
+    const tl = buildCourseTimeline(630, ROOM, [himart]);
+    expect([tl.stops[0]!.arriveAt, tl.returnAt]).toEqual([679, 762]);
+  });
+  it("3곳: 총 4시간 1분, 올리브영 12:43·다이소 13:37 도착, 복귀 14:31", () => {
+    expect(total(ROOM, [himart, olive, daiso])).toBe(241);
+    const tl = buildCourseTimeline(630, ROOM, [himart, olive, daiso]);
+    expect([tl.stops[1]!.arriveAt, tl.stops[2]!.arriveAt, tl.returnAt]).toEqual([763, 817, 871]);
+  });
+  it("자동 추천(관심사 쇼핑): 올리브영 1곳, 총 1시간 44분 — 레거시 예산 140·181·430 모두 같은 결과", () => {
+    for (const budget of [140, 181, 430]) {
+      // 레거시 BUDGET(준비 포함) → 코스 가용 시간(A5) = BUDGET − 20
+      const r = autoBuild({ selected: ["Shopping"], interests: ["Shopping", "Rest"], places: [himart, olive, daiso], roomMove: ROOM, availableMin: budget - 20 });
+      expect(r.map((p) => p.id)).toEqual(["olive-young-kbeauty"]);
+      expect(total(ROOM, r)).toBe(104);
+    }
+  });
+});

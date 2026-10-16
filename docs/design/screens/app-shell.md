@@ -12,8 +12,8 @@
 | `/onboarding` | 온보딩(언어 → 관심사 → 항공편) | 숨김 | `onboarding` | **완료** |
 | `/` | 홈 | 홈 활성 | `home` | **완료** |
 | `/luggage` | 짐 케어 | 짐 케어 활성 | `luggage` | 4단계 |
-| `/course` | 코스 빌더 | 코스(FAB) | `course` | 4단계 |
-| `/course/saved` | 저장된 코스 | 코스(FAB) | `savedCourse` | 4단계 |
+| `/course` | 코스 빌더 | 코스(FAB) | `course` | **완료** |
+| `/course/saved` | 저장된 코스 | 코스(FAB) | `savedCourse` | **완료** |
 | `/booking/:roomId` | 데이유즈 예약 | 예약 활성 | `booking` | 4단계 |
 | `/bookings` | 예약 확인·내역 | 예약 활성 | `confirm` | 4단계 |
 | `/my` | 마이 | 마이 활성 | `mypage` | 4단계 |
@@ -33,6 +33,6 @@
 | 항목 | 레거시 | 새 앱 | 근거 |
 |---|---|---|---|
 | 화면 전환 | `screen` 문자열 상태 | URL 라우트 | 뒤로가기·새로고침·딥링크 |
-| 코스 탭 | 저장된 코스가 있으면 저장 화면으로 | 4단계에서 같은 동작 구현(지금은 `/course`) | 저장 상태가 아직 없음 |
+| 코스 탭 | 저장된 코스가 있으면 저장 화면으로 | 같은 동작(`/course/saved`) | 레거시 동일 |
 | 탭 접근성 | `<button>` | `<nav>` + 링크, 활성 탭 `aria-current="page"` | 접근성 |
 | 뒤로 버튼 | 아이콘만 | 아이콘 + `aria-label`(`common.back`, 새 키) | 접근성 |
