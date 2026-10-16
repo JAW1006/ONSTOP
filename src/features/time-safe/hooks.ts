@@ -71,6 +71,9 @@ export function useTimeSafe() {
     departure,
     connection,
     result,
+    /** 새로고침 버튼: 도착·출발(·T1 대기) 다시 조회 */
+    refetchAll: () => Promise.all([arrival.refetch(), departure.refetch(), securityWait.isEnabled ? securityWait.refetch() : null]),
+    isRefetching: arrival.isFetching || departure.isFetching || securityWait.isFetching,
     bothReady: !!arrival.data && !!departure.data && connection?.departMin != null,
     liveSecurityApplied: isLiveSecurityApplied(departureTerminal, liveSecurityWaitMin),
   };

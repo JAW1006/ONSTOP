@@ -26,12 +26,14 @@ const TripContext = createContext<TripState | null>(null);
 /** 레거시 기본 관심사 */
 export const DEFAULT_INTERESTS = ["Shopping", "Rest"];
 
-export function TripProvider({ children, initial }: { children: ReactNode; initial?: Partial<Pick<TripState, "onboarded" | "interests">> }) {
+type TripInitial = Partial<Pick<TripState, "onboarded" | "interests" | "arrivalFlightId" | "departureFlightId">>;
+
+export function TripProvider({ children, initial }: { children: ReactNode; initial?: TripInitial }) {
   const [interests, setInterests] = useState<string[]>(initial?.interests ?? DEFAULT_INTERESTS);
-  const [arrivalInput, setArrivalInput] = useState("");
-  const [departureInput, setDepartureInput] = useState("");
-  const [arrivalFlightId, setArrivalFlightId] = useState<string | null>(null);
-  const [departureFlightId, setDepartureFlightId] = useState<string | null>(null);
+  const [arrivalInput, setArrivalInput] = useState(initial?.arrivalFlightId ?? "");
+  const [departureInput, setDepartureInput] = useState(initial?.departureFlightId ?? "");
+  const [arrivalFlightId, setArrivalFlightId] = useState<string | null>(initial?.arrivalFlightId ?? null);
+  const [departureFlightId, setDepartureFlightId] = useState<string | null>(initial?.departureFlightId ?? null);
   const [onboarded, setOnboarded] = useState(initial?.onboarded ?? false);
 
   const value = useMemo<TripState>(

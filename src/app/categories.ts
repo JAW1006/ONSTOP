@@ -11,3 +11,5 @@ export const CATEGORIES: { key: CategoryKey; icon: LucideIcon; labelKey: `catego
   { key: "Sightseeing", icon: Camera, labelKey: "category.sightseeing" },
   { key: "Brand", icon: Tag, labelKey: "category.brand" },
 ];
+
+export const categoryIcon = (key: CategoryKey): LucideIcon => CATEGORIES.find((c) => c.key === key)!.icon;

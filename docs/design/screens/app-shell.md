@@ -10,7 +10,7 @@
 | 경로 | 화면 | 탭바 | 레거시 `screen` | 상태 |
 |---|---|---|---|---|
 | `/onboarding` | 온보딩(언어 → 관심사 → 항공편) | 숨김 | `onboarding` | **완료** |
-| `/` | 홈 | 홈 활성 | `home` | 4단계 |
+| `/` | 홈 | 홈 활성 | `home` | **완료** |
 | `/luggage` | 짐 케어 | 짐 케어 활성 | `luggage` | 4단계 |
 | `/course` | 코스 빌더 | 코스(FAB) | `course` | 4단계 |
 | `/course/saved` | 저장된 코스 | 코스(FAB) | `savedCourse` | 4단계 |
@@ -27,6 +27,7 @@
 | 스크롤 영역 | 프레임 안쪽, 탭바 높이만큼 아래 여백 | `--ts-nav-height` |
 | 탭바 | 홈 / 짐 케어 / **코스(가운데 원형 FAB, 22px 돌출)** / 예약 / 마이 | `--ts-fab-size`, `shadow-fab`, 활성 `text-blue` / 비활성 `text-faint` |
 | 바텀시트 | 프레임 안에서만 열린다(바깥 화면을 덮지 않음) | `--ts-overlay`, `rounded-2xl` |
+| 항공편 변경 배너 | 탭 화면 공통, 프레임 상단(`FlightNotice`, `TabLayout`에서 렌더) | `bg-ink`, `--ts-shadow-toast` |
 
 ## 레거시와 다르게 하는 점
 | 항목 | 레거시 | 새 앱 | 근거 |

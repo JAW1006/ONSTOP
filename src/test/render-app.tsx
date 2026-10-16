@@ -5,12 +5,15 @@ import { routes } from "@/app/router";
 import { TripProvider } from "@/app/trip-state";
 
 /** 실제 라우트 표로 앱을 렌더한다(테스트마다 새 QueryClient — 캐시 공유 없음) */
-export function renderApp(path: string, { onboarded = false }: { onboarded?: boolean } = {}) {
+export function renderApp(
+  path: string,
+  { onboarded = false, arrivalFlightId, departureFlightId }: { onboarded?: boolean; arrivalFlightId?: string; departureFlightId?: string } = {},
+) {
   const queryClient = new QueryClient({ defaultOptions: { queries: { retry: false } } });
   const router = createMemoryRouter(routes, { initialEntries: [path] });
   const utils = render(
     <QueryClientProvider client={queryClient}>
-      <TripProvider initial={{ onboarded }}>
+      <TripProvider initial={{ onboarded, arrivalFlightId, departureFlightId }}>
         <RouterProvider router={router} />
       </TripProvider>
     </QueryClientProvider>,

@@ -1,0 +1,827 @@
+{
+  "source": "app/index.html (legacy)",
+  "rooms": [
+    {
+      "id": "hotel-aura-incheon",
+      "name": {
+        "ko": "호텔 오라 인천공항",
+        "en": "Hotel Aura Incheon Airport",
+        "zh": "Hotel Aura Incheon Airport",
+        "ja": "Hotel Aura Incheon Airport",
+        "vi": "Hotel Aura Incheon Airport"
+      },
+      "distMin": 16,
+      "hourMin": 3,
+      "hourMax": 9,
+      "price": 50000,
+      "rate": 4.5,
+      "cnt": 210,
+      "tint": "#BBD3F5",
+      "best": true,
+      "move": 16,
+      "img": "hotel-aura-incheon.jpeg",
+      "coord": {
+        "lat": 37.454078,
+        "lng": 126.41785
+      }
+    },
+    {
+      "id": "western-grace-hotel",
+      "name": {
+        "ko": "웨스턴그레이스호텔",
+        "en": "Western Grace Hotel",
+        "zh": "Western Grace Hotel",
+        "ja": "Western Grace Hotel",
+        "vi": "Western Grace Hotel"
+      },
+      "distMin": 26,
+      "hourMin": 3,
+      "hourMax": 6,
+      "price": 43000,
+      "rate": 4.3,
+      "cnt": 110,
+      "tint": "#D6C4E8",
+      "move": 26,
+      "img": "western-grace-hotel.jpg",
+      "coord": {
+        "lat": 37.490257,
+        "lng": 126.581474
+      }
+    },
+    {
+      "id": "skytop-hotel",
+      "name": {
+        "ko": "영종스카이탑호텔",
+        "en": "Skytop Hotel Yeongjong",
+        "zh": "Skytop Hotel Yeongjong",
+        "ja": "Skytop Hotel Yeongjong",
+        "vi": "Skytop Hotel Yeongjong"
+      },
+      "distMin": 19,
+      "hourMin": 3,
+      "hourMax": 6,
+      "price": 46000,
+      "rate": 4.4,
+      "cnt": 165,
+      "tint": "#CFE0F5",
+      "move": 19,
+      "img": "skytop-hotel.jpeg",
+      "coord": {
+        "lat": 37.491315,
+        "lng": 126.500824
+      }
+    },
+    {
+      "id": "jnpark-hotel",
+      "name": {
+        "ko": "제이앤파크호텔",
+        "en": "J&Park Hotel",
+        "zh": "J&Park Hotel",
+        "ja": "J&Park Hotel",
+        "vi": "J&Park Hotel"
+      },
+      "distMin": 19,
+      "hourMin": 3,
+      "hourMax": 6,
+      "price": 47000,
+      "rate": 4.3,
+      "cnt": 120,
+      "tint": "#C7E4D6",
+      "move": 19,
+      "img": "jnpark-hotel.jpeg",
+      "coord": {
+        "lat": 37.445007,
+        "lng": 126.379302
+      }
+    },
+    {
+      "id": "goldentulip-yeongjong",
+      "name": {
+        "ko": "골든튤립 호텔&스위트",
+        "en": "Golden Tulip Hotel & Suites",
+        "zh": "Golden Tulip Hotel & Suites",
+        "ja": "Golden Tulip Hotel & Suites",
+        "vi": "Golden Tulip Hotel & Suites"
+      },
+      "distMin": 21,
+      "hourMin": 3,
+      "hourMax": 6,
+      "price": 62000,
+      "rate": 4.6,
+      "cnt": 380,
+      "tint": "#E8C4D6",
+      "move": 21,
+      "img": "goldentulip-yeongjong.jpg",
+      "coord": {
+        "lat": 37.492261,
+        "lng": 126.492412
+      }
+    },
+    {
+      "id": "rivera-incheon-airport",
+      "name": {
+        "ko": "리베라인천에어포트호텔",
+        "en": "Rivera Incheon Airport Hotel",
+        "zh": "Rivera Incheon Airport Hotel",
+        "ja": "Rivera Incheon Airport Hotel",
+        "vi": "Rivera Incheon Airport Hotel"
+      },
+      "distMin": 23,
+      "hourMin": 3,
+      "hourMax": 6,
+      "price": 41000,
+      "rate": 4.2,
+      "cnt": 96,
+      "tint": "#F3D9B8",
+      "move": 23,
+      "img": "rivera-incheon-airport.jpeg",
+      "coord": {
+        "lat": 37.48506,
+        "lng": 126.561361
+      }
+    },
+    {
+      "id": "blueocean-residence-3",
+      "name": {
+        "ko": "블루오션 레지던스호텔 3차",
+        "en": "Blue Ocean Residence Hotel 3",
+        "zh": "Blue Ocean Residence Hotel 3",
+        "ja": "Blue Ocean Residence Hotel 3",
+        "vi": "Blue Ocean Residence Hotel 3"
+      },
+      "distMin": 24,
+      "hourMin": 3,
+      "hourMax": 6,
+      "price": 44000,
+      "rate": 4.4,
+      "cnt": 140,
+      "tint": "#A9C4E8",
+      "move": 24,
+      "img": "blueocean-residence-3.jpeg",
+      "coord": {
+        "lat": 37.487023,
+        "lng": 126.563144
+      }
+    },
+    {
+      "id": "ocean-park-nine",
+      "name": {
+        "ko": "오션파크나인호텔",
+        "en": "Ocean Park Nine Hotel",
+        "zh": "Ocean Park Nine Hotel",
+        "ja": "Ocean Park Nine Hotel",
+        "vi": "Ocean Park Nine Hotel"
+      },
+      "distMin": 25,
+      "hourMin": 3,
+      "hourMax": 6,
+      "price": 58000,
+      "rate": 4.4,
+      "cnt": 72,
+      "tint": "#F7D9B0",
+      "move": 25,
+      "img": "ocean-park-nine.jpeg",
+      "coord": {
+        "lat": 37.492751,
+        "lng": 126.579215
+      }
+    },
+    {
+      "id": "airsky-hotel",
+      "name": {
+        "ko": "에어스카이호텔",
+        "en": "Airsky Hotel",
+        "zh": "Airsky Hotel",
+        "ja": "Airsky Hotel",
+        "vi": "Airsky Hotel"
+      },
+      "distMin": 26,
+      "hourMin": 3,
+      "hourMax": 6,
+      "price": 40000,
+      "rate": 4.1,
+      "cnt": 85,
+      "tint": "#E3C4E8",
+      "move": 26,
+      "img": "airsky-hotel.jpeg",
+      "coord": {
+        "lat": 37.490775,
+        "lng": 126.580487
+      }
+    },
+    {
+      "id": "ocean-soleil-view",
+      "name": {
+        "ko": "오션솔레뷰호텔",
+        "en": "Ocean Soleil View Hotel",
+        "zh": "Ocean Soleil View Hotel",
+        "ja": "Ocean Soleil View Hotel",
+        "vi": "Ocean Soleil View Hotel"
+      },
+      "distMin": 26,
+      "hourMin": 3,
+      "hourMax": 6,
+      "price": 55000,
+      "rate": 4.5,
+      "cnt": 88,
+      "tint": "#F3C4B8",
+      "move": 26,
+      "img": "ocean-soleil-view.jpeg",
+      "coord": {
+        "lat": 37.494514,
+        "lng": 126.579366
+      }
+    }
+  ],
+  "places": [
+    {
+      "id": "chinatown-dimsum",
+      "name": {
+        "ko": "원보만두",
+        "en": "Wonbo Mandu",
+        "zh": "Wonbo Mandu",
+        "ja": "Wonbo Mandu",
+        "vi": "Wonbo Mandu"
+      },
+      "area": {
+        "ko": "인천 차이나타운",
+        "en": "Incheon Chinatown",
+        "zh": "仁川唐人街",
+        "ja": "仁川チャイナタウン",
+        "vi": "Phố người Hoa Incheon"
+      },
+      "move": 40,
+      "dur": 45,
+      "price": 12000,
+      "tint": "#F3C4B8",
+      "coord": {
+        "lat": 37.475256,
+        "lng": 126.618969
+      },
+      "cat": "Food"
+    },
+    {
+      "id": "sinpo-market",
+      "name": {
+        "ko": "원조신포닭강정",
+        "en": "Wonjo Sinpo Dakgangjeong",
+        "zh": "Wonjo Sinpo Dakgangjeong",
+        "ja": "Wonjo Sinpo Dakgangjeong",
+        "vi": "Wonjo Sinpo Dakgangjeong"
+      },
+      "area": {
+        "ko": "인천 신포동",
+        "en": "Incheon Sinpo-dong",
+        "zh": "仁川新浦洞",
+        "ja": "仁川新浦洞",
+        "vi": "Sinpo-dong, Incheon"
+      },
+      "move": 42,
+      "dur": 30,
+      "price": 15000,
+      "tint": "#F7D9B0",
+      "coord": {
+        "lat": 37.471749,
+        "lng": 126.628113
+      },
+      "cat": "Food"
+    },
+    {
+      "id": "yeongjong-noodles",
+      "name": {
+        "ko": "7곡제면소 인천영종운서점",
+        "en": "7Gok Noodle House (Unseo-dong)",
+        "zh": "7Gok Noodle House (Unseo-dong)",
+        "ja": "7Gok Noodle House (Unseo-dong)",
+        "vi": "7Gok Noodle House (Unseo-dong)"
+      },
+      "area": {
+        "ko": "운서동",
+        "en": "Unseo-dong",
+        "zh": "云西洞",
+        "ja": "雲西洞",
+        "vi": "Unseo-dong"
+      },
+      "move": 16,
+      "dur": 45,
+      "price": 13000,
+      "tint": "#F3D9B8",
+      "coord": {
+        "lat": 37.49251,
+        "lng": 126.492481
+      },
+      "cat": "Food"
+    },
+    {
+      "id": "airport-spa-foot",
+      "name": {
+        "ko": "더풋샵 메가스타영종점",
+        "en": "The Foot Shop (Unseo-dong)",
+        "zh": "The Foot Shop (Unseo-dong)",
+        "ja": "The Foot Shop (Unseo-dong)",
+        "vi": "The Foot Shop (Unseo-dong)"
+      },
+      "area": {
+        "ko": "운서동",
+        "en": "Unseo-dong",
+        "zh": "云西洞",
+        "ja": "雲西洞",
+        "vi": "Unseo-dong"
+      },
+      "move": 13,
+      "dur": 60,
+      "price": 45000,
+      "tint": "#E8C4D6",
+      "coord": {
+        "lat": 37.493477,
+        "lng": 126.492223
+      },
+      "cat": "Massage"
+    },
+    {
+      "id": "masian-aroma",
+      "name": {
+        "ko": "레푸스 인천영종점",
+        "en": "Repus Foot Care (Unseo-dong)",
+        "zh": "Repus Foot Care (Unseo-dong)",
+        "ja": "Repus Foot Care (Unseo-dong)",
+        "vi": "Repus Foot Care (Unseo-dong)"
+      },
+      "area": {
+        "ko": "운서동",
+        "en": "Unseo-dong",
+        "zh": "云西洞",
+        "ja": "雲西洞",
+        "vi": "Unseo-dong"
+      },
+      "move": 12,
+      "dur": 90,
+      "price": 70000,
+      "tint": "#E3C4E8",
+      "coord": {
+        "lat": 37.494898,
+        "lng": 126.490059
+      },
+      "cat": "Massage"
+    },
+    {
+      "id": "sky-relax-massage",
+      "name": {
+        "ko": "허브마사지",
+        "en": "Herb Massage",
+        "zh": "Herb Massage",
+        "ja": "Herb Massage",
+        "vi": "Herb Massage"
+      },
+      "area": {
+        "ko": "운서동",
+        "en": "Unseo-dong",
+        "zh": "云西洞",
+        "ja": "雲西洞",
+        "vi": "Unseo-dong"
+      },
+      "move": 18,
+      "dur": 60,
+      "price": 50000,
+      "tint": "#D6C4E8",
+      "coord": {
+        "lat": 37.490669,
+        "lng": 126.494995
+      },
+      "cat": "Massage"
+    },
+    {
+      "id": "sky72-outlet",
+      "name": {
+        "ko": "롯데하이마트 영종도롯데마트점",
+        "en": "Lotte Hi-Mart (Yeongjong)",
+        "zh": "Lotte Hi-Mart (Yeongjong)",
+        "ja": "Lotte Hi-Mart (Yeongjong)",
+        "vi": "Lotte Hi-Mart (Yeongjong)"
+      },
+      "area": {
+        "ko": "운서동",
+        "en": "Unseo-dong",
+        "zh": "云西洞",
+        "ja": "雲西洞",
+        "vi": "Unseo-dong"
+      },
+      "move": 14,
+      "dur": 60,
+      "price": 0,
+      "tint": "#BBD3F5",
+      "coord": {
+        "lat": 37.4925823335266,
+        "lng": 126.491329709902
+      },
+      "cat": "Shopping"
+    },
+    {
+      "id": "olive-young-kbeauty",
+      "name": {
+        "ko": "올리브영 운서점",
+        "en": "Olive Young (Unseo)",
+        "zh": "Olive Young (Unseo)",
+        "ja": "Olive Young (Unseo)",
+        "vi": "Olive Young (Unseo)"
+      },
+      "area": {
+        "ko": "운서동",
+        "en": "Unseo-dong",
+        "zh": "云西洞",
+        "ja": "雲西洞",
+        "vi": "Unseo-dong"
+      },
+      "move": 17,
+      "dur": 30,
+      "price": 0,
+      "tint": "#CFE0F5",
+      "coord": {
+        "lat": 37.49253118561955,
+        "lng": 126.49284529121837
+      },
+      "cat": "Shopping"
+    },
+    {
+      "id": "shinsegae-dutyfree",
+      "name": {
+        "ko": "다이소 인천운서동점",
+        "en": "Daiso (Unseo-dong)",
+        "zh": "Daiso (Unseo-dong)",
+        "ja": "Daiso (Unseo-dong)",
+        "vi": "Daiso (Unseo-dong)"
+      },
+      "area": {
+        "ko": "운서동",
+        "en": "Unseo-dong",
+        "zh": "云西洞",
+        "ja": "雲西洞",
+        "vi": "Unseo-dong"
+      },
+      "move": 13,
+      "dur": 30,
+      "price": 0,
+      "tint": "#C7E4D6",
+      "coord": {
+        "lat": 37.49482774972253,
+        "lng": 126.49303669934206
+      },
+      "cat": "Shopping"
+    },
+    {
+      "id": "capsule-dayuse",
+      "name": {
+        "ko": "고요101스터디카페",
+        "en": "Goyo101 Study Cafe",
+        "zh": "Goyo101 Study Cafe",
+        "ja": "Goyo101 Study Cafe",
+        "vi": "Goyo101 Study Cafe"
+      },
+      "area": {
+        "ko": "운서동",
+        "en": "Unseo-dong",
+        "zh": "云西洞",
+        "ja": "雲西洞",
+        "vi": "Unseo-dong"
+      },
+      "move": 15,
+      "dur": 120,
+      "price": 12000,
+      "tint": "#BBD3F5",
+      "coord": {
+        "lat": 37.4919595712246,
+        "lng": 126.495069975613
+      },
+      "cat": "Rest"
+    },
+    {
+      "id": "spa-on-air",
+      "name": {
+        "ko": "솔밭해수방 영종점",
+        "en": "Solbat Haesubang Jjimjilbang",
+        "zh": "Solbat Haesubang Jjimjilbang",
+        "ja": "Solbat Haesubang Jjimjilbang",
+        "vi": "Solbat Haesubang Jjimjilbang"
+      },
+      "area": {
+        "ko": "영종도",
+        "en": "Yeongjong Island",
+        "zh": "永宗岛",
+        "ja": "永宗島",
+        "vi": "Đảo Yeongjong"
+      },
+      "move": 8,
+      "dur": 90,
+      "price": 15000,
+      "tint": "#CFE0F5",
+      "coord": {
+        "lat": 37.440168,
+        "lng": 126.430191
+      },
+      "cat": "Rest"
+    },
+    {
+      "id": "premium-lounge",
+      "name": {
+        "ko": "테르엔 영종점 힐링센터",
+        "en": "Therven Yeongjong Healing Center",
+        "zh": "Therven Yeongjong Healing Center",
+        "ja": "Therven Yeongjong Healing Center",
+        "vi": "Therven Yeongjong Healing Center"
+      },
+      "area": {
+        "ko": "운서동",
+        "en": "Unseo-dong",
+        "zh": "云西洞",
+        "ja": "雲西洞",
+        "vi": "Unseo-dong"
+      },
+      "move": 14,
+      "dur": 60,
+      "price": 15000,
+      "tint": "#C7E4D6",
+      "coord": {
+        "lat": 37.4948315434582,
+        "lng": 126.492241716604
+      },
+      "cat": "Rest"
+    },
+    {
+      "id": "kbeauty-makeup",
+      "name": {
+        "ko": "유니언니",
+        "en": "Uni Unnie Makeup",
+        "zh": "Uni Unnie Makeup",
+        "ja": "Uni Unnie Makeup",
+        "vi": "Uni Unnie Makeup"
+      },
+      "area": {
+        "ko": "운서동",
+        "en": "Unseo-dong",
+        "zh": "云西洞",
+        "ja": "雲西洞",
+        "vi": "Unseo-dong"
+      },
+      "move": 18,
+      "dur": 60,
+      "price": 55000,
+      "tint": "#E8C4D6",
+      "coord": {
+        "lat": 37.49325,
+        "lng": 126.489604
+      },
+      "cat": "Beauty"
+    },
+    {
+      "id": "hair-styling",
+      "name": {
+        "ko": "듀아르헤어",
+        "en": "Duard Hair",
+        "zh": "Duard Hair",
+        "ja": "Duard Hair",
+        "vi": "Duard Hair"
+      },
+      "area": {
+        "ko": "운서동",
+        "en": "Unseo-dong",
+        "zh": "云西洞",
+        "ja": "雲西洞",
+        "vi": "Unseo-dong"
+      },
+      "move": 18,
+      "dur": 50,
+      "price": 40000,
+      "tint": "#F3C4B8",
+      "coord": {
+        "lat": 37.492261,
+        "lng": 126.492412
+      },
+      "cat": "Beauty"
+    },
+    {
+      "id": "nail-care",
+      "name": {
+        "ko": "네일바이담",
+        "en": "Nail by Dam",
+        "zh": "Nail by Dam",
+        "ja": "Nail by Dam",
+        "vi": "Nail by Dam"
+      },
+      "area": {
+        "ko": "운서동",
+        "en": "Unseo-dong",
+        "zh": "云西洞",
+        "ja": "雲西洞",
+        "vi": "Unseo-dong"
+      },
+      "move": 18,
+      "dur": 45,
+      "price": 35000,
+      "tint": "#F7D9B0",
+      "coord": {
+        "lat": 37.491132,
+        "lng": 126.495331
+      },
+      "cat": "Beauty"
+    },
+    {
+      "id": "muui-beach-course",
+      "name": {
+        "ko": "하나개해수욕장",
+        "en": "Hanagae Beach",
+        "zh": "Hanagae Beach",
+        "ja": "Hanagae Beach",
+        "vi": "Hanagae Beach"
+      },
+      "area": {
+        "ko": "무의도",
+        "en": "Muui Island",
+        "zh": "舞衣岛",
+        "ja": "舞衣島",
+        "vi": "Đảo Muui"
+      },
+      "move": 30,
+      "dur": 90,
+      "price": 0,
+      "tint": "#A9C4E8",
+      "coord": {
+        "lat": 37.384833,
+        "lng": 126.409852
+      },
+      "cat": "Sightseeing"
+    },
+    {
+      "id": "eulwangni-sunset",
+      "name": {
+        "ko": "을왕리해수욕장",
+        "en": "Eulwangni Beach",
+        "zh": "乙旺里海水浴场",
+        "ja": "ウルワンニ海水浴場",
+        "vi": "Bãi biển Eulwangni"
+      },
+      "area": {
+        "ko": "영종도",
+        "en": "Yeongjong Island",
+        "zh": "永宗岛",
+        "ja": "永宗島",
+        "vi": "Đảo Yeongjong"
+      },
+      "move": 25,
+      "dur": 60,
+      "price": 0,
+      "tint": "#F3D9B8",
+      "coord": {
+        "lat": 37.446292,
+        "lng": 126.372737
+      },
+      "cat": "Sightseeing"
+    },
+    {
+      "id": "incheon-bridge",
+      "name": {
+        "ko": "인천대교기념관",
+        "en": "Incheon Bridge Memorial Hall",
+        "zh": "仁川大桥纪念馆",
+        "ja": "仁川大橋記念館",
+        "vi": "Nhà tưởng niệm cầu Incheon"
+      },
+      "area": {
+        "ko": "영종도",
+        "en": "Yeongjong Island",
+        "zh": "永宗岛",
+        "ja": "永宗島",
+        "vi": "Đảo Yeongjong"
+      },
+      "move": 20,
+      "dur": 30,
+      "price": 0,
+      "tint": "#BBD3F5",
+      "coord": {
+        "lat": 37.469245,
+        "lng": 126.515055
+      },
+      "cat": "Sightseeing"
+    },
+    {
+      "id": "chinatown-mural",
+      "name": {
+        "ko": "인천차이나타운 삼국지벽화거리",
+        "en": "Incheon Chinatown Three Kingdoms Mural Street",
+        "zh": "仁川唐人街三国志壁画街",
+        "ja": "仁川チャイナタウン三国志壁画通り",
+        "vi": "Phố tranh tường Tam Quốc, Phố người Hoa Incheon"
+      },
+      "area": {
+        "ko": "인천 차이나타운",
+        "en": "Incheon Chinatown",
+        "zh": "仁川唐人街",
+        "ja": "仁川チャイナタウン",
+        "vi": "Phố người Hoa Incheon"
+      },
+      "move": 40,
+      "dur": 45,
+      "price": 0,
+      "tint": "#F3C4B8",
+      "coord": {
+        "lat": 37.474712,
+        "lng": 126.620234
+      },
+      "cat": "Sightseeing"
+    },
+    {
+      "id": "shilla-pickup",
+      "name": {
+        "ko": "CU 영종공항신도시점",
+        "en": "CU Yeongjong Airport-town",
+        "zh": "CU Yeongjong Airport-town",
+        "ja": "CU Yeongjong Airport-town",
+        "vi": "CU Yeongjong Airport-town"
+      },
+      "area": {
+        "ko": "운서동",
+        "en": "Unseo-dong",
+        "zh": "云西洞",
+        "ja": "雲西洞",
+        "vi": "Unseo-dong"
+      },
+      "move": 14,
+      "dur": 15,
+      "price": 0,
+      "tint": "#CFE0F5",
+      "coord": {
+        "lat": 37.492741023836,
+        "lng": 126.489476424142
+      },
+      "cat": "Brand"
+    },
+    {
+      "id": "olive-young-partner",
+      "name": {
+        "ko": "올리브영 운서점",
+        "en": "Olive Young (Unseo)",
+        "zh": "Olive Young (Unseo)",
+        "ja": "Olive Young (Unseo)",
+        "vi": "Olive Young (Unseo)"
+      },
+      "area": {
+        "ko": "운서동",
+        "en": "Unseo-dong",
+        "zh": "云西洞",
+        "ja": "雲西洞",
+        "vi": "Unseo-dong"
+      },
+      "move": 17,
+      "dur": 30,
+      "price": 0,
+      "tint": "#E8C4D6",
+      "coord": {
+        "lat": 37.49253118561955,
+        "lng": 126.49284529121837
+      },
+      "cat": "Brand"
+    },
+    {
+      "id": "premium-lounge-partner",
+      "name": {
+        "ko": "테르엔 영종점 힐링센터",
+        "en": "Therven Yeongjong Healing Center",
+        "zh": "Therven Yeongjong Healing Center",
+        "ja": "Therven Yeongjong Healing Center",
+        "vi": "Therven Yeongjong Healing Center"
+      },
+      "area": {
+        "ko": "운서동",
+        "en": "Unseo-dong",
+        "zh": "云西洞",
+        "ja": "雲西洞",
+        "vi": "Unseo-dong"
+      },
+      "move": 14,
+      "dur": 60,
+      "price": 0,
+      "tint": "#C7E4D6",
+      "coord": {
+        "lat": 37.4948315434582,
+        "lng": 126.492241716604
+      },
+      "cat": "Brand"
+    }
+  ],
+  "adPlaceIds": [
+    "olive-young-kbeauty",
+    "chinatown-dimsum",
+    "airport-spa-foot",
+    "sky72-outlet",
+    "shilla-pickup",
+    "olive-young-partner",
+    "premium-lounge-partner"
+  ],
+  "hotPlaceIds": [
+    "olive-young-kbeauty",
+    "chinatown-dimsum",
+    "airport-spa-foot",
+    "sky72-outlet",
+    "shilla-pickup",
+    "premium-lounge-partner"
+  ]
+}

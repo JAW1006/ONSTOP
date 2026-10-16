@@ -1,11 +1,12 @@
 // @vitest-environment jsdom
-import { cleanup, screen } from "@testing-library/react";
+import { cleanup, screen, within } from "@testing-library/react";
 import { afterEach, beforeEach, describe, expect, it } from "vitest";
 import i18n from "@/i18n";
 import { renderApp } from "@/test/render-app";
 
 const renderAt = (path: string, onboarded = true) => renderApp(path, { onboarded });
-const current = () => screen.getAllByRole("link").filter((a) => a.getAttribute("aria-current") === "page").map((a) => a.textContent);
+const tabs = () => within(screen.getByRole("navigation")).getAllByRole("link");
+const current = () => tabs().filter((a) => a.getAttribute("aria-current") === "page").map((a) => a.textContent);
 
 describe("TabBar", () => {
   beforeEach(() => i18n.changeLanguage("en"));
@@ -13,7 +14,7 @@ describe("TabBar", () => {
 
   it("탭 5개(가운데 코스 포함)를 현재 언어로 보여준다", () => {
     renderAt("/");
-    expect(screen.getAllByRole("link").map((a) => a.textContent)).toEqual(["Home", "Luggage", "Course", "Bookings", "My"]);
+    expect(tabs().map((a) => a.textContent)).toEqual(["Home", "Luggage", "Course", "Bookings", "My"]);
   });
 
   it.each([
@@ -43,6 +44,6 @@ describe("TabBar", () => {
   it("언어를 바꾸면 탭 이름이 바뀐다", async () => {
     await i18n.changeLanguage("ko");
     renderAt("/");
-    expect(screen.getAllByRole("link").map((a) => a.textContent)).toEqual(["홈", "짐 케어", "코스", "예약", "마이"]);
+    expect(tabs().map((a) => a.textContent)).toEqual(["홈", "짐 케어", "코스", "예약", "마이"]);
   });
 });
