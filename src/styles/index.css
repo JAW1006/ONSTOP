@@ -6,6 +6,16 @@
 @theme inline {
   --font-sans: var(--ts-font-sans);
 
+  /* 타이포 스케일 — design-tokens.md "타이포그래피" (레거시 17종 → 8단계) */
+  --text-micro: 10px;
+  --text-caption: 11px;
+  --text-body: 12.5px;
+  --text-emph: 14px;
+  --text-section: 16px;
+  --text-title: 22px;
+  --text-display: 28px;
+  --text-display-lg: 36px;
+
   --color-background: var(--background);
   --color-foreground: var(--foreground);
   --color-card: var(--card);

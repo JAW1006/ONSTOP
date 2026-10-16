@@ -60,6 +60,11 @@
   --ts-shadow-primary: 0 6px 16px rgb(47 123 230 / 0.32);
   --ts-shadow-fab: 0 6px 16px rgb(47 123 230 / 0.45);
   --ts-shadow-toast: 0 6px 16px rgb(0 0 0 / 0.25);
+  --ts-shadow-device: 0 20px 60px rgb(30 50 110 / 0.25);
+
+  /* ---- device frame (데스크톱 미리보기용 폰 테두리) ---- */
+  --ts-device-bezel: #101826;
+  --ts-device-radius: 34px;
 
   /* ---- layout ---- */
   --ts-app-width: 390px;

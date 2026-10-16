@@ -1,20 +1,39 @@
-import { createBrowserRouter } from "react-router";
+import { createBrowserRouter, type RouteObject } from "react-router";
 import { PhoneFrame } from "@/app/PhoneFrame";
+import { PlaceholderPage } from "@/app/PlaceholderPage";
+import { TabLayout } from "@/app/TabLayout";
+import { UiShowcase } from "@/app/UiShowcase";
 
-// 1단계: 셸만 띄운다. 탭(홈/짐 케어/코스/예약/마이)과 화면 라우트는 3·4단계에서 추가.
-export const router = createBrowserRouter([
+// 라우트 표: docs/design/screens/app-shell.md. 자리 화면은 4단계에서 features/* 화면으로 교체.
+export const routes: RouteObject[] = [
   {
     path: "/",
     element: <PhoneFrame />,
     children: [
       {
-        index: true,
+        path: "onboarding",
         element: (
-          <div className="p-4 text-sm text-sub">
-            TimeStay React 셸 — 화면은 4단계에서 이식합니다.
+          <div className="absolute inset-0 overflow-y-auto">
+            <PlaceholderPage titleKey="onboarding.language.title" />
           </div>
         ),
       },
+      {
+        element: <TabLayout />,
+        children: [
+          { index: true, element: <PlaceholderPage titleKey="home.greeting" /> },
+          { path: "luggage", element: <PlaceholderPage titleKey="luggage.title" /> },
+          { path: "course", element: <PlaceholderPage titleKey="course.title" /> },
+          { path: "course/saved", element: <PlaceholderPage titleKey="savedCourse.title" /> },
+          { path: "booking/:roomId", element: <PlaceholderPage titleKey="booking.title" /> },
+          { path: "bookings", element: <PlaceholderPage titleKey="confirm.title" /> },
+          { path: "my", element: <PlaceholderPage titleKey="my.title" /> },
+          // 개발 모드 전용 컴포넌트 견본
+          ...(import.meta.env.DEV ? [{ path: "dev/ui", element: <UiShowcase /> }] : []),
+        ],
+      },
     ],
   },
-]);
+];
+
+export const router = createBrowserRouter(routes);

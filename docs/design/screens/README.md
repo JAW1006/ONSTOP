@@ -7,6 +7,7 @@
 ## 이식 순서·상태
 | 순서 | 화면 | 명세 | 레거시 컴포넌트 | 라우트(안) | 상태 |
 |---|---|---|---|---|---|
+| 0 | 앱 골격(프레임·탭바·라우트) | [app-shell](app-shell.md) | `App`, `Nav` | 전체 | 완료(3단계) |
 | 1 | Time-Safe(온보딩 3단계) | — | `Onboarding` step 0–2 | `/onboarding` | 대기 |
 | 2 | 홈 | — | `HomeScreen`, `FlightNotice` | `/` | 대기 |
 | 3 | 코스 지도 | — | `Course`, `CourseMap`, `SavedCourseScreen` | `/course`, `/course/saved` | 대기 |

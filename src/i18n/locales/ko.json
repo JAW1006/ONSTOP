@@ -36,6 +36,7 @@
     "sightseeing": "관광"
   },
   "common": {
+    "back": "뒤로",
     "backToHome": "홈으로",
     "badge": {
       "demo": "데모값",
