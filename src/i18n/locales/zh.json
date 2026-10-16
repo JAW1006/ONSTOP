@@ -78,8 +78,25 @@
       "note": "(可多选)",
       "title": "② 添加活动类别"
     },
+    "header": {
+      "terminal": "仁川 {{terminal}}",
+      "title": "我的路线"
+    },
+    "leg": {
+      "approxMinutes": "约{{n}}分钟",
+      "km": "{{km}}公里",
+      "minutes": "{{n}}分钟",
+      "mode": {
+        "taxi": "出租车",
+        "transit": "公共交通",
+        "walk": "步行"
+      },
+      "return": "返回",
+      "transfers": "换乘{{n}}次"
+    },
     "map": {
       "allPlacesNote": "放大地图后,住宿附近的真实餐厅·咖啡馆·便利店·超市·景点·美妆店(Olive Young等)会显示为小点 · 点击小点可查看信息并在其中加入/移出行程 · 已加入行程的地点会显示为带编号的大图钉 · 放大后医院·药店仅以小点显示(仅供参考,不会加入行程)",
+      "legend": "线型 = 交通方式：粗实线 公共交通 · 实线 出租车 · 点线 步行 · 红色长虚线 返回机场。\"约\" = 未取得实际路线的估算值",
       "pickRoomNote": "地图上会显示所有合作钟点房住宿的图钉 · 点击图钉即可选择该住宿",
       "referenceOnly": "仅供参考 · 无法加入行程",
       "routeLegend": "线上的数字和颜色代表访问顺序(与图钉编号一致) · 线型代表交通方式:●●● 驾车 · ┄┄ 步行 · ⋯⋯ 公共交通",
@@ -130,10 +147,30 @@
       },
       "return": {
         "sub": "Time-Safe 提醒 · 预留30分钟",
+        "target": "目标到达 {{time}}",
         "title": "返回机场"
       }
     },
     "subtitle": "类别 → 选地点 → 自动生成行程",
+    "summary": {
+      "available": "/ 可用 {{time}}",
+      "expectedReturn": "预计返回机场",
+      "lastDeparture": "从最后一个地点出发",
+      "lastDepartureHotel": "从住宿出发",
+      "lateThan": "{{time}}（晚于目标 {{target}}）",
+      "noRoom": "选择住宿后将计算移动时间",
+      "overWarning": "按此计划可能赶不上航班。请删除地点或缩短停留时间。",
+      "returnTarget": "返回机场目标时间",
+      "segment": {
+        "over": "超出 {{n}}分钟",
+        "prep": "准备 {{n}}分钟",
+        "spare": "剩余 {{n}}分钟",
+        "stay": "停留 {{n}}分钟",
+        "travel": "移动 {{n}}分钟"
+      },
+      "until": "{{time}}之前",
+      "used": "已用 {{time}}"
+    },
     "title": "制作转机路线"
   },
   "dayuse": {

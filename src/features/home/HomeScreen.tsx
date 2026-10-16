@@ -21,7 +21,9 @@ import { cn } from "@/lib/utils";
 export function HomeScreen() {
   const { t, i18n } = useTranslation();
   const navigate = useNavigate();
-  const { interests } = useTrip();
+  const { interests, savedCourse } = useTrip();
+  // 저장된 코스가 있으면 저장 화면으로(레거시 goToCourse)
+  const courseHref = savedCourse ? "/course/saved" : "/course";
   const { result } = useTimeSafe();
   const canGoOut = result.canGoOut;
   const [hot, setHot] = useState<Place | null>(null);
@@ -42,12 +44,12 @@ export function HomeScreen() {
         <SectionHeader
           title={t("home.timeFit.title")}
           subtitle={t("home.timeFit.subtitle")}
-          onMore={canGoOut ? () => navigate("/course") : undefined}
+          onMore={canGoOut ? () => navigate(courseHref) : undefined}
         />
         <button
           type="button"
           disabled={!canGoOut}
-          onClick={() => navigate("/course")}
+          onClick={() => navigate(courseHref)}
           className="mb-[18px] block w-full cursor-pointer text-left disabled:cursor-not-allowed disabled:opacity-55"
         >
           <Card className="p-4">

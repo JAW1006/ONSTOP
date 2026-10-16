@@ -3,6 +3,8 @@ import { PhoneFrame } from "@/app/PhoneFrame";
 import { PlaceholderPage } from "@/app/PlaceholderPage";
 import { TabLayout } from "@/app/TabLayout";
 import { UiShowcase } from "@/app/UiShowcase";
+import { CourseScreen } from "@/features/course/CourseScreen";
+import { SavedCourseScreen } from "@/features/course/SavedCourseScreen";
 import { HomeScreen } from "@/features/home/HomeScreen";
 import { OnboardingScreen } from "@/features/time-safe/OnboardingScreen";
 
@@ -18,8 +20,8 @@ export const routes: RouteObject[] = [
         children: [
           { index: true, element: <HomeScreen /> },
           { path: "luggage", element: <PlaceholderPage titleKey="luggage.title" /> },
-          { path: "course", element: <PlaceholderPage titleKey="course.title" /> },
-          { path: "course/saved", element: <PlaceholderPage titleKey="savedCourse.title" /> },
+          { path: "course", element: <CourseScreen /> },
+          { path: "course/saved", element: <SavedCourseScreen /> },
           { path: "booking/:roomId", element: <PlaceholderPage titleKey="booking.title" /> },
           { path: "bookings", element: <PlaceholderPage titleKey="confirm.title" /> },
           { path: "my", element: <PlaceholderPage titleKey="my.title" /> },

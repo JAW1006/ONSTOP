@@ -52,3 +52,16 @@ export const roomImage = (room: Room) => (room.img ? hotelImages[`../assets/hote
 
 /** 데이터 이름 현지화 — 없는 언어는 ko(레거시 tr와 같음) */
 export const localize = (value: Localized, lang: string) => value[lang as LanguageCode] ?? value.ko;
+
+/** 인천국제공항 대표 좌표(레거시 AIRPORT_COORD — 카카오모빌리티 도로망에 스냅되는 지점) */
+export const AIRPORT_COORD: LatLng = { lat: 37.446, lng: 126.4522 };
+
+/** 코스에 담을 수 있는 장소 — 정적 PLACES 또는 카카오 로컬 실시간 장소(live) */
+export interface CoursePlace extends Omit<Place, "move"> {
+  /** 데이터 더미 이동시간(정적 장소만). 순차 경로 계산에는 쓰지 않는다 */
+  move?: number;
+  /** 카카오 로컬에서 가져온 실제 주변 장소(체류·가격 데이터 없음) */
+  live?: boolean;
+}
+
+export const roomById = (id: string | null) => (id ? ROOMS.find((r) => r.id === id) : undefined);

@@ -78,8 +78,25 @@
       "note": "(Select multiple)",
       "title": "② Add activity categories"
     },
+    "header": {
+      "terminal": "Incheon {{terminal}}",
+      "title": "My course"
+    },
+    "leg": {
+      "approxMinutes": "~{{n}} min",
+      "km": "{{km}} km",
+      "minutes": "{{n}} min",
+      "mode": {
+        "taxi": "Taxi",
+        "transit": "Transit",
+        "walk": "Walk"
+      },
+      "return": "Return",
+      "transfers": "{{n}} transfer(s)"
+    },
     "map": {
       "allPlacesNote": "Real nearby restaurants, cafes, convenience stores, marts, attractions & beauty shops (Olive Young, etc.) show as small dots once you zoom in · tap a dot to see info and add/remove it from your plan there · spots already in your plan show as bigger numbered pins · hospitals & pharmacies show as reference dots when zoomed in (not added to your plan)",
+      "legend": "Line style = mode: thick solid transit · solid taxi · dotted walk · red long dash return to airport. \"~\" = estimated (no live route)",
       "pickRoomNote": "All partner day-use stays show as pins on the map · tap a pin to select that stay",
       "referenceOnly": "For reference only · can't be added to your plan",
       "routeLegend": "Number & color on the line = visit order (matches pin numbers) · line style = mode: ●●● car · ┄┄ walk · ⋯⋯ transit",
@@ -130,10 +147,30 @@
       },
       "return": {
         "sub": "Time-Safe alert · 30 min buffer",
+        "target": "Target arrival {{time}}",
         "title": "Return to airport"
       }
     },
     "subtitle": "Category → pick spots → auto-schedule",
+    "summary": {
+      "available": "/ available {{time}}",
+      "expectedReturn": "Expected airport arrival",
+      "lastDeparture": "Leave your last stop by",
+      "lastDepartureHotel": "Leave your stay by",
+      "lateThan": "{{time}} (later than target {{target}})",
+      "noRoom": "Pick a stay to calculate travel time",
+      "overWarning": "You may miss your flight with this plan. Remove a spot or shorten your stays.",
+      "returnTarget": "Target airport arrival",
+      "segment": {
+        "over": "Over {{n}} min",
+        "prep": "Prep {{n}} min",
+        "spare": "Spare {{n}} min",
+        "stay": "Stay {{n}} min",
+        "travel": "Travel {{n}} min"
+      },
+      "until": "{{time}}",
+      "used": "Used {{time}}"
+    },
     "title": "Build Your Transit Course"
   },
   "dayuse": {

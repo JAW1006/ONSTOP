@@ -78,8 +78,25 @@
       "note": "(복수 선택)",
       "title": "② 활동 카테고리 합치기"
     },
+    "header": {
+      "terminal": "인천 {{terminal}}",
+      "title": "내 코스"
+    },
+    "leg": {
+      "approxMinutes": "약 {{n}}분",
+      "km": "{{km}}km",
+      "minutes": "{{n}}분",
+      "mode": {
+        "taxi": "택시",
+        "transit": "대중교통",
+        "walk": "도보"
+      },
+      "return": "복귀",
+      "transfers": "환승 {{n}}회"
+    },
     "map": {
       "allPlacesNote": "숙소 주변 실제 음식점·카페·편의점·마트·관광명소·뷰티(올리브영 등)가 작은 점으로 떠요(지도를 확대해야 나타나요) · 점을 탭하면 정보가 뜨고 거기서 일정에 추가/제거 · 이미 담긴 곳은 순번이 붙은 큰 핀으로 표시 · 병원·약국은 확대 시 참고용 점으로만 표시(일정에는 안 담김)",
+      "legend": "선 모양 = 이동수단: 굵은 실선 대중교통 · 보통 실선 택시 · 점선 도보 · 빨간 긴 파선 공항 복귀. \"약\" = 실제 경로를 못 받아 어림한 값",
       "pickRoomNote": "지도에 제휴 데이유즈 숙소가 전부 핀으로 떠요 · 핀을 탭하면 그 숙소가 바로 선택돼요",
       "referenceOnly": "참고용 · 일정에는 추가할 수 없어요",
       "routeLegend": "선 위 숫자·색이 방문 순서(핀 번호와 동일) · 선 모양은 이동수단: ●●● 자동차 · ┄┄ 도보 · ⋯⋯ 대중교통",
@@ -130,10 +147,30 @@
       },
       "return": {
         "sub": "Time-Safe 알림 · 여유 30분",
+        "target": "복귀 도착 목표 {{time}}",
         "title": "공항 복귀"
       }
     },
     "subtitle": "카테고리 → 장소 선택 → 일정 자동 생성",
+    "summary": {
+      "available": "/ 가용 {{time}}",
+      "expectedReturn": "복귀 도착 예상",
+      "lastDeparture": "마지막 장소에서 출발",
+      "lastDepartureHotel": "숙소에서 출발",
+      "lateThan": "{{time}} (목표 {{target}}보다 늦음)",
+      "noRoom": "숙소를 고르면 이동 시간이 계산돼요",
+      "overWarning": "이대로면 비행기 시간에 맞추지 못할 수 있어요. 장소를 빼거나 체류 시간을 줄여 주세요.",
+      "returnTarget": "복귀 도착 목표",
+      "segment": {
+        "over": "초과 {{n}}분",
+        "prep": "준비 {{n}}분",
+        "spare": "여유 {{n}}분",
+        "stay": "체류 {{n}}분",
+        "travel": "이동 {{n}}분"
+      },
+      "until": "{{time}}까지",
+      "used": "사용 {{time}}"
+    },
     "title": "환승 코스 만들기"
   },
   "dayuse": {

@@ -78,8 +78,25 @@
       "note": "(Chọn nhiều)",
       "title": "② Thêm danh mục hoạt động"
     },
+    "header": {
+      "terminal": "Incheon {{terminal}}",
+      "title": "Lộ trình của tôi"
+    },
+    "leg": {
+      "approxMinutes": "khoảng {{n}} phút",
+      "km": "{{km}} km",
+      "minutes": "{{n}} phút",
+      "mode": {
+        "taxi": "Taxi",
+        "transit": "Phương tiện công cộng",
+        "walk": "Đi bộ"
+      },
+      "return": "Quay về",
+      "transfers": "Chuyển {{n}} lần"
+    },
     "map": {
       "allPlacesNote": "Phóng to bản đồ để thấy nhà hàng, quán cà phê, cửa hàng tiện lợi, siêu thị, điểm tham quan & cửa hàng làm đẹp (Olive Young, v.v.) thực tế gần chỗ nghỉ hiện thành chấm nhỏ · chạm vào chấm để xem thông tin và thêm/bớt khỏi lịch trình ngay tại đó · nơi đã có trong lịch trình hiện thành ghim lớn có đánh số · khi phóng to, bệnh viện & nhà thuốc hiện thành chấm để tham khảo (không thêm vào lịch trình)",
+      "legend": "Kiểu đường = phương tiện: nét liền đậm phương tiện công cộng · nét liền taxi · chấm đi bộ · gạch dài đỏ quay về sân bay. \"khoảng\" = ước tính (không có tuyến thực tế)",
       "pickRoomNote": "Mọi chỗ nghỉ Day-Use đối tác đều hiện thành ghim trên bản đồ · chạm vào ghim để chọn chỗ nghỉ đó",
       "referenceOnly": "Chỉ để tham khảo · không thể thêm vào lịch trình",
       "routeLegend": "Số & màu trên đường = thứ tự ghé thăm (khớp số trên ghim) · kiểu đường = phương tiện: ●●● ô tô · ┄┄ đi bộ · ⋯⋯ phương tiện công cộng",
@@ -130,10 +147,30 @@
       },
       "return": {
         "sub": "Thông báo Time-Safe · dự phòng 30 phút",
+        "target": "Mục tiêu đến {{time}}",
         "title": "Quay lại sân bay"
       }
     },
     "subtitle": "Danh mục → chọn địa điểm → tự tạo lịch",
+    "summary": {
+      "available": "/ khả dụng {{time}}",
+      "expectedReturn": "Dự kiến về sân bay",
+      "lastDeparture": "Rời điểm cuối trước",
+      "lastDepartureHotel": "Rời chỗ nghỉ trước",
+      "lateThan": "{{time}} (muộn hơn mục tiêu {{target}})",
+      "noRoom": "Chọn chỗ nghỉ để tính thời gian di chuyển",
+      "overWarning": "Với lịch này bạn có thể lỡ chuyến bay. Hãy bớt điểm đến hoặc rút ngắn thời gian lưu trú.",
+      "returnTarget": "Mục tiêu về sân bay",
+      "segment": {
+        "over": "Vượt {{n}} phút",
+        "prep": "Chuẩn bị {{n}} phút",
+        "spare": "Còn dư {{n}} phút",
+        "stay": "Lưu trú {{n}} phút",
+        "travel": "Di chuyển {{n}} phút"
+      },
+      "until": "{{time}}",
+      "used": "Đã dùng {{time}}"
+    },
     "title": "Tạo lộ trình quá cảnh"
   },
   "dayuse": {

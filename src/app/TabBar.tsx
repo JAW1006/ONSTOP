@@ -1,6 +1,7 @@
 import { CalendarCheck, House, Luggage, Route, User, type LucideIcon } from "lucide-react";
 import { useTranslation } from "react-i18next";
 import { Link, useLocation } from "react-router";
+import { useTrip } from "@/app/trip-state";
 import { cn } from "@/lib/utils";
 
 // 하단 탭: 홈 / 짐 케어 / 코스(가운데 FAB) / 예약 / 마이 — docs/design/screens/app-shell.md
@@ -8,6 +9,8 @@ import { cn } from "@/lib/utils";
 export function TabBar() {
   const { t } = useTranslation();
   const { pathname } = useLocation();
+  // 저장된 코스가 있으면 저장 화면으로(레거시 goToCourse)
+  const { savedCourse } = useTrip();
   const under = (base: string) => pathname === base || pathname.startsWith(`${base}/`);
 
   return (
@@ -18,7 +21,7 @@ export function TabBar() {
       <TabItem to="/" active={pathname === "/"} icon={House} label={t("nav.home")} />
       <TabItem to="/luggage" active={under("/luggage")} icon={Luggage} label={t("nav.luggage")} />
       <Link
-        to="/course"
+        to={savedCourse ? "/course/saved" : "/course"}
         aria-current={under("/course") ? "page" : undefined}
         className="-mt-[22px] flex size-(--ts-fab-size) flex-col items-center justify-center rounded-full [background:var(--ts-grad-primary)] text-primary-foreground shadow-fab"
       >

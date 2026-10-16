@@ -31,5 +31,113 @@
     "stage": "A7 — 레거시 \"OR-Tools 최적화…\"를 실제 동작(카테고리별 탐욕 추천)에 맞게 변경",
     "kind": "changed",
     "reviewed": false
+  },
+  "course.header.title": {
+    "stage": "코스 지도 — 헤더 제목",
+    "reviewed": false
+  },
+  "course.header.terminal": {
+    "stage": "코스 지도 — 헤더 도착 터미널",
+    "reviewed": false
+  },
+  "course.summary.used": {
+    "stage": "코스 지도 — 요약 \"사용 X\"",
+    "reviewed": false
+  },
+  "course.summary.available": {
+    "stage": "코스 지도 — 요약 \"/ 가용 Y\"",
+    "reviewed": false
+  },
+  "course.summary.segment.prep": {
+    "stage": "코스 지도 — 시간 막대 구간 이름",
+    "reviewed": false
+  },
+  "course.summary.segment.travel": {
+    "stage": "코스 지도 — 시간 막대 구간 이름",
+    "reviewed": false
+  },
+  "course.summary.segment.stay": {
+    "stage": "코스 지도 — 시간 막대 구간 이름",
+    "reviewed": false
+  },
+  "course.summary.segment.spare": {
+    "stage": "코스 지도 — 시간 막대 구간 이름",
+    "reviewed": false
+  },
+  "course.summary.segment.over": {
+    "stage": "코스 지도 — 시간 막대 구간 이름",
+    "reviewed": false
+  },
+  "course.summary.returnTarget": {
+    "stage": "코스 지도 — 복귀 도착 목표 시각",
+    "reviewed": false
+  },
+  "course.summary.lastDeparture": {
+    "stage": "코스 지도 — 마지막 장소 출발 기한",
+    "reviewed": false
+  },
+  "course.summary.lastDepartureHotel": {
+    "stage": "코스 지도 — 장소가 없을 때 숙소 출발 기한",
+    "reviewed": false
+  },
+  "course.summary.until": {
+    "stage": "코스 지도 — \"HH:MM까지\"",
+    "reviewed": false
+  },
+  "course.summary.expectedReturn": {
+    "stage": "코스 지도 — 초과 시 복귀 도착 예상",
+    "reviewed": false
+  },
+  "course.summary.lateThan": {
+    "stage": "코스 지도 — 목표보다 늦음 명시",
+    "reviewed": false
+  },
+  "course.summary.overWarning": {
+    "stage": "코스 지도 — 초과 경고",
+    "reviewed": false
+  },
+  "course.summary.noRoom": {
+    "stage": "코스 지도 — 숙소 미선택 요약",
+    "reviewed": false
+  },
+  "course.leg.minutes": {
+    "stage": "코스 지도 — 구간 칩 시간(실제 경로)",
+    "reviewed": false
+  },
+  "course.leg.approxMinutes": {
+    "stage": "코스 지도 — 구간 칩 시간(근사값)",
+    "reviewed": false
+  },
+  "course.leg.km": {
+    "stage": "코스 지도 — 구간 칩 거리(실제 값일 때만)",
+    "reviewed": false
+  },
+  "course.leg.return": {
+    "stage": "코스 지도 — 공항 복귀 구간 칩",
+    "reviewed": false
+  },
+  "course.leg.mode.transit": {
+    "stage": "코스 지도 — 이동수단 이름(칩·목록 접근성)",
+    "reviewed": false
+  },
+  "course.leg.mode.taxi": {
+    "stage": "코스 지도 — 이동수단 이름",
+    "reviewed": false
+  },
+  "course.leg.mode.walk": {
+    "stage": "코스 지도 — 이동수단 이름",
+    "reviewed": false
+  },
+  "course.leg.transfers": {
+    "stage": "코스 지도 — 선택한 구간 정보",
+    "reviewed": false
+  },
+  "course.map.legend": {
+    "stage": "코스 지도 — 선 범례(레거시 routeLegend 대체)",
+    "reviewed": false
+  },
+  "course.step.return.target": {
+    "stage": "코스 지도 — 일정의 공항 복귀 줄(레거시 \"알림 · 여유 30분\" 대체)",
+    "reviewed": false
   }
 }
