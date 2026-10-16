@@ -1,0 +1,93 @@
+/*
+ * TimeStay 디자인 토큰 — 단일 출처: docs/design/design-tokens.md
+ * 값을 바꾸면 md 표도 같이 고친다. 레거시(app/index.html의 C 팔레트·인라인 스타일)에서 추출한 값.
+ *
+ * 1층: --ts-*  브랜드 원시 토큰 (레거시 이름 그대로)
+ * 2층: shadcn/ui 시맨틱 토큰 (--background, --primary …) → 1층을 참조
+ */
+:root {
+  /* ---- color: brand ---- */
+  --ts-blue: #2f7be6;
+  --ts-blue-deep: #164fae;
+  --ts-ink: #153a52;
+  --ts-gold: #f2b134;
+  --ts-gold-deep: #d9971a;
+  --ts-red: #e23b3b;
+  --ts-lime: #8dbe36;
+
+  /* ---- color: surface / text ---- */
+  --ts-bg: #f1f5fa;
+  --ts-card: #ffffff;
+  --ts-tint: #eaf1fb;
+  --ts-sub: #5e7185;
+  --ts-faint: #a9b4c4;
+  --ts-line: #e3eaf3;
+  --ts-white: #ffffff;
+  --ts-backdrop: #e6ecf6; /* 데스크톱에서 폰 프레임 바깥 */
+
+  /* ---- color: status ---- */
+  --ts-success: #2e9e5b;
+  --ts-success-bg: #e7f7ee;
+  --ts-danger-bg: #fdecea;
+  --ts-disabled: #c4d2e4;
+  --ts-ad-bg: #fff3dc;
+  --ts-ad-border: #f5d089;
+  --ts-overlay: rgb(16 24 38 / 0.45);
+
+  /* ---- color: category (CAT_META) ---- */
+  --ts-cat-food: var(--ts-gold);
+  --ts-cat-massage: var(--ts-lime);
+  --ts-cat-shopping: var(--ts-blue);
+  --ts-cat-rest: var(--ts-ink);
+  --ts-cat-beauty: var(--ts-red);
+  --ts-cat-sightseeing: var(--ts-lime);
+  --ts-cat-brand: var(--ts-gold-deep);
+
+  /* ---- gradient ---- */
+  --ts-grad-primary: linear-gradient(135deg, var(--ts-blue), var(--ts-blue-deep));
+
+  /* ---- radius ---- */
+  --ts-radius-sm: 10px;
+  --ts-radius-md: 12px;
+  --ts-radius-lg: 14px;
+  --ts-radius-xl: 18px;
+  --ts-radius-sheet: 20px;
+  --ts-radius-hero: 22px;
+  --ts-radius-pill: 999px;
+
+  /* ---- shadow ---- */
+  --ts-shadow-card: 0 2px 14px rgb(40 70 130 / 0.07);
+  --ts-shadow-primary: 0 6px 16px rgb(47 123 230 / 0.32);
+  --ts-shadow-fab: 0 6px 16px rgb(47 123 230 / 0.45);
+  --ts-shadow-toast: 0 6px 16px rgb(0 0 0 / 0.25);
+
+  /* ---- layout ---- */
+  --ts-app-width: 390px;
+  --ts-nav-height: 66px;
+  --ts-fab-size: 56px;
+  --ts-page-x: 16px;
+
+  /* ---- typography ---- */
+  --ts-font-sans: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+
+  /* ---- shadcn/ui semantic ---- */
+  --radius: var(--ts-radius-lg);
+  --background: var(--ts-bg);
+  --foreground: var(--ts-ink);
+  --card: var(--ts-card);
+  --card-foreground: var(--ts-ink);
+  --popover: var(--ts-card);
+  --popover-foreground: var(--ts-ink);
+  --primary: var(--ts-blue);
+  --primary-foreground: var(--ts-white);
+  --secondary: var(--ts-tint);
+  --secondary-foreground: var(--ts-blue-deep);
+  --muted: var(--ts-line);
+  --muted-foreground: var(--ts-sub);
+  --accent: var(--ts-tint);
+  --accent-foreground: var(--ts-blue-deep);
+  --destructive: var(--ts-red);
+  --border: var(--ts-line);
+  --input: var(--ts-line);
+  --ring: var(--ts-blue);
+}

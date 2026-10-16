@@ -1,0 +1,70 @@
+@import "tailwindcss";
+@import "tw-animate-css";
+@import "./tokens.css";
+
+/* tokens.css 변수를 Tailwind 유틸리티(bg-primary, text-ink, rounded-xl …)로 노출 */
+@theme inline {
+  --font-sans: var(--ts-font-sans);
+
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --color-card: var(--card);
+  --color-card-foreground: var(--card-foreground);
+  --color-popover: var(--popover);
+  --color-popover-foreground: var(--popover-foreground);
+  --color-primary: var(--primary);
+  --color-primary-foreground: var(--primary-foreground);
+  --color-secondary: var(--secondary);
+  --color-secondary-foreground: var(--secondary-foreground);
+  --color-muted: var(--muted);
+  --color-muted-foreground: var(--muted-foreground);
+  --color-accent: var(--accent);
+  --color-accent-foreground: var(--accent-foreground);
+  --color-destructive: var(--destructive);
+  --color-border: var(--border);
+  --color-input: var(--input);
+  --color-ring: var(--ring);
+
+  --color-blue: var(--ts-blue);
+  --color-blue-deep: var(--ts-blue-deep);
+  --color-ink: var(--ts-ink);
+  --color-gold: var(--ts-gold);
+  --color-gold-deep: var(--ts-gold-deep);
+  --color-red: var(--ts-red);
+  --color-lime: var(--ts-lime);
+  --color-tint: var(--ts-tint);
+  --color-sub: var(--ts-sub);
+  --color-faint: var(--ts-faint);
+  --color-line: var(--ts-line);
+  --color-backdrop: var(--ts-backdrop);
+  --color-success: var(--ts-success);
+  --color-success-bg: var(--ts-success-bg);
+  --color-danger-bg: var(--ts-danger-bg);
+  --color-disabled: var(--ts-disabled);
+  --color-ad-bg: var(--ts-ad-bg);
+  --color-ad-border: var(--ts-ad-border);
+
+  --radius-sm: var(--ts-radius-sm);
+  --radius-md: var(--ts-radius-md);
+  --radius-lg: var(--ts-radius-lg);
+  --radius-xl: var(--ts-radius-xl);
+  --radius-2xl: var(--ts-radius-sheet);
+  --radius-3xl: var(--ts-radius-hero);
+
+  --shadow-card: var(--ts-shadow-card);
+  --shadow-primary: var(--ts-shadow-primary);
+  --shadow-fab: var(--ts-shadow-fab);
+}
+
+@layer base {
+  * {
+    @apply border-border;
+  }
+  html,
+  body {
+    margin: 0;
+    background: var(--ts-backdrop);
+    color: var(--foreground);
+    font-family: var(--ts-font-sans);
+  }
+}
