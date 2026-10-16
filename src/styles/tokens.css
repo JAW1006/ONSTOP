@@ -51,6 +51,27 @@
   --ts-cat-sightseeing: var(--ts-lime);
   --ts-cat-brand: var(--ts-gold-deep);
 
+  /* ---- color: 역할(코스 지도) — 색은 역할 하나에만 쓴다. 이름은 색이 아니라 역할. design-tokens.md "색 역할 규칙" ---- */
+  --ts-role-place: var(--ts-blue); /* 내가 고른 장소 핀(번호) */
+  --ts-role-base: var(--ts-gold-deep); /* 호텔(거점) 핀 */
+  --ts-role-route: #0e8c84; /* 이동: 가는 길 선·막대 이동 구간 — 임시(로고 색 A13 미정) */
+  --ts-role-route-text: #0b7a73; /* 이동 칩 글자(흰 배경 대비 4.5:1 이상) — 임시 */
+  --ts-role-return: var(--ts-red); /* 복귀 구간·초과·경고 */
+  --ts-role-prep: var(--ts-faint); /* 준비 구간 */
+  --ts-role-stay: #7fa8e8; /* 체류 구간(막대) — 장소(파랑) 계열을 연하게 */
+  --ts-role-spare: var(--ts-line); /* 여유 */
+  --ts-role-candidate: var(--ts-faint); /* 아직 안 고른 후보 장소 점 */
+  --ts-role-airport: var(--ts-ink); /* 공항 핀 */
+
+  /* ---- 선 스타일(코스 지도) — 카카오맵 strokeStyle은 features/course/map-style.ts에 같은 이름으로 ---- */
+  --ts-line-transit-width: 6px; /* 대중교통: 굵은 실선 */
+  --ts-line-taxi-width: 4px; /* 택시(자동차 경로): 보통 실선 */
+  --ts-line-walk-width: 3px; /* 도보: 가는 점선 */
+  --ts-line-return-width: 4px; /* 공항 복귀: 빨간 긴 파선 */
+  --ts-line-selected-boost: 2px; /* 선택 구간 두께 추가 */
+  --ts-line-dimmed-opacity: 0.3; /* 선택 안 된 구간 불투명도 */
+  --ts-line-opacity: 0.9;
+
   /* ---- gradient ---- */
   --ts-grad-primary: linear-gradient(135deg, var(--ts-blue), var(--ts-blue-deep));
 

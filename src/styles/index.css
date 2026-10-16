@@ -53,6 +53,16 @@
   --color-disabled: var(--ts-disabled);
   --color-ad-bg: var(--ts-ad-bg);
   --color-ad-border: var(--ts-ad-border);
+  --color-role-place: var(--ts-role-place);
+  --color-role-base: var(--ts-role-base);
+  --color-role-route: var(--ts-role-route);
+  --color-role-route-text: var(--ts-role-route-text);
+  --color-role-return: var(--ts-role-return);
+  --color-role-prep: var(--ts-role-prep);
+  --color-role-stay: var(--ts-role-stay);
+  --color-role-spare: var(--ts-role-spare);
+  --color-role-candidate: var(--ts-role-candidate);
+  --color-role-airport: var(--ts-role-airport);
   --color-on-dark: var(--ts-on-dark);
   --color-on-dark-sub: var(--ts-on-dark-sub);
   --color-on-dark-muted: var(--ts-on-dark-muted);

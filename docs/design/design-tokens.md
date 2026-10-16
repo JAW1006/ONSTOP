@@ -63,6 +63,36 @@ Tailwind 유틸리티 이름은 3열(`bg-primary`, `text-ink` …).
 
 지도 전용 색(`ROUTE_COLORS` 8색, `POI_COLORS` 7색)은 지도 기능 데이터라 토큰이 아니라 `features/course`에 둔다(4단계).
 
+## 색 역할 규칙 (코스 지도, 2026-10-16)
+**색은 역할 하나에만 쓴다. 구간마다 색을 바꾸지 않는다. 색만으로 의미를 전달하지 않는다**(아이콘·글자·선 모양을 함께). 토큰 이름은 색이 아니라 역할.
+
+| 토큰 | 역할 | 값 | Tailwind | 함께 쓰는 비색 단서 |
+|---|---|---|---|---|
+| `--ts-role-place` | 내가 고른 장소 핀 | = `--ts-blue` | `role-place` | 번호(1·2·3) |
+| `--ts-role-base` | 호텔(거점) 핀 | = `--ts-gold-deep` | `role-base` | H 아이콘, "호텔(거점)" 글자 |
+| `--ts-role-route` | 이동(선·막대 이동 구간) | `#0E8C84` **임시** | `role-route` | 수단 아이콘, 선 모양 |
+| `--ts-role-route-text` | 이동 칩 글자 | `#0B7A73` **임시** | `role-route-text` | 흰 배경 대비 약 5.2:1 (`#0E8C84`는 약 4.1:1이라 작은 글자에 부족) |
+| `--ts-role-return` | 복귀 구간·초과·경고 | = `--ts-red` | `role-return` | "복귀"·"초과" 글자, 긴 파선, ⚠ |
+| `--ts-role-prep` | 준비 구간 | = `--ts-faint` | `role-prep` | 막대 아래 "준비 N분" |
+| `--ts-role-stay` | 체류 구간 | `#7FA8E8` | `role-stay` | 막대 아래 "체류 N분" — 금색(호텔)과 겹치지 않게 장소 파랑 계열을 연하게 |
+| `--ts-role-spare` | 여유 | = `--ts-line` | `role-spare` | "여유 N분" |
+| `--ts-role-candidate` | 아직 안 고른 후보 점 | = `--ts-faint` | `role-candidate` | 탭하면 이름 |
+| `--ts-role-airport` | 공항 핀 | = `--ts-ink` | `role-airport` | ✈ |
+
+**임시**: 청록 두 값은 로고 브랜드 색(A13: 앱 Blue/Gold vs 로고 Teal/Coral)이 정해질 때까지 임시. 로고가 Teal로 정해지면 브랜드 색과 같은 계열이 되므로 역할 색을 다시 검토한다.
+**코스 화면 카테고리 배지**: 회색(`bg-muted text-sub`) + 카테고리 아이콘·글자 — 카테고리 색(`--ts-cat-*`)을 쓰지 않는다(다른 화면은 유지).
+
+## 선 스타일 규칙 (코스 지도)
+| 토큰(CSS) | 구간 | 두께 | 카카오 `strokeStyle` | 색 |
+|---|---|---|---|---|
+| `--ts-line-transit-width` | 대중교통 | 6px | `solid` | route |
+| `--ts-line-taxi-width` | 택시(자동차 경로) | 4px | `solid` | route |
+| `--ts-line-walk-width` | 도보 | 3px | `shortdot`(작은 점, 촘촘) | route |
+| `--ts-line-return-width` | 공항 복귀 | 4px | `longdash`(긴 파선 — 도보 점과 크기·간격이 확실히 다름) | return |
+| `--ts-line-selected-boost` / `--ts-line-dimmed-opacity` | 선택 구간 / 나머지 | +2px, 불투명 / 0.3 | — | — |
+
+카카오맵 `strokeStyle` 문자열은 CSS로 표현할 수 없어 `src/features/course/map-style.ts`에 같은 이름으로 둔다.
+
 ## 그라디언트
 | 토큰 | 값 |
 |---|---|
@@ -126,4 +156,5 @@ Tailwind 유틸리티 이름은 3열(`bg-primary`, `text-ink` …).
 |---|---|
 | 2026-10-16 | 레거시에서 추출해 초안 작성 |
 | 2026-10-16 | 3단계: 타이포 8단계 스케일 적용, 폰 프레임 토큰 추가 |
+| 2026-10-16 | 코스 지도: 색 역할 규칙·선 스타일 규칙 토큰(`--ts-role-*`, `--ts-line-*`) 추가. 청록 임시 |
 | 2026-10-16 | 4단계 Time-Safe: 어두운 배경 글자색 6개, 패널 반경 추가 |
