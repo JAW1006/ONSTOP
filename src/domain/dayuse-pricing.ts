@@ -1,5 +1,5 @@
 // 공식: docs/formulas/dayuse-pricing.md
-import { CHECKIN_SLOT_COUNT, CHECKIN_SLOT_STEP, PREP, TIER_PRICE_ROUND_KRW, TIER_STEP_RATIO } from "./constants";
+import { CHECKIN_SLOT_COUNT, CHECKIN_SLOT_STEP, COURSE_PREP_MIN, TIER_PRICE_ROUND_KRW, TIER_STEP_RATIO } from "./constants";
 
 export interface DayuseRoomPricing {
   /** hourMin 기준 기본가(원) */
@@ -28,9 +28,9 @@ export function roomHourTiers(room: DayuseRoomPricing): HourTier[] {
   return tiers;
 }
 
-/** 가장 이른 체크인 = 도착 + PREP + 공항→숙소 이동 */
-export function earliestCheckInMin(arriveMin: number, roomMove: number): number {
-  return arriveMin + PREP + roomMove;
+/** 가장 이른 체크인 = 공항 밖으로 나가는 시각(Time-Safe exitAt) + COURSE_PREP_MIN + 공항→숙소 이동 */
+export function earliestCheckInMin(exitAtMin: number, roomMove: number): number {
+  return exitAtMin + COURSE_PREP_MIN + roomMove;
 }
 
 /** 체크인 후보: 가장 이른 체크인 이후 첫 30분 정각부터 30분 간격 6개 */

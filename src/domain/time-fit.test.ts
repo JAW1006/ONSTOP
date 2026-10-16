@@ -1,6 +1,6 @@
 // 기댓값은 docs/formulas/time-fit.md "예시" 표와 같은 숫자다.
 import { describe, expect, it } from "vitest";
-import { autoBuild, buildCourseTimeline, courseUsedMin, wouldFit } from "./time-fit";
+import { autoBuild, buildCourseTimeline, courseAvailableMin, courseUsedMin, wouldFit } from "./time-fit";
 import { haversineKm, liveEstimateMin, pickTravelMode, routeSecToMin, transitMin, walkMin } from "./travel";
 
 // 레거시 데이터 그대로(ROOMS/PLACES의 move·dur)
@@ -16,53 +16,63 @@ const places = [
   { id: "yeongjong-noodles", cat: "Food", move: 16, dur: 45 },
 ];
 
-describe("courseUsedMin — 기존 동작", () => {
-  it("#1 숙소만: 20 + 16 + 16 = 52", () => {
-    expect(courseUsedMin(AURA_MOVE, [])).toBe(52);
+describe("courseUsedMin — 준비 시간 제외(A5)", () => {
+  it("#1 숙소만: 16 + 16 = 32", () => {
+    expect(courseUsedMin(AURA_MOVE, [])).toBe(32);
   });
-  it("#2 숙소 + 더풋샵: 20 + 16 + (13+60) + 13 = 122", () => {
-    expect(courseUsedMin(AURA_MOVE, [footShop])).toBe(122);
+  it("#2 숙소 + 더풋샵: 16 + (13+60) + 13 = 102", () => {
+    expect(courseUsedMin(AURA_MOVE, [footShop])).toBe(102);
   });
-  it("#3 숙소 + 원보만두 + 더풋샵: 207 (복귀는 마지막 장소 move 재사용)", () => {
-    expect(courseUsedMin(AURA_MOVE, [wonbo, footShop])).toBe(207);
+  it("#3 숙소 + 원보만두 + 더풋샵: 187 (복귀는 마지막 장소 move 재사용)", () => {
+    expect(courseUsedMin(AURA_MOVE, [wonbo, footShop])).toBe(187);
   });
-  it("#4 숙소·장소 없음: PREP만 20", () => {
-    expect(courseUsedMin(null, [])).toBe(20);
+  it("#4 숙소·장소 없음: 0", () => {
+    expect(courseUsedMin(null, [])).toBe(0);
+  });
+});
+
+describe("courseAvailableMin(A5)", () => {
+  it("#10 외출 가능 3h01m(181) → 코스 가용 2h41m(161)", () => {
+    expect(courseAvailableMin(181)).toBe(161);
+  });
+  it("외출 불가(0) → 0", () => {
+    expect(courseAvailableMin(0)).toBe(0);
   });
 });
 
 describe("wouldFit", () => {
-  it("예산 181에서 원보만두+더풋샵(207)은 초과", () => {
-    expect(wouldFit(181, AURA_MOVE, [wonbo], footShop)).toBe(false);
-    expect(wouldFit(181, AURA_MOVE, [], footShop)).toBe(true);
+  it("코스 가용 161에서 원보만두+더풋샵(187)은 26분 초과", () => {
+    expect(wouldFit(161, AURA_MOVE, [wonbo], footShop)).toBe(false);
+    expect(wouldFit(161, AURA_MOVE, [], footShop)).toBe(true);
   });
   it("이미 담긴 장소는 현재 일정으로 판단", () => {
-    expect(wouldFit(122, AURA_MOVE, [footShop], footShop)).toBe(true);
+    expect(wouldFit(102, AURA_MOVE, [footShop], footShop)).toBe(true);
   });
 });
 
-describe("buildCourseTimeline — 기존 동작", () => {
-  it("#5 10:30 도착, 숙소 16분, 더풋샵", () => {
+describe("buildCourseTimeline", () => {
+  it("#5 10:30 출발(입국심사 0), 숙소 16분, 더풋샵 — 시각은 기존과 동일", () => {
     const t = buildCourseTimeline(630, AURA_MOVE, [footShop]);
     expect(t.checkInAt).toBe(666);
     expect(t.stops).toEqual([{ arriveAt: 679, leaveAt: 739 }]);
     expect(t.returnAt).toBe(752);
+    expect(t.usedMin).toBe(102);
     expect(t.usedMin).toBe(courseUsedMin(AURA_MOVE, [footShop]));
   });
 });
 
 describe("autoBuild — 기존 동작(탐욕법)", () => {
-  it("#6 예산 181, 관심사 [Shopping, Rest], 선택 [Food, Shopping] → 다이소, 7곡제면소", () => {
-    const r = autoBuild({ selected: ["Food", "Shopping"], interests: ["Shopping", "Rest"], places, roomMove: AURA_MOVE, budgetMin: 181 });
+  it("#6 코스 가용 161, 관심사 [Shopping, Rest], 선택 [Food, Shopping] → 다이소, 7곡제면소", () => {
+    const r = autoBuild({ selected: ["Food", "Shopping"], interests: ["Shopping", "Rest"], places, roomMove: AURA_MOVE, availableMin: 161 });
     expect(r.map((p) => p.id)).toEqual(["shinsegae-dutyfree", "yeongjong-noodles"]);
-    expect(courseUsedMin(AURA_MOVE, r)).toBe(156);
+    expect(courseUsedMin(AURA_MOVE, r)).toBe(136);
   });
-  it("#7 예산 100 → 다이소만", () => {
-    const r = autoBuild({ selected: ["Food", "Shopping"], interests: ["Shopping", "Rest"], places, roomMove: AURA_MOVE, budgetMin: 100 });
+  it("#7 코스 가용 80 → 다이소만", () => {
+    const r = autoBuild({ selected: ["Food", "Shopping"], interests: ["Shopping", "Rest"], places, roomMove: AURA_MOVE, availableMin: 80 });
     expect(r.map((p) => p.id)).toEqual(["shinsegae-dutyfree"]);
   });
   it("선택 카테고리가 없으면 ACT_KEYS 전체", () => {
-    const r = autoBuild({ selected: [], interests: [], places, roomMove: AURA_MOVE, budgetMin: 1000 });
+    const r = autoBuild({ selected: [], interests: [], places, roomMove: AURA_MOVE, availableMin: 1000 });
     expect(r.map((p) => p.cat)).toEqual(["Food", "Shopping"]);
   });
 });

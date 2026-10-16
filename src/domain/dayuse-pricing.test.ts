@@ -32,7 +32,7 @@ describe("타임블록 가격 — 기존 동작", () => {
 });
 
 describe("체크인 — 기존 동작", () => {
-  it("#3 10:30 도착, 이동 16분 → 11:06 가능, 후보 11:30부터 30분 간격 6개", () => {
+  it("#3 10:30 공항 밖(입국심사 0), 이동 16분 → 11:06 가능, 후보 11:30부터 30분 간격 6개", () => {
     const earliest = earliestCheckInMin(630, 16);
     expect(earliest).toBe(666);
     expect(checkInSlots(earliest)).toEqual([690, 720, 750, 780, 810, 840]);

@@ -16,13 +16,13 @@
 |---|---|---|---|
 | A2 | 자정 넘김: 날짜 우선, 없으면 출발 < 도착이면 익일, 24h 초과 경고 | [time-safe](formulas/time-safe.md) | 적용 |
 | A3 | T1 실시간 대기: `max(기준값, 실시간)` | [time-safe](formulas/time-safe.md) | 적용 |
-| A1 | 버퍼 3분할(입국심사 / 보안검색·출국심사 / 게이트 여유) | [time-safe](formulas/time-safe.md) | 대기 |
-| A5 | 외출 가능 시간 / 코스 가용 시간 용어 분리 | [time-safe](formulas/time-safe.md), [time-fit](formulas/time-fit.md) | 대기 |
+| A1 | 버퍼 3분할(입국심사 / 보안검색·출국심사 / 게이트 여유) | [time-safe](formulas/time-safe.md) | 구조 적용 (값은 아래 A1-값) |
+| A5 | 외출 가능 시간 / 코스 가용 시간 용어 분리 ([GLOSSARY](GLOSSARY.md)) | [time-safe](formulas/time-safe.md), [time-fit](formulas/time-fit.md) | 적용 |
 
 ## 결정 필요
 | # | 내용 | 근거 문서 |
 |---|---|---|
-| A1-값 | 버퍼 3개 구성 요소의 값과 합계 (입국심사: 기획서 50분 미검증 / 보안검색·출국심사: 코드 50분 미검증 / 게이트 여유: 코드 30분 미검증) | [time-safe](formulas/time-safe.md) |
+| A1-값 | 버퍼 3개 구성 요소의 값과 합계. 현재 코드: ① `ARRIVAL_IMMIGRATION_MIN` **0(임시, 기존 동작 유지)** / ② `DEPARTURE_SECURITY_MIN` 50 / ③ `GATE_MARGIN_MIN` 30. 후보: ① 기획서 50분. 전부 미검증. 조합별 결과는 time-safe.md "합계 비교" 표 | [time-safe](formulas/time-safe.md) |
 | A6 | 코스 계산의 장소 간 이동(현재 숙소→장소)·복귀 구간(현재 마지막 장소 move 재사용) | [time-fit](formulas/time-fit.md) |
 | A7 | 버튼 문구 "OR-Tools 최적화"(실제 탐욕법), "복귀 30분 전 푸시 알림 예약됨"·"여유 30분"(기능 없음) | [legacy-analysis](results/2026-10-16-legacy-analysis.md) |
 | A9 | 데이유즈 3~9시간(데이터는 대부분 3–6h), 추가 시간 가격 규칙 `TIER_STEP_RATIO` 0.5 근거 | [dayuse-pricing](formulas/dayuse-pricing.md) |

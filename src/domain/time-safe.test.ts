@@ -14,55 +14,105 @@ import { dayOffset, diffFlightMin, hhmm, parseFlightDateTime } from "./time";
 
 const base = { departureTerminal: null, liveSecurityWaitMin: null };
 
-describe("computeTimeSafe — 기존 동작", () => {
+describe("computeTimeSafe — 외출 가능 시간", () => {
   it("#1 사용자 예시: 10:30 도착 → 14:51 출발(4h21m) = 3h01m", () => {
     const r = computeTimeSafe({ ...base, arriveMin: 630, departMin: 891 });
     expect(r.totalConnectionMin).toBe(261);
-    expect(r.bufferMin).toBe(80);
+    expect(r.arrivalImmigrationMin).toBe(0);
+    expect(r.securityMin).toBe(50);
+    expect(r.gateMarginMin).toBe(30);
+    expect(r.exitAtMin).toBe(630);
+    expect(r.returnBufferMin).toBe(80);
     expect(r.canGoOut).toBe(true);
     expect(r.returnByMin).toBe(811);
     expect(hhmm(r.returnByMin)).toBe("13:31");
-    expect(r.stayMin).toBe(181);
+    expect(r.outingMin).toBe(181);
   });
 
   it("#2 남는 시간이 정확히 MIN_STAY(60분)면 외출 가능", () => {
     const r = computeTimeSafe({ ...base, arriveMin: 600, departMin: 740 });
     expect(r.canGoOut).toBe(true);
     expect(r.returnByMin).toBe(660);
-    expect(r.stayMin).toBe(60);
+    expect(r.outingMin).toBe(60);
   });
 
   it("#3 59분 남으면 외출 불가 → 복귀 시각 = 도착, 체류 0", () => {
     const r = computeTimeSafe({ ...base, arriveMin: 600, departMin: 739 });
     expect(r.canGoOut).toBe(false);
     expect(r.returnByMin).toBe(600);
-    expect(r.stayMin).toBe(0);
+    expect(r.outingMin).toBe(0);
   });
 
   it("#4 연결편 없음 → 도착 + LAYOVER_BUDGET(360)", () => {
     const r = computeTimeSafe({ ...base, arriveMin: 630, departMin: null });
     expect(r.canGoOut).toBe(true);
     expect(r.returnByMin).toBe(990);
-    expect(r.stayMin).toBe(360);
+    expect(r.outingMin).toBe(360);
     expect(r.totalConnectionMin).toBeNull();
   });
 
   it("#5 T1 실시간 대기 12분 → 하한 50분 유지, #1과 같은 3h01m (A3)", () => {
     const r = computeTimeSafe({ arriveMin: 630, departMin: 891, departureTerminal: "P01", liveSecurityWaitMin: 12 });
     expect(r.securityMin).toBe(50);
-    expect(r.bufferMin).toBe(80);
+    expect(r.returnBufferMin).toBe(80);
     expect(r.returnByMin).toBe(811);
-    expect(r.stayMin).toBe(181);
+    expect(r.outingMin).toBe(181);
   });
 
   it("#12 T1 실시간 대기 65분 → 65분 사용, 버퍼 95분, 2h46m (A3)", () => {
     const r = computeTimeSafe({ arriveMin: 630, departMin: 891, departureTerminal: "P01", liveSecurityWaitMin: 65 });
     expect(r.securityMin).toBe(65);
-    expect(r.bufferMin).toBe(95);
+    expect(r.returnBufferMin).toBe(95);
     expect(r.returnByMin).toBe(796);
-    expect(r.stayMin).toBe(166);
+    expect(r.outingMin).toBe(166);
   });
 
+});
+
+describe("computeTimeSafe — 버퍼 3분할(A1), 값 비교용 시나리오", () => {
+  it("#13 기획서 예시식(입국심사 50 + 게이트 30, 보안검색 0) → 3h01m", () => {
+    const r = computeTimeSafe(
+      { ...base, arriveMin: 630, departMin: 891 },
+      { arrivalImmigrationMin: 50, departureSecurityMin: 0, gateMarginMin: 30 },
+    );
+    expect(r.exitAtMin).toBe(680);
+    expect(r.returnByMin).toBe(861);
+    expect(r.outingMin).toBe(181);
+  });
+
+  it("#14 세 값 모두 적용(입국심사 50 + 보안검색 50 + 게이트 30 = 130) → 2h11m", () => {
+    const r = computeTimeSafe(
+      { ...base, arriveMin: 630, departMin: 891 },
+      { arrivalImmigrationMin: 50, departureSecurityMin: 50, gateMarginMin: 30 },
+    );
+    expect(r.exitAtMin).toBe(680);
+    expect(r.returnByMin).toBe(811);
+    expect(r.outingMin).toBe(131);
+  });
+
+  it("#15 입국심사 50 적용 시 외출 불가 경계: 남는 시간 59분", () => {
+    const r = computeTimeSafe(
+      { ...base, arriveMin: 600, departMin: 789 },
+      { arrivalImmigrationMin: 50, departureSecurityMin: 50, gateMarginMin: 30 },
+    );
+    expect(r.canGoOut).toBe(false);
+    expect(r.returnByMin).toBe(650);
+    expect(r.outingMin).toBe(0);
+  });
+
+  it("연결편 없음 + 입국심사 50 → 외출 가능 6h00m − 50 = 5h10m", () => {
+    const r = computeTimeSafe(
+      { ...base, arriveMin: 630, departMin: null },
+      { arrivalImmigrationMin: 50, departureSecurityMin: 50, gateMarginMin: 30 },
+    );
+    expect(r.returnByMin).toBe(990);
+    expect(r.outingMin).toBe(310);
+  });
+
+  it("실시간 대기 하한은 departureSecurityMin을 따른다", () => {
+    expect(securityBufferMin("P01", 40, 30)).toBe(40);
+    expect(isLiveSecurityApplied("P01", 40, 30)).toBe(true);
+  });
 });
 
 describe("resolveConnection — 자정 넘김(A2)", () => {
@@ -75,7 +125,7 @@ describe("resolveConnection — 자정 넘김(A2)", () => {
     expect(r.returnByMin).toBe(1450);
     expect(hhmm(r.returnByMin)).toBe("00:10");
     expect(dayOffset(r.returnByMin)).toBe(1);
-    expect(r.stayMin).toBe(130);
+    expect(r.outingMin).toBe(130);
   });
 
   it("#9 날짜 있음: 2026-10-16 22:00 → 2026-10-17 01:30 = #6과 동일", () => {

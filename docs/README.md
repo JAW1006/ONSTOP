@@ -5,6 +5,7 @@
 | 영역 | 문서 | 상태 | 내용 |
 |---|---|---|---|
 | 진행 | [STATUS.md](STATUS.md) | 확정 | 단계 진행, 결정됨 / **결정 필요** 목록 |
+| 용어 | [GLOSSARY.md](GLOSSARY.md) | 초안 | 외출 가능 시간·코스 가용 시간·버퍼 등 용어 정의 |
 | 제품 | [product/overview.md](product/overview.md) | 초안 | 서비스 개요·핵심 기능·수익 모델 |
 | 제품 | [product/market.md](product/market.md) | 초안 | 시장 규모·타깃 (수치 미검증) |
 | 디자인 | [design/design-tokens.md](design/design-tokens.md) | 초안 | 색·반경·그림자·타이포·레이아웃 토큰 |
@@ -20,6 +21,6 @@
 
 ## 규칙 요약
 - 공식의 단일 출처 = `formulas/*.md` → `src/domain` 코드·테스트가 예시값을 그대로 따름.
-- 상수는 `src/domain/constants.ts` 한 곳, md에서도 같은 이름(`SECURITY_BUFFER_MIN` 등)으로 참조.
+- 상수는 `src/domain/constants.ts` 한 곳, md에서도 같은 이름(`DEPARTURE_SECURITY_MIN` 등)으로 참조.
 - 숫자에는 출처·기준 연도, 검증 안 된 값은 **미검증**.
 - 상단에 `상태: 초안 | 확정 | 폐기`.

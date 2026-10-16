@@ -1,11 +1,12 @@
-// 공식: docs/formulas/time-safe.md
+// 공식: docs/formulas/time-safe.md · 용어: docs/GLOSSARY.md
 import {
-  GATE_CUTOFF_MIN,
+  ARRIVAL_IMMIGRATION_MIN,
+  DEPARTURE_SECURITY_MIN,
+  GATE_MARGIN_MIN,
   LAYOVER_BUDGET,
   LIVE_SECURITY_TERMINAL,
   MIN_STAY,
   MINUTES_PER_DAY,
-  SECURITY_BUFFER_MIN,
 } from "./constants";
 import { diffFlightMin, parseFlightDateTime, type FlightClock } from "./time";
 
@@ -77,30 +78,42 @@ export function averageSecurityWaitMin(gates: { waitTimeMin: number }[]): number
   return Math.round(gates.reduce((sum, g) => sum + g.waitTimeMin, 0) / gates.length);
 }
 
+/** Time-Safe 버퍼 3개 구성 요소(분) */
+export interface TimeSafeBuffers {
+  /** ① 입국심사(도착 후, 짐 찾기 포함) */
+  arrivalImmigrationMin: number;
+  /** ② 보안검색·출국심사(복귀 후) — T1 실시간 대기의 하한 */
+  departureSecurityMin: number;
+  /** ③ 게이트 여유 */
+  gateMarginMin: number;
+}
+
+export const DEFAULT_BUFFERS: TimeSafeBuffers = {
+  arrivalImmigrationMin: ARRIVAL_IMMIGRATION_MIN,
+  departureSecurityMin: DEPARTURE_SECURITY_MIN,
+  gateMarginMin: GATE_MARGIN_MIN,
+};
+
 /**
- * 수속 버퍼: SECURITY_BUFFER_MIN을 하한으로 두고, 연결편이 T1이고 실시간 값이 있으면 더 큰 쪽을 쓴다.
+ * ② 보안검색·출국심사: 기준값을 하한으로 두고, 연결편이 T1이고 실시간 값이 있으면 더 큰 쪽을 쓴다.
  * 실시간 값은 조회 시점의 T1 전체 게이트 평균이라 실제 게이트·복귀 시점 값이 아니다(time-safe.md 엣지 케이스).
  */
-export function securityBufferMin(departureTerminal: string | null, liveWaitMin: number | null): number {
-  if (departureTerminal !== LIVE_SECURITY_TERMINAL || liveWaitMin == null) return SECURITY_BUFFER_MIN;
-  return Math.max(SECURITY_BUFFER_MIN, liveWaitMin);
+export function securityBufferMin(
+  departureTerminal: string | null,
+  liveWaitMin: number | null,
+  baseMin: number = DEPARTURE_SECURITY_MIN,
+): number {
+  if (departureTerminal !== LIVE_SECURITY_TERMINAL || liveWaitMin == null) return baseMin;
+  return Math.max(baseMin, liveWaitMin);
 }
 
 /** 실시간 대기시간이 실제로 버퍼를 올렸는가(화면의 "실시간 반영" 배지용) */
-export function isLiveSecurityApplied(departureTerminal: string | null, liveWaitMin: number | null): boolean {
-  return departureTerminal === LIVE_SECURITY_TERMINAL && liveWaitMin != null && liveWaitMin > SECURITY_BUFFER_MIN;
-}
-
-export interface ConnectionInfo {
-  canGoOut: boolean;
-  returnByMin: number;
-}
-
-/** 레거시 connectionInfo — 외출 가능 여부와 공항 복귀 추천 시각 */
-export function connectionInfo(arriveMin: number, departMin: number | null, bufferMin: number): ConnectionInfo {
-  if (departMin == null) return { canGoOut: true, returnByMin: arriveMin + LAYOVER_BUDGET };
-  const canGoOut = departMin - bufferMin - arriveMin >= MIN_STAY;
-  return { canGoOut, returnByMin: canGoOut ? departMin - bufferMin : arriveMin };
+export function isLiveSecurityApplied(
+  departureTerminal: string | null,
+  liveWaitMin: number | null,
+  baseMin: number = DEPARTURE_SECURITY_MIN,
+): boolean {
+  return departureTerminal === LIVE_SECURITY_TERMINAL && liveWaitMin != null && liveWaitMin > baseMin;
 }
 
 export interface TimeSafeInput {
@@ -110,24 +123,48 @@ export interface TimeSafeInput {
   liveSecurityWaitMin: number | null;
 }
 
-export interface TimeSafeResult extends ConnectionInfo {
+export interface TimeSafeResult {
+  arrivalImmigrationMin: number;
+  /** ② 실제 적용값(실시간 하한 반영 후) */
   securityMin: number;
-  bufferMin: number;
-  /** 홈·온보딩에 표시되는 체류 가능 시간 = returnBy − arrive */
-  stayMin: number;
+  gateMarginMin: number;
+  /** 복귀 쪽 버퍼 = ② + ③ */
+  returnBufferMin: number;
+  /** 공항 밖으로 나가는 시각 = 도착 + ① */
+  exitAtMin: number;
+  canGoOut: boolean;
+  /** 공항 복귀 추천 시각 = 출발 − 복귀 버퍼 (외출 불가면 exitAt) */
+  returnByMin: number;
+  /** 외출 가능 시간 = 복귀 추천 시각 − 공항 밖으로 나가는 시각 (외출 불가면 0) */
+  outingMin: number;
   /** 도착~연결편 출발 총 시간(연결편 없으면 null) */
   totalConnectionMin: number | null;
 }
 
-export function computeTimeSafe(input: TimeSafeInput): TimeSafeResult {
-  const securityMin = securityBufferMin(input.departureTerminal, input.liveSecurityWaitMin);
-  const bufferMin = securityMin + GATE_CUTOFF_MIN;
-  const info = connectionInfo(input.arriveMin, input.departMin, bufferMin);
+export function computeTimeSafe(input: TimeSafeInput, buffers: TimeSafeBuffers = DEFAULT_BUFFERS): TimeSafeResult {
+  const securityMin = securityBufferMin(input.departureTerminal, input.liveSecurityWaitMin, buffers.departureSecurityMin);
+  const returnBufferMin = securityMin + buffers.gateMarginMin;
+  const exitAtMin = input.arriveMin + buffers.arrivalImmigrationMin;
+
+  let canGoOut: boolean;
+  let returnByMin: number;
+  if (input.departMin == null) {
+    canGoOut = true;
+    returnByMin = input.arriveMin + LAYOVER_BUDGET;
+  } else {
+    canGoOut = input.departMin - returnBufferMin - exitAtMin >= MIN_STAY;
+    returnByMin = canGoOut ? input.departMin - returnBufferMin : exitAtMin;
+  }
+
   return {
-    ...info,
+    arrivalImmigrationMin: buffers.arrivalImmigrationMin,
     securityMin,
-    bufferMin,
-    stayMin: info.returnByMin - input.arriveMin,
+    gateMarginMin: buffers.gateMarginMin,
+    returnBufferMin,
+    exitAtMin,
+    canGoOut,
+    returnByMin,
+    outingMin: Math.max(0, returnByMin - exitAtMin),
     totalConnectionMin: input.departMin == null ? null : input.departMin - input.arriveMin,
   };
 }

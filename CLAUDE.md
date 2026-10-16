@@ -1,7 +1,7 @@
 # TimeStay — 작업 규칙
 
 인천공항 환승 외국인을 위한 데이유즈 + AI 큐레이션 앱. 레거시 단일 HTML(`app/index.html`)을 React로 이식 중.
-문서 목차: [docs/README.md](docs/README.md) · 진행·결정 필요: [docs/STATUS.md](docs/STATUS.md)
+문서 목차: [docs/README.md](docs/README.md) · 진행·결정 필요: [docs/STATUS.md](docs/STATUS.md) · 용어: [docs/GLOSSARY.md](docs/GLOSSARY.md)
 
 ## 스택 / 명령어
 Vite + React + TypeScript · Tailwind v4 + shadcn/ui(Radix) · React Router · TanStack Query · Vitest
@@ -33,7 +33,8 @@ Vite + React + TypeScript · Tailwind v4 + shadcn/ui(Radix) · React Router · T
 5. 의미 있는 변경은 `docs/changelog.md`에 한 줄 남긴다.
 6. 숫자에는 출처와 기준 연도를 붙인다. 검증 안 된 값은 **"미검증"**으로 표시한다.
 7. 레거시 코드에서 공식과 어긋나거나 모호한 부분은 임의로 고치지 말고 사용자에게 먼저 묻는다.
-8. 토큰에 없는 색·반경·그림자를 하드코딩하지 않는다. 필요하면 tokens.css와 design-tokens.md에 먼저 추가.
+8. 화면 문구·코드 이름은 GLOSSARY 용어를 따른다(예: "외출 가능 시간" = `outingMin`, "코스 가용 시간" = `courseAvailableMin`).
+9. 토큰에 없는 색·반경·그림자를 하드코딩하지 않는다. 필요하면 tokens.css와 design-tokens.md에 먼저 추가.
 
 ## 문서 규칙
 - 모든 문서 상단: `> 상태: 초안 | 확정 | 폐기` (+ 최종 수정일)
