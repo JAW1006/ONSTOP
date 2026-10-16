@@ -6,10 +6,11 @@ import { useTimeFormat } from "@/features/time-safe/hooks";
 import { cn } from "@/lib/utils";
 import type { CourseModel } from "./use-course";
 
-type Segment = { key: "prep" | "travel" | "stay" | "spare" | "over"; min: number };
+type Segment = { key: "prep" | "wait" | "travel" | "stay" | "spare" | "over"; min: number };
 
 const SEGMENT_CLASS: Record<Segment["key"], string> = {
   prep: "bg-role-prep",
+  wait: "bg-role-prep",
   travel: "bg-role-route",
   stay: "bg-role-stay",
   spare: "bg-role-spare",
@@ -17,13 +18,13 @@ const SEGMENT_CLASS: Record<Segment["key"], string> = {
 };
 
 /**
- * 막대 구간: 준비 → 이동 → 체류 순으로 쌓고, 가용(외출 가능 시간)을 넘는 부분은 "초과"(빨강)로 자른다.
+ * 막대 구간: 준비 → (체크인 대기) → 이동 → 체류 순으로 쌓고, 가용(외출 가능 시간)을 넘는 부분은 "초과"(빨강)로 자른다.
  * 여유가 있으면 끝에 여유 구간.
  */
-export function budgetSegments(prep: number, travel: number, stay: number, available: number): Segment[] {
+export function budgetSegments(prep: number, travel: number, stay: number, available: number, wait = 0): Segment[] {
   const out: Segment[] = [];
   let used = 0;
-  for (const [key, min] of [["prep", prep], ["travel", travel], ["stay", stay]] as const) {
+  for (const [key, min] of [["prep", prep], ["wait", wait], ["travel", travel], ["stay", stay]] as const) {
     const fit = Math.max(0, Math.min(min, available - used));
     if (fit > 0) out.push({ key, min: fit });
     used += min;
@@ -40,11 +41,13 @@ export function SummaryPanel({ model }: { model: CourseModel }) {
   const { summary, course, returnPlan, prepMin } = model;
   const travel = course?.travelMin ?? 0;
   const stay = course?.stayMin ?? 0;
+  const wait = course?.waitMin ?? 0;
   const over = summary.remainMin < 0;
-  const segments = budgetSegments(prepMin, travel, stay, summary.availableMin);
+  const segments = budgetSegments(prepMin, travel, stay, summary.availableMin, wait);
   const total = Math.max(summary.usedMin, summary.availableMin, 1);
   const labels: Segment[] = [
     { key: "prep", min: prepMin },
+    ...(wait ? [{ key: "wait" as const, min: wait }] : []),
     { key: "travel", min: travel },
     { key: "stay", min: stay },
     over ? { key: "over", min: -summary.remainMin } : { key: "spare", min: summary.remainMin },

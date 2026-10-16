@@ -1,6 +1,6 @@
 # 데이유즈 예약 (예약 요청 · 견적 요청 · 요청 내역)
 
-> 상태: **확정(2026-10-16 결정 반영) — 구현 중** · 최종 수정 2026-10-16
+> 상태: **확정 — 구현 완료(데모)** · 최종 수정 2026-10-16 · 코드: [`src/features/booking/`](../../../src/features/booking/) · 비교: [results](../../results/2026-10-16-booking-screen.md)
 > 레거시: `Booking`(app/index.html 1015–1107줄), `Confirm`(1115–1180줄)
 > 공식: [dayuse-pricing](../../formulas/dayuse-pricing.md)(A9 `DayuseOffer`, 예약 시각 계산) · [time-fit](../../formulas/time-fit.md)(A6 순차 경로 + B1 호텔 복귀) · [time-safe](../../formulas/time-safe.md)
 > 관련 결정: [ADR-0003 인증](../../decisions/ADR-0003-auth.md)(비회원) · [ADR-0004 결제](../../decisions/ADR-0004-payment.md)(제안 — 결제 없음) · [ADR-0005 배포](../../decisions/ADR-0005-environments-deploy.md)(운영 배포 금지 조건) · [legal-checklist](../../legal-checklist.md) 0장
@@ -147,6 +147,8 @@
 | 항공편 조회 실패 | Time-Safe와 같은 오류 + 버튼 비활성 |
 | 코스 경로 조회 실패 | 근사 + "약"(저장된 코스와 같음) |
 | 모든 상품이 고른 슬롯에 시작 불가 | "이 시각에는 시작할 수 있는 상품이 없어요" + 다른 슬롯 선택 |
+| 견적 요청인데 숙소 출발 기한 ≤ 슬롯(공항에서 먼 숙소) | "이 시각에는 숙소를 이용할 시간이 남지 않아요" + 요청 불가(구현 중 추가) |
+| 연락처 오류 표시 | 이메일·이메일 확인은 입력하는 동안, 이름은 칸을 벗어난 뒤(비활성 버튼은 눌리지 않으므로) |
 | 요청 저장 실패(서버 연결 후) | 입력값 유지 + "보내지 못했어요. 다시 시도해 주세요" |
 
 ## 레거시와 다르게 하는 점

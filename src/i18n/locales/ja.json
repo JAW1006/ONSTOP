@@ -1,12 +1,43 @@
 {
   "booking": {
+    "active": "進行中のリクエストがあります。リクエストは一度に1件までです。",
+    "activeLink": "予約を見る",
     "browseStays": "宿泊先を見る",
     "checkoutPastReturn": "チェックアウトが復帰推奨時刻({{time}})より後です。実際にはその前に出る必要があります。",
     "chooseCheckIn": "チェックイン時刻を選択",
     "chooseTimeBlock": "タイムブロックを選択",
+    "consent": {
+      "privacy": "氏名・メールアドレスの収集・利用に同意します（リクエストの送信と返信のみに使用）",
+      "terms": "時間の計算は参考値であり、搭乗の責任は自分にあることに同意します",
+      "thirdParty": "このリクエストのため氏名・メールアドレスを宿泊先に提供することに同意します",
+      "title": "同意事項"
+    },
+    "contact": {
+      "email": "メールアドレス",
+      "emailConfirm": "メールアドレス（確認）",
+      "error": {
+        "email": "メールアドレスの形式をご確認ください",
+        "emailMismatch": "メールアドレスが一致しません",
+        "name": "お名前を入力してください"
+      },
+      "minimal": "リクエストに必要なのはお名前とメールアドレスだけです",
+      "name": "お名前（ローマ字可）",
+      "nameHint": "パスポートと同じローマ字表記をおすすめします",
+      "title": "連絡先"
+    },
     "earliestCheckIn": "宿泊先までの移動時間を考慮すると{{time}}以降にチェックイン可能",
     "empty": "まだ予約履歴がありません",
+    "entryNotice": "入国できるかどうか（国籍・ビザ・乗継条件）はTimeStayでは確認していません。空港を出る前に公式案内でご確認ください。",
+    "entryNoticeLink": "HiKorea入国案内",
+    "entryNoticeShort": "入国条件は先に公式案内でご確認ください。",
+    "fromAirportApprox": "空港から約{{n}}分",
     "includes": "シャワー・休憩・荷物預かり込み",
+    "makeCourse": "コースを作る",
+    "notFound": "宿泊先が見つかりません",
+    "participation": {
+      "negotiating": "提携協議中",
+      "none": "未提携"
+    },
     "payment": {
       "methods": "簡単決済・Alipay・WeChat Pay・カード",
       "pay": "支払う",
@@ -17,8 +48,95 @@
       "count": "コースビルダーで追加した{{n}}件のアクティビティ",
       "title": "予定に含まれるスケジュール"
     },
+    "product": {
+      "noneStartable": "この時刻に開始できるプランはありません。別の時刻を選んでください。",
+      "startWindow": "{{from}}–{{to}}開始のみ",
+      "vatExcluded": "税別",
+      "vatIncluded": "税込"
+    },
+    "quote": {
+      "noTime": "この時刻からは宿泊先を利用する時間が残りません。早い時刻か空港に近い宿泊先を選んでください。",
+      "note": "料金と利用可否はホテルからご連絡します",
+      "title": "デイユース見積もりリクエスト",
+      "window": "希望利用時間 {{from}} – {{to}}（宿泊先の出発期限まで）"
+    },
+    "request": {
+      "title": "デイユース予約リクエスト"
+    },
+    "submit": {
+      "notReady": "予約リクエストはまだ準備中です",
+      "note": "ホテルから返答があればメールでお知らせします",
+      "noteTypical": "ホテルから返答があればメールでお知らせします · 通常{{n}}分以内",
+      "product": "予約リクエストを送る",
+      "quote": "見積もりリクエストを送る"
+    },
     "subtitle": "タイムブロックを予約",
+    "summary": {
+      "block": "{{h}}時間 · {{from}}–{{to}}",
+      "policy": "キャンセル・ノーショー・延長の規定",
+      "policyPending": "ホテル確認後にご案内",
+      "price": "予定金額",
+      "priceNote": "お支払いはホテル確認後にご案内します",
+      "quote": "見積もり待ち",
+      "title": "リクエスト内容"
+    },
+    "timing": {
+      "ack": "予定を減らすか、ホテルと調整します",
+      "airport": "空港到着予定",
+      "checkIn": "チェックイン",
+      "end": "利用終了",
+      "hotelReturn": "宿泊先に戻る（荷物）",
+      "late": "空港到着予定{{time}}は目標{{target}}より{{min}}分遅れます。スポットを減らすか早い時刻を選んでください。",
+      "noCourse": "コースを作ると宿泊先に戻る時刻まで確認できます",
+      "title": "時間の確認",
+      "wait": "チェックインまで{{n}}分待ちます — コース全体がその分遅れます"
+    },
     "title": "デイユース予約"
+  },
+  "bookings": {
+    "alt": {
+      "courseHint": "宿泊先を変える場合は、新しい宿泊先でコースを作り直してください",
+      "price": "料金を見る",
+      "quote": "見積もりを依頼",
+      "title": "ほかの宿泊先"
+    },
+    "cancel": "リクエストを取り消す",
+    "cancelConfirm": {
+      "body": "ホテル確認前のため、すぐに取り消されます。",
+      "title": "このリクエストを取り消しますか？",
+      "yes": "取り消す"
+    },
+    "confirmed": {
+      "cancelHint": "キャンセルはホテルにお問い合わせください",
+      "note": "ホテルが確認しました"
+    },
+    "contact": "ホテル連絡先",
+    "contactPending": "連絡先確認中",
+    "declined": {
+      "note": "ホテルはこのリクエストをお受けできません",
+      "reason": "理由：{{reason}}"
+    },
+    "expired": {
+      "note": "回答期限が過ぎました"
+    },
+    "mode": {
+      "product": "予約リクエスト",
+      "quote": "見積もりリクエスト"
+    },
+    "policy": "キャンセル規定",
+    "policyPending": "規定確認中",
+    "requestId": "リクエスト番号 {{id}}",
+    "requested": {
+      "note": "ホテル確認中"
+    },
+    "status": {
+      "cancelled": "キャンセル済み",
+      "confirmed": "確定",
+      "declined": "お断り",
+      "expired": "期限切れ",
+      "requested": "リクエスト済み"
+    },
+    "title": "予約一覧"
   },
   "brand": {
     "tagline": {
@@ -172,7 +290,8 @@
         "prep": "準備 {{n}}分",
         "spare": "余裕 {{n}}分",
         "stay": "滞在 {{n}}分",
-        "travel": "移動 {{n}}分"
+        "travel": "移動 {{n}}分",
+        "wait": "チェックイン待ち{{n}}分"
       },
       "until": "{{time}}まで",
       "used": "使用 {{time}}"
@@ -187,6 +306,9 @@
     },
     "perBlock": "/ブロック",
     "timeBlock": "タイムブロック"
+  },
+  "demo": {
+    "banner": "デモ — リクエストはホテルに送信されません"
   },
   "flight": {
     "arrivalLine": "{{airline}} {{flightId}}・到着予想 {{time}}",

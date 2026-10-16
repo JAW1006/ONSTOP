@@ -1,12 +1,43 @@
 {
   "booking": {
+    "active": "您已有进行中的请求，每次只能提交一个。",
+    "activeLink": "查看我的预订",
     "browseStays": "浏览住宿",
     "checkoutPastReturn": "退房时间晚于建议返回时间({{time}})。请提前离开。",
     "chooseCheckIn": "选择入住时间",
     "chooseTimeBlock": "选择时段",
+    "consent": {
+      "privacy": "同意收集和使用我的姓名和电子邮箱（仅用于发送此请求和回复）",
+      "terms": "我理解时间计算仅供参考，按时登机是我自己的责任",
+      "thirdParty": "同意为此请求向住宿提供我的姓名和电子邮箱",
+      "title": "同意事项"
+    },
+    "contact": {
+      "email": "电子邮箱",
+      "emailConfirm": "确认电子邮箱",
+      "error": {
+        "email": "请检查电子邮箱格式",
+        "emailMismatch": "两次输入的电子邮箱不一致",
+        "name": "请输入姓名"
+      },
+      "minimal": "预订请求只需要姓名和电子邮箱",
+      "name": "姓名（可用英文）",
+      "nameHint": "建议与护照上的拼写一致",
+      "title": "联系方式"
+    },
     "earliestCheckIn": "考虑到前往住宿的移动时间,最早可于 {{time}} 后办理入住",
     "empty": "暂无预订记录",
+    "entryNotice": "TimeStay不会核实您能否入境（国籍、签证、转机条件）。离开机场前请查看官方指南。",
+    "entryNoticeLink": "HiKorea入境指南",
+    "entryNoticeShort": "请先在官方指南中确认入境条件。",
+    "fromAirportApprox": "距机场约{{n}}分钟",
     "includes": "含淋浴·休息·行李寄存",
+    "makeCourse": "制定行程",
+    "notFound": "找不到该住宿",
+    "participation": {
+      "negotiating": "合作洽谈中",
+      "none": "尚未合作"
+    },
     "payment": {
       "methods": "简易支付 · 支付宝 · 微信支付 · 信用卡",
       "pay": "立即支付",
@@ -17,8 +48,95 @@
       "count": "路线规划中添加的{{n}}项活动",
       "title": "已规划行程"
     },
+    "product": {
+      "noneStartable": "此时间没有可开始的时段，请选择其他时间。",
+      "startWindow": "仅限{{from}}–{{to}}开始",
+      "vatExcluded": "不含增值税",
+      "vatIncluded": "含增值税"
+    },
+    "quote": {
+      "noTime": "从这个时间开始已没有可使用住宿的时间。请选择更早的时间或离机场更近的住宿。",
+      "note": "酒店会回复价格和是否可用",
+      "title": "日间使用报价请求",
+      "window": "希望使用时间 {{from}} – {{to}}（至离开住宿的最晚时间）"
+    },
+    "request": {
+      "title": "日间使用预订请求"
+    },
+    "submit": {
+      "notReady": "预订请求功能尚未开放",
+      "note": "酒店回复后我们会发邮件通知您",
+      "noteTypical": "酒店回复后我们会发邮件通知您 · 通常{{n}}分钟内回复",
+      "product": "发送预订请求",
+      "quote": "发送报价请求"
+    },
     "subtitle": "预订您的时段",
+    "summary": {
+      "block": "{{h}}小时 · {{from}}–{{to}}",
+      "policy": "取消·未到·延长规定",
+      "policyPending": "酒店确认后告知",
+      "price": "预计金额",
+      "priceNote": "酒店确认后再告知付款方式",
+      "quote": "等待报价",
+      "title": "请求内容"
+    },
+    "timing": {
+      "ack": "我会缩短行程或与酒店协调",
+      "airport": "预计返回机场",
+      "checkIn": "入住",
+      "end": "使用结束",
+      "hotelReturn": "返回住宿（取行李）",
+      "late": "预计{{time}}返回机场，比目标{{target}}晚{{min}}分钟。请删除地点或选择更早的时间。",
+      "noCourse": "制定行程后可一并确认返回住宿的时间",
+      "title": "时间确认",
+      "wait": "需等待{{n}}分钟才能入住 — 整个行程相应推迟"
+    },
     "title": "钟点房预订"
+  },
+  "bookings": {
+    "alt": {
+      "courseHint": "更换住宿后，请以新住宿重新制定行程",
+      "price": "查看价格",
+      "quote": "请求报价",
+      "title": "推荐其他住宿"
+    },
+    "cancel": "取消请求",
+    "cancelConfirm": {
+      "body": "酒店尚未确认，将立即取消。",
+      "title": "要取消此请求吗？",
+      "yes": "确认取消"
+    },
+    "confirmed": {
+      "cancelHint": "如需取消，请联系酒店",
+      "note": "酒店已确认"
+    },
+    "contact": "酒店联系方式",
+    "contactPending": "联系方式确认中",
+    "declined": {
+      "note": "酒店无法接受此请求",
+      "reason": "原因：{{reason}}"
+    },
+    "expired": {
+      "note": "已超过回复期限"
+    },
+    "mode": {
+      "product": "预订请求",
+      "quote": "报价请求"
+    },
+    "policy": "取消规定",
+    "policyPending": "规定确认中",
+    "requestId": "请求编号 {{id}}",
+    "requested": {
+      "note": "等待酒店确认"
+    },
+    "status": {
+      "cancelled": "已取消",
+      "confirmed": "已确认",
+      "declined": "已拒绝",
+      "expired": "已过期",
+      "requested": "已请求"
+    },
+    "title": "我的预订"
   },
   "brand": {
     "tagline": {
@@ -172,7 +290,8 @@
         "prep": "准备 {{n}}分钟",
         "spare": "剩余 {{n}}分钟",
         "stay": "停留 {{n}}分钟",
-        "travel": "移动 {{n}}分钟"
+        "travel": "移动 {{n}}分钟",
+        "wait": "等待入住{{n}}分钟"
       },
       "until": "{{time}}之前",
       "used": "已用 {{time}}"
@@ -187,6 +306,9 @@
     },
     "perBlock": "/时段",
     "timeBlock": "时段"
+  },
+  "demo": {
+    "banner": "演示 — 请求不会发送给酒店"
   },
   "flight": {
     "arrivalLine": "{{airline}} {{flightId}} · 预计到达 {{time}}",

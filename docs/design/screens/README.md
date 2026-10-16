@@ -11,7 +11,7 @@
 | 1 | Time-Safe(온보딩 3단계) | [time-safe](time-safe.md) | `Onboarding` step 0–2 | `/onboarding` | 완료 — [비교 기록](../../results/2026-10-16-time-safe-screen.md) |
 | 2 | 홈 | [home](home.md) | `HomeScreen`, `FlightNotice` | `/` | 완료 — [비교 기록](../../results/2026-10-16-home-screen.md) |
 | 3 | 코스 지도 | [course-map](course-map.md) | `Course`, `CourseMap`, `SavedCourseScreen` | `/course`, `/course/saved` | 완료 — [비교 기록](../../results/2026-10-16-course-map-compare.md), 실제 지도는 사용자 확인 대기 |
-| 4 | 데이유즈 예약(요청 → 호텔 확인) | [booking](booking.md) | `Booking`, `Confirm` | `/booking/:roomId`, `/bookings` | 명세 초안 — 사용자 확인 대기 |
+| 4 | 데이유즈 예약(요청 → 호텔 확인) | [booking](booking.md) | `Booking`, `Confirm` | `/booking/:roomId`, `/bookings` | 완료(데모 — 요청은 메모리 저장, 호텔 전송 없음) — [비교 기록](../../results/2026-10-16-booking-screen.md) |
 | 5 | 마이 → 짐 케어 | — | `Luggagepage`, `MyPage` | `/luggage`, `/my` | 대기 |
 
 ## 명세 템플릿

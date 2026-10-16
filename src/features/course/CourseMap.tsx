@@ -1,6 +1,8 @@
 import { useMemo } from "react";
 import { useTranslation } from "react-i18next";
+import { useAppMode } from "@/app/app-mode";
 import { AIRPORT_COORD, localize, ROOMS, type CoursePlace } from "@/data";
+import { listedRooms } from "@/data/partners";
 import { KakaoMapView } from "./KakaoMapView";
 import type { RefPoi } from "./api";
 import { MODE_EMOJI } from "./map-style";
@@ -33,6 +35,7 @@ export function CourseMap({
 }) {
   const { t, i18n } = useTranslation();
   const MapView = useMapView(KakaoMapView);
+  const { demo } = useAppMode();
   const room = ROOMS.find((r) => r.id === roomId) ?? null;
 
   const scene = useMemo<MapScene>(() => {
@@ -63,7 +66,7 @@ export function CourseMap({
       center: room?.coord ?? AIRPORT_COORD,
       pins: [
         { id: "airport", kind: "airport", coord: AIRPORT_COORD, label: "ICN" },
-        ...ROOMS.filter((r) => r.id === roomId || showOtherHotels).map((r) => ({
+        ...listedRooms(demo).filter((r) => r.id === roomId || showOtherHotels).map((r) => ({
           id: `room:${r.id}`,
           kind: r.id === roomId ? ("hotel" as const) : ("hotel-other" as const),
           coord: r.coord,

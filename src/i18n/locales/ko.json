@@ -1,12 +1,43 @@
 {
   "booking": {
+    "active": "진행 중인 요청이 있어요. 한 번에 1건만 요청할 수 있어요.",
+    "activeLink": "내 예약 보기",
     "browseStays": "숙소 보러가기",
     "checkoutPastReturn": "체크아웃이 복귀 추천 시각({{time}}) 이후예요. 실제로는 그 전에 나와야 해요.",
     "chooseCheckIn": "체크인 시각 선택",
     "chooseTimeBlock": "타임블록 선택",
+    "consent": {
+      "privacy": "이름·이메일 수집·이용에 동의해요 (예약 요청 전달과 회신에만 사용)",
+      "terms": "시간 계산은 참고용이며 탑승 책임은 저에게 있다는 데 동의해요",
+      "thirdParty": "예약 요청을 위해 이름·이메일을 숙소에 제공하는 데 동의해요",
+      "title": "동의"
+    },
+    "contact": {
+      "email": "이메일",
+      "emailConfirm": "이메일 확인",
+      "error": {
+        "email": "이메일 형식을 확인해 주세요",
+        "emailMismatch": "이메일이 서로 달라요",
+        "name": "이름을 입력해 주세요"
+      },
+      "minimal": "예약 요청에는 이름과 이메일만 받아요",
+      "name": "이름 (영문 가능)",
+      "nameHint": "여권과 같은 로마자 표기를 권장해요",
+      "title": "연락처"
+    },
     "earliestCheckIn": "숙소까지 이동시간 고려 시 {{time}} 이후부터 체크인 가능",
     "empty": "아직 예약 내역이 없어요",
+    "entryNotice": "입국 가능 여부(국적·비자·환승 조건)는 TimeStay가 확인하지 않아요. 공항 밖으로 나가기 전에 공식 안내에서 확인해 주세요.",
+    "entryNoticeLink": "하이코리아 입국 안내",
+    "entryNoticeShort": "입국 조건은 공식 안내에서 먼저 확인해 주세요.",
+    "fromAirportApprox": "공항 약 {{n}}분",
     "includes": "샤워·휴식·짐보관 포함",
+    "makeCourse": "코스 만들기",
+    "notFound": "숙소를 찾을 수 없어요",
+    "participation": {
+      "negotiating": "제휴 협의 중",
+      "none": "제휴 전"
+    },
     "payment": {
       "methods": "간편결제 · Alipay · WeChat Pay · Card",
       "pay": "결제하기",
@@ -17,8 +48,95 @@
       "count": "코스 빌더에서 담은 {{n}}개 활동",
       "title": "예약에 포함된 일정"
     },
+    "product": {
+      "noneStartable": "이 시각에는 시작할 수 있는 상품이 없어요. 다른 시각을 골라 주세요.",
+      "startWindow": "{{from}}–{{to}} 시작만 가능",
+      "vatExcluded": "부가세 별도",
+      "vatIncluded": "부가세 포함"
+    },
+    "quote": {
+      "noTime": "이 시각에는 숙소를 이용할 시간이 남지 않아요. 더 이른 시각이나 공항에서 가까운 숙소를 골라 주세요.",
+      "note": "가격과 가능 여부는 호텔이 알려드려요",
+      "title": "데이유즈 견적 요청",
+      "window": "희망 이용 시간 {{from}} – {{to}} (숙소 출발 기한까지)"
+    },
+    "request": {
+      "title": "데이유즈 예약 요청"
+    },
+    "submit": {
+      "notReady": "예약 요청은 아직 준비 중이에요",
+      "note": "호텔이 확인하면 이메일로 알려드려요",
+      "noteTypical": "호텔이 확인하면 이메일로 알려드려요 · 보통 {{n}}분 안에 답해요",
+      "product": "예약 요청 보내기",
+      "quote": "견적 요청 보내기"
+    },
     "subtitle": "Day-use booking",
+    "summary": {
+      "block": "{{h}}시간 · {{from}}–{{to}}",
+      "policy": "취소·노쇼·연장 규정",
+      "policyPending": "호텔 확인 후 안내",
+      "price": "예상 금액",
+      "priceNote": "결제는 호텔 확인 후 안내해요",
+      "quote": "견적 대기",
+      "title": "요청 내용"
+    },
+    "timing": {
+      "ack": "일정을 줄이거나 호텔과 조정할게요",
+      "airport": "공항 복귀 예상",
+      "checkIn": "체크인",
+      "end": "이용 종료",
+      "hotelReturn": "숙소 복귀(짐 찾기)",
+      "late": "공항 복귀 예상 {{time}} — 복귀 목표 {{target}}보다 {{min}}분 늦어요. 장소를 빼거나 더 이른 시각을 골라 주세요.",
+      "noCourse": "코스를 만들면 숙소 복귀 시각까지 함께 확인해요",
+      "title": "시간 확인",
+      "wait": "체크인까지 {{n}}분 기다려요 — 코스 전체가 그만큼 늦어져요"
+    },
     "title": "데이유즈 예약"
+  },
+  "bookings": {
+    "alt": {
+      "courseHint": "숙소가 바뀌면 코스를 새 숙소로 다시 만들어 주세요",
+      "price": "가격 보기",
+      "quote": "견적 요청",
+      "title": "다른 숙소 제안"
+    },
+    "cancel": "요청 취소",
+    "cancelConfirm": {
+      "body": "호텔 확인 전이라 바로 취소돼요.",
+      "title": "요청을 취소할까요?",
+      "yes": "취소하기"
+    },
+    "confirmed": {
+      "cancelHint": "취소는 호텔에 문의해 주세요",
+      "note": "호텔이 확인했어요"
+    },
+    "contact": "호텔 연락처",
+    "contactPending": "연락처 확인 중",
+    "declined": {
+      "note": "호텔이 이번 요청을 받을 수 없어요",
+      "reason": "사유: {{reason}}"
+    },
+    "expired": {
+      "note": "응답 기한이 지났어요"
+    },
+    "mode": {
+      "product": "예약 요청",
+      "quote": "견적 요청"
+    },
+    "policy": "취소 규정",
+    "policyPending": "규정 확인 중",
+    "requestId": "요청번호 {{id}}",
+    "requested": {
+      "note": "호텔 확인 중"
+    },
+    "status": {
+      "cancelled": "취소됨",
+      "confirmed": "확정",
+      "declined": "거절됨",
+      "expired": "만료",
+      "requested": "요청됨"
+    },
+    "title": "내 예약"
   },
   "brand": {
     "tagline": {
@@ -172,7 +290,8 @@
         "prep": "준비 {{n}}분",
         "spare": "여유 {{n}}분",
         "stay": "체류 {{n}}분",
-        "travel": "이동 {{n}}분"
+        "travel": "이동 {{n}}분",
+        "wait": "체크인 대기 {{n}}분"
       },
       "until": "{{time}}까지",
       "used": "사용 {{time}}"
@@ -187,6 +306,9 @@
     },
     "perBlock": "/블록",
     "timeBlock": "타임블록"
+  },
+  "demo": {
+    "banner": "데모 — 요청이 호텔에 전송되지 않아요"
   },
   "flight": {
     "arrivalLine": "{{airline}} {{flightId}} · 도착 예상 {{time}}",

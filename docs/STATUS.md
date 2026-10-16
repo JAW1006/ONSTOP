@@ -24,10 +24,10 @@
 | # | 결정 | 공식 | 적용 |
 |---|---|---|---|
 | B1 | 코스 경로 **공항 → 호텔 → 장소들 → 호텔(짐 찾기) → 공항**. 데이유즈 블록을 고르면 **호텔 복귀 ≤ 블록 종료**가 코스 제약, 예약 화면 경고(B3)도 이 기준. 코스 사용 시간이 늘어 추천이 더 보수적 | [time-fit](formulas/time-fit.md), [결과](results/2026-10-16-hotel-return-route.md) | 적용 |
-| 예약 요청 (B2–B8) | 코스 없이도 요청(근사), 블록 초과·복귀 늦음은 경고 + 확인 체크, 연락처는 이름(영문 허용)·이메일만, 상태 요청됨·확정·거절·만료·취소됨(만료 시간은 호텔 응답 속도로 정함), 거절·만료 시 대안 숙소 제안, 진행 중 요청 1건, 요청됨만 즉시 취소(확정 후는 호텔 문의 + 연락처·규정 표시) | [screens/booking](design/screens/booking.md) | 구현 중 |
-| 요청 모드 | 가격표 있는 호텔 = 상품 선택 후 요청, 없는 호텔 = **견적 요청**(호텔이 가격·가능 여부 회신). 데모는 데모용 가격표 파일(`src/data/demo-offers.json`, 사용자 입력) | [screens/booking](design/screens/booking.md), [dayuse-pricing](formulas/dayuse-pricing.md) | 구현 중 |
-| 늦은 체크인 슬롯 | 슬롯이 코스의 호텔 도착보다 늦으면 **코스 전체를 그만큼 늦춰** 계산(대기 시간은 사용 시간에 포함) | [time-fit](formulas/time-fit.md), [dayuse-pricing](formulas/dayuse-pricing.md) | 구현 중 |
-| 호텔 참여 상태 | 확정 / 협의 중 / 미참여. **운영은 확정 호텔만 노출**, 데모는 전부(상태 표시). 기본값 미참여 | [screens/booking](design/screens/booking.md) | 구현 중 |
+| 예약 요청 (B2–B8) | 코스 없이도 요청(근사), 블록 초과·복귀 늦음은 경고 + 확인 체크, 연락처는 이름(영문 허용)·이메일만, 상태 요청됨·확정·거절·만료·취소됨(만료 시간은 호텔 응답 속도로 정함), 거절·만료 시 대안 숙소 제안, 진행 중 요청 1건, 요청됨만 즉시 취소(확정 후는 호텔 문의 + 연락처·규정 표시) | [screens/booking](design/screens/booking.md) | 적용(데모) |
+| 요청 모드 | 가격표 있는 호텔 = 상품 선택 후 요청, 없는 호텔 = **견적 요청**(호텔이 가격·가능 여부 회신). 데모는 데모용 가격표 파일(`src/data/demo-offers.json`, 사용자 입력) | [screens/booking](design/screens/booking.md), [dayuse-pricing](formulas/dayuse-pricing.md) | 적용(데모) |
+| 늦은 체크인 슬롯 | 슬롯이 코스의 호텔 도착보다 늦으면 **코스 전체를 그만큼 늦춰** 계산(대기 시간은 사용 시간에 포함) | [time-fit](formulas/time-fit.md), [dayuse-pricing](formulas/dayuse-pricing.md) | 적용(데모) |
+| 호텔 참여 상태 | 확정 / 협의 중 / 미참여. **운영은 확정 호텔만 노출**, 데모는 전부(상태 표시). 기본값 미참여 | [screens/booking](design/screens/booking.md) | 적용(데모) |
 | A9 | 데이유즈 가격은 **계산식 추정 금지** — 호텔별 실제 판매 블록·가격표(`DayuseOffer`/`DayuseProduct`)로. 값은 호텔 인터뷰로 입력, 없으면 "가격 확인 중". `TIER_STEP_RATIO` 폐기 예정 | [dayuse-pricing](formulas/dayuse-pricing.md), [data-verification](design/data-verification.md) 수동 입력 구역, [hotel-interview](product/hotel-interview.md) | 문서 확정, 구현은 예약 화면 때 |
 | 화면 순서 | 데이유즈 예약 → 마이 → 짐 케어. 첫 예약은 **결제 없이 "예약 요청 → 호텔 확인"** | [roadmap](product/roadmap.md), [screens/booking](design/screens/booking.md) | 명세 작성, 구현은 사용자 확인 후 |
 | 결제·정산 | ADR-0004는 **제안 상태 유지**(A 플랫폼 정산 / B 호텔 직접 결제 + 월 수수료 청구). 호텔 인터뷰·법적 확인 후 결정 | [ADR-0004](decisions/ADR-0004-payment.md) | 결정 전 |
@@ -67,7 +67,7 @@
 | 데이터 | 숙소·장소 미검증 값 116개 | [design/data-verification](design/data-verification.md) |
 | A1-값 | 버퍼 값 근거. 현재 ① `ARRIVAL_IMMIGRATION_MIN` 50(기획서) / ② `DEPARTURE_SECURITY_MIN` 50(레거시) / ③ `GATE_MARGIN_MIN` 30(레거시) — 전부 미검증. 입국 대기는 분 단위 공개 API 없음(인원 수만 제공) | [time-safe](formulas/time-safe.md), [조사](results/2026-10-16-arrival-wait-data.md) |
 | A9-값 | 호텔 10곳의 판매 블록·가격·시작 가능 시각·연장·취소·노쇼 — 인터뷰로 입력 | [data-verification](design/data-verification.md) 수동 입력 구역, [hotel-interview](product/hotel-interview.md) |
-| A10 | 예약 화면 체크인 계산이 실측이 아닌 정적 이동시간 사용 | [dayuse-pricing](formulas/dayuse-pricing.md) |
+| 홈 숙소 카드 가격 | 홈 데이유즈 카드가 아직 레거시 추정 가격("₩50,000~")·시간 범위(3–9h)를 표시 — A9(추정 가격 금지)와 어긋남. 가격표 기준으로 바꿀지, 가격 없으면 "견적 요청" 표시로 바꿀지 | [results](results/2026-10-16-booking-screen.md) |
 | A13 | 브랜드 컬러: 앱(Blue/Gold) vs 로고 README(Teal/Coral) | [design-tokens](design/design-tokens.md) |
 | 수수료 | 수수료 계산 기준·반올림 | [dayuse-pricing](formulas/dayuse-pricing.md) |
 | 탑승동 셔틀 버퍼 | 탑승동(P02, 게이트 101~132) 출발은 T1 출국장 통과 후 셔틀트레인을 탄다. 이 이동·대기에 별도 버퍼가 필요한지 **미검증** — 지금은 추가 버퍼 없음(게이트 여유 30분 안에 흡수된다고 가정, 근거 없음). 근거 후보는 아래 "탑승동 셔틀트레인 근거" | [time-safe](formulas/time-safe.md) |

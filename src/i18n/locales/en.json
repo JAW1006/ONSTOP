@@ -1,12 +1,43 @@
 {
   "booking": {
+    "active": "You already have an active request. Only one request at a time.",
+    "activeLink": "View my bookings",
     "browseStays": "Browse stays",
     "checkoutPastReturn": "Checkout falls after your recommended return time ({{time}}). You'll need to leave before then.",
     "chooseCheckIn": "Choose check-in time",
     "chooseTimeBlock": "Choose a time block",
+    "consent": {
+      "privacy": "I agree to the collection and use of my name and email (only to send this request and reply)",
+      "terms": "I understand the time estimates are for reference and catching my flight is my responsibility",
+      "thirdParty": "I agree to share my name and email with the stay for this request",
+      "title": "Consent"
+    },
+    "contact": {
+      "email": "Email",
+      "emailConfirm": "Confirm email",
+      "error": {
+        "email": "Please check the email format",
+        "emailMismatch": "The emails don't match",
+        "name": "Please enter your name"
+      },
+      "minimal": "We only ask for your name and email",
+      "name": "Name (Latin letters OK)",
+      "nameHint": "We recommend the same spelling as your passport",
+      "title": "Contact"
+    },
     "earliestCheckIn": "Earliest check-in is {{time}}, based on travel time to this stay",
     "empty": "No bookings yet",
+    "entryNotice": "TimeStay doesn't check whether you can enter Korea (nationality, visa, transit rules). Check the official guidance before leaving the airport.",
+    "entryNoticeLink": "HiKorea entry guide",
+    "entryNoticeShort": "Please check entry requirements in the official guidance first.",
+    "fromAirportApprox": "~{{n}} min from airport",
     "includes": "Includes shower, rest & luggage storage",
+    "makeCourse": "Build a course",
+    "notFound": "We couldn't find this stay",
+    "participation": {
+      "negotiating": "Partnership in talks",
+      "none": "Not a partner yet"
+    },
     "payment": {
       "methods": "Easy pay · Alipay · WeChat Pay · Card",
       "pay": "Pay now",
@@ -17,8 +48,95 @@
       "count": "{{n}} activities from your course builder",
       "title": "Planned itinerary"
     },
+    "product": {
+      "noneStartable": "No block can start at this time. Please pick another time.",
+      "startWindow": "Start {{from}}–{{to}} only",
+      "vatExcluded": "VAT excl.",
+      "vatIncluded": "VAT incl."
+    },
+    "quote": {
+      "noTime": "There's no time left to use the stay from this time. Pick an earlier time or a stay closer to the airport.",
+      "note": "The hotel will reply with the price and availability",
+      "title": "Day-use quote request",
+      "window": "Requested time {{from}} – {{to}} (until you must leave the stay)"
+    },
+    "request": {
+      "title": "Day-use booking request"
+    },
+    "submit": {
+      "notReady": "Booking requests aren't available yet",
+      "note": "We'll email you when the hotel responds",
+      "noteTypical": "We'll email you when the hotel responds · usually within {{n}} min",
+      "product": "Send booking request",
+      "quote": "Send quote request"
+    },
     "subtitle": "Book your time block",
+    "summary": {
+      "block": "{{h}} h · {{from}}–{{to}}",
+      "policy": "Cancellation / no-show / extension",
+      "policyPending": "Shared after the hotel confirms",
+      "price": "Estimated price",
+      "priceNote": "Payment details come after the hotel confirms",
+      "quote": "Awaiting quote",
+      "title": "Request details"
+    },
+    "timing": {
+      "ack": "I'll shorten my plan or arrange it with the hotel",
+      "airport": "Expected airport arrival",
+      "checkIn": "Check-in",
+      "end": "Day-use ends",
+      "hotelReturn": "Back at stay (luggage)",
+      "late": "Expected airport arrival {{time}} is {{min}} min after your target {{target}}. Remove a spot or pick an earlier time.",
+      "noCourse": "Build a course to also check when you'll be back at the stay",
+      "title": "Time check",
+      "wait": "You'll wait {{n}} min for check-in — your whole course shifts later"
+    },
     "title": "Day-Use Booking"
+  },
+  "bookings": {
+    "alt": {
+      "courseHint": "If you switch stays, rebuild your course from the new stay",
+      "price": "See prices",
+      "quote": "Request a quote",
+      "title": "Other stays nearby"
+    },
+    "cancel": "Cancel request",
+    "cancelConfirm": {
+      "body": "The hotel hasn't confirmed yet, so it's cancelled right away.",
+      "title": "Cancel this request?",
+      "yes": "Cancel request"
+    },
+    "confirmed": {
+      "cancelHint": "To cancel, please contact the hotel",
+      "note": "The hotel confirmed"
+    },
+    "contact": "Hotel contact",
+    "contactPending": "Contact being confirmed",
+    "declined": {
+      "note": "The hotel can't accept this request",
+      "reason": "Reason: {{reason}}"
+    },
+    "expired": {
+      "note": "The response time has passed"
+    },
+    "mode": {
+      "product": "Booking request",
+      "quote": "Quote request"
+    },
+    "policy": "Cancellation policy",
+    "policyPending": "Policy being confirmed",
+    "requestId": "Request no. {{id}}",
+    "requested": {
+      "note": "Waiting for the hotel"
+    },
+    "status": {
+      "cancelled": "Cancelled",
+      "confirmed": "Confirmed",
+      "declined": "Declined",
+      "expired": "Expired",
+      "requested": "Requested"
+    },
+    "title": "My bookings"
   },
   "brand": {
     "tagline": {
@@ -172,7 +290,8 @@
         "prep": "Prep {{n}} min",
         "spare": "Spare {{n}} min",
         "stay": "Stay {{n}} min",
-        "travel": "Travel {{n}} min"
+        "travel": "Travel {{n}} min",
+        "wait": "Check-in wait {{n}} min"
       },
       "until": "{{time}}",
       "used": "Used {{time}}"
@@ -187,6 +306,9 @@
     },
     "perBlock": "/block",
     "timeBlock": "time block"
+  },
+  "demo": {
+    "banner": "Demo — requests are not sent to hotels"
   },
   "flight": {
     "arrivalLine": "{{airline}} {{flightId}} · Est. arrival {{time}}",

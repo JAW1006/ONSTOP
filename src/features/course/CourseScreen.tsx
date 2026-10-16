@@ -12,7 +12,10 @@ import { Card } from "@/components/ui/card";
 import { Chip } from "@/components/ui/chip";
 import { PageHeader } from "@/components/ui/page-header";
 import { SectionHeader } from "@/components/ui/section-header";
-import { AD_PLACE_IDS, localize, PLACES, roomImage, ROOMS, type CoursePlace } from "@/data";
+import { useAppMode } from "@/app/app-mode";
+import { AD_PLACE_IDS, localize, PLACES, roomImage, type CoursePlace } from "@/data";
+import { listedRooms } from "@/data/partners";
+import { useActiveBlock } from "@/features/booking/requests";
 import { ACT_KEYS } from "@/domain/constants";
 import { autoBuildSequential, courseAvailableMin, wouldFitSequential } from "@/domain/time-fit";
 import type { TravelMode } from "@/domain/travel";
@@ -44,7 +47,8 @@ export function CourseScreen() {
   const cats = trip.courseCats ?? initialCats(trip.interests);
   const plan = trip.coursePlan;
   // 코스 빌더는 실제 경로를 조회하지 않는다(보수적 근사) — 저장하면 저장된 코스 화면에서 실제 경로 조회
-  const model = useCourseModel(trip.courseRoomId, plan, { live: false });
+  const { demo } = useAppMode();
+  const model = useCourseModel(trip.courseRoomId, plan, { live: false, booking: useActiveBlock(trip.courseRoomId) });
   const room = model.room;
   const locked = !model.canGoOut;
   const [selectedLeg, setSelectedLeg] = useState<number | null>(null);
@@ -79,8 +83,7 @@ export function CourseScreen() {
   const available = courseAvailableMin(model.outingMin);
   const inPlan = (p: CoursePlace) => plan.some((x) => x.id === p.id);
   // B1: 이 숙소에 고른 데이유즈 블록이 있으면 호텔 복귀 ≤ 블록 종료도 판정한다
-  const blockEnd = model.returnPlan?.blockEndMin ?? null;
-  const block = blockEnd != null ? { startMin: model.exitAtMin, endMin: blockEnd } : null;
+  const block = model.booking ? { startMin: model.exitAtMin, checkInMin: model.booking.checkInMin, endMin: model.booking.endMin } : null;
   const fits = (p: CoursePlace) => !!room && wouldFitSequential(available, legsFor, plan, p, block);
   const toggle = (p: CoursePlace) => trip.setCoursePlan((prev) => (prev.some((x) => x.id === p.id) ? prev.filter((x) => x.id !== p.id) : [...prev, p]));
   const autoBuild = () => {
@@ -130,7 +133,7 @@ export function CourseScreen() {
           {t("course.room.title")} <span className="font-bold text-red">{t("course.room.required")}</span>
         </h2>
         <ul className="mb-5 flex gap-2.5 overflow-x-auto pb-1.5" aria-label={t("course.room.title")}>
-          {ROOMS.map((r) => {
+          {listedRooms(demo).map((r) => {
             const on = r.id === room?.id;
             return (
               <li key={r.id} className="shrink-0">

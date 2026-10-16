@@ -3,6 +3,8 @@ import { PhoneFrame } from "@/app/PhoneFrame";
 import { PlaceholderPage } from "@/app/PlaceholderPage";
 import { TabLayout } from "@/app/TabLayout";
 import { UiShowcase } from "@/app/UiShowcase";
+import { BookingScreen } from "@/features/booking/BookingScreen";
+import { BookingsScreen } from "@/features/booking/BookingsScreen";
 import { CourseScreen } from "@/features/course/CourseScreen";
 import { SavedCourseScreen } from "@/features/course/SavedCourseScreen";
 import { HomeScreen } from "@/features/home/HomeScreen";
@@ -22,8 +24,8 @@ export const routes: RouteObject[] = [
           { path: "luggage", element: <PlaceholderPage titleKey="luggage.title" /> },
           { path: "course", element: <CourseScreen /> },
           { path: "course/saved", element: <SavedCourseScreen /> },
-          { path: "booking/:roomId", element: <PlaceholderPage titleKey="booking.title" /> },
-          { path: "bookings", element: <PlaceholderPage titleKey="confirm.title" /> },
+          { path: "booking/:roomId", element: <BookingScreen /> },
+          { path: "bookings", element: <BookingsScreen /> },
           { path: "my", element: <PlaceholderPage titleKey="my.title" /> },
           // 개발 모드 전용 컴포넌트 견본
           ...(import.meta.env.DEV ? [{ path: "dev/ui", element: <UiShowcase /> }] : []),

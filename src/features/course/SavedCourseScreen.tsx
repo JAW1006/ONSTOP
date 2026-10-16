@@ -11,6 +11,7 @@ import { CannotGoOutBox, CourseHeader, LegDetail } from "./CourseScreen";
 import { CourseMap } from "./CourseMap";
 import { CourseTimeline } from "./CourseTimeline";
 import { SummaryPanel } from "./SummaryPanel";
+import { useActiveBlock } from "@/features/booking/requests";
 import { useCourseModel } from "./use-course";
 
 /** 저장된 코스(읽기 전용) — 수정하기 / 이 숙소로 예약하기만(레거시 SavedCourseScreen) */
@@ -20,7 +21,7 @@ export function SavedCourseScreen() {
   const trip = useTrip();
   const saved = trip.savedCourse;
   // 확정된 코스 — 여기서만 실제 경로를 조회한다
-  const model = useCourseModel(saved?.roomId ?? null, saved?.plan ?? [], { live: true });
+  const model = useCourseModel(saved?.roomId ?? null, saved?.plan ?? [], { live: true, booking: useActiveBlock(saved?.roomId ?? null) });
   const [selectedLeg, setSelectedLeg] = useState<number | null>(null);
 
   if (!saved || !model.room) {

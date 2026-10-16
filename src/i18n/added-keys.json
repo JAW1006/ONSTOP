@@ -183,5 +183,333 @@
   "course.summary.blockOver": {
     "stage": "B1 호텔 복귀 — 호텔 복귀가 데이유즈 블록 종료보다 늦을 때 경고",
     "reviewed": false
+  },
+  "course.summary.segment.wait": {
+    "stage": "예약 — 체크인 슬롯 대기(코스 지연) 막대 구간",
+    "reviewed": false
+  },
+  "demo.banner": {
+    "stage": "예약 — 데모 띠(B6)",
+    "reviewed": false
+  },
+  "booking.request.title": {
+    "stage": "예약 — 요청 작성 헤더(상품 요청)",
+    "reviewed": false
+  },
+  "booking.quote.title": {
+    "stage": "예약 — 요청 작성 헤더(견적 요청)",
+    "reviewed": false
+  },
+  "booking.notFound": {
+    "stage": "예약 — 노출 안 되는 숙소·잘못된 주소",
+    "reviewed": false
+  },
+  "booking.participation.negotiating": {
+    "stage": "예약 — 데모의 호텔 참여 상태 표시",
+    "reviewed": false
+  },
+  "booking.participation.none": {
+    "stage": "예약 — 데모의 호텔 참여 상태 표시",
+    "reviewed": false
+  },
+  "booking.fromAirportApprox": {
+    "stage": "예약 — 숙소 카드 근사 이동시간",
+    "reviewed": false
+  },
+  "booking.entryNotice": {
+    "stage": "예약 — 외출≠입국 안내(B7 안 A)",
+    "reviewed": false
+  },
+  "booking.entryNoticeLink": {
+    "stage": "예약 — 외출≠입국 안내 공식 링크",
+    "reviewed": false
+  },
+  "booking.entryNoticeShort": {
+    "stage": "예약 — 버튼 위 입국 안내 한 줄",
+    "reviewed": false
+  },
+  "booking.product.vatIncluded": {
+    "stage": "예약 — 상품 칩 부가세 표시",
+    "reviewed": false
+  },
+  "booking.product.vatExcluded": {
+    "stage": "예약 — 상품 칩 부가세 표시",
+    "reviewed": false
+  },
+  "booking.product.startWindow": {
+    "stage": "예약 — 상품 시작 가능 시각",
+    "reviewed": false
+  },
+  "booking.product.noneStartable": {
+    "stage": "예약 — 슬롯에 시작 가능한 상품 없음",
+    "reviewed": false
+  },
+  "booking.quote.window": {
+    "stage": "예약 — 견적 요청 희망 이용 시간",
+    "reviewed": false
+  },
+  "booking.quote.note": {
+    "stage": "예약 — 견적 요청 안내",
+    "reviewed": false
+  },
+  "booking.timing.title": {
+    "stage": "예약 — 시간 맞춤 확인 제목",
+    "reviewed": false
+  },
+  "booking.timing.checkIn": {
+    "stage": "예약 — 시간 확인 줄",
+    "reviewed": false
+  },
+  "booking.timing.hotelReturn": {
+    "stage": "예약 — 시간 확인 줄",
+    "reviewed": false
+  },
+  "booking.timing.end": {
+    "stage": "예약 — 시간 확인 줄",
+    "reviewed": false
+  },
+  "booking.timing.airport": {
+    "stage": "예약 — 시간 확인 줄",
+    "reviewed": false
+  },
+  "booking.timing.wait": {
+    "stage": "예약 — 늦은 슬롯 안내(코스 지연)",
+    "reviewed": false
+  },
+  "booking.timing.late": {
+    "stage": "예약 — 공항 복귀 늦음 경고",
+    "reviewed": false
+  },
+  "booking.timing.ack": {
+    "stage": "예약 — 경고 확인 체크(B3)",
+    "reviewed": false
+  },
+  "booking.timing.noCourse": {
+    "stage": "예약 — 코스 없이 진입(B2)",
+    "reviewed": false
+  },
+  "booking.makeCourse": {
+    "stage": "예약 — 코스 만들기 버튼",
+    "reviewed": false
+  },
+  "booking.summary.title": {
+    "stage": "예약 — 요청 내용 제목",
+    "reviewed": false
+  },
+  "booking.summary.block": {
+    "stage": "예약 — 요청 내용 블록·시각",
+    "reviewed": false
+  },
+  "booking.summary.price": {
+    "stage": "예약 — 예상 금액",
+    "reviewed": false
+  },
+  "booking.summary.priceNote": {
+    "stage": "예약 — 결제 없음 안내",
+    "reviewed": false
+  },
+  "booking.summary.quote": {
+    "stage": "예약 — 견적 대기",
+    "reviewed": false
+  },
+  "booking.summary.policy": {
+    "stage": "예약 — 규정 줄",
+    "reviewed": false
+  },
+  "booking.summary.policyPending": {
+    "stage": "예약 — 규정 없음",
+    "reviewed": false
+  },
+  "booking.contact.title": {
+    "stage": "예약 — 연락처(B4 최소 수집)",
+    "reviewed": false
+  },
+  "booking.contact.minimal": {
+    "stage": "예약 — 최소 수집 안내",
+    "reviewed": false
+  },
+  "booking.contact.name": {
+    "stage": "예약 — 이름 입력(영문 허용)",
+    "reviewed": false
+  },
+  "booking.contact.nameHint": {
+    "stage": "예약 — 이름 입력 힌트",
+    "reviewed": false
+  },
+  "booking.contact.email": {
+    "stage": "예약 — 이메일 입력",
+    "reviewed": false
+  },
+  "booking.contact.emailConfirm": {
+    "stage": "예약 — 이메일 확인 입력",
+    "reviewed": false
+  },
+  "booking.contact.error.name": {
+    "stage": "예약 — 이름 오류",
+    "reviewed": false
+  },
+  "booking.contact.error.email": {
+    "stage": "예약 — 이메일 형식 오류",
+    "reviewed": false
+  },
+  "booking.contact.error.emailMismatch": {
+    "stage": "예약 — 이메일 확인 불일치",
+    "reviewed": false
+  },
+  "booking.consent.title": {
+    "stage": "예약 — 동의 제목(legal 확인 전 초안)",
+    "reviewed": false
+  },
+  "booking.consent.privacy": {
+    "stage": "예약 — 개인정보 수집·이용 동의(초안)",
+    "reviewed": false
+  },
+  "booking.consent.thirdParty": {
+    "stage": "예약 — 숙소 제공(제3자 제공) 동의(초안)",
+    "reviewed": false
+  },
+  "booking.consent.terms": {
+    "stage": "예약 — 계산 참고용·탑승 책임 동의(초안)",
+    "reviewed": false
+  },
+  "booking.submit.product": {
+    "stage": "예약 — 요청 버튼(결제 아님)",
+    "reviewed": false
+  },
+  "booking.submit.quote": {
+    "stage": "예약 — 견적 요청 버튼",
+    "reviewed": false
+  },
+  "booking.submit.note": {
+    "stage": "예약 — 버튼 아래 안내",
+    "reviewed": false
+  },
+  "booking.submit.noteTypical": {
+    "stage": "예약 — 버튼 아래 안내(응답 시간 있음)",
+    "reviewed": false
+  },
+  "booking.submit.notReady": {
+    "stage": "예약 — 데모 아닌 환경(B6)",
+    "reviewed": false
+  },
+  "booking.active": {
+    "stage": "예약 — 진행 중 요청 1건(B8)",
+    "reviewed": false
+  },
+  "booking.activeLink": {
+    "stage": "예약 — 진행 중 요청 링크",
+    "reviewed": false
+  },
+  "bookings.title": {
+    "stage": "요청 내역 — 헤더",
+    "reviewed": false
+  },
+  "bookings.requestId": {
+    "stage": "요청 내역 — 요청번호",
+    "reviewed": false
+  },
+  "bookings.mode.product": {
+    "stage": "요청 내역 — 모드",
+    "reviewed": false
+  },
+  "bookings.mode.quote": {
+    "stage": "요청 내역 — 모드",
+    "reviewed": false
+  },
+  "bookings.status.requested": {
+    "stage": "요청 내역 — 상태",
+    "reviewed": false
+  },
+  "bookings.status.confirmed": {
+    "stage": "요청 내역 — 상태",
+    "reviewed": false
+  },
+  "bookings.status.declined": {
+    "stage": "요청 내역 — 상태",
+    "reviewed": false
+  },
+  "bookings.status.expired": {
+    "stage": "요청 내역 — 상태",
+    "reviewed": false
+  },
+  "bookings.status.cancelled": {
+    "stage": "요청 내역 — 상태",
+    "reviewed": false
+  },
+  "bookings.requested.note": {
+    "stage": "요청 내역 — 요청됨 안내",
+    "reviewed": false
+  },
+  "bookings.cancel": {
+    "stage": "요청 내역 — 요청됨 취소(B8)",
+    "reviewed": false
+  },
+  "bookings.cancelConfirm.title": {
+    "stage": "요청 내역 — 취소 확인",
+    "reviewed": false
+  },
+  "bookings.cancelConfirm.body": {
+    "stage": "요청 내역 — 취소 확인",
+    "reviewed": false
+  },
+  "bookings.cancelConfirm.yes": {
+    "stage": "요청 내역 — 취소 확인",
+    "reviewed": false
+  },
+  "bookings.confirmed.note": {
+    "stage": "요청 내역 — 확정 안내",
+    "reviewed": false
+  },
+  "bookings.confirmed.cancelHint": {
+    "stage": "요청 내역 — 확정 후 취소 안내(B8)",
+    "reviewed": false
+  },
+  "bookings.contact": {
+    "stage": "요청 내역 — 호텔 연락처",
+    "reviewed": false
+  },
+  "bookings.contactPending": {
+    "stage": "요청 내역 — 연락처 없음",
+    "reviewed": false
+  },
+  "bookings.policy": {
+    "stage": "요청 내역 — 취소 규정",
+    "reviewed": false
+  },
+  "bookings.policyPending": {
+    "stage": "요청 내역 — 규정 없음",
+    "reviewed": false
+  },
+  "bookings.declined.note": {
+    "stage": "요청 내역 — 거절 안내",
+    "reviewed": false
+  },
+  "bookings.declined.reason": {
+    "stage": "요청 내역 — 거절 사유",
+    "reviewed": false
+  },
+  "bookings.expired.note": {
+    "stage": "요청 내역 — 만료 안내",
+    "reviewed": false
+  },
+  "bookings.alt.title": {
+    "stage": "요청 내역 — 대안 숙소 제안(B5)",
+    "reviewed": false
+  },
+  "bookings.alt.price": {
+    "stage": "요청 내역 — 대안 숙소(가격표 있음)",
+    "reviewed": false
+  },
+  "bookings.alt.quote": {
+    "stage": "요청 내역 — 대안 숙소(가격표 없음)",
+    "reviewed": false
+  },
+  "bookings.alt.courseHint": {
+    "stage": "요청 내역 — 대안 숙소 코스 안내",
+    "reviewed": false
+  },
+  "booking.quote.noTime": {
+    "stage": "예약 — 견적 요청인데 숙소 출발 기한이 슬롯보다 이름(이용할 시간 없음)",
+    "reviewed": false
   }
 }

@@ -1,12 +1,43 @@
 {
   "booking": {
+    "active": "Bạn đang có một yêu cầu. Mỗi lần chỉ gửi được một yêu cầu.",
+    "activeLink": "Xem đặt chỗ của tôi",
     "browseStays": "Xem chỗ nghỉ",
     "checkoutPastReturn": "Giờ trả phòng muộn hơn giờ nên quay lại ({{time}}). Bạn cần rời đi trước thời điểm đó.",
     "chooseCheckIn": "Chọn giờ nhận phòng",
     "chooseTimeBlock": "Chọn khung giờ",
+    "consent": {
+      "privacy": "Tôi đồng ý cho thu thập và sử dụng tên, email (chỉ để gửi yêu cầu và phản hồi)",
+      "terms": "Tôi hiểu thời gian tính toán chỉ để tham khảo và việc lên máy bay là trách nhiệm của tôi",
+      "thirdParty": "Tôi đồng ý cung cấp tên và email cho chỗ nghỉ để gửi yêu cầu",
+      "title": "Đồng ý"
+    },
+    "contact": {
+      "email": "Email",
+      "emailConfirm": "Xác nhận email",
+      "error": {
+        "email": "Vui lòng kiểm tra định dạng email",
+        "emailMismatch": "Hai email không khớp",
+        "name": "Vui lòng nhập họ tên"
+      },
+      "minimal": "Chúng tôi chỉ cần tên và email của bạn",
+      "name": "Họ tên (có thể dùng chữ Latin)",
+      "nameHint": "Nên ghi giống trên hộ chiếu",
+      "title": "Liên hệ"
+    },
     "earliestCheckIn": "Sớm nhất có thể nhận phòng từ {{time}}, tính theo thời gian di chuyển đến chỗ nghỉ",
     "empty": "Chưa có lượt đặt chỗ nào",
+    "entryNotice": "TimeStay không kiểm tra bạn có được nhập cảnh hay không (quốc tịch, thị thực, điều kiện quá cảnh). Hãy xem hướng dẫn chính thức trước khi rời sân bay.",
+    "entryNoticeLink": "Hướng dẫn nhập cảnh HiKorea",
+    "entryNoticeShort": "Vui lòng kiểm tra điều kiện nhập cảnh trong hướng dẫn chính thức trước.",
+    "fromAirportApprox": "Cách sân bay ~{{n}} phút",
     "includes": "Bao gồm tắm, nghỉ ngơi & gửi hành lý",
+    "makeCourse": "Tạo lộ trình",
+    "notFound": "Không tìm thấy chỗ nghỉ này",
+    "participation": {
+      "negotiating": "Đang đàm phán hợp tác",
+      "none": "Chưa hợp tác"
+    },
     "payment": {
       "methods": "Thanh toán nhanh · Alipay · WeChat Pay · Thẻ",
       "pay": "Thanh toán",
@@ -17,8 +48,95 @@
       "count": "{{n}} hoạt động từ trình tạo lộ trình",
       "title": "Lịch trình đã lên kế hoạch"
     },
+    "product": {
+      "noneStartable": "Không có gói nào bắt đầu vào giờ này. Hãy chọn giờ khác.",
+      "startWindow": "Chỉ bắt đầu {{from}}–{{to}}",
+      "vatExcluded": "Chưa gồm VAT",
+      "vatIncluded": "Đã gồm VAT"
+    },
+    "quote": {
+      "noTime": "Từ giờ này không còn thời gian để dùng chỗ nghỉ. Hãy chọn giờ sớm hơn hoặc chỗ nghỉ gần sân bay hơn.",
+      "note": "Khách sạn sẽ báo giá và tình trạng phòng",
+      "title": "Yêu cầu báo giá day-use",
+      "window": "Thời gian mong muốn {{from}} – {{to}} (đến hạn rời chỗ nghỉ)"
+    },
+    "request": {
+      "title": "Yêu cầu đặt day-use"
+    },
+    "submit": {
+      "notReady": "Tính năng yêu cầu đặt chỗ chưa sẵn sàng",
+      "note": "Chúng tôi sẽ gửi email khi khách sạn phản hồi",
+      "noteTypical": "Chúng tôi sẽ gửi email khi khách sạn phản hồi · thường trong {{n}} phút",
+      "product": "Gửi yêu cầu đặt chỗ",
+      "quote": "Gửi yêu cầu báo giá"
+    },
     "subtitle": "Đặt khung giờ của bạn",
+    "summary": {
+      "block": "{{h}} giờ · {{from}}–{{to}}",
+      "policy": "Quy định hủy / không đến / gia hạn",
+      "policyPending": "Thông báo sau khi khách sạn xác nhận",
+      "price": "Giá dự kiến",
+      "priceNote": "Thông tin thanh toán sẽ có sau khi khách sạn xác nhận",
+      "quote": "Chờ báo giá",
+      "title": "Nội dung yêu cầu"
+    },
+    "timing": {
+      "ack": "Tôi sẽ rút ngắn lịch hoặc trao đổi với khách sạn",
+      "airport": "Dự kiến về sân bay",
+      "checkIn": "Nhận phòng",
+      "end": "Kết thúc day-use",
+      "hotelReturn": "Về chỗ nghỉ (lấy hành lý)",
+      "late": "Dự kiến về sân bay lúc {{time}}, trễ {{min}} phút so với mục tiêu {{target}}. Hãy bớt điểm đến hoặc chọn giờ sớm hơn.",
+      "noCourse": "Tạo lộ trình để kiểm tra cả giờ về chỗ nghỉ",
+      "title": "Kiểm tra thời gian",
+      "wait": "Bạn chờ {{n}} phút để nhận phòng — cả lộ trình lùi lại tương ứng"
+    },
     "title": "Đặt chỗ Day-Use"
+  },
+  "bookings": {
+    "alt": {
+      "courseHint": "Nếu đổi chỗ nghỉ, hãy tạo lại lộ trình từ chỗ nghỉ mới",
+      "price": "Xem giá",
+      "quote": "Yêu cầu báo giá",
+      "title": "Gợi ý chỗ nghỉ khác"
+    },
+    "cancel": "Hủy yêu cầu",
+    "cancelConfirm": {
+      "body": "Khách sạn chưa xác nhận nên yêu cầu sẽ bị hủy ngay.",
+      "title": "Hủy yêu cầu này?",
+      "yes": "Hủy"
+    },
+    "confirmed": {
+      "cancelHint": "Để hủy, vui lòng liên hệ khách sạn",
+      "note": "Khách sạn đã xác nhận"
+    },
+    "contact": "Liên hệ khách sạn",
+    "contactPending": "Đang xác nhận thông tin liên hệ",
+    "declined": {
+      "note": "Khách sạn không thể nhận yêu cầu này",
+      "reason": "Lý do: {{reason}}"
+    },
+    "expired": {
+      "note": "Đã quá hạn phản hồi"
+    },
+    "mode": {
+      "product": "Yêu cầu đặt chỗ",
+      "quote": "Yêu cầu báo giá"
+    },
+    "policy": "Chính sách hủy",
+    "policyPending": "Đang xác nhận chính sách",
+    "requestId": "Mã yêu cầu {{id}}",
+    "requested": {
+      "note": "Đang chờ khách sạn"
+    },
+    "status": {
+      "cancelled": "Đã hủy",
+      "confirmed": "Đã xác nhận",
+      "declined": "Bị từ chối",
+      "expired": "Hết hạn",
+      "requested": "Đã gửi"
+    },
+    "title": "Đặt chỗ của tôi"
   },
   "brand": {
     "tagline": {
@@ -172,7 +290,8 @@
         "prep": "Chuẩn bị {{n}} phút",
         "spare": "Còn dư {{n}} phút",
         "stay": "Lưu trú {{n}} phút",
-        "travel": "Di chuyển {{n}} phút"
+        "travel": "Di chuyển {{n}} phút",
+        "wait": "Chờ nhận phòng {{n}} phút"
       },
       "until": "{{time}}",
       "used": "Đã dùng {{time}}"
@@ -187,6 +306,9 @@
     },
     "perBlock": "/khung giờ",
     "timeBlock": "khung giờ"
+  },
+  "demo": {
+    "banner": "Bản demo — yêu cầu không được gửi tới khách sạn"
   },
   "flight": {
     "arrivalLine": "{{airline}} {{flightId}} · Dự kiến đến {{time}}",

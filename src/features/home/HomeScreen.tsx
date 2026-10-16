@@ -10,7 +10,9 @@ import { BrandLogo } from "@/components/ui/brand-logo";
 import { Card } from "@/components/ui/card";
 import { Photo } from "@/components/ui/photo";
 import { SectionHeader } from "@/components/ui/section-header";
-import { HOT_PLACES, localize, ROOMS, type Place } from "@/data";
+import { useAppMode } from "@/app/app-mode";
+import { HOT_PLACES, localize, type Place } from "@/data";
+import { listedRooms } from "@/data/partners";
 import { RoomCard } from "@/features/dayuse/RoomCard";
 import { useTimeSafe } from "@/features/time-safe/hooks";
 import { TimeSafeSummaryCard } from "@/features/time-safe/TimeSafeSummaryCard";
@@ -27,7 +29,9 @@ export function HomeScreen() {
   const { result } = useTimeSafe();
   const canGoOut = result.canGoOut;
   const [hot, setHot] = useState<Place | null>(null);
-  const firstRoom = ROOMS[0]!;
+  const { demo } = useAppMode();
+  const rooms = listedRooms(demo);
+  const firstRoom = rooms[0];
 
   return (
     <div>
@@ -89,19 +93,23 @@ export function HomeScreen() {
           </Card>
         </button>
 
-        {/* 데이유즈 */}
-        <SectionHeader
-          title={t("home.dayuse.title")}
-          subtitle={t("home.dayuse.subtitle")}
-          onMore={() => navigate(`/booking/${firstRoom.id}`)}
-        />
-        <ul className="mb-2 flex gap-3 overflow-x-auto pb-1.5" aria-label={t("home.dayuse.title")}>
-          {ROOMS.map((room) => (
-            <li key={room.id}>
-              <RoomCard room={room} />
-            </li>
-          ))}
-        </ul>
+        {/* 데이유즈 — 운영은 참여 확정 호텔만(없으면 영역 숨김) */}
+        {firstRoom && (
+          <>
+            <SectionHeader
+              title={t("home.dayuse.title")}
+              subtitle={t("home.dayuse.subtitle")}
+              onMore={() => navigate(`/booking/${firstRoom.id}`)}
+            />
+            <ul className="mb-2 flex gap-3 overflow-x-auto pb-1.5" aria-label={t("home.dayuse.title")}>
+              {rooms.map((room) => (
+                <li key={room.id}>
+                  <RoomCard room={room} />
+                </li>
+              ))}
+            </ul>
+          </>
+        )}
 
         {/* 짐 케어 */}
         <Link to="/luggage" className="mb-5 flex items-center justify-between rounded-lg bg-danger-bg px-4 py-[13px]">
