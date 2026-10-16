@@ -138,10 +138,12 @@ export function autoBuild<P extends AutoBuildPlace>(opts: {
  * stays = 장소별 체류(분). 호텔 체류(휴식·짐 찾기)는 넣지 않는다.
  */
 export interface SequentialCourse {
-  /** 코스 사용 시간(준비 제외) = Σlegs + Σstays */
+  /** 코스 사용 시간(준비 제외) = Σlegs + Σstays + 체크인 대기 */
   usedMin: number;
   travelMin: number;
   stayMin: number;
+  /** 체크인 슬롯을 기다린 분(alignCheckIn, 없으면 0) */
+  waitMin: number;
   checkInAt: number;
   stops: { arriveAt: number; leaveAt: number }[];
   /** 마지막 장소에서 호텔로 출발하는 시각(장소 없으면 체크인) */
@@ -179,6 +181,7 @@ export function sequentialCourse(startMin: number, legs: readonly number[], stay
     usedMin: travelMin + stayMin,
     travelMin,
     stayMin,
+    waitMin: 0,
     checkInAt,
     stops,
     lastDepartAt,
@@ -186,6 +189,25 @@ export function sequentialCourse(startMin: number, legs: readonly number[], stay
     hotelReturnLegMin,
     returnAt: hotelReturnAt + returnLegMin,
     returnLegMin,
+  };
+}
+
+/**
+ * 체크인 슬롯 정렬(2026-10-16 결정): 슬롯이 코스의 호텔 도착보다 늦으면 코스 전체를 그만큼 늦춘다.
+ * 기다린 시간은 사용 시간에 넣는다(여유 < 0 ⇔ 복귀 늦음이 유지된다). 슬롯이 이르거나 같으면 그대로.
+ */
+export function alignCheckIn(course: SequentialCourse, slotMin: number): SequentialCourse {
+  const wait = Math.max(0, slotMin - course.checkInAt);
+  if (!wait) return course;
+  return {
+    ...course,
+    usedMin: course.usedMin + wait,
+    waitMin: course.waitMin + wait,
+    checkInAt: course.checkInAt + wait,
+    stops: course.stops.map((st) => ({ arriveAt: st.arriveAt + wait, leaveAt: st.leaveAt + wait })),
+    lastDepartAt: course.lastDepartAt + wait,
+    hotelReturnAt: course.hotelReturnAt + wait,
+    returnAt: course.returnAt + wait,
   };
 }
 
@@ -238,9 +260,10 @@ export function sequentialUsedMin<P extends { dur: number }>(legsFor: LegsFor<P>
   return legsFor(stops).reduce((a, b) => a + b, 0) + stops.reduce((a, p) => a + p.dur, 0);
 }
 
-/** 고른 데이유즈 블록이 있을 때의 호텔 복귀 제약: 공항 밖 시각 startMin, 블록 종료 endMin */
+/** 고른 데이유즈 블록이 있을 때의 호텔 복귀 제약: 공항 밖 시각 startMin, 체크인 슬롯 checkInMin(있으면 코스를 맞춤), 블록 종료 endMin */
 export interface HotelBlockLimit {
   startMin: number;
+  checkInMin?: number;
   endMin: number;
 }
 
@@ -248,9 +271,11 @@ export interface HotelBlockLimit {
 export function fitsSequential<P extends { dur: number }>(availableMin: number, legsFor: LegsFor<P>, stops: readonly P[], block?: HotelBlockLimit | null): boolean {
   const legs = legsFor(stops);
   const stays = stops.map((p) => p.dur);
-  if (legs.reduce((a, b) => a + b, 0) + stays.reduce((a, b) => a + b, 0) > availableMin) return false;
+  const raw = sequentialCourse(block?.startMin ?? 0, legs, stays);
+  const course = block?.checkInMin != null ? alignCheckIn(raw, block.checkInMin) : raw;
+  if (course.usedMin > availableMin) return false;
   if (!block || !stops.length) return true;
-  return sequentialCourse(block.startMin, legs, stays).hotelReturnAt <= block.endMin;
+  return course.hotelReturnAt <= block.endMin;
 }
 
 /** "환승 내 가능" — 담겨 있으면 현재 일정, 아니면 끝에 붙인 일정(…→마지막→후보→호텔→공항)이 제약 안인가 */

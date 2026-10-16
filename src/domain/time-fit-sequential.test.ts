@@ -1,6 +1,6 @@
 // 기댓값은 docs/formulas/time-fit.md "순차 경로 예시"(S1–S6)와 같은 숫자다.
 import { describe, expect, it } from "vitest";
-import { courseAvailableMin, fitsSequential, returnPlan, scheduleSummary, sequentialCourse, sequentialUsedMin, autoBuildSequential, wouldFitSequential } from "./time-fit";
+import { alignCheckIn, courseAvailableMin, fitsSequential, returnPlan, scheduleSummary, sequentialCourse, sequentialUsedMin, autoBuildSequential, wouldFitSequential } from "./time-fit";
 import { approxTravel } from "./travel";
 import { hhmm } from "./time";
 
@@ -66,6 +66,24 @@ describe("sequentialCourse — 순차 경로(A6) + 호텔 복귀(B1)", () => {
     expect(returnPlan(RETURN_BY, c, 900)).toMatchObject({ blockOver: false, blockOverMin: 0, lastDepartureDeadlineMin: 785 });
     // 장소가 없으면 호텔 복귀 구간이 없어 블록 제약이 없다
     expect(returnPlan(RETURN_BY, sequentialCourse(START, [18, 18], []), 700).blockOver).toBe(false);
+  });
+
+  it("S7 체크인 슬롯 12:30: 코스 전체 32분 지연, 대기는 사용 시간에 포함 → 30분 초과·늦음 / 슬롯이 이르면 그대로", () => {
+    const c = alignCheckIn(sequentialCourse(START, [18, 12, 8, 8, 18], [25, 20]), 750);
+    expect(c.waitMin).toBe(32);
+    expect(hhmm(c.checkInAt)).toBe("12:30");
+    expect(c.stops.map((s) => `${hhmm(s.arriveAt)}-${hhmm(s.leaveAt)}`)).toEqual(["12:42-13:07", "13:15-13:35"]);
+    expect(hhmm(c.hotelReturnAt)).toBe("13:43");
+    expect(hhmm(c.returnAt)).toBe("14:01");
+    expect(scheduleSummary(OUTING, c.usedMin).remainMin).toBe(-30);
+    expect(returnPlan(RETURN_BY, c)).toMatchObject({ late: true, lateMin: 30 });
+    const early = sequentialCourse(START, [18, 12, 8, 8, 18], [25, 20]);
+    expect(alignCheckIn(early, 690)).toBe(early);
+    // 블록 제약에 슬롯이 있으면 맞춘 코스로 판정: 슬롯 12:30, 종료 13:40이면 숙소 복귀 13:43 → 불가
+    const legsS3 = () => [18, 12, 8, 8, 18];
+    const stops = [{ dur: 25 }, { dur: 20 }];
+    expect(fitsSequential(200, legsS3, stops, { startMin: START, checkInMin: 750, endMin: 820 })).toBe(false);
+    expect(fitsSequential(200, legsS3, stops, { startMin: START, checkInMin: 750, endMin: 823 })).toBe(true);
   });
 
   it("구간 수가 맞지 않으면 오류(장소 N개면 N + 3, 없으면 2)", () => {
