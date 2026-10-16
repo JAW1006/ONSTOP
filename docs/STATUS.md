@@ -2,6 +2,8 @@
 
 > 상태: 확정 · 최종 수정 2026-10-16
 
+> 서비스 운영 계획: [product/roadmap](product/roadmap.md) (2026-10-16 공모전 종료, 실제 서비스 전환)
+
 ## 단계
 | 단계 | 내용 | 상태 |
 |---|---|---|
@@ -47,6 +49,10 @@
 ## 결정 필요
 | # | 내용 | 근거 문서 |
 |---|---|---|
+| 운영 ADR | DB(ADR-0002)·인증(0003)·결제·정산 구조(0004)·환경·배포(0005)·복귀 알림(0006) — 모두 초안 | [decisions/](decisions/) |
+| 외부 API | 공공데이터 운영계정 전환, ODsay 등급(무료 30~1,000/일), 카카오모빌리티 쿼터·계약, 카카오 응답 저장 금지 준수 | [operations/external-apis](operations/external-apis.md) |
+| 법률 | 체크리스트 전 항목 확인(결론 없음, 전문가 확인 필요) | [legal-checklist](legal-checklist.md) |
+| 데이터 | 숙소·장소 미검증 값 116개 | [design/data-verification](design/data-verification.md) |
 | A1-값 | 버퍼 값 근거. 현재 ① `ARRIVAL_IMMIGRATION_MIN` 50(기획서) / ② `DEPARTURE_SECURITY_MIN` 50(레거시) / ③ `GATE_MARGIN_MIN` 30(레거시) — 전부 미검증. 입국 대기는 분 단위 공개 API 없음(인원 수만 제공) | [time-safe](formulas/time-safe.md), [조사](results/2026-10-16-arrival-wait-data.md) |
 | A9 | 데이유즈 3~9시간(데이터는 대부분 3–6h), 추가 시간 가격 규칙 `TIER_STEP_RATIO` 0.5 근거 | [dayuse-pricing](formulas/dayuse-pricing.md) |
 | A10 | 예약 화면 체크인 계산이 실측이 아닌 정적 이동시간 사용 | [dayuse-pricing](formulas/dayuse-pricing.md) |
