@@ -5,6 +5,7 @@
 
 | API | 문서 | 상태 |
 |---|---|---|
+| 환경변수(서버 키·포트) | [environment.md](environment.md) | 확정 |
 | 인천공항 여객편 운항현황(도착·출발) | [incheon-flights.md](incheon-flights.md) | 미검증 — 사용자 로그 대기 |
 | 인천공항 출국장 혼잡도 | — | 서버 코드에서 사용 중, 미기록 |
 | 인천공항 입국장현황 | [조사 결과](../results/2026-10-16-arrival-wait-data.md) | 미사용, 미검증 |
