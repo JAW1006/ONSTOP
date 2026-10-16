@@ -65,7 +65,7 @@
   "course": {
     "autoBuild": {
       "cta": "Tự động lên lịch Time-Fit",
-      "note": "Tối ưu bằng OR-Tools · tự sắp xếp theo thời gian quá cảnh và lộ trình"
+      "note": "Tự động gợi ý theo thời gian · mỗi danh mục thêm 1 địa điểm vừa với thời gian còn lại"
     },
     "bookThisStay": "Đặt chỗ nghỉ này →",
     "budget": {

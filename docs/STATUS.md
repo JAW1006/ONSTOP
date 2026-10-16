@@ -21,6 +21,7 @@
 ## 결정됨
 | # | 결정 | 공식 | 적용 |
 |---|---|---|---|
+| A7 | 자동 추천 설명 "OR-Tools 최적화 · …" → "시간에 맞춰 자동 추천 · 카테고리마다 남은 시간에 들어가는 장소를 1곳씩 담아요"(5개 언어, 미검수). 버퍼 안내 문구는 홈 이식 때 "예상 소요 반영 …"으로 이미 대체 | [i18n-review](design/i18n-review.md) | 적용 |
 | 탑승동 | 탑승동(P02) 연결편에 T1 출국장 실시간 대기 적용(사용자 결정). 셔틀 버퍼는 미검증·미적용 | [time-safe](formulas/time-safe.md) | 적용 |
 | T2 | 출국장 실시간 대기를 T1·T2 모두(`/api/security-wait/t2` 추가), 홈 배지는 터미널 기준 "T1/T2 실시간 확인 · 현재 N분" 또는 "실시간 아님" | [time-safe](formulas/time-safe.md), [api/incheon-congestion](api/incheon-congestion.md) | 적용 |
 | 카카오맵 도메인 | `http://localhost:5173` 등록 완료(사용자, 2026-10-16). 이 주소에서 JS SDK 인증·지도 타일 로드 확인. 개발 서버 포트는 5173 고정(`strictPort`). `127.0.0.1`로는 열지 않는다(Vite가 localhost만 수신) | [api/environment](api/environment.md) | 확인 |
@@ -40,7 +41,7 @@
 |---|---|---|
 | A1-값 | 버퍼 값 근거. 현재 ① `ARRIVAL_IMMIGRATION_MIN` 50(기획서) / ② `DEPARTURE_SECURITY_MIN` 50(레거시) / ③ `GATE_MARGIN_MIN` 30(레거시) — 전부 미검증. 입국 대기는 분 단위 공개 API 없음(인원 수만 제공) | [time-safe](formulas/time-safe.md), [조사](results/2026-10-16-arrival-wait-data.md) |
 | A6 | 코스 계산의 장소 간 이동(현재 숙소→장소)·복귀 구간(현재 마지막 장소 move 재사용) | [time-fit](formulas/time-fit.md) |
-| A7 | 문구 "OR-Tools 최적화"(실제 탐욕법), "복귀 30분 전 푸시 알림 예약됨"·"여유 30분"(기능 없음), "수속 {sec}분 + 게이트마감 {gate}분 = 총 {total}분 버퍼(숙소→공항 이동시간 제외)"(버퍼 3요소와 불일치) | [legacy-analysis](results/2026-10-16-legacy-analysis.md) |
+| 알림 기능 | 알림(푸시) 기능이 없어 다음 레거시 문구는 **새 화면에 쓰지 않는다**: `timeSafe.pushScheduled`("복귀 30분 전 푸시 알림 예약됨"), `course.step.return.sub`("Time-Safe 알림 · 여유 30분" — 코스 일정의 복귀 줄은 "복귀 도착 목표"로 대체), `confirm.alertOn`("알림 ON"), 마이의 `my.menu.timeSafeAlerts` 토글. 알림을 만들지, 문구를 지울지 결정 필요(키는 레거시 대조용으로 JSON에 남김) | [legacy-analysis](results/2026-10-16-legacy-analysis.md) |
 | A9 | 데이유즈 3~9시간(데이터는 대부분 3–6h), 추가 시간 가격 규칙 `TIER_STEP_RATIO` 0.5 근거 | [dayuse-pricing](formulas/dayuse-pricing.md) |
 | A10 | 예약 화면 체크인 계산이 실측이 아닌 정적 이동시간 사용 | [dayuse-pricing](formulas/dayuse-pricing.md) |
 | A13 | 브랜드 컬러: 앱(Blue/Gold) vs 로고 README(Teal/Coral) | [design-tokens](design/design-tokens.md) |

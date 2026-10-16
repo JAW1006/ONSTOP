@@ -65,7 +65,7 @@
   "course": {
     "autoBuild": {
       "cta": "Time-Fit 自動コース作成",
-      "note": "OR-Tools最適化・乗継時間と動線に基づき自動配置"
+      "note": "時間に合わせて自動おすすめ・カテゴリごとに残り時間に収まるスポットを1件ずつ追加"
     },
     "bookThisStay": "この宿泊先を予約する →",
     "budget": {

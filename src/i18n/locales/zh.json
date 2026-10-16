@@ -65,7 +65,7 @@
   "course": {
     "autoBuild": {
       "cta": "Time-Fit 自动排程",
-      "note": "OR-Tools 优化 · 依中转时间与动线自动安排"
+      "note": "按时间自动推荐 · 每个类别添加一处能放进剩余时间的地点"
     },
     "bookThisStay": "预订此住宿 →",
     "budget": {

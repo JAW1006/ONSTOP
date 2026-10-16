@@ -65,7 +65,7 @@
   "course": {
     "autoBuild": {
       "cta": "Time-Fit 자동 코스 짜기",
-      "note": "OR-Tools 최적화 · 환승시간·이동동선 기준 자동 배치"
+      "note": "시간에 맞춰 자동 추천 · 카테고리마다 남은 시간에 들어가는 장소를 1곳씩 담아요"
     },
     "bookThisStay": "이 숙소로 예약하기 →",
     "budget": {

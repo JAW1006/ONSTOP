@@ -26,5 +26,10 @@
   "timeSafe.security.notLive": {
     "stage": "4단계 T2 연동 — 실시간 대기를 못 받은 경우(탑승동·조회 실패)",
     "reviewed": false
+  },
+  "course.autoBuild.note": {
+    "stage": "A7 — 레거시 \"OR-Tools 최적화…\"를 실제 동작(카테고리별 탐욕 추천)에 맞게 변경",
+    "kind": "changed",
+    "reviewed": false
   }
 }

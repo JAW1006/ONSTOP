@@ -65,7 +65,7 @@
   "course": {
     "autoBuild": {
       "cta": "Auto-build with Time-Fit",
-      "note": "OR-Tools optimized · auto-arranged by layover time & routing"
+      "note": "Auto-picks to fit your time · adds one spot per category that fits the time left"
     },
     "bookThisStay": "Book this stay →",
     "budget": {

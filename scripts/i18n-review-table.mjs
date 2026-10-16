@@ -15,12 +15,12 @@ const keys = Object.keys(added).sort();
 const pending = keys.filter((k) => !added[k].reviewed).length;
 const rows = keys.map(
   (k) =>
-    `| \`${k}\` | ${added[k].stage} | ${LANGS.map((l) => cell(get(locales[l], k))).join(" | ")} | ${added[k].reviewed ? "검수 완료" : "**미검수**"} |`,
+    `| \`${k}\` | ${added[k].kind === "changed" ? "레거시 변경" : "추가"} | ${added[k].stage} | ${LANGS.map((l) => cell(get(locales[l], k))).join(" | ")} | ${added[k].reviewed ? "검수 완료" : "**미검수**"} |`,
 );
 
 fs.writeFileSync(
   "docs/design/i18n-review.md",
-  `# 번역 검수 요청 — 레거시 이후 추가 문구
+  `# 번역 검수 요청 — 레거시 이후 추가·변경 문구
 
 > 상태: 초안 · 생성: \`node scripts/i18n-review-table.mjs\` (손으로 고치지 말 것)
 > 미검수 ${pending} / 전체 ${keys.length} · 원문은 ko, en은 개발자 작성, **zh·ja·vi는 기계 수준 초안**
@@ -30,8 +30,8 @@ fs.writeFileSync(
 - \`{{이름}}\`은 숫자·시각이 들어가는 자리표시자다. **지우거나 이름을 바꾸면 안 된다.**
 - 고칠 문구는 이 표에 메모하거나 \`src/i18n/locales/<언어>.json\`을 직접 고친 뒤, \`src/i18n/added-keys.json\`의 \`reviewed\`를 \`true\`로 바꾸고 이 표를 다시 만든다.
 
-| 키 | 쓰이는 곳 | ko(원문) | en | zh | ja | vi | 상태 |
-|---|---|---|---|---|---|---|---|
+| 키 | 종류 | 쓰이는 곳 | ko(원문) | en | zh | ja | vi | 상태 |
+|---|---|---|---|---|---|---|---|---|
 ${rows.join("\n")}
 `,
 );

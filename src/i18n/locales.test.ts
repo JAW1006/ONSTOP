@@ -18,7 +18,12 @@ const flat = Object.fromEntries(
 const koKeys = Object.keys(flat.ko!).sort();
 
 // 레거시 이후 추가한 키 — src/i18n/added-keys.json (검수 표: docs/design/i18n-review.md)
-const ADDED_KEYS = Object.keys(addedKeys).sort();
+type AddedEntry = { stage: string; reviewed: boolean; kind?: "changed" };
+const entries = Object.entries(addedKeys as Record<string, AddedEntry>);
+/** 레거시 이후 새로 만든 키 */
+const ADDED_KEYS = entries.filter(([, e]) => e.kind !== "changed").map(([k]) => k).sort();
+/** 레거시 키지만 문구를 의도적으로 바꾼 키 — 원문 대조에서 제외 */
+const CHANGED_KEYS = new Set(entries.filter(([, e]) => e.kind === "changed").map(([k]) => k));
 
 describe("locales", () => {
   it("레거시 190개 문구 + 3단계 이후 추가 키", () => {
@@ -44,7 +49,8 @@ describe("locales", () => {
     const map = [...table.matchAll(/^\| `(\w+)` \| `([\w.]+)` \|/gm)].map((m) => [m[1]!, m[2]!] as const);
     expect(map).toHaveLength(183);
     for (const [legacy, key] of map)
-      for (const lang of LANGUAGE_CODES)
+      if (!CHANGED_KEYS.has(key))
+        for (const lang of LANGUAGE_CODES)
         expect([key, lang, flat[lang]![key]]).toEqual([key, lang, STR[legacy][lang].replace(/\{(\w+)\}/g, "{{$1}}")]);
   });
 });
@@ -52,7 +58,7 @@ describe("locales", () => {
 describe("검수 표", () => {
   it("docs/design/i18n-review.md가 현재 JSON과 같다(scripts/i18n-review-table.mjs로 재생성)", () => {
     const doc = fs.readFileSync("docs/design/i18n-review.md", "utf8");
-    for (const key of ADDED_KEYS)
+    for (const key of [...ADDED_KEYS, ...CHANGED_KEYS])
       for (const lang of LANGUAGE_CODES) expect(doc).toContain(flat[lang]![key]!.replace(/\|/g, "\\|"));
   });
 });
