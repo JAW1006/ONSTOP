@@ -23,8 +23,33 @@ const placeRows = data.places.flatMap((p) => [
 const table = (rows) =>
   rows.map(([id, name, item, value, how, field]) => `| \`${id}\` | ${name} | ${item} | ${value} | ${how} | ${status(id, field)} |`).join("\n");
 
+// 수동 입력 구역(호텔별 시간 블록·가격 — 인터뷰로 채움)은 다시 생성해도 덮어쓰지 않는다
+const OUT = "docs/design/data-verification.md";
+const MARKER = "<!-- 수동 입력 구역: 이 줄 아래는 스크립트가 덮어쓰지 않는다 -->";
+const blankRows = "| | | | | | | |\n| | | | | | | |\n| | | | | | | |";
+const manualTemplate = `${MARKER}
+
+## 호텔별 시간 블록·가격 입력 (인터뷰로 채움 — A9)
+> 계산식으로 추정하지 않는다. 호텔이 **실제로 판매하는 블록과 가격표**를 그대로 적는다. 질문지: [hotel-interview](../product/hotel-interview.md) 1장.
+> 채운 뒤 개발자가 \`src/data\`의 \`dayuse.products\`로 옮긴다(구조: [dayuse-pricing](../formulas/dayuse-pricing.md) "결정된 방식").
+> 칸: 블록(시간) · 판매가(원) · 부가세 포함(예/아니오) · 시작 가능 시각(예: 09:00–20:00) · 요일·기간 조건 · 포함 서비스 · 확인일·출처(인터뷰/계약서/가격표)
+
+${data.rooms
+  .map(
+    (r) => `### ${r.name.ko} (\`${r.id}\`) — 현재 앱 값(미검증): ${r.hourMin}–${r.hourMax}시간, 기본가 ${won(r.price)}
+| 블록(시간) | 판매가(원) | 부가세 포함 | 시작 가능 시각 | 요일·기간 조건 | 포함 서비스 | 확인일·출처 |
+|---|---|---|---|---|---|---|
+${blankRows}
+
+연장 가능·요금: \` \` · 취소 규정: \` \` · 노쇼 처리: \` \` · 예약 확인 방법·응답 시간: \` \`
+`,
+  )
+  .join("\n")}`;
+const previous = fs.existsSync(OUT) ? fs.readFileSync(OUT, "utf8") : "";
+const manual = previous.includes(MARKER) ? previous.slice(previous.indexOf(MARKER)) : manualTemplate;
+
 fs.writeFileSync(
-  "docs/design/data-verification.md",
+  OUT,
   `# 숙소·장소 미검증 데이터 목록
 
 > 상태: 초안 · 생성: \`node scripts/data-verification-table.mjs\` (손으로 고치지 말 것) · 원본: \`src/data/legacy-data.json\`
@@ -48,6 +73,7 @@ ${table(placeRows)}
 | 제휴 여부 | 실존 업체지만 제휴 여부 기록 없음 — 제휴 전 노출 방침([legal-checklist](../legal-checklist.md) 4-4) |
 | 다국어 이름 | zh·ja·vi 이름 대부분이 영문 그대로 — 공식 외국어 상호 확인 |
 | 장소 \`move\` | 레거시 더미값, 새 앱 계산에 안 씀 — 운영 데이터에서 제거 검토 |
-`,
+
+${manual}`,
 );
 console.log(`rooms ${roomRows.length} rows, places ${placeRows.length} rows`);
