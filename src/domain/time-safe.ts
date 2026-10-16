@@ -4,36 +4,71 @@ import {
   LAYOVER_BUDGET,
   LIVE_SECURITY_TERMINAL,
   MIN_STAY,
+  MINUTES_PER_DAY,
   SECURITY_BUFFER_MIN,
 } from "./constants";
-import { parseHHMM } from "./time";
+import { diffFlightMin, parseFlightDateTime, type FlightClock } from "./time";
 
-/** 공항 API의 항공편 시각 필드(HHMM) */
+/** 공항 API의 항공편 시각 필드("HHMM" 또는 "YYYYMMDDHHMM") */
 export interface FlightTimes {
   scheduleDateTime?: string | null;
   estimatedDateTime?: string | null;
 }
 
 /** 도착 시각 = 실시간 예상 우선, 없으면 예정 */
-export function effectiveArrivalMin(f: FlightTimes): number | null {
-  return parseHHMM(f.estimatedDateTime) ?? parseHHMM(f.scheduleDateTime);
+export function effectiveArrival(f: FlightTimes): FlightClock | null {
+  return parseFlightDateTime(f.estimatedDateTime) ?? parseFlightDateTime(f.scheduleDateTime);
 }
 
 /** 출발 시각 = 실시간 예상 우선, 단 예정보다 이르면 예정으로 올린다(조기 출발은 믿지 않음) */
-export function effectiveDepartureMin(f: FlightTimes): number | null {
-  const sched = parseHHMM(f.scheduleDateTime);
-  const est = parseHHMM(f.estimatedDateTime);
-  const depart = est ?? sched;
-  if (depart == null) return null;
-  return sched != null && depart < sched ? sched : depart;
+export function effectiveDeparture(f: FlightTimes): FlightClock | null {
+  const sched = parseFlightDateTime(f.scheduleDateTime);
+  const est = parseFlightDateTime(f.estimatedDateTime);
+  if (est && sched) return diffFlightMin(est, sched) < 0 ? sched : est;
+  return est ?? sched;
 }
 
 /** 예정 대비 지연(분). 지연이 아니면 0 */
 export function flightDelayMin(f: FlightTimes): number {
-  const sched = parseHHMM(f.scheduleDateTime);
-  const est = parseHHMM(f.estimatedDateTime);
-  if (sched == null || est == null) return 0;
-  return Math.max(0, est - sched);
+  const sched = parseFlightDateTime(f.scheduleDateTime);
+  const est = parseFlightDateTime(f.estimatedDateTime);
+  if (!sched || !est) return 0;
+  return Math.max(0, diffFlightMin(est, sched));
+}
+
+export type ConnectionWarning = "OVER_24H" | "DEPART_BEFORE_ARRIVAL";
+
+export interface ResolvedConnection {
+  /** 도착 시각(분, 도착일 0시 기준) */
+  arriveMin: number;
+  /** 연결편 출발 시각(분, 도착일 0시 기준 — 익일이면 1440 이상). 연결편 없음/파싱 실패면 null */
+  departMin: number | null;
+  departNextDay: boolean;
+  warning: ConnectionWarning | null;
+}
+
+/**
+ * 도착편·연결편을 도착일 0시 기준 분으로 맞춘다.
+ * - 둘 다 날짜가 있으면 날짜로 계산
+ * - 하나라도 날짜가 없으면, 출발 < 도착일 때만 출발을 다음 날로 본다
+ * - 도착~출발이 24시간 초과면 OVER_24H, 출발이 도착보다 앞서면 DEPART_BEFORE_ARRIVAL 경고
+ */
+export function resolveConnection(arrival: FlightTimes, departure: FlightTimes | null): ResolvedConnection | null {
+  const a = effectiveArrival(arrival);
+  if (!a) return null;
+  const d = departure ? effectiveDeparture(departure) : null;
+  if (!d) return { arriveMin: a.min, departMin: null, departNextDay: false, warning: null };
+
+  let departMin: number;
+  if (a.day != null && d.day != null) {
+    departMin = (d.day - a.day) * MINUTES_PER_DAY + d.min;
+  } else {
+    departMin = d.min < a.min ? d.min + MINUTES_PER_DAY : d.min;
+  }
+  const total = departMin - a.min;
+  const warning: ConnectionWarning | null =
+    total > MINUTES_PER_DAY ? "OVER_24H" : total < 0 ? "DEPART_BEFORE_ARRIVAL" : null;
+  return { arriveMin: a.min, departMin, departNextDay: departMin >= MINUTES_PER_DAY, warning };
 }
 
 /** T1 출국장 게이트별 대기시간의 평균(분, 반올림). 게이트가 없으면 null */

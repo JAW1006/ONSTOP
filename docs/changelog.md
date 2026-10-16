@@ -4,6 +4,7 @@
 
 | 날짜 | 영역 | 변경 |
 |---|---|---|
+| 2026-10-16 | Time-Safe | A2: 항공편 날짜·자정 넘김 처리(22:00→01:30 = 2h10m), 24h 초과·출발 선행 경고 |
 | 2026-10-16 | domain | 2단계: Time-Safe·Time-Fit·이동시간·데이유즈 가격을 기존 동작 그대로 `src/domain`에 이식, 현재 결과 고정 테스트 36개 |
 | 2026-10-16 | 세팅 | 1단계: Vite+React+TS 프로젝트, Tailwind v4·shadcn 설정, tokens.css, docs 뼈대, CLAUDE.md 추가 |
 | 2026-10-16 | 문서 | 레거시 구조·계산 로직 분석 기록 ([results/2026-10-16-legacy-analysis.md](results/2026-10-16-legacy-analysis.md)) |

@@ -3,12 +3,13 @@ import { describe, expect, it } from "vitest";
 import {
   averageSecurityWaitMin,
   computeTimeSafe,
-  effectiveArrivalMin,
-  effectiveDepartureMin,
+  effectiveArrival,
+  effectiveDeparture,
   flightDelayMin,
+  resolveConnection,
   securityBufferMin,
 } from "./time-safe";
-import { dayOffset, hhmm, parseHHMM } from "./time";
+import { dayOffset, diffFlightMin, hhmm, parseFlightDateTime } from "./time";
 
 const base = { departureTerminal: null, liveSecurityWaitMin: null };
 
@@ -53,11 +54,53 @@ describe("computeTimeSafe — 기존 동작", () => {
     expect(r.stayMin).toBe(219);
   });
 
-  it("#6 22:00 도착 → 01:30 출발: 자정 넘김 미처리로 외출 불가(A2 버그 고정)", () => {
-    const r = computeTimeSafe({ ...base, arriveMin: 1320, departMin: 90 });
-    expect(r.totalConnectionMin).toBe(-1230);
-    expect(r.canGoOut).toBe(false);
-    expect(r.stayMin).toBe(0);
+});
+
+describe("resolveConnection — 자정 넘김(A2)", () => {
+  it("#6 22:00 도착 → 01:30 출발(날짜 없음): 출발을 익일로 → 외출 가능 2h10m", () => {
+    const c = resolveConnection({ scheduleDateTime: "2200" }, { scheduleDateTime: "0130" })!;
+    expect(c).toEqual({ arriveMin: 1320, departMin: 1530, departNextDay: true, warning: null });
+    const r = computeTimeSafe({ ...base, arriveMin: c.arriveMin, departMin: c.departMin });
+    expect(r.totalConnectionMin).toBe(210);
+    expect(r.canGoOut).toBe(true);
+    expect(r.returnByMin).toBe(1450);
+    expect(hhmm(r.returnByMin)).toBe("00:10");
+    expect(dayOffset(r.returnByMin)).toBe(1);
+    expect(r.stayMin).toBe(130);
+  });
+
+  it("#9 날짜 있음: 2026-10-16 22:00 → 2026-10-17 01:30 = #6과 동일", () => {
+    const c = resolveConnection({ scheduleDateTime: "202610162200" }, { scheduleDateTime: "202610170130" })!;
+    expect(c).toEqual({ arriveMin: 1320, departMin: 1530, departNextDay: true, warning: null });
+  });
+
+  it("#10 날짜 있음: 이틀 뒤 01:30 출발 → 27h30m, OVER_24H 경고", () => {
+    const c = resolveConnection({ scheduleDateTime: "202610162200" }, { scheduleDateTime: "202610180130" })!;
+    expect(c.departMin).toBe(2970);
+    expect(c.warning).toBe("OVER_24H");
+  });
+
+  it("#11 날짜 있음: 출발이 도착보다 앞섬 → DEPART_BEFORE_ARRIVAL, 외출 불가", () => {
+    const c = resolveConnection({ scheduleDateTime: "202610162200" }, { scheduleDateTime: "202610162100" })!;
+    expect(c.departMin).toBe(1260);
+    expect(c.warning).toBe("DEPART_BEFORE_ARRIVAL");
+    expect(computeTimeSafe({ ...base, arriveMin: c.arriveMin, departMin: c.departMin }).canGoOut).toBe(false);
+  });
+
+  it("같은 날(날짜 없음)은 그대로", () => {
+    const c = resolveConnection({ scheduleDateTime: "1030" }, { scheduleDateTime: "1451" })!;
+    expect(c).toEqual({ arriveMin: 630, departMin: 891, departNextDay: false, warning: null });
+  });
+
+  it("한쪽만 날짜가 있으면 날짜 없는 규칙", () => {
+    const c = resolveConnection({ scheduleDateTime: "202610162200" }, { scheduleDateTime: "0130" })!;
+    expect(c.departMin).toBe(1530);
+  });
+
+  it("연결편 없음 / 파싱 실패", () => {
+    expect(resolveConnection({ scheduleDateTime: "1030" }, null)!.departMin).toBeNull();
+    expect(resolveConnection({ scheduleDateTime: "1030" }, { scheduleDateTime: "" })!.departMin).toBeNull();
+    expect(resolveConnection({ scheduleDateTime: "" }, null)).toBeNull();
   });
 });
 
@@ -82,19 +125,26 @@ describe("averageSecurityWaitMin", () => {
   });
 });
 
-describe("항공편 시각 선택 — 기존 동작", () => {
+describe("항공편 시각 선택", () => {
   it("도착: 실시간 예상 우선, 없으면 예정", () => {
-    expect(effectiveArrivalMin({ scheduleDateTime: "1030", estimatedDateTime: "1035" })).toBe(635);
-    expect(effectiveArrivalMin({ scheduleDateTime: "1030", estimatedDateTime: null })).toBe(630);
-    expect(effectiveArrivalMin({ scheduleDateTime: "", estimatedDateTime: "" })).toBeNull();
+    expect(effectiveArrival({ scheduleDateTime: "1030", estimatedDateTime: "1035" })?.min).toBe(635);
+    expect(effectiveArrival({ scheduleDateTime: "1030", estimatedDateTime: null })?.min).toBe(630);
+    expect(effectiveArrival({ scheduleDateTime: "", estimatedDateTime: "" })).toBeNull();
   });
-  it("출발: 예상이 예정보다 이르면 예정으로 올림", () => {
-    expect(effectiveDepartureMin({ scheduleDateTime: "1450", estimatedDateTime: "1440" })).toBe(890);
-    expect(effectiveDepartureMin({ scheduleDateTime: "1450", estimatedDateTime: "1510" })).toBe(910);
-    expect(effectiveDepartureMin({ scheduleDateTime: "1450" })).toBe(890);
+  it("#7 출발: 예상이 예정보다 이르면 예정으로 올림", () => {
+    expect(effectiveDeparture({ scheduleDateTime: "1450", estimatedDateTime: "1440" })?.min).toBe(890);
+    expect(effectiveDeparture({ scheduleDateTime: "1450", estimatedDateTime: "1510" })?.min).toBe(910);
+    expect(effectiveDeparture({ scheduleDateTime: "1450" })?.min).toBe(890);
   });
-  it("출발: 예정 23:50 → 예상 00:10(자정 넘긴 지연)은 예정으로 잘못 올림(A2 버그 고정)", () => {
-    expect(effectiveDepartureMin({ scheduleDateTime: "2350", estimatedDateTime: "0010" })).toBe(1430);
+  it("#8 출발: 예정 23:50 → 예상 00:10은 20분 지연으로 본다(A2)", () => {
+    expect(effectiveDeparture({ scheduleDateTime: "2350", estimatedDateTime: "0010" })?.min).toBe(10);
+    expect(flightDelayMin({ scheduleDateTime: "2350", estimatedDateTime: "0010" })).toBe(20);
+    expect(effectiveDeparture({ scheduleDateTime: "202610162350", estimatedDateTime: "202610170010" })).toEqual({
+      day: 20743,
+      min: 10,
+    });
+    const c = resolveConnection({ scheduleDateTime: "2000" }, { scheduleDateTime: "2350", estimatedDateTime: "0010" })!;
+    expect(c.departMin).toBe(1450);
   });
   it("지연(분)", () => {
     expect(flightDelayMin({ scheduleDateTime: "1450", estimatedDateTime: "1510" })).toBe(20);
@@ -103,12 +153,20 @@ describe("항공편 시각 선택 — 기존 동작", () => {
 });
 
 describe("time 유틸", () => {
-  it("parseHHMM", () => {
-    expect(parseHHMM("2005")).toBe(1205);
-    expect(parseHHMM("0004")).toBe(4);
-    expect(parseHHMM("930")).toBe(570);
-    expect(parseHHMM("12")).toBeNull();
-    expect(parseHHMM(null)).toBeNull();
+  it("parseFlightDateTime", () => {
+    expect(parseFlightDateTime("2005")).toEqual({ day: null, min: 1205 });
+    expect(parseFlightDateTime("0004")).toEqual({ day: null, min: 4 });
+    expect(parseFlightDateTime("930")).toEqual({ day: null, min: 570 });
+    expect(parseFlightDateTime("202610162005")).toEqual({ day: 20742, min: 1205 });
+    expect(parseFlightDateTime("12")).toBeNull();
+    expect(parseFlightDateTime(null)).toBeNull();
+    expect(parseFlightDateTime("2460")).toBeNull();
+    expect(parseFlightDateTime("202602302005")).toBeNull();
+  });
+  it("diffFlightMin: 날짜 없으면 12시간 이내 최근접", () => {
+    expect(diffFlightMin({ day: null, min: 10 }, { day: null, min: 1430 })).toBe(20);
+    expect(diffFlightMin({ day: null, min: 1430 }, { day: null, min: 10 })).toBe(-20);
+    expect(diffFlightMin({ day: 2, min: 10 }, { day: 1, min: 1430 })).toBe(20);
   });
   it("hhmm / dayOffset", () => {
     expect(hhmm(1450)).toBe("00:10");
