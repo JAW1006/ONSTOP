@@ -241,6 +241,7 @@
     "flights": {
       "arrivalLabel": "Chuyến bay bạn vừa đến",
       "arrivalPlaceholder": "VD: KE085",
+      "cannotGoOutHint": "Không có thời gian để ra ngoài sân bay nên chúng tôi không thể gợi ý lộ trình. Vui lòng chờ trong sân bay.",
       "connectionLabel": "Chuyến bay nối chuyến tiếp theo",
       "connectionPlaceholder": "VD: MU2043",
       "cta": "Gợi ý lộ trình thông minh",
@@ -267,7 +268,7 @@
   },
   "timeSafe": {
     "arrive": "Đến",
-    "bufferBreakdown": "Đã tính nhập cảnh {{immigration}} phút · an ninh & xuất cảnh {{security}} phút · dự phòng cửa ra máy bay {{gate}} phút",
+    "bufferBreakdown": "Đã tính thời gian ước tính: nhập cảnh khoảng {{immigration}} phút · an ninh & xuất cảnh khoảng {{security}} phút · dự phòng cửa ra máy bay khoảng {{gate}} phút",
     "bufferNote": "An ninh {{sec}} phút + đóng cửa lên máy bay {{gate}} phút = tổng đệm {{total}} phút (chưa gồm thời gian di chuyển từ chỗ nghỉ ra sân bay)",
     "cannotGoOut": {
       "description": "Sau khi trừ thời gian an ninh và đóng cửa lên máy bay, bạn không còn đủ thời gian ra ngoài rồi quay lại. Vui lòng chờ trong sân bay.",

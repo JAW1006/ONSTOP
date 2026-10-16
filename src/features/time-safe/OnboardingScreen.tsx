@@ -140,7 +140,9 @@ function FlightsStep() {
   const trip = useTrip();
   const arrival = useArrivalLookup();
   const departure = useDepartureLookup();
-  const { bothReady } = useTimeSafe();
+  const { bothReady, result } = useTimeSafe();
+  // 외출 불가면 코스 추천으로 넘어가지 않는다(레거시는 허용 — 명세 "레거시와 다르게 하는 점")
+  const canProceed = bothReady && result.canGoOut;
 
   // 같은 편명으로 다시 누르면 재조회, 다른 편명이면 쿼리 키가 바뀌어 새로 조회
   const lookup = (input: string, current: string | null, set: (v: string) => void, refetch: () => unknown) =>
@@ -172,7 +174,7 @@ function FlightsStep() {
       <TimeSafeCard />
       <Button
         className="mt-[18px]"
-        disabled={!bothReady}
+        disabled={!canProceed}
         onClick={() => {
           trip.setOnboarded(true);
           navigate("/");
@@ -180,7 +182,11 @@ function FlightsStep() {
       >
         {t("onboarding.flights.cta")} <Route size={16} aria-hidden />
       </Button>
-      {!bothReady && <p className="mt-2 text-center text-caption text-faint">{t("onboarding.flights.needBothHint")}</p>}
+      {!canProceed && (
+        <p className="mt-2 text-center text-caption text-faint">
+          {bothReady ? t("onboarding.flights.cannotGoOutHint") : t("onboarding.flights.needBothHint")}
+        </p>
+      )}
     </>
   );
 }

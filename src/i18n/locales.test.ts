@@ -2,6 +2,7 @@ import fs from "node:fs";
 import { describe, expect, it } from "vitest";
 import i18n, { resources } from "./index";
 import { LANGUAGE_CODES } from "./languages";
+import addedKeys from "./added-keys.json";
 
 type Tree = { [k: string]: string | Tree };
 const flatten = (o: Tree, prefix = ""): Record<string, string> =>
@@ -16,13 +17,8 @@ const flat = Object.fromEntries(
 ) as Record<string, Record<string, string>>;
 const koKeys = Object.keys(flat.ko!).sort();
 
-// 레거시 이후 추가한 키 — 추가할 때 여기와 docs/results(i18n) 기록을 함께 갱신
-const ADDED_KEYS = [
-  "common.back",
-  "timeSafe.bufferBreakdown",
-  "timeSafe.warning.departBeforeArrival",
-  "timeSafe.warning.over24h",
-].sort();
+// 레거시 이후 추가한 키 — src/i18n/added-keys.json (검수 표: docs/design/i18n-review.md)
+const ADDED_KEYS = Object.keys(addedKeys).sort();
 
 describe("locales", () => {
   it("레거시 190개 문구 + 3단계 이후 추가 키", () => {
@@ -50,6 +46,14 @@ describe("locales", () => {
     for (const [legacy, key] of map)
       for (const lang of LANGUAGE_CODES)
         expect([key, lang, flat[lang]![key]]).toEqual([key, lang, STR[legacy][lang].replace(/\{(\w+)\}/g, "{{$1}}")]);
+  });
+});
+
+describe("검수 표", () => {
+  it("docs/design/i18n-review.md가 현재 JSON과 같다(scripts/i18n-review-table.mjs로 재생성)", () => {
+    const doc = fs.readFileSync("docs/design/i18n-review.md", "utf8");
+    for (const key of ADDED_KEYS)
+      for (const lang of LANGUAGE_CODES) expect(doc).toContain(flat[lang]![key]!.replace(/\|/g, "\\|"));
   });
 });
 

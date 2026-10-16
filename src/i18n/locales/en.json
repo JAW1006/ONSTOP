@@ -241,6 +241,7 @@
     "flights": {
       "arrivalLabel": "The flight you just arrived on",
       "arrivalPlaceholder": "e.g. KE085",
+      "cannotGoOutHint": "There is no time to leave the airport, so we can't suggest a course. Please wait inside the airport.",
       "connectionLabel": "Your next connecting flight",
       "connectionPlaceholder": "e.g. MU2043",
       "cta": "Get smart course picks",
@@ -267,7 +268,7 @@
   },
   "timeSafe": {
     "arrive": "Arrive",
-    "bufferBreakdown": "Includes immigration {{immigration}} min · security & exit check {{security}} min · gate margin {{gate}} min",
+    "bufferBreakdown": "Estimated times applied: immigration ~{{immigration}} min · security & exit check ~{{security}} min · gate margin ~{{gate}} min",
     "bufferNote": "{{sec}}min security + {{gate}}min gate cutoff = {{total}}min buffer applied (stay→airport travel time excluded for now)",
     "cannotGoOut": {
       "description": "After security and gate cutoff time, there's no time left to leave and come back. Please stay inside the airport.",

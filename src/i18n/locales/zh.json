@@ -241,6 +241,7 @@
     "flights": {
       "arrivalLabel": "您刚搭乘抵达的航班",
       "arrivalPlaceholder": "例如: KE085",
+      "cannotGoOutHint": "没有可外出的时间，无法推荐路线。请在机场内等候。",
       "connectionLabel": "下一段连接航班",
       "connectionPlaceholder": "例如: MU2043",
       "cta": "智能推荐路线",
@@ -267,7 +268,7 @@
   },
   "timeSafe": {
     "arrive": "到达",
-    "bufferBreakdown": "已计入入境审查{{immigration}}分钟 · 安检·出境审查{{security}}分钟 · 登机口预留{{gate}}分钟",
+    "bufferBreakdown": "已计入预估时间：入境审查约{{immigration}}分钟 · 安检·出境审查约{{security}}分钟 · 登机口预留约{{gate}}分钟",
     "bufferNote": "安检{{sec}}分钟 + 登机截止{{gate}}分钟 = 共{{total}}分钟缓冲(暂不含住宿→机场移动时间)",
     "cannotGoOut": {
       "description": "扣除安检和登机截止时间后,已没有足够时间外出往返。请在机场内等候。",

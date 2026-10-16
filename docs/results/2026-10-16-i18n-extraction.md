@@ -26,11 +26,7 @@
 - 복수형(예: "{{n}} bookings")은 레거시처럼 처리하지 않았다. 필요하면 i18next plural 키로 바꾼다.
 
 ## 이후 추가한 키
-| 키 | 추가 단계 | 번역 |
-|---|---|---|
-| `common.back` | 3단계(뒤로 버튼 aria-label) | ko/en 확인, zh·ja·vi 미검수 |
-| `timeSafe.bufferBreakdown` | 4단계 Time-Safe | ko/en 확인, zh·ja·vi 미검수 |
-| `timeSafe.warning.over24h`, `timeSafe.warning.departBeforeArrival` | 4단계 Time-Safe | ko/en 확인, zh·ja·vi 미검수 |
+목록·검수 여부는 [`src/i18n/added-keys.json`](../../src/i18n/added-keys.json), 원문·번역 대조표는 [i18n-review](../design/i18n-review.md)(스크립트 생성, 테스트가 JSON과 일치 확인).
 
 ## 다음 할 일
 - [ ] 3단계 컴포넌트·탭바부터 `t()` 사용

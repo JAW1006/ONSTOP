@@ -1,0 +1,22 @@
+{
+  "common.back": {
+    "stage": "3단계 공통 UI(뒤로 버튼 aria-label)",
+    "reviewed": false
+  },
+  "timeSafe.bufferBreakdown": {
+    "stage": "4단계 Time-Safe — 버퍼 구성 줄(예상치 표기)",
+    "reviewed": false
+  },
+  "timeSafe.warning.over24h": {
+    "stage": "4단계 Time-Safe — 24시간 초과 경고",
+    "reviewed": false
+  },
+  "timeSafe.warning.departBeforeArrival": {
+    "stage": "4단계 Time-Safe — 출발이 도착보다 빠름 경고",
+    "reviewed": false
+  },
+  "onboarding.flights.cannotGoOutHint": {
+    "stage": "4단계 Time-Safe — 외출 불가 시 CTA 비활성 이유",
+    "reviewed": false
+  }
+}

@@ -77,7 +77,7 @@ describe("항공편 조회 + Time-Safe", () => {
     await waitFor(() => expect(card().textContent).toContain("2h 11m"));
     expect(card().textContent).toContain("Total connection time 4h 21m");
     expect(card().textContent).toContain("Return by 13:31");
-    expect(card().textContent).toContain("Includes immigration 50 min · security & exit check 50 min · gate margin 30 min");
+    expect(card().textContent).toContain("Estimated times applied: immigration ~50 min · security & exit check ~50 min · gate margin ~30 min");
     expect(cta().disabled).toBe(false);
 
     await act(async () => fireEvent.click(cta()));
@@ -95,12 +95,13 @@ describe("항공편 조회 + Time-Safe", () => {
     expect(card().textContent).toContain("Return by Next day 00:10");
   });
 
-  it("#3 남는 시간 부족(12:50 출발) → 외출 불가, CTA는 활성(레거시와 같음)", async () => {
+  it("#3 남는 시간 부족(12:50 출발) → 외출 불가, CTA 비활성 + 이유 문구(레거시와 다름)", async () => {
     renderApp("/onboarding?step=2");
     await lookUp(ARR, "KE085");
     await lookUp(DEP, "SOON1");
     await waitFor(() => expect(card().textContent).toContain("You can't leave the airport"));
-    expect(cta().disabled).toBe(false);
+    expect(cta().disabled).toBe(true);
+    expect(screen.getByText(/There is no time to leave the airport, so we can't suggest a course/)).toBeTruthy();
   });
 
   it("#12 연결편 T1 → 출국장 실시간 평균 65분 반영, 1h 56m", async () => {
@@ -109,7 +110,7 @@ describe("항공편 조회 + Time-Safe", () => {
     await lookUp(DEP, "T1DEP");
     await waitFor(() => expect(card().textContent).toContain("1h 56m"));
     expect(fetchMock).toHaveBeenCalledWith("/api/security-wait");
-    expect(card().textContent).toContain("security & exit check 65 min");
+    expect(card().textContent).toContain("security & exit check ~65 min");
   });
 
   it("T2 연결편은 출국장 대기를 조회하지 않는다", async () => {

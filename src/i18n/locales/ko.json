@@ -241,6 +241,7 @@
     "flights": {
       "arrivalLabel": "지금 타고 온 도착편",
       "arrivalPlaceholder": "예: KE085",
+      "cannotGoOutHint": "외출 가능 시간이 없어 코스를 추천할 수 없어요. 공항 안에서 대기해주세요.",
       "connectionLabel": "다음 연결편",
       "connectionPlaceholder": "예: MU2043",
       "cta": "스마트 코스 추천",
@@ -267,7 +268,7 @@
   },
   "timeSafe": {
     "arrive": "도착",
-    "bufferBreakdown": "입국심사 {{immigration}}분 · 보안검색·출국심사 {{security}}분 · 게이트 여유 {{gate}}분 반영",
+    "bufferBreakdown": "예상 소요 반영: 입국심사 약 {{immigration}}분 · 보안검색·출국심사 약 {{security}}분 · 게이트 여유 약 {{gate}}분",
     "bufferNote": "수속 {{sec}}분 + 게이트마감 {{gate}}분 = 총 {{total}}분 버퍼 반영(숙소→공항 이동시간은 일단 제외)",
     "cannotGoOut": {
       "description": "연결편까지 수속·게이트 마감 시간을 빼면 밖에 나갔다 올 여유가 없어요. 공항 안에서 대기해주세요.",

@@ -51,12 +51,14 @@
 | 시각 파싱 실패 | `flight.error.noArrivalTime` / `noDepartureTime` |
 | 그 밖의 서버 오류 | 서버 메시지 원문(레거시와 같음) + 재시도 안내 |
 | 두 편 중 하나라도 없음 | CTA 비활성 + `onboarding.flights.needBothHint` |
+| 외출 불가 | CTA 비활성 + `onboarding.flights.cannotGoOutHint`(신규) |
 
 ## 레거시와 다르게 하는 점
 | 항목 | 레거시 | 새 화면 | 근거 |
 |---|---|---|---|
 | 외출 가능 시간 | 도착~복귀(버퍼 0/50/30) | 공항 밖~복귀(버퍼 50/50/30) | A1·A5 결정 |
-| 버퍼 구성 줄 | 없음 | "입국심사 50분 · 보안검색·출국심사 50분 · 게이트 여유 30분" (`timeSafe.bufferBreakdown`, 신규) | 도착→복귀 시각 차이와 외출 가능 시간이 50분 다르게 보이는 혼동 방지 |
+| 버퍼 구성 줄 | 없음 | "예상 소요 반영: 입국심사 **약** 50분 · 보안검색·출국심사 **약** 50분 · 게이트 여유 **약** 30분" (`timeSafe.bufferBreakdown`, 신규) | 도착→복귀 시각 차이와 외출 가능 시간이 50분 다르게 보이는 혼동 방지. 값이 미검증이라 확정값처럼 보이지 않게 "예상/약" 표기(2026-10-16) |
+| **외출 불가 시 CTA** | 활성(눌러서 홈·코스로 진행 가능) | **비활성** + 이유 문구 "외출 가능 시간이 없어 코스를 추천할 수 없어요…"(`onboarding.flights.cannotGoOutHint`, 신규) | 2026-10-16 사용자 결정. 외출할 수 없는데 코스 추천으로 보내지 않는다 |
 | 자정 넘김 | 외출 불가로 잘못 표시 | 출발을 "익일 HH:MM"으로, 정상 계산 | A2 |
 | 24h 초과·출발 선행 | 없음 | 경고 줄(`timeSafe.warning.*`, 신규) | A2 |
 | 404 응답 | 서버 영문 메시지 원문 | `flight.error.notFound` | 다국어 사용자 |
@@ -64,5 +66,5 @@
 | 단계 | 컴포넌트 상태 | URL `?step=` | 홈에서 바로 step 2로 진입 |
 | 언어 변경 후 | 다음 수동 조회 때 반영 | 쿼리 키에 언어 포함 → 자동 재조회 | 항공사·공항명 번역 즉시 반영 |
 
-## 신규 문구 키 (5개 언어, 번역 검수 필요)
-`timeSafe.bufferBreakdown`, `timeSafe.warning.over24h`, `timeSafe.warning.departBeforeArrival`
+## 신규 문구 키 (5개 언어, 번역 미검수)
+`timeSafe.bufferBreakdown`, `timeSafe.warning.over24h`, `timeSafe.warning.departBeforeArrival`, `onboarding.flights.cannotGoOutHint` — 검수 표: [i18n-review](../i18n-review.md)

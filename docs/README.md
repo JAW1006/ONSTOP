@@ -11,6 +11,7 @@
 | 디자인 | [design/design-tokens.md](design/design-tokens.md) | 초안 | 색·반경·그림자·타이포·레이아웃 토큰 |
 | 디자인 | [design/components.md](design/components.md) | 초안 | 공통 UI 컴포넌트 목록 |
 | 디자인 | [design/i18n-keys.md](design/i18n-keys.md) | 확정 | 레거시 문구 키 → 새 i18n 키 대응표(자동 생성) |
+| 디자인 | [design/i18n-review.md](design/i18n-review.md) | 초안 | 추가 문구 번역 검수 요청 표(ko 원문 + 4개 언어, 자동 생성) |
 | 디자인 | [design/screens/](design/screens/README.md) | 초안 | 화면별 명세 |
 | 공식 | [formulas/time-safe.md](formulas/time-safe.md) | 초안 | 실제 외출 가능 시간 |
 | 공식 | [formulas/time-fit.md](formulas/time-fit.md) | 초안 | 코스 시간 예산·자동 추천 |

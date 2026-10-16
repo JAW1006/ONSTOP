@@ -241,6 +241,7 @@
     "flights": {
       "arrivalLabel": "今乗ってきた到着便",
       "arrivalPlaceholder": "例: KE085",
+      "cannotGoOutHint": "外出できる時間がないため、コースをおすすめできません。空港内でお待ちください。",
       "connectionLabel": "次の乗継便",
       "connectionPlaceholder": "例: MU2043",
       "cta": "スマートコースをおすすめ",
@@ -267,7 +268,7 @@
   },
   "timeSafe": {
     "arrive": "到着",
-    "bufferBreakdown": "入国審査{{immigration}}分・保安検査・出国審査{{security}}分・ゲート余裕{{gate}}分を反映",
+    "bufferBreakdown": "予想所要時間を反映：入国審査 約{{immigration}}分・保安検査・出国審査 約{{security}}分・ゲート余裕 約{{gate}}分",
     "bufferNote": "保安検査{{sec}}分+搭乗締切{{gate}}分=合計{{total}}分のバッファを反映(宿泊先→空港の移動時間は今は含みません)",
     "cannotGoOut": {
       "description": "保安検査と搭乗締切の時間を引くと、外出して戻ってくる余裕がありません。空港内でお待ちください。",
