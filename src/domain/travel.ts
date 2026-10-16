@@ -45,3 +45,12 @@ export function transitMin(min: number): number {
 export function liveEstimateMin(km: number): number {
   return Math.max(1, Math.round(km * LIVE_PLACE_MIN_PER_KM));
 }
+
+/**
+ * 실측 전·실측 실패 시 구간 근사(A6, "약 N분" 표기용).
+ * 도보 거리(≤ WALK_MAX_KM)는 도보 추정, 그 외는 직선거리 × LIVE_PLACE_MIN_PER_KM. 수단은 pickTravelMode 기준.
+ */
+export function approxTravel(km: number): { min: number; mode: TravelMode; approx: true } {
+  const mode = pickTravelMode(km);
+  return { min: mode === "walk" ? walkMin(km) : liveEstimateMin(km), mode, approx: true };
+}

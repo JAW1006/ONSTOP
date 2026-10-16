@@ -4,6 +4,7 @@
 
 | 날짜 | 영역 | 변경 |
 |---|---|---|
+| 2026-10-16 | Time-Fit | A6 순차 경로 domain(`sequentialCourse`·`returnPlan`·`autoBuildSequential`·`wouldFitSequential`·`approxTravel`), 예시 S1–S5(시안 v2 숫자와 일치). 레거시 별 모양 함수는 비교용으로 유지 |
 | 2026-10-16 | i18n | A7: 자동 추천 설명을 실제 동작(카테고리별 탐욕 추천)에 맞게 변경(5개 언어, 미검수). 검수 표에 "레거시 변경" 종류 추가. 알림 문구는 새 화면에서 쓰지 않고 STATUS에 기록 |
 | 2026-10-16 | 서버 | `/api/transit`에 ODsay `distanceM`·`busTransitCount`·`subwayTransitCount` 선택 필드 추가(기존 필드 그대로) |
 | 2026-10-16 | Time-Safe | 탑승동(P02) 연결편에 T1 출국장 실시간 대기 적용, 셔틀트레인 버퍼 근거 조사(미검증) |

@@ -42,15 +42,15 @@ describe("courseAvailableMin(A5)", () => {
 
 describe("scheduleSummary — 사용 X / 가용 Y (b)", () => {
   it("#11 외출 가능 181, 숙소 + 더풋샵 → 사용 122(이동·체류 102 + 준비 20) / 가용 181, 여유 59", () => {
-    expect(scheduleSummary(181, AURA_MOVE, [footShop])).toEqual({ usedMin: 122, availableMin: 181, remainMin: 59 });
+    expect(scheduleSummary(181, courseUsedMin(AURA_MOVE, [footShop]))).toEqual({ usedMin: 122, availableMin: 181, remainMin: 59 });
   });
   it("여유는 코스 가용 − 코스 사용과 같다", () => {
-    const s = scheduleSummary(181, AURA_MOVE, [wonbo, footShop]);
+    const s = scheduleSummary(181, courseUsedMin(AURA_MOVE, [wonbo, footShop]));
     expect(s.remainMin).toBe(courseAvailableMin(181) - courseUsedMin(AURA_MOVE, [wonbo, footShop]));
     expect(s.remainMin).toBe(-26);
   });
   it("외출 불가(0) → 가용 0, 숙소만이어도 초과", () => {
-    expect(scheduleSummary(0, AURA_MOVE, [])).toEqual({ usedMin: 52, availableMin: 0, remainMin: -52 });
+    expect(scheduleSummary(0, courseUsedMin(AURA_MOVE, []))).toEqual({ usedMin: 52, availableMin: 0, remainMin: -52 });
   });
 });
 
