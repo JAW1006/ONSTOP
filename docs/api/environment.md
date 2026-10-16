@@ -8,10 +8,12 @@
 
 | 변수 | 필수 | 용도 | 사용 엔드포인트 | 발급처 | 없을 때 | render.yaml |
 |---|---|---|---|---|---|---|
-| `AIRPORT_SERVICE_KEY` | **필수** | 인천국제공항공사 API 인증키 | `/api/flight/arrival`, `/api/flight/departure`, `/api/security-wait` | [공공데이터포털](https://www.data.go.kr) 활용신청 → 일반 인증키(Encoding/Decoding 둘 다 가능) | 서버는 뜨고 경고만. 해당 엔드포인트 500 → 데모 도착 10:30, 수속 고정 50분 | 선언됨 |
+| `AIRPORT_SERVICE_KEY` | **필수** | 인천국제공항공사 API 인증키(여객편 운항현황·출국장 혼잡도 T1·**T2** — API마다 활용신청) | `/api/flight/arrival`, `/api/flight/departure`, `/api/security-wait`, `/api/security-wait/t2` | [공공데이터포털](https://www.data.go.kr) 활용신청 → 일반 인증키(Encoding/Decoding 둘 다 가능) | 서버는 뜨고 경고만. 해당 엔드포인트 500 → 데모 도착 10:30, 수속 고정 50분 | 선언됨 |
 | `KAKAO_REST_API_KEY` | **필수** | 카카오 REST API 키(비밀) | `/api/route`, `/api/places`, `/api/places/search` | [Kakao Developers](https://developers.kakao.com) → 앱 키 → REST API 키. 제품 "카카오모빌리티"·"카카오맵" 활성화 필요 | 해당 엔드포인트 500 → 더미 이동시간, 주변 가게 없음 | 선언됨 |
 | `ODSAY_API_KEY` | 선택 | 대중교통 경로 | `/api/transit` | [ODsay Lab](https://lab.odsay.com) → API 신청 | 500 → 앱이 자동차 이동시간으로 대체 | 선언됨 |
 | `PORT` | 선택 | 서버 포트(기본 `3001`) | 전체 + `app/` 정적 서빙 | — | 3001 | 미선언(Render가 자동 주입) |
+
+2026-10-16 점검: 카카오 앱 "모빌리티"의 REST 키 두 개(대표 키, "모빌리티" 키)는 같은 앱이라 결과가 같다 — 길찾기 정상, **로컬 검색은 "카카오맵" 제품이 꺼져 있어 403**. ODsay 키는 아직 없음.
 
 코드 위치: `server.js` 17줄(`AIRPORT_SERVICE_KEY`), 187줄(`KAKAO_REST_API_KEY`), 320줄(`ODSAY_API_KEY`), 365줄(`PORT`).
 

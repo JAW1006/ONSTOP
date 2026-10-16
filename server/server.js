@@ -141,9 +141,8 @@ app.get("/api/flight/departure", async (req, res) => {
 });
 
 // 인천공항 출국장 혼잡도 API — 같은 AIRPORT_SERVICE_KEY로 자동 승인되어 있었다(2026-09-18 확인).
-// 제1여객터미널(P01)의 출국장 1~6번(동/서 게이트별)만 제공 — 제2터미널(P03)은 이 API 자체에 데이터가
-// 없다(공사 공식 사이트 실시간 대기시간 페이지도 T1만 표시). T2 항공편은 이 값을 못 쓰고 서버가 아닌
-// 프론트의 고정 버퍼(SECURITY_BUFFER_MIN)로 폴백해야 한다.
+// 이 API는 제1여객터미널(P01)의 출국장 1~6번(동/서 게이트별)만 제공한다. 제2터미널(P03)은 별도 API
+// (statusOfDepartureCongestionT2) — 아래 /api/security-wait/t2 참고.
 const CONGESTION_URL = "https://apis.data.go.kr/B551177/statusOfDepartureCongestion/getDepartureCongestion";
 
 app.get("/api/security-wait", async (req, res) => {
@@ -180,6 +179,47 @@ app.get("/api/security-wait", async (req, res) => {
     res.json({ gates });
   } catch (err) {
     res.status(502).json({ error: "failed to reach congestion API", detail: String(err) });
+  }
+});
+
+// 제2여객터미널(P03) 출국장 혼잡도 — 별도 API, 같은 AIRPORT_SERVICE_KEY(공공데이터포털에서 T2 API 활용신청 필요).
+// 응답 필드는 T1과 같다(gateId, terminalId, waitTime, waitLength, occurtime, operatingTime — 2026-10-16 실제 호출로 확인).
+// 응답 형식도 /api/security-wait와 같게 { gates: [...] }로 맞춘다.
+const CONGESTION_T2_URL = "https://apis.data.go.kr/B551177/statusOfDepartureCongestionT2/getDepartureCongestionT2";
+
+app.get("/api/security-wait/t2", async (req, res) => {
+  if (!SERVICE_KEY) {
+    return res.status(500).json({ error: "AIRPORT_SERVICE_KEY is not configured on the server" });
+  }
+
+  const url = new URL(CONGESTION_T2_URL);
+  url.searchParams.set("serviceKey", SERVICE_KEY);
+  url.searchParams.set("type", "json");
+  url.searchParams.set("numOfRows", "50");
+
+  try {
+    const apiRes = await fetch(url);
+    const raw = await apiRes.text();
+    let data;
+    try {
+      data = JSON.parse(raw);
+    } catch {
+      return res.status(502).json({ error: "T2 congestion API returned a non-JSON response", detail: raw.slice(0, 300) });
+    }
+
+    const header = data?.response?.header;
+    if (header && header.resultCode !== "00") {
+      return res.status(502).json({ error: header.resultMsg || "T2 congestion API error", resultCode: header.resultCode });
+    }
+
+    const items = normalizeItems(data?.response?.body?.items);
+    const gates = items
+      .filter((it) => it.terminalId === "P03" && it.waitTime !== "")
+      .map((it) => ({ gateId: it.gateId, waitTimeMin: Number(it.waitTime), waitLength: Number(it.waitLength) || 0 }));
+
+    res.json({ gates });
+  } catch (err) {
+    res.status(502).json({ error: "failed to reach T2 congestion API", detail: String(err) });
   }
 });
 
