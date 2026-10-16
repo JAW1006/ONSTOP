@@ -95,10 +95,13 @@ describe("autoBuildSequential / wouldFitSequential — S5", () => {
   });
 });
 
-describe("approxTravel — 근사 구간", () => {
-  it("도보(≤1.2km)는 4.5km/h, 그 외는 km × 2분", () => {
-    expect(approxTravel(0.9)).toEqual({ min: 12, mode: "walk", approx: true });
-    expect(approxTravel(2.4)).toEqual({ min: 5, mode: "drive", approx: true });
-    expect(approxTravel(12)).toEqual({ min: 24, mode: "transit", approx: true });
+describe("approxTravel — 보수적 근사", () => {
+  it("도보(≤1.2km)는 직선 × 1.3 ÷ 4.5km/h, 그 외는 직선 × 6분", () => {
+    expect(approxTravel(0.9)).toEqual({ min: 16, mode: "walk", approx: true });
+    expect(approxTravel(2.4)).toEqual({ min: 14, mode: "drive", approx: true });
+    expect(approxTravel(12)).toEqual({ min: 72, mode: "transit", approx: true });
+    // 실측보다 길어야 한다: 공항→호텔 오라 실측 16분(3.16km), 호텔 오라→차이나타운 실측 95분(17.9km)
+    expect(approxTravel(3.16).min).toBeGreaterThanOrEqual(16);
+    expect(approxTravel(17.9).min).toBeGreaterThanOrEqual(95);
   });
 });

@@ -163,5 +163,9 @@
   "course.autoBuild.empty": {
     "stage": "코스 지도 — 자동 추천 결과가 0곳일 때 안내",
     "reviewed": false
+  },
+  "course.route.estimateNote": {
+    "stage": "코스 빌더 — 보수적 근사 안내(실제 경로는 저장 후)",
+    "reviewed": false
   }
 }

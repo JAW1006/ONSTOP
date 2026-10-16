@@ -1,7 +1,7 @@
 # 번역 검수 요청 — 레거시 이후 추가·변경 문구
 
 > 상태: 초안 · 생성: `node scripts/i18n-review-table.mjs` (손으로 고치지 말 것)
-> 미검수 36 / 전체 36 · 원문은 ko, en은 개발자 작성, **zh·ja·vi는 기계 수준 초안** · 레거시에서 옮긴 문구는 [i18n-review-legacy](i18n-review-legacy.md)
+> 미검수 37 / 전체 37 · 원문은 ko, en은 개발자 작성, **zh·ja·vi는 기계 수준 초안** · 레거시에서 옮긴 문구는 [i18n-review-legacy](i18n-review-legacy.md)
 
 ## 검수 방법
 - 각 언어 칸의 뜻이 ko 원문과 같은지, 앱 버튼·안내문으로 자연스러운지 **원어민**이 확인한다(공개 전 전부 대상).
@@ -24,6 +24,7 @@
 | `course.leg.return` | 추가 | 코스 지도 — 공항 복귀 구간 칩 | 복귀 | Return | 返回 | 復帰 | Quay về | **미검수** |
 | `course.leg.transfers` | 추가 | 코스 지도 — 선택한 구간 정보 | 환승 {{n}}회 | {{n}} transfer(s) | 换乘{{n}}次 | 乗り換え{{n}}回 | Chuyển {{n}} lần | **미검수** |
 | `course.map.legend` | 추가 | 코스 지도 — 선 범례(레거시 routeLegend 대체) | 선 모양 = 이동수단: 굵은 실선 대중교통 · 보통 실선 택시 · 점선 도보 · 빨간 긴 파선 공항 복귀. "약" = 실제 경로를 못 받아 어림한 값 | Line style = mode: thick solid transit · solid taxi · dotted walk · red long dash return to airport. "~" = estimated (no live route) | 线型 = 交通方式：粗实线 公共交通 · 实线 出租车 · 点线 步行 · 红色长虚线 返回机场。"约" = 未取得实际路线的估算值 | 線の形 = 移動手段：太い実線 公共交通・実線 タクシー・点線 徒歩・赤い長い破線 空港への復帰。「約」= 実際の経路を取得できず概算した値 | Kiểu đường = phương tiện: nét liền đậm phương tiện công cộng · nét liền taxi · chấm đi bộ · gạch dài đỏ quay về sân bay. "khoảng" = ước tính (không có tuyến thực tế) | **미검수** |
+| `course.route.estimateNote` | 추가 | 코스 빌더 — 보수적 근사 안내(실제 경로는 저장 후) | 만드는 동안은 넉넉하게 어림한 이동시간(약 N분)으로 계산해요. 저장하면 실제 경로로 다시 확인해요. | While building, travel times are generous estimates (~N min). Save the course to check real routes. | 制作过程中按宽松估算的移动时间（约N分钟）计算。保存后将按实际路线重新确认。 | 作成中は余裕を持って見積もった移動時間（約N分）で計算します。保存すると実際の経路で確認します。 | Khi đang tạo, thời gian di chuyển được ước tính rộng (khoảng N phút). Lưu lộ trình để kiểm tra tuyến thực tế. | **미검수** |
 | `course.step.return.target` | 추가 | 코스 지도 — 일정의 공항 복귀 줄(레거시 "알림 · 여유 30분" 대체) | 복귀 도착 목표 {{time}} | Target arrival {{time}} | 目标到达 {{time}} | 到着目標 {{time}} | Mục tiêu đến {{time}} | **미검수** |
 | `course.summary.available` | 추가 | 코스 지도 — 요약 "/ 가용 Y" | / 가용 {{time}} | / available {{time}} | / 可用 {{time}} | / 利用可能 {{time}} | / khả dụng {{time}} | **미검수** |
 | `course.summary.expectedReturn` | 추가 | 코스 지도 — 초과 시 복귀 도착 예상 | 복귀 도착 예상 | Expected airport arrival | 预计返回机场 | 空港到着の予想 | Dự kiến về sân bay | **미검수** |

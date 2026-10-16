@@ -29,7 +29,7 @@
 | ODsay 선택 필드 | `/api/transit`에 `distanceM`·`busTransitCount`·`subwayTransitCount`(있을 때만). 칩은 값이 없으면 시간만 | [api/environment](api/environment.md) | 적용 |
 | 알림 문구 | 기능 없는 알림 문구 4개 삭제(`timeSafe.pushScheduled`, `course.step.return.sub`, `confirm.alertOn`, `my.menu.timeSafeAlerts`). 복귀 알림 방식은 [ADR-0006](decisions/ADR-0006-return-alert.md)에서 결정 | [i18n-review](design/i18n-review.md) "삭제한 레거시 키" | 적용 |
 | 자동 추천 0곳 | 남은 시간에 들어가는 장소가 없으면 안내 문구(`course.autoBuild.empty`, 미검수) | [screens/course-map](design/screens/course-map.md) | 적용 |
-| 근사값 | 기존 지시대로 유지: 구간 결과 캐시, 조회 중·실패 시 "약 N분". 정확도 보정은 로드맵 | [roadmap](product/roadmap.md) | 유지 |
+| 근사값·조회 시점 | 코스 빌더·자동 추천은 **보수적 근사**(직선 × 6분/km, 도보 ×1.3, 미검증)만, 후보 구간 미리 조회 없음. **실제 경로는 코스 확정(저장) 후에만** 조회. ODsay 쿼터·상업 이용은 사용자가 콘솔에서 확인·문의 중 | [time-fit](formulas/time-fit.md), [external-apis](operations/external-apis.md) | 적용 |
 | 번역 정책 | **공개 전 모든 번역(레거시 185 + 추가·변경 36)을 원어민 검수**. 검수 표 2개 유지 | [i18n-review](design/i18n-review.md), [i18n-review-legacy](design/i18n-review-legacy.md) | 진행 전 |
 | A7 | 자동 추천 설명 "OR-Tools 최적화 · …" → "시간에 맞춰 자동 추천 · 카테고리마다 남은 시간에 들어가는 장소를 1곳씩 담아요"(5개 언어, 미검수). 버퍼 안내 문구는 홈 이식 때 "예상 소요 반영 …"으로 이미 대체 | [i18n-review](design/i18n-review.md) | 적용 |
 | 탑승동 | 탑승동(P02) 연결편에 T1 출국장 실시간 대기 적용(사용자 결정). 셔틀 버퍼는 미검증·미적용 | [time-safe](formulas/time-safe.md) | 적용 |
@@ -115,7 +115,7 @@
 |---|---|
 | 번들 크기 | 메인 JS 605KB(빌드 경고 기준 500KB 초과, 코스 지도 이식 후). 화면 이식이 끝난 뒤 라우트별 지연 로딩(`lazy`)으로 분할 |
 | 로고 이미지 | `logo-mark.png` 405KB(30~40px로 표시) — 레거시와 같은 파일. 작은 PNG/SVG로 교체 검토 |
-| 근사값 정확도 | 구간 근사(직선 1km당 2분)가 실제 대중교통보다 크게 짧다(실측 예: 호텔 오라→차이나타운 ODsay 95분 vs 근사 약 36분). 자동 추천·"환승 내 가능"이 근사로 판정되면 실제 값이 들어온 뒤 초과로 바뀔 수 있음 → 자동 추천 전 후보 구간 미리 조회 또는 대중교통 근사 계수 보정 |
+| 근사 계수 검증 | 보수적 계수(6분/km)는 실측 2건 기준. 확정 후 실제 경로와 근사의 차이를 모아 계수 조정(근사가 실제보다 짧아지는 사례가 없는지) |
 | 구간 상세 시트 | 칩 탭 시 한 줄 정보(수단·시간·거리·환승·요금)만 구현. 노선 단계별 안내 시트는 미구현 |
 | 진행 방향 화살표 | 레거시의 선 위 화살표·구간 번호 배지는 옮기지 않음(칩으로 대체) |
 

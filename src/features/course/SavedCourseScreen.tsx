@@ -7,7 +7,7 @@ import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { PageHeader } from "@/components/ui/page-header";
 import { localize, roomImage } from "@/data";
-import { CannotGoOutBox, CourseHeader } from "./CourseScreen";
+import { CannotGoOutBox, CourseHeader, LegDetail } from "./CourseScreen";
 import { CourseMap } from "./CourseMap";
 import { CourseTimeline } from "./CourseTimeline";
 import { SummaryPanel } from "./SummaryPanel";
@@ -19,7 +19,8 @@ export function SavedCourseScreen() {
   const navigate = useNavigate();
   const trip = useTrip();
   const saved = trip.savedCourse;
-  const model = useCourseModel(saved?.roomId ?? null, saved?.plan ?? []);
+  // 확정된 코스 — 여기서만 실제 경로를 조회한다
+  const model = useCourseModel(saved?.roomId ?? null, saved?.plan ?? [], { live: true });
   const [selectedLeg, setSelectedLeg] = useState<number | null>(null);
 
   if (!saved || !model.room) {
@@ -50,6 +51,10 @@ export function SavedCourseScreen() {
         </Card>
         <CourseMap roomId={room.id} plan={saved.plan} legs={model.legs} showOtherHotels={false} selectedLeg={selectedLeg} onSelectLeg={setSelectedLeg} />
         {model.legs.length > 0 && <p className="mt-2 text-micro text-faint">{t("course.map.legend")}</p>}
+        {selectedLeg != null && model.legs[selectedLeg] && <LegDetail leg={model.legs[selectedLeg]!} />}
+        <p className={model.routeLoading ? "mt-1 text-micro text-faint" : "mt-1 text-micro font-bold text-success"}>
+          {model.routeLoading ? t("course.route.loading") : t("course.route.live")}
+        </p>
         <SummaryPanel model={model} />
         <div className="mt-4">
           <CourseTimeline model={model} plan={saved.plan} />

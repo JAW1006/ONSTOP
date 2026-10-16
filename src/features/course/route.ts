@@ -1,5 +1,5 @@
-// 순차 경로 구간 조회·캐시(A6). 조회 중·실패 구간은 근사값으로 대체한다.
-import { useQueries, useQueryClient, type QueryClient } from "@tanstack/react-query";
+// 순차 경로 구간(A6). 코스 빌더는 보수적 근사만 쓰고, 실제 경로는 코스 확정(저장) 후에만 조회한다(2026-10-16 결정).
+import { useQueries } from "@tanstack/react-query";
 import { useCallback, useMemo } from "react";
 import { AIRPORT_COORD } from "@/data";
 import { approxTravel, haversineKm, type LatLng } from "@/domain/travel";
@@ -11,11 +11,6 @@ export const travelKey = (from: LatLng, to: LatLng) => ["travel", round(from.lat
 export function approxResult(from: LatLng, to: LatLng): TravelResult {
   const a = approxTravel(haversineKm(from, to));
   return { min: a.min, mode: a.mode, approx: true, path: null, distanceM: null, transfers: null, fare: null };
-}
-
-/** 캐시에 있으면 실제 값, 없으면 근사값(동기) — 후보 배지·자동 추천 판정용 */
-export function cachedOrApprox(client: QueryClient, from: LatLng, to: LatLng): TravelResult {
-  return client.getQueryData<TravelResult>(travelKey(from, to)) ?? approxResult(from, to);
 }
 
 export interface RouteLeg extends TravelResult {
@@ -32,11 +27,14 @@ export function routePoints(hotel: LatLng | null, stops: readonly { coord: LatLn
   return hotel ? [AIRPORT_COORD, hotel, ...stops.map((s) => s.coord), AIRPORT_COORD] : [];
 }
 
-/** 경로의 각 구간을 조회(캐시 영구). 결과 전까지·실패 시 근사값 */
-export function useRouteLegs(points: readonly LatLng[]): { legs: RouteLeg[]; loading: boolean } {
+/**
+ * 경로의 각 구간. live = true(확정된 코스)면 실제 경로를 조회해 캐시, 결과 전까지·실패 시 근사값.
+ * live = false(코스 빌더)면 조회하지 않고 보수적 근사만.
+ */
+export function useRouteLegs(points: readonly LatLng[], { live }: { live: boolean }): { legs: RouteLeg[]; loading: boolean } {
   const pairs = useMemo(() => points.slice(0, -1).map((from, i) => ({ from, to: points[i + 1]! })), [points]);
   const results = useQueries({
-    queries: pairs.map(({ from, to }) => ({
+    queries: (live ? pairs : []).map(({ from, to }) => ({
       queryKey: travelKey(from, to),
       queryFn: () => fetchTravel(from, to),
       staleTime: Infinity,
@@ -45,21 +43,20 @@ export function useRouteLegs(points: readonly LatLng[]): { legs: RouteLeg[]; loa
     })),
   });
   const legs = pairs.map(({ from, to }, i) => {
-    const r = results[i]!;
-    const base = r.data ?? approxResult(from, to);
-    return { ...base, from, to, isReturn: i === pairs.length - 1 && pairs.length > 1, loading: r.isPending };
+    const r = results[i];
+    const base = r?.data ?? approxResult(from, to);
+    return { ...base, from, to, isReturn: i === pairs.length - 1 && pairs.length > 1, loading: !!r?.isPending };
   });
   return { legs, loading: results.some((r) => r.isPending) };
 }
 
-/** 장소 목록 → 순차 구간 분 수(캐시 또는 근사). domain LegsFor 구현 */
-export function useLegsFor(hotel: LatLng | null) {
-  const client = useQueryClient();
+/** 장소 목록 → 순차 구간 분 수(보수적 근사만). 자동 추천·"환승 내 가능" 판정용 domain LegsFor */
+export function useApproxLegsFor(hotel: LatLng | null) {
   return useCallback(
     (stops: readonly { coord: LatLng }[]) => {
       const pts = routePoints(hotel, stops);
-      return pts.slice(0, -1).map((from, i) => cachedOrApprox(client, from, pts[i + 1]!).min);
+      return pts.slice(0, -1).map((from, i) => approxResult(from, pts[i + 1]!).min);
     },
-    [client, hotel],
+    [hotel],
   );
 }

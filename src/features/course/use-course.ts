@@ -5,11 +5,12 @@ import { returnPlan, scheduleSummary, sequentialCourse } from "@/domain/time-fit
 import { useTimeSafe } from "@/features/time-safe/hooks";
 import { routePoints, useRouteLegs } from "./route";
 
-export function useCourseModel(roomId: string | null, plan: readonly CoursePlace[]) {
+/** live = true: 확정된(저장된) 코스 — 실제 경로 조회. false: 코스 빌더 — 보수적 근사만 */
+export function useCourseModel(roomId: string | null, plan: readonly CoursePlace[], { live }: { live: boolean }) {
   const ts = useTimeSafe();
   const room = roomById(roomId) ?? null;
   const points = routePoints(room?.coord ?? null, plan);
-  const { legs, loading } = useRouteLegs(points);
+  const { legs, loading } = useRouteLegs(points, { live });
   const { result } = ts;
   const course = room ? sequentialCourse(result.exitAtMin, legs.map((l) => l.min), plan.map((p) => p.dur)) : null;
   const summary = scheduleSummary(result.outingMin, course?.usedMin ?? 0);
@@ -20,6 +21,7 @@ export function useCourseModel(roomId: string | null, plan: readonly CoursePlace
     room,
     legs,
     routeLoading: loading,
+    live,
     course,
     summary,
     returnPlan: plan_,

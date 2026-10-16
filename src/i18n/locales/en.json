@@ -117,6 +117,7 @@
       "title": "① Choose your day-use stay"
     },
     "route": {
+      "estimateNote": "While building, travel times are generous estimates (~N min). Save the course to check real routes.",
       "live": "Live travel times applied (walk · transit · drive)",
       "loading": "Looking up real travel times…"
     },

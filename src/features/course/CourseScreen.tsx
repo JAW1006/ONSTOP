@@ -1,4 +1,4 @@
-import { useQueries, useQuery, useQueryClient } from "@tanstack/react-query";
+import { useQuery } from "@tanstack/react-query";
 import { Bed, Check, Footprints, Route, TrainFront, CarTaxiFront } from "lucide-react";
 import { useEffect, useMemo, useState } from "react";
 import { useTranslation } from "react-i18next";
@@ -18,10 +18,10 @@ import { autoBuildSequential, courseAvailableMin, wouldFitSequential } from "@/d
 import type { TravelMode } from "@/domain/travel";
 import { formatKrw } from "@/lib/format";
 import { cn } from "@/lib/utils";
-import { fetchNearby, fetchTravel, type TravelResult } from "./api";
+import { fetchNearby, type TravelResult } from "./api";
 import { CourseMap } from "./CourseMap";
 import { CourseTimeline } from "./CourseTimeline";
-import { cachedOrApprox, travelKey, useLegsFor, type RouteLeg } from "./route";
+import { approxResult, useApproxLegsFor, type RouteLeg } from "./route";
 import { SummaryPanel } from "./SummaryPanel";
 import { useCourseModel, type CourseModel } from "./use-course";
 
@@ -40,11 +40,11 @@ export function CourseScreen() {
   const { t, i18n } = useTranslation();
   const navigate = useNavigate();
   const trip = useTrip();
-  const client = useQueryClient();
   const lang = i18n.language;
   const cats = trip.courseCats ?? initialCats(trip.interests);
   const plan = trip.coursePlan;
-  const model = useCourseModel(trip.courseRoomId, plan);
+  // 코스 빌더는 실제 경로를 조회하지 않는다(보수적 근사) — 저장하면 저장된 코스 화면에서 실제 경로 조회
+  const model = useCourseModel(trip.courseRoomId, plan, { live: false });
   const room = model.room;
   const locked = !model.canGoOut;
   const [selectedLeg, setSelectedLeg] = useState<number | null>(null);
@@ -71,21 +71,11 @@ export function CourseScreen() {
     [cats, nearby.data],
   );
 
-  // 숙소→후보 이동시간: 보이는 후보만 실제 조회(캐시), 정렬·판정은 캐시 또는 근사
-  const hotelTo = (p: CoursePlace): TravelResult => (room ? cachedOrApprox(client, room.coord, p.coord) : { min: 0, mode: "walk", approx: true, path: null, distanceM: null, transfers: null, fare: null });
+  // 숙소→후보 이동시간: 보수적 근사만(후보 구간 미리 조회 안 함 — ODsay 쿼터 확인 전, 2026-10-16 결정)
+  const hotelTo = (p: CoursePlace): TravelResult => (room ? approxResult(room.coord, p.coord) : { min: 0, mode: "walk", approx: true, path: null, distanceM: null, transfers: null, fare: null });
   const sorted = [...candidates].sort((a, b) => hotelTo(a).min - hotelTo(b).min);
   const visible = room ? (showAll ? sorted : sorted.slice(0, VISIBLE_PLACES)) : [];
-  useQueries({
-    queries: visible.map((p) => ({
-      queryKey: travelKey(room!.coord, p.coord),
-      queryFn: () => fetchTravel(room!.coord, p.coord),
-      staleTime: Infinity,
-      gcTime: Infinity,
-      retry: false,
-    })),
-  });
-
-  const legsFor = useLegsFor(room?.coord ?? null);
+  const legsFor = useApproxLegsFor(room?.coord ?? null);
   const available = courseAvailableMin(model.outingMin);
   const inPlan = (p: CoursePlace) => plan.some((x) => x.id === p.id);
   const fits = (p: CoursePlace) => !!room && wouldFitSequential(available, legsFor, plan, p);
@@ -191,11 +181,7 @@ export function CourseScreen() {
             {t("course.autoBuild.empty")}
           </p>
         )}
-        {room && (
-          <p className={cn("mb-3.5 text-center text-micro", model.routeLoading ? "text-faint" : "font-bold text-success")}>
-            {model.routeLoading ? t("course.route.loading") : t("course.route.live")}
-          </p>
-        )}
+        {room && <p className="mb-3.5 text-center text-micro text-faint">{t("course.route.estimateNote")}</p>}
 
         <SectionHeader
           title={t("course.places.title")}
@@ -281,7 +267,7 @@ export function CannotGoOutBox() {
   );
 }
 
-function LegDetail({ leg }: { leg: RouteLeg }) {
+export function LegDetail({ leg }: { leg: RouteLeg }) {
   const { t } = useTranslation();
   const mode = t(leg.mode === "transit" ? "course.leg.mode.transit" : leg.mode === "walk" ? "course.leg.mode.walk" : "course.leg.mode.taxi");
   const parts = [

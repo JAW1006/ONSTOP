@@ -37,8 +37,15 @@ export const WALK_MAX_KM = 1.2;
 export const TRANSIT_MIN_KM = 6;
 /** 도보 추정 속도(km/h) — 미검증 */
 export const WALK_SPEED_KMH = 4.5;
-/** 실측 전 실시간 장소 임시 이동시간(분/km, ≈30km/h) — 미검증 */
+/** [레거시] 실측 전 실시간 장소 임시 이동시간(분/km, ≈30km/h) — 미검증. 레거시 비교용 liveEstimateMin에만 쓴다 */
 export const LIVE_PLACE_MIN_PER_KM = 2;
+/**
+ * 코스 빌더 보수적 근사(분/직선 km) — 실제 경로는 코스 확정 후에만 조회한다(2026-10-16 결정).
+ * 실측 2건(자동차 16분/3.16km = 5.1, 대중교통 95분/17.9km = 5.3)보다 길게 잡았다. 미검증
+ */
+export const CONSERVATIVE_MIN_PER_KM = 6;
+/** 도보 근사 우회 계수(직선거리 × 이 값) — 미검증 */
+export const WALK_DETOUR_FACTOR = 1.3;
 
 /* ---- 데이유즈 (docs/formulas/dayuse-pricing.md) ---- */
 /** 1시간 추가 가격 = 기본가 ÷ 기본시간 × 이 비율 — 근거 없음(미검증) */

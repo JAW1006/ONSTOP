@@ -1,5 +1,5 @@
 // 공식: docs/formulas/time-fit.md "이동시간"
-import { LIVE_PLACE_MIN_PER_KM, TRANSIT_MIN_KM, WALK_MAX_KM, WALK_SPEED_KMH } from "./constants";
+import { CONSERVATIVE_MIN_PER_KM, LIVE_PLACE_MIN_PER_KM, TRANSIT_MIN_KM, WALK_DETOUR_FACTOR, WALK_MAX_KM, WALK_SPEED_KMH } from "./constants";
 
 export interface LatLng {
   lat: number;
@@ -47,10 +47,11 @@ export function liveEstimateMin(km: number): number {
 }
 
 /**
- * 실측 전·실측 실패 시 구간 근사(A6, "약 N분" 표기용).
- * 도보 거리(≤ WALK_MAX_KM)는 도보 추정, 그 외는 직선거리 × LIVE_PLACE_MIN_PER_KM. 수단은 pickTravelMode 기준.
+ * 보수적 구간 근사("약 N분") — 코스 빌더·자동 추천·조회 실패 시.
+ * 도보(≤ WALK_MAX_KM): 직선 × WALK_DETOUR_FACTOR ÷ 4.5km/h, 그 외: 직선 × CONSERVATIVE_MIN_PER_KM. 수단은 pickTravelMode 기준.
  */
 export function approxTravel(km: number): { min: number; mode: TravelMode; approx: true } {
   const mode = pickTravelMode(km);
-  return { min: mode === "walk" ? walkMin(km) : liveEstimateMin(km), mode, approx: true };
+  const min = mode === "walk" ? walkMin(km * WALK_DETOUR_FACTOR) : Math.max(1, Math.round(km * CONSERVATIVE_MIN_PER_KM));
+  return { min, mode, approx: true };
 }

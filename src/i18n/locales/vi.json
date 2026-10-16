@@ -117,6 +117,7 @@
       "title": "① Chọn chỗ nghỉ Day-Use"
     },
     "route": {
+      "estimateNote": "Khi đang tạo, thời gian di chuyển được ước tính rộng (khoảng N phút). Lưu lộ trình để kiểm tra tuyến thực tế.",
       "live": "Đang áp dụng thời gian di chuyển thực tế (đi bộ · phương tiện công cộng · lái xe)",
       "loading": "Đang tra cứu thời gian di chuyển thực tế…"
     },
