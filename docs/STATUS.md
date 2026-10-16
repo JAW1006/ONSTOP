@@ -18,11 +18,18 @@
 |---|---|
 | 작업 브랜치 | `migration/react-ts` (main 금지 — Render 자동 배포) |
 | push | 가능 — 이 저장소만 `credential.https://github.com.username = JAW1006`(로컬 설정). `main`에는 올리지 않음 |
-| 백업 | git bundle: `C:UsersOpenLinkONSTOP-backuponstop-migration-react-ts-2026-10-16.bundle` (`migration/react-ts` + `main`, 전체 이력). 복원: `git clone -b migration/react-ts <bundle> <폴더>` |
+| 백업 | git bundle: `C:\Users\OpenLink\ONSTOP-backup\onstop-migration-react-ts-2026-10-16.bundle` (`migration/react-ts` + `main`, 전체 이력). 복원: `git clone -b migration/react-ts <bundle> <폴더>` |
 
 ## 결정됨
 | # | 결정 | 공식 | 적용 |
 |---|---|---|---|
+| A9 | 데이유즈 가격은 **계산식 추정 금지** — 호텔별 실제 판매 블록·가격표(`DayuseOffer`/`DayuseProduct`)로. 값은 호텔 인터뷰로 입력, 없으면 "가격 확인 중". `TIER_STEP_RATIO` 폐기 예정 | [dayuse-pricing](formulas/dayuse-pricing.md), [data-verification](design/data-verification.md) 수동 입력 구역, [hotel-interview](product/hotel-interview.md) | 문서 확정, 구현은 예약 화면 때 |
+| 화면 순서 | 데이유즈 예약 → 마이 → 짐 케어. 첫 예약은 **결제 없이 "예약 요청 → 호텔 확인"** | [roadmap](product/roadmap.md), [screens/booking](design/screens/booking.md) | 명세 작성, 구현은 사용자 확인 후 |
+| 결제·정산 | ADR-0004는 **제안 상태 유지**(A 플랫폼 정산 / B 호텔 직접 결제 + 월 수수료 청구). 호텔 인터뷰·법적 확인 후 결정 | [ADR-0004](decisions/ADR-0004-payment.md) | 결정 전 |
+| 복귀 알림 방향 | 앱 안 카운트다운·캘린더(.ics) 먼저 → 앱 출시 때 기기 내 예약 알림 → 웹 푸시는 보조. iOS 제약은 WebKit 원문(2023-02-16)으로 확인 | [ADR-0006](decisions/ADR-0006-return-alert.md) | 방향 확정, ADR은 제안 |
+| 앱 전환 대비 | 모노레포에 `apps/mobile` 자리, 서버 주소 `VITE_API_BASE`(`apiUrl`), 저장소 접근은 `src/lib/storage.ts` 한 곳 | [roadmap](product/roadmap.md) "앱 전환 대비" | 계획 |
+| 좌표 교체 | 레거시 좌표는 카카오 응답 저장 금지 조항 위반 가능성 → 제휴 업체 제공·직접 측정 등으로 교체(5단계 계획) | [external-apis](operations/external-apis.md) | 계획 |
+| 법률 우선순위 | 숙소 사진 사용 허락(허락 없으면 사진 내리고 대체 표시), "외출 가능 ≠ 입국 가능" 안내·면책 문구 | [legal-checklist](legal-checklist.md) 0장 | 확인 전 |
 | A6 | 코스 계산을 순차 경로(공항→호텔→장소들→공항)로. 구간 캐시, 실패 시 근사 "약 N분". 기존 별 모양은 비교용으로 유지 | [time-fit](formulas/time-fit.md) | 적용(코스 지도) |
 | 코스 색·선 | 체류 연한 파랑, 코스 화면 카테고리 배지 회색+아이콘·글자, 청록은 임시(역할 토큰 `--ts-role-route`), 선 모양으로 수단 구분 | [design-tokens](design/design-tokens.md) | 적용 |
 | 요약 패널 | 지도 아래 고정 | [screens/course-map](design/screens/course-map.md) | 적용 |
@@ -49,12 +56,12 @@
 ## 결정 필요
 | # | 내용 | 근거 문서 |
 |---|---|---|
-| 운영 ADR | DB(ADR-0002)·인증(0003)·결제·정산 구조(0004)·환경·배포(0005)·복귀 알림(0006) — 모두 초안 | [decisions/](decisions/) |
-| 외부 API | 공공데이터 운영계정 전환, ODsay 등급(무료 30~1,000/일), 카카오모빌리티 쿼터·계약, 카카오 응답 저장 금지 준수 | [operations/external-apis](operations/external-apis.md) |
-| 법률 | 체크리스트 전 항목 확인(결론 없음, 전문가 확인 필요) | [legal-checklist](legal-checklist.md) |
+| 운영 ADR | DB(ADR-0002)·인증(0003)·결제·정산 구조(0004, 제안 — A/B 비교·법적 확인 L1~L7)·환경·배포(0005)·복귀 알림(0006, 방향만 확정) — 모두 초안 | [decisions/](decisions/) |
+| 외부 API | 공공데이터 운영계정 전환, ODsay 쿼터·상업 이용(**사용자 확인 중**), 경로 API 대안(TMAP 등, 미확인), 카카오모빌리티 쿼터·계약, 카카오 응답 저장 금지 준수(레거시 좌표 교체) | [operations/external-apis](operations/external-apis.md) |
+| 법률 | 0장(사진 허락·외출≠입국) 먼저, 나머지 전 항목 확인(결론 없음, 전문가 확인 필요) | [legal-checklist](legal-checklist.md) |
 | 데이터 | 숙소·장소 미검증 값 116개 | [design/data-verification](design/data-verification.md) |
 | A1-값 | 버퍼 값 근거. 현재 ① `ARRIVAL_IMMIGRATION_MIN` 50(기획서) / ② `DEPARTURE_SECURITY_MIN` 50(레거시) / ③ `GATE_MARGIN_MIN` 30(레거시) — 전부 미검증. 입국 대기는 분 단위 공개 API 없음(인원 수만 제공) | [time-safe](formulas/time-safe.md), [조사](results/2026-10-16-arrival-wait-data.md) |
-| A9 | 데이유즈 3~9시간(데이터는 대부분 3–6h), 추가 시간 가격 규칙 `TIER_STEP_RATIO` 0.5 근거 | [dayuse-pricing](formulas/dayuse-pricing.md) |
+| A9-값 | 호텔 10곳의 판매 블록·가격·시작 가능 시각·연장·취소·노쇼 — 인터뷰로 입력 | [data-verification](design/data-verification.md) 수동 입력 구역, [hotel-interview](product/hotel-interview.md) |
 | A10 | 예약 화면 체크인 계산이 실측이 아닌 정적 이동시간 사용 | [dayuse-pricing](formulas/dayuse-pricing.md) |
 | A13 | 브랜드 컬러: 앱(Blue/Gold) vs 로고 README(Teal/Coral) | [design-tokens](design/design-tokens.md) |
 | 수수료 | 수수료 계산 기준·반올림 | [dayuse-pricing](formulas/dayuse-pricing.md) |
@@ -75,6 +82,8 @@
 ## 사용자 조치 필요
 | # | 내용 |
 |---|---|
+| ODsay 쿼터·상업 이용 | 콘솔 등급·일일 한도, 상업 서비스 이용 가능 여부 확인(그 전까지 빌더는 근사만) |
+| 호텔 인터뷰 | 5곳 이상 — [hotel-interview](product/hotel-interview.md) 질문, 답변은 data-verification 수동 입력 구역에 |
 | 카카오맵 JS 키 | 레포 루트에 `.env.local`을 만들고 `VITE_KAKAO_JS_KEY=<레거시 지도와 같은 앱의 JavaScript 키>`를 넣는다(`.env.example` 참고, git에 안 올라감). 비어 있으면 코스 화면 지도 자리에 안내 문구만 나온다 |
 | 실제 지도 확인 | 아래 "실제 지도 확인 절차" |
 
