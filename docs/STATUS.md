@@ -50,7 +50,7 @@
 ## 사용자 조치 필요
 | # | 내용 |
 |---|---|
-| ODsay 키 | `server/.env`의 `ODSAY_API_KEY` 비어 있음 → 대중교통 구간은 자동차 경로로 대체됨 |
+| ODsay 키 | 키는 `server/.env`에 넣었으나 ODsay가 **ApiKeyAuthFailed**로 거절(2026-10-16, Referer 유무 무관). 서버용 키의 **허용 IP 미등록**으로 추정 → ODsay LAB > 애플리케이션 설정에서 개발 PC 공인 IP 등록 필요(배포 시 Render 서버 IP도). 그 전까지 대중교통 구간은 자동차 경로로 대체 |
 
 ## 자료 갱신 필요
 | # | 내용 |
