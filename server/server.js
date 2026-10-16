@@ -396,7 +396,14 @@ app.get("/api/transit", async (req, res) => {
       const stations = sp.passStopList && sp.passStopList.stations;
       if (stations) stations.forEach((st) => path.push({ lat: Number(st.y), lng: Number(st.x) }));
     });
-    res.json({ durationMin: totalTime, fare: best.info.payment ?? null, path: path.length > 1 ? path : null });
+    // 선택 필드(2026-10-16 추가, 기존 필드 변경 없음): ODsay info에 있을 때만 넘긴다.
+    // distanceM = info.totalDistance(도보 포함 총거리, m). bus/subwayTransitCount는 ODsay 원래 이름 그대로 —
+    // 실제 응답에서 "탄 횟수"와 같게 나와(버스1+지하철1 = 환승 1회) 환승 수 해석은 앱에서 한다.
+    const optional = {};
+    if (typeof best.info.totalDistance === "number") optional.distanceM = best.info.totalDistance;
+    if (typeof best.info.busTransitCount === "number") optional.busTransitCount = best.info.busTransitCount;
+    if (typeof best.info.subwayTransitCount === "number") optional.subwayTransitCount = best.info.subwayTransitCount;
+    res.json({ durationMin: totalTime, fare: best.info.payment ?? null, path: path.length > 1 ? path : null, ...optional });
   } catch (err) {
     res.status(502).json({ error: "failed to reach odsay API", detail: String(err) });
   }
