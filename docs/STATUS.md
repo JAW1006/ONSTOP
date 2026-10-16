@@ -22,6 +22,7 @@
 | # | 결정 | 공식 | 적용 |
 |---|---|---|---|
 | T2 | 출국장 실시간 대기를 T1·T2 모두(`/api/security-wait/t2` 추가), 홈 배지는 터미널 기준 "T1/T2 실시간 확인 · 현재 N분" 또는 "실시간 아님" | [time-safe](formulas/time-safe.md), [api/incheon-congestion](api/incheon-congestion.md) | 적용 |
+| 카카오맵 도메인 | `http://localhost:5173` 등록 완료(사용자, 2026-10-16). 이 주소에서 JS SDK 인증·지도 타일 로드 확인. 개발 서버 포트는 5173 고정(`strictPort`). `127.0.0.1`로는 열지 않는다(Vite가 localhost만 수신) | [api/environment](api/environment.md) | 확인 |
 | API 형식 | 항공편 시각은 `HHMM`만(날짜 없음) — 2026-10-16 실제 호출로 확인. A2 날짜 경로·24h 경고는 현재 API로는 쓰이지 않음 | [api/incheon-flights](api/incheon-flights.md) | 확인 |
 | A2 | 자정 넘김: 날짜 우선, 없으면 출발 < 도착이면 익일, 24h 초과 경고 | [time-safe](formulas/time-safe.md) | 적용 (날짜 경로는 API 미검증) |
 | A3 | T1 출국 실시간 대기: `max(기준값, 실시간)` | [time-safe](formulas/time-safe.md) | 적용 |
@@ -49,7 +50,6 @@
 ## 사용자 조치 필요
 | # | 내용 |
 |---|---|
-| 카카오맵 도메인 | 레거시 지도와 같은 카카오 앱(JavaScript 키 `7bcb39…`, "JS SDK 도메인")에 `http://localhost:5173`(+ IP로 열면 `http://127.0.0.1:5173`) 등록. 서버 REST 키도 이 앱 키로 교체해 길찾기·로컬 검색 모두 정상(2026-10-16) |
 | ODsay 키 | `server/.env`의 `ODSAY_API_KEY` 비어 있음 → 대중교통 구간은 자동차 경로로 대체됨 |
 
 ## 자료 갱신 필요
