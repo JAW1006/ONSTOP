@@ -152,7 +152,7 @@ describe("securityBufferMin — max(기준값, 실시간) (A3)", () => {
     ["P01", null, 50, false],
     ["P03", 65, 65, true],
     ["P03", 20, 50, false],
-    ["P02", 65, 50, false],
+    ["P02", 65, 65, true],
     [null, 65, 50, false],
   ] as const)("터미널 %s, 실시간 %s → %s분 (실시간 반영 %s)", (terminal, live, expected, applied) => {
     expect(securityBufferMin(terminal, live)).toBe(expected);
@@ -164,7 +164,8 @@ describe("liveSecurityTerminal — 실시간 대기 제공 터미널", () => {
   it.each([
     ["P01", "T1"],
     ["P03", "T2"],
-    ["P02", null],
+    ["P02", "T1"],
+    ["P04", null],
     [null, null],
   ] as const)("%s → %s", (terminal, expected) => {
     expect(liveSecurityTerminal(terminal)).toBe(expected);

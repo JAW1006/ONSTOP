@@ -33,7 +33,7 @@ beforeEach(async () => {
     T2DEP: { flightId: "T2DEP", airline: "T2 Air", toAirport: "Tokyo", scheduleDateTime: "1451", estimatedDateTime: null, terminal: "P03", gate: "250", remark: null },
     T1DEP: { flightId: "T1DEP", airline: "T1 Air", toAirport: "Hanoi", scheduleDateTime: "1451", estimatedDateTime: null, terminal: "P01", gate: "40", remark: null },
   };
-  securityGates = [{ waitTimeMin: 60 }, { waitTimeMin: 70 }];
+  securityGates = [{ waitTimeMin: 20 }, { waitTimeMin: 30 }]; // 평균 25 < 기준 50
   securityGatesT2 = [{ waitTimeMin: 70 }];
   vi.stubGlobal("fetch", fetchMock);
   fetchMock.mockClear();
@@ -60,9 +60,9 @@ describe("홈 — Time-Safe 카드", () => {
     expect(c.textContent).toContain("Recommended return 13:31");
     expect(c.textContent).toContain("Estimated times applied: immigration ~50 min");
     expect(within(c).getByText("Live")).toBeTruthy();
-    // MU2043은 탑승동(P02) — 실시간 대기 없음
-    expect(c.textContent).toContain("No live security data · using estimate");
-    expect(fetchMock).not.toHaveBeenCalledWith("/api/security-wait");
+    // MU2043은 탑승동(P02) — T1 출국장 대기를 쓴다(평균 25분 < 50 → 기준값)
+    await waitFor(() => expect(card().textContent).toContain("Live security wait checked (T1) · now ~25 min"));
+    expect(fetchMock).toHaveBeenCalledWith("/api/security-wait");
     expect(fetchMock).not.toHaveBeenCalledWith("/api/security-wait/t2");
   });
 
@@ -72,6 +72,7 @@ describe("홈 — Time-Safe 카드", () => {
   });
 
   it("#12 T1 연결편, 실시간 65분 > 50 → 1h 56m + T1 실시간 배지", async () => {
+    securityGates = [{ waitTimeMin: 60 }, { waitTimeMin: 70 }];
     home("KE085", "T1DEP");
     await waitFor(() => expect(card().textContent).toContain("1h 56m"));
     expect(card().textContent).toContain("Live security wait checked (T1) · now ~65 min");
@@ -121,6 +122,8 @@ describe("홈 — 재조회와 변경 배너", () => {
   it("새로고침으로 연결편이 30분 지연되면 '복귀 추천 13:31 → 14:01' 배너, 닫기", async () => {
     home();
     await waitFor(() => expect(card().textContent).toContain("2h 11m"));
+    // 출국장 대기 조회가 끝나야 새로고침 버튼이 풀린다
+    await waitFor(() => expect(card().textContent).toContain("now ~25 min"));
     expect(screen.queryByRole("status")).toBeNull();
 
     departures.MU2043 = { ...departures.MU2043!, estimatedDateTime: "1521" };
@@ -136,6 +139,8 @@ describe("홈 — 재조회와 변경 배너", () => {
   it("도착만 바뀌면 도착 변경 배너", async () => {
     home();
     await waitFor(() => expect(card().textContent).toContain("2h 11m"));
+    // 출국장 대기 조회가 끝나야 새로고침 버튼이 풀린다
+    await waitFor(() => expect(card().textContent).toContain("now ~25 min"));
     arrivals.KE085 = { ...arrivals.KE085!, estimatedDateTime: "1050" };
     await act(async () => fireEvent.click(screen.getByRole("button", { name: "Refresh flight status" })));
     await waitFor(() => expect(screen.getByRole("status").textContent).toBe("Arrival time changed · 10:30 → 10:50"));
@@ -144,6 +149,8 @@ describe("홈 — 재조회와 변경 배너", () => {
   it("값이 그대로면 배너 없음", async () => {
     home();
     await waitFor(() => expect(card().textContent).toContain("2h 11m"));
+    // 출국장 대기 조회가 끝나야 새로고침 버튼이 풀린다
+    await waitFor(() => expect(card().textContent).toContain("now ~25 min"));
     await act(async () => fireEvent.click(screen.getByRole("button", { name: "Refresh flight status" })));
     await waitFor(() => expect((screen.getByRole("button", { name: "Refresh flight status" }) as HTMLButtonElement).disabled).toBe(false));
     expect(screen.queryByRole("status")).toBeNull();

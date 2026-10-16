@@ -17,19 +17,23 @@ const DEPARTURES: Record<string, Flight> = {
   T1DEP: { flightId: "T1DEP", airline: "T1 Air", toAirport: "Hanoi", scheduleDateTime: "1451", estimatedDateTime: null, terminal: "P01", gate: "40", remark: null },
 };
 
+// 기본 T1 출국장 평균 25분(< 기준 50분) — 65분이 필요한 테스트에서만 바꾼다
+let securityGates = [{ waitTimeMin: 20 }, { waitTimeMin: 30 }];
+
 const fetchMock = vi.fn(async (url: string) => {
   const u = new URL(url, "http://localhost");
   const json = (status: number, body: unknown) => new Response(JSON.stringify(body), { status });
   const id = u.searchParams.get("flightId") ?? "";
   if (u.pathname === "/api/flight/arrival") return ARRIVALS[id] ? json(200, { flights: [ARRIVALS[id]] }) : json(404, { error: `no arrival found for "${id}"` });
   if (u.pathname === "/api/flight/departure") return DEPARTURES[id] ? json(200, { flights: [DEPARTURES[id]] }) : json(404, { error: "x" });
-  if (u.pathname === "/api/security-wait") return json(200, { gates: [{ waitTimeMin: 60 }, { waitTimeMin: 70 }] });
+  if (u.pathname === "/api/security-wait") return json(200, { gates: securityGates });
   return json(500, { error: "unexpected" });
 });
 
 beforeEach(async () => {
   vi.stubGlobal("fetch", fetchMock);
   fetchMock.mockClear();
+  securityGates = [{ waitTimeMin: 20 }, { waitTimeMin: 30 }];
   await i18n.changeLanguage("en");
 });
 afterEach(() => {
@@ -105,6 +109,7 @@ describe("항공편 조회 + Time-Safe", () => {
   });
 
   it("#12 연결편 T1 → 출국장 실시간 평균 65분 반영, 1h 56m", async () => {
+    securityGates = [{ waitTimeMin: 60 }, { waitTimeMin: 70 }];
     renderApp("/onboarding?step=2");
     await lookUp(ARR, "KE085");
     await lookUp(DEP, "T1DEP");
@@ -113,12 +118,12 @@ describe("항공편 조회 + Time-Safe", () => {
     expect(card().textContent).toContain("security & exit check ~65 min");
   });
 
-  it("탑승동(P02) 연결편은 출국장 대기를 조회하지 않는다", async () => {
+  it("탑승동(P02) 연결편 → T1 출국장 대기 조회(평균 25분 < 50 → 기준값, 2h 11m)", async () => {
     renderApp("/onboarding?step=2");
     await lookUp(ARR, "KE085");
     await lookUp(DEP, "MU2043");
     await waitFor(() => expect(card().textContent).toContain("2h 11m"));
-    expect(fetchMock).not.toHaveBeenCalledWith("/api/security-wait");
+    expect(fetchMock).toHaveBeenCalledWith("/api/security-wait");
   });
 
   it("404 → '일치하는 항공편 없음' 번역 문구", async () => {

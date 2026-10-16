@@ -19,9 +19,10 @@ export const GATE_MARGIN_MIN = 30;
 export const MIN_STAY = 60;
 /**
  * 출국장 실시간 대기시간을 제공하는 터미널 코드 → 표시 이름. P01 = 제1터미널(statusOfDepartureCongestion),
- * P03 = 제2터미널(statusOfDepartureCongestionT2). P02(탑승동)는 실시간 미적용 — docs/STATUS.md 결정 필요
+ * P02 = 탑승동 — 출국 수속은 T1 출국장에서 하므로 T1 값 적용(2026-10-16 결정). 셔틀트레인 이동·대기용 별도 버퍼는 미검증·미적용(docs/STATUS.md),
+ * P03 = 제2터미널(statusOfDepartureCongestionT2).
  */
-export const LIVE_SECURITY_TERMINALS: Readonly<Record<string, "T1" | "T2">> = { P01: "T1", P03: "T2" };
+export const LIVE_SECURITY_TERMINALS: Readonly<Record<string, "T1" | "T2">> = { P01: "T1", P02: "T1", P03: "T2" };
 /** 온보딩 이후 항공편 재조회 주기 */
 export const FLIGHT_POLL_INTERVAL_MS = 120_000;
 
