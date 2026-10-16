@@ -1,7 +1,7 @@
 # TimeStay — 작업 규칙
 
 인천공항 환승 외국인을 위한 데이유즈 + AI 큐레이션 앱. 레거시 단일 HTML(`app/index.html`)을 React로 이식 중.
-문서 목차: [docs/README.md](docs/README.md)
+문서 목차: [docs/README.md](docs/README.md) · 진행·결정 필요: [docs/STATUS.md](docs/STATUS.md)
 
 ## 스택 / 명령어
 Vite + React + TypeScript · Tailwind v4 + shadcn/ui(Radix) · React Router · TanStack Query · Vitest

@@ -4,6 +4,7 @@
 
 | 영역 | 문서 | 상태 | 내용 |
 |---|---|---|---|
+| 진행 | [STATUS.md](STATUS.md) | 확정 | 단계 진행, 결정됨 / **결정 필요** 목록 |
 | 제품 | [product/overview.md](product/overview.md) | 초안 | 서비스 개요·핵심 기능·수익 모델 |
 | 제품 | [product/market.md](product/market.md) | 초안 | 시장 규모·타깃 (수치 미검증) |
 | 디자인 | [design/design-tokens.md](design/design-tokens.md) | 초안 | 색·반경·그림자·타이포·레이아웃 토큰 |
