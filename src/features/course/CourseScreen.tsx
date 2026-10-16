@@ -78,7 +78,10 @@ export function CourseScreen() {
   const legsFor = useApproxLegsFor(room?.coord ?? null);
   const available = courseAvailableMin(model.outingMin);
   const inPlan = (p: CoursePlace) => plan.some((x) => x.id === p.id);
-  const fits = (p: CoursePlace) => !!room && wouldFitSequential(available, legsFor, plan, p);
+  // B1: 이 숙소에 고른 데이유즈 블록이 있으면 호텔 복귀 ≤ 블록 종료도 판정한다
+  const blockEnd = model.returnPlan?.blockEndMin ?? null;
+  const block = blockEnd != null ? { startMin: model.exitAtMin, endMin: blockEnd } : null;
+  const fits = (p: CoursePlace) => !!room && wouldFitSequential(available, legsFor, plan, p, block);
   const toggle = (p: CoursePlace) => trip.setCoursePlan((prev) => (prev.some((x) => x.id === p.id) ? prev.filter((x) => x.id !== p.id) : [...prev, p]));
   const autoBuild = () => {
     if (!room) return;
@@ -88,6 +91,7 @@ export function CourseScreen() {
       places: candidates.map((p) => ({ ...p, rankMove: hotelTo(p).min })),
       legsFor,
       availableMin: available,
+      block,
     });
     const next = picked.map(({ rankMove: _r, ...p }) => p);
     trip.setCoursePlan(next);
@@ -271,7 +275,7 @@ export function LegDetail({ leg }: { leg: RouteLeg }) {
   const { t } = useTranslation();
   const mode = t(leg.mode === "transit" ? "course.leg.mode.transit" : leg.mode === "walk" ? "course.leg.mode.walk" : "course.leg.mode.taxi");
   const parts = [
-    leg.isReturn ? t("course.leg.return") : null,
+    leg.isReturn ? t("course.leg.return") : leg.isHotelReturn ? t("course.leg.hotelReturn") : null,
     mode,
     leg.approx ? t("course.leg.approxMinutes", { n: leg.min }) : t("course.leg.minutes", { n: leg.min }),
     leg.distanceM != null ? t("course.leg.km", { km: (leg.distanceM / 1000).toFixed(1) }) : null,

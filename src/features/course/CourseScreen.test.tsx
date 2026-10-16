@@ -1,5 +1,6 @@
 // @vitest-environment jsdom
 // 빌더 = 보수적 근사만(경로 API 호출 0회), 저장된 코스 = 실제 경로 조회(2026-10-16 결정).
+// 경로 = 공항 → 호텔 → 장소들 → 호텔(짐 찾기) → 공항(B1, 2026-10-16 결정).
 // 지도는 모의(FakeMapView). API 모의 규칙: 자동차 = 1km당 2분·거리 ×1.3, 대중교통 = 1km당 3분·거리 ×1.4·버스1+지하철1·1,500원.
 // 공항 밖 11:20, 외출 가능 2h11m(131), 코스 가용 111, 복귀 목표 13:31 — time-safe.md #1과 같은 항공편.
 import { act, cleanup, fireEvent, screen, waitFor, within } from "@testing-library/react";
@@ -101,52 +102,57 @@ describe("코스 빌더 — 보수적 근사만(실제 경로 조회 안 함)", 
     expect(routeCalls()).toEqual([]);
   });
 
-  it("하이마트 추가: 약 47분·복귀 약 37분 → 52분 초과·복귀 예상 14:23(늦음), 올리브영 추가 → 85분 초과, 후보 목록도 근사, 호출 0회", async () => {
+  it("하이마트 추가: 약 47분·숙소로 약 47분·복귀 약 19분 → 81분 초과·복귀 예상 14:52(늦음), 올리브영 추가 → 113분 초과, 후보 목록도 근사, 호출 0회", async () => {
     open({ room: "hotel-aura-incheon" });
     await waitReady();
     expect(placeCard(/Lotte Hi-Mart/).textContent).toContain("~47 min");
 
     await act(async () => fireEvent.click(addButton("Lotte Hi-Mart (Yeongjong)")));
-    await waitFor(() => expect(legs().map((b) => b.textContent)).toEqual(["~19 min", "~47 min", "Return ~37 min"]));
+    await waitFor(() => expect(legs().map((b) => b.textContent)).toEqual(["~19 min", "~47 min", "To stay ~47 min", "Return ~19 min"]));
     expect(fakeMap.scene!.pins.find((p) => p.kind === "place")).toMatchObject({ number: 1, label: "Lotte Hi-Mart (Yeongjong)" });
     let text = panel().textContent!;
-    expect(text).toContain("Used 3h 3m");
-    expect(text).toContain("52 min over");
-    expect(text).toContain("Expected airport arrival14:23 (later than target 13:31)");
+    expect(text).toContain("Used 3h 32m");
+    expect(text).toContain("81 min over");
+    expect(text).toContain("Expected airport arrival14:52 (later than target 13:31)");
+    expect(legs()[2]!.dataset.return).toBe("false");
+    expect(legs()[3]!.dataset.return).toBe("true");
 
     await act(async () => fireEvent.click(addButton("Olive Young (Unseo)")));
-    await waitFor(() => expect(panel().textContent).toContain("85 min over"));
+    await waitFor(() => expect(panel().textContent).toContain("113 min over"));
     text = panel().textContent!;
     expect(within(panel()).getByRole("alert").textContent).toContain("Remove a spot or shorten your stays");
     expect(legs()[2]!.textContent).toBe("~2 min");
     expect(legs()[2]!.dataset.mode).toBe("walk");
 
-    // 일정의 두 번째 장소(올리브영) 삭제 → 다시 52분 초과
+    // 일정의 두 번째 장소(올리브영) 삭제 → 다시 81분 초과
     await act(async () => fireEvent.click(screen.getAllByRole("button", { name: "Remove" })[1]!));
-    await waitFor(() => expect(panel().textContent).toContain("52 min over"));
+    await waitFor(() => expect(panel().textContent).toContain("81 min over"));
     expect(routeCalls()).toEqual([]);
   });
 
-  it("자동 추천(충분한 연결편 19:00): 근사로 판정해 올리브영 1곳, 사용 2h 34m / 가용 6h 20m", async () => {
+  it("자동 추천(충분한 연결편 19:00): 근사로 판정해 올리브영 1곳, 사용 3h 2m / 가용 6h 20m, 마지막 장소 16:34·숙소 17:21까지 출발", async () => {
     open({ departure: "LONG1", room: "hotel-aura-incheon" });
     await waitFor(() => expect(panel().textContent).toContain("/ available 6h 20m"));
     await act(async () => fireEvent.click(screen.getByRole("button", { name: /Auto-build with Time-Fit/ })));
     await waitFor(() => expect(fakeMap.scene!.pins.filter((p) => p.kind === "place").map((p) => p.label)).toEqual(["Olive Young (Unseo)"]));
-    expect(panel().textContent).toContain("Used 2h 34m");
-    expect(panel().textContent).toContain("226 min to spare");
+    expect(panel().textContent).toContain("Used 3h 2m");
+    expect(panel().textContent).toContain("198 min to spare");
+    expect(panel().textContent).toContain("Leave your last stop by16:34");
+    expect(panel().textContent).toContain("Leave your stay by17:21");
+    expect(screen.getByText(/Back to Hotel Aura Incheon Airport · pick up luggage/)).toBeTruthy();
     expect(routeCalls()).toEqual([]);
   });
 });
 
 describe("저장된 코스 — 확정 후 실제 경로 조회", () => {
-  it("하이마트: 실제 6분·23분·복귀 19분 → 사용 2h 8m, 여유 3, 마지막 장소 출발 13:12까지", async () => {
+  it("하이마트: 실제 6분·23분·숙소로 23분·복귀 6분 → 사용 2h 18m, 7분 초과(호텔 복귀 전에는 여유 3)", async () => {
     openSaved(["sky72-outlet"]);
-    await waitFor(() => expect(legs().map((b) => b.textContent)).toEqual(["6 min 4.1 km", "23 min 10.9 km", "Return 19 min 8.7 km"]));
+    await waitFor(() => expect(legs().map((b) => b.textContent)).toEqual(["6 min 4.1 km", "23 min 10.9 km", "To stay 23 min 10.9 km", "Return 6 min 4.1 km"]));
     const text = panel().textContent!;
-    expect(text).toContain("Used 2h 8m");
-    expect(text).toContain("3 min to spare");
-    expect(text).toContain("Leave your last stop by13:12");
-    expect(routeCalls()).toHaveLength(3);
+    expect(text).toContain("Used 2h 18m");
+    expect(text).toContain("7 min over");
+    expect(text).toContain("Expected airport arrival13:38 (later than target 13:31)");
+    expect(routeCalls()).toHaveLength(4);
   });
 
   it("칩을 누르면 그 구간만 선택 + 수단·거리·환승·요금, 다시 누르면 해제", async () => {

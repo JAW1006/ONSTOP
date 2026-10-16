@@ -167,5 +167,21 @@
   "course.route.estimateNote": {
     "stage": "코스 빌더 — 보수적 근사 안내(실제 경로는 저장 후)",
     "reviewed": false
+  },
+  "course.leg.hotelReturn": {
+    "stage": "B1 호텔 복귀 — 지도 칩·구간 정보 \"숙소로\"",
+    "reviewed": false
+  },
+  "course.step.hotelReturn.title": {
+    "stage": "B1 호텔 복귀 — 일정의 숙소 복귀 줄",
+    "reviewed": false
+  },
+  "course.step.hotelReturn.sub": {
+    "stage": "B1 호텔 복귀 — 일정의 숙소 복귀 줄 보조 문구",
+    "reviewed": false
+  },
+  "course.summary.blockOver": {
+    "stage": "B1 호텔 복귀 — 호텔 복귀가 데이유즈 블록 종료보다 늦을 때 경고",
+    "reviewed": false
   }
 }

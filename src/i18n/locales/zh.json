@@ -84,6 +84,7 @@
     },
     "leg": {
       "approxMinutes": "约{{n}}分钟",
+      "hotelReturn": "返回住宿",
       "km": "{{km}}公里",
       "minutes": "{{n}}分钟",
       "mode": {
@@ -142,6 +143,10 @@
         "sub": "钟点房据点 · 可寄存行李·淋浴(移动{{move}}分钟)",
         "title": "入住 {{room}}"
       },
+      "hotelReturn": {
+        "sub": "交通{{move}}分钟 · 请在日间使用时间结束前返回",
+        "title": "返回{{room}} · 取行李"
+      },
       "place": {
         "sub": "{{area}} · 停留{{dur}}分钟(移动{{move}}分钟)",
         "subNoStay": "{{area}}(移动{{move}}分钟)"
@@ -154,6 +159,7 @@
     "subtitle": "类别 → 选地点 → 自动生成行程",
     "summary": {
       "available": "/ 可用 {{time}}",
+      "blockOver": "预计{{time}}返回住宿，比日间使用结束时间{{end}}晚{{min}}分钟。请删除地点或选择更长的时段。",
       "expectedReturn": "预计返回机场",
       "lastDeparture": "从最后一个地点出发",
       "lastDepartureHotel": "从住宿出发",

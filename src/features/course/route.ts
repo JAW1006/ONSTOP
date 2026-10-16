@@ -18,13 +18,16 @@ export interface RouteLeg extends TravelResult {
   to: LatLng;
   /** 공항 복귀 구간 */
   isReturn: boolean;
+  /** 마지막 장소 → 호텔(짐 찾기) 구간 */
+  isHotelReturn: boolean;
   /** 아직 조회 중 */
   loading: boolean;
 }
 
-/** 공항 → 호텔 → 장소들 → 공항. 호텔이 없으면 빈 배열 */
+/** 공항 → 호텔 → 장소들 → (장소가 있으면) 호텔 → 공항(B1). 호텔이 없으면 빈 배열 */
 export function routePoints(hotel: LatLng | null, stops: readonly { coord: LatLng }[]): LatLng[] {
-  return hotel ? [AIRPORT_COORD, hotel, ...stops.map((s) => s.coord), AIRPORT_COORD] : [];
+  if (!hotel) return [];
+  return [AIRPORT_COORD, hotel, ...stops.map((s) => s.coord), ...(stops.length ? [hotel] : []), AIRPORT_COORD];
 }
 
 /**
@@ -45,7 +48,7 @@ export function useRouteLegs(points: readonly LatLng[], { live }: { live: boolea
   const legs = pairs.map(({ from, to }, i) => {
     const r = results[i];
     const base = r?.data ?? approxResult(from, to);
-    return { ...base, from, to, isReturn: i === pairs.length - 1 && pairs.length > 1, loading: !!r?.isPending };
+    return { ...base, from, to, isReturn: i === pairs.length - 1 && pairs.length > 1, isHotelReturn: pairs.length > 2 && i === pairs.length - 2, loading: !!r?.isPending };
   });
   return { legs, loading: results.some((r) => r.isPending) };
 }

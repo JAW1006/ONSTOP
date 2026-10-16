@@ -84,6 +84,7 @@
     },
     "leg": {
       "approxMinutes": "khoảng {{n}} phút",
+      "hotelReturn": "Về chỗ nghỉ",
       "km": "{{km}} km",
       "minutes": "{{n}} phút",
       "mode": {
@@ -142,6 +143,10 @@
         "sub": "Điểm trung tâm Day-Use · có thể gửi hành lý & tắm (di chuyển {{move}} phút)",
         "title": "Nhận phòng tại {{room}}"
       },
+      "hotelReturn": {
+        "sub": "Di chuyển {{move}} phút · hãy quay lại trước khi hết giờ day-use",
+        "title": "Quay lại {{room}} · nhận hành lý"
+      },
       "place": {
         "sub": "{{area}} · lưu trú {{dur}} phút (di chuyển {{move}} phút)",
         "subNoStay": "{{area}} (di chuyển {{move}} phút)"
@@ -154,6 +159,7 @@
     "subtitle": "Danh mục → chọn địa điểm → tự tạo lịch",
     "summary": {
       "available": "/ khả dụng {{time}}",
+      "blockOver": "Bạn sẽ về chỗ nghỉ lúc {{time}}, trễ {{min}} phút so với giờ kết thúc day-use ({{end}}). Hãy bớt điểm đến hoặc chọn gói dài hơn.",
       "expectedReturn": "Dự kiến về sân bay",
       "lastDeparture": "Rời điểm cuối trước",
       "lastDepartureHotel": "Rời chỗ nghỉ trước",

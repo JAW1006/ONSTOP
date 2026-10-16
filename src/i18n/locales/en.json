@@ -84,6 +84,7 @@
     },
     "leg": {
       "approxMinutes": "~{{n}} min",
+      "hotelReturn": "To stay",
       "km": "{{km}} km",
       "minutes": "{{n}} min",
       "mode": {
@@ -142,6 +143,10 @@
         "sub": "Day-use base · luggage storage & shower available (transfer {{move}} min)",
         "title": "Check in at {{room}}"
       },
+      "hotelReturn": {
+        "sub": "Transfer {{move}} min · be back before your day-use time ends",
+        "title": "Back to {{room}} · pick up luggage"
+      },
       "place": {
         "sub": "{{area}} · stay {{dur}} min (transfer {{move}} min)",
         "subNoStay": "{{area}} (transfer {{move}} min)"
@@ -154,6 +159,7 @@
     "subtitle": "Category → pick spots → auto-schedule",
     "summary": {
       "available": "/ available {{time}}",
+      "blockOver": "You'd be back at your stay at {{time}}, {{min}} min after your day-use ends ({{end}}). Remove a spot or choose a longer block.",
       "expectedReturn": "Expected airport arrival",
       "lastDeparture": "Leave your last stop by",
       "lastDepartureHotel": "Leave your stay by",

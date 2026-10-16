@@ -84,6 +84,7 @@
     },
     "leg": {
       "approxMinutes": "약 {{n}}분",
+      "hotelReturn": "숙소로",
       "km": "{{km}}km",
       "minutes": "{{n}}분",
       "mode": {
@@ -142,6 +143,10 @@
         "sub": "데이유즈 거점 · 짐 보관·샤워 가능 (이동 {{move}}분)",
         "title": "{{room}} 체크인"
       },
+      "hotelReturn": {
+        "sub": "이동 {{move}}분 · 데이유즈 이용 시간 안에 돌아와야 해요",
+        "title": "{{room}} 복귀 · 짐 찾기"
+      },
       "place": {
         "sub": "{{area}} · 체류 {{dur}}분 (이동 {{move}}분)",
         "subNoStay": "{{area}} (이동 {{move}}분)"
@@ -154,6 +159,7 @@
     "subtitle": "카테고리 → 장소 선택 → 일정 자동 생성",
     "summary": {
       "available": "/ 가용 {{time}}",
+      "blockOver": "숙소 복귀 예상 {{time}} — 이용 종료 {{end}}보다 {{min}}분 늦어요. 장소를 빼거나 더 긴 이용 시간을 골라 주세요.",
       "expectedReturn": "복귀 도착 예상",
       "lastDeparture": "마지막 장소에서 출발",
       "lastDepartureHotel": "숙소에서 출발",

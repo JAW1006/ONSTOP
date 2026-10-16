@@ -85,6 +85,13 @@ export function SummaryPanel({ model }: { model: CourseModel }) {
         </p>
       )}
 
+      {course && returnPlan?.blockOver && returnPlan.blockEndMin != null && (
+        <p role="alert" className="mt-3 flex gap-1.5 rounded-md bg-danger-bg px-3 py-2.5 text-body font-bold text-role-return">
+          <TriangleAlert size={16} className="mt-0.5 shrink-0" aria-hidden />
+          {t("course.summary.blockOver", { time: fmt.time(course.hotelReturnAt), end: fmt.time(returnPlan.blockEndMin), min: returnPlan.blockOverMin })}
+        </p>
+      )}
+
       {course && returnPlan && (
         <div className="mt-3 flex flex-col gap-1.5 border-t border-line pt-3">
           <KeyValueRow size="md" label={t("course.summary.returnTarget")} value={fmt.time(returnPlan.targetMin)} />
@@ -96,11 +103,16 @@ export function SummaryPanel({ model }: { model: CourseModel }) {
               </span>
             </div>
           ) : (
-            <KeyValueRow
-              size="md"
-              label={t(course.stops.length ? "course.summary.lastDeparture" : "course.summary.lastDepartureHotel")}
-              value={t("course.summary.until", { time: fmt.time(returnPlan.lastDepartureDeadlineMin) })}
-            />
+            <>
+              <KeyValueRow
+                size="md"
+                label={t(course.stops.length ? "course.summary.lastDeparture" : "course.summary.lastDepartureHotel")}
+                value={t("course.summary.until", { time: fmt.time(returnPlan.lastDepartureDeadlineMin) })}
+              />
+              {course.stops.length > 0 && (
+                <KeyValueRow size="md" label={t("course.summary.lastDepartureHotel")} value={t("course.summary.until", { time: fmt.time(returnPlan.hotelDepartureDeadlineMin) })} />
+              )}
+            </>
           )}
         </div>
       )}

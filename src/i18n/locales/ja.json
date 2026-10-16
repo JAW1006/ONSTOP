@@ -84,6 +84,7 @@
     },
     "leg": {
       "approxMinutes": "約{{n}}分",
+      "hotelReturn": "宿泊先へ",
       "km": "{{km}}km",
       "minutes": "{{n}}分",
       "mode": {
@@ -142,6 +143,10 @@
         "sub": "デイユース拠点・荷物預かり・シャワー利用可(移動{{move}}分)",
         "title": "{{room}} にチェックイン"
       },
+      "hotelReturn": {
+        "sub": "移動{{move}}分 · デイユース終了までに戻ってください",
+        "title": "{{room}}に戻る · 荷物受け取り"
+      },
       "place": {
         "sub": "{{area}}・滞在{{dur}}分(移動{{move}}分)",
         "subNoStay": "{{area}}(移動{{move}}分)"
@@ -154,6 +159,7 @@
     "subtitle": "カテゴリ → スポット選択 → 予定自動生成",
     "summary": {
       "available": "/ 利用可能 {{time}}",
+      "blockOver": "宿泊先に戻るのは{{time}}の予定で、デイユース終了（{{end}}）より{{min}}分遅れます。スポットを減らすか、より長い時間を選んでください。",
       "expectedReturn": "空港到着の予想",
       "lastDeparture": "最後のスポットを出発",
       "lastDepartureHotel": "宿泊先を出発",

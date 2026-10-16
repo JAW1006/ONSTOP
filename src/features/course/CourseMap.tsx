@@ -46,7 +46,8 @@ export function CourseMap({
       const { time, mode } = legLabel(leg);
       // 거리는 실제 값이 있을 때만(근사·도보는 시간만 — 2026-10-16 결정 5)
       const sub = leg.distanceM != null ? t("course.leg.km", { km: (leg.distanceM / 1000).toFixed(1) }) : null;
-      const text = leg.isReturn ? `${t("course.leg.return")} ${time}` : time;
+      const tag = leg.isReturn ? t("course.leg.return") : leg.isHotelReturn ? t("course.leg.hotelReturn") : null;
+      const text = tag ? `${tag} ${time}` : time;
       return {
         index,
         from: leg.from,
@@ -54,7 +55,7 @@ export function CourseMap({
         path: leg.path,
         mode: leg.mode,
         isReturn: leg.isReturn,
-        chip: { icon: MODE_EMOJI[leg.mode], text, sub, ariaLabel: `${leg.isReturn ? t("course.leg.return") + " · " : ""}${mode} ${time}${sub ? ` · ${sub}` : ""}` },
+        chip: { icon: MODE_EMOJI[leg.mode], text, sub, ariaLabel: `${tag ? tag + " · " : ""}${mode} ${time}${sub ? ` · ${sub}` : ""}` },
       };
     });
     const planIds = new Set(plan.map((p) => p.id));

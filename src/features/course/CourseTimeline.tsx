@@ -6,7 +6,7 @@ import { localize, type CoursePlace } from "@/data";
 import { useTimeFormat } from "@/features/time-safe/hooks";
 import type { CourseModel } from "./use-course";
 
-/** 내 일정 — 공항 밖 → 체크인 → 장소들 → 공항 복귀(시각). 복귀 줄은 레거시 "알림 · 여유 30분" 대신 복귀 도착 목표 */
+/** 내 일정 — 공항 밖 → 체크인 → 장소들 → 숙소 복귀(B1, 장소가 있을 때) → 공항 복귀(시각). 복귀 줄은 레거시 "알림 · 여유 30분" 대신 복귀 도착 목표 */
 export function CourseTimeline({ model, plan, onRemove }: { model: CourseModel; plan: readonly CoursePlace[]; onRemove?: (id: string) => void }) {
   const { t, i18n } = useTranslation();
   const fmt = useTimeFormat();
@@ -31,6 +31,18 @@ export function CourseTimeline({ model, plan, onRemove }: { model: CourseModel; 
       tone: "bg-role-place",
       id: p.id,
     })),
+    ...(plan.length
+      ? [
+          {
+            key: "hotelReturn",
+            at: course.hotelReturnAt,
+            title: t("course.step.hotelReturn.title", { room: localize(room.name, i18n.language) }),
+            sub: t("course.step.hotelReturn.sub", { move: course.hotelReturnLegMin }),
+            icon: Bed,
+            tone: model.returnPlan?.blockOver ? "bg-role-return" : "bg-role-base",
+          },
+        ]
+      : []),
     {
       key: "return",
       at: course.returnAt,

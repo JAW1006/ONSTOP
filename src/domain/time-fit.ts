@@ -129,11 +129,13 @@ export function autoBuild<P extends AutoBuildPlace>(opts: {
   return chosen;
 }
 
-/* ================= 순차 경로 (A6, 2026-10-16 결정) ================= */
+/* ================= 순차 경로 (A6, 2026-10-16 결정 · B1 호텔 복귀, 2026-10-16 결정) ================= */
 
 /**
- * 순차 경로 코스. legs = [공항→호텔, 호텔→장소1, …, 장소N→공항] (장소 없으면 [공항→호텔, 호텔→공항]).
- * stays = 장소별 체류(분), legs.length === stays.length + 2 여야 한다.
+ * 순차 경로 코스. 장소가 있으면 짐을 찾으러 호텔로 돌아온다(B1).
+ * legs = [공항→호텔, 호텔→장소1, …, 장소N→호텔, 호텔→공항]  — legs.length === stays.length + 3
+ * 장소 없으면 [공항→호텔, 호텔→공항]                           — legs.length === 2
+ * stays = 장소별 체류(분). 호텔 체류(휴식·짐 찾기)는 넣지 않는다.
  */
 export interface SequentialCourse {
   /** 코스 사용 시간(준비 제외) = Σlegs + Σstays */
@@ -142,16 +144,23 @@ export interface SequentialCourse {
   stayMin: number;
   checkInAt: number;
   stops: { arriveAt: number; leaveAt: number }[];
-  /** 마지막 장소(없으면 호텔)에서 공항으로 출발하는 시각 */
+  /** 마지막 장소에서 호텔로 출발하는 시각(장소 없으면 체크인) */
   lastDepartAt: number;
-  /** 복귀 도착 예상 */
+  /** 호텔 복귀 시각(장소 없으면 체크인) — 데이유즈 블록 종료 이하여야 한다 */
+  hotelReturnAt: number;
+  /** 마지막 장소 → 호텔 구간 분(장소 없으면 0) */
+  hotelReturnLegMin: number;
+  /** 복귀 도착 예상(공항) */
   returnAt: number;
-  /** 복귀 구간(마지막 → 공항) 분 */
+  /** 공항 복귀 구간(호텔 → 공항) 분 */
   returnLegMin: number;
 }
 
+/** 순차 경로에 필요한 구간 수 */
+export const sequentialLegCount = (stopCount: number) => (stopCount ? stopCount + 3 : 2);
+
 export function sequentialCourse(startMin: number, legs: readonly number[], stays: readonly number[]): SequentialCourse {
-  if (legs.length !== stays.length + 2) throw new Error(`legs(${legs.length}) must be stays(${stays.length}) + 2`);
+  if (legs.length !== sequentialLegCount(stays.length)) throw new Error(`legs(${legs.length}) must be ${sequentialLegCount(stays.length)} for ${stays.length} stays`);
   let clock = startMin + COURSE_PREP_MIN + legs[0]!;
   const checkInAt = clock;
   const stops = stays.map((stay, i) => {
@@ -161,29 +170,67 @@ export function sequentialCourse(startMin: number, legs: readonly number[], stay
     return { arriveAt, leaveAt: clock };
   });
   const lastDepartAt = clock;
+  const hotelReturnLegMin = stays.length ? legs[legs.length - 2]! : 0;
+  const hotelReturnAt = lastDepartAt + hotelReturnLegMin;
   const returnLegMin = legs[legs.length - 1]!;
   const travelMin = legs.reduce((a, b) => a + b, 0);
   const stayMin = stays.reduce((a, b) => a + b, 0);
-  return { usedMin: travelMin + stayMin, travelMin, stayMin, checkInAt, stops, lastDepartAt, returnAt: lastDepartAt + returnLegMin, returnLegMin };
+  return {
+    usedMin: travelMin + stayMin,
+    travelMin,
+    stayMin,
+    checkInAt,
+    stops,
+    lastDepartAt,
+    hotelReturnAt,
+    hotelReturnLegMin,
+    returnAt: hotelReturnAt + returnLegMin,
+    returnLegMin,
+  };
 }
 
 export interface ReturnPlan {
   /** 복귀 도착 목표 = Time-Safe returnBy */
   targetMin: number;
-  /** 마지막 장소(없으면 호텔) 출발 기한 = 목표 − 복귀 구간 */
+  /** 호텔 출발 기한 = 목표 − 호텔→공항 */
+  hotelDepartureDeadlineMin: number;
+  /** 마지막 장소(없으면 호텔) 출발 기한 = min(호텔 출발 기한, 블록 종료) − 마지막 장소→호텔 */
   lastDepartureDeadlineMin: number;
   /** 복귀 도착 예상이 목표보다 늦은가 */
   late: boolean;
   /** 늦은 분(늦지 않으면 0) */
   lateMin: number;
+  /** 데이유즈 블록 종료(체크인 + 상품 시간). 고른 블록이 없으면 null */
+  blockEndMin: number | null;
+  /** 호텔 복귀가 블록 종료보다 늦은가(B1 제약) */
+  blockOver: boolean;
+  /** 블록 종료보다 늦은 분 */
+  blockOverMin: number;
 }
 
-export function returnPlan(returnByMin: number, course: Pick<SequentialCourse, "returnAt" | "returnLegMin">): ReturnPlan {
+export function returnPlan(
+  returnByMin: number,
+  course: Pick<SequentialCourse, "returnAt" | "returnLegMin" | "hotelReturnAt" | "hotelReturnLegMin" | "stops">,
+  blockEndMin: number | null = null,
+): ReturnPlan {
   const lateMin = Math.max(0, course.returnAt - returnByMin);
-  return { targetMin: returnByMin, lastDepartureDeadlineMin: returnByMin - course.returnLegMin, late: lateMin > 0, lateMin };
+  const hotelDepartureDeadlineMin = returnByMin - course.returnLegMin;
+  const hasStops = course.stops.length > 0;
+  const hotelBy = hasStops && blockEndMin != null ? Math.min(hotelDepartureDeadlineMin, blockEndMin) : hotelDepartureDeadlineMin;
+  const blockOverMin = hasStops && blockEndMin != null ? Math.max(0, course.hotelReturnAt - blockEndMin) : 0;
+  return {
+    targetMin: returnByMin,
+    hotelDepartureDeadlineMin,
+    lastDepartureDeadlineMin: hotelBy - course.hotelReturnLegMin,
+    late: lateMin > 0,
+    lateMin,
+    blockEndMin,
+    blockOver: blockOverMin > 0,
+    blockOverMin,
+  };
 }
 
-/** 장소 목록 → 순차 구간 분 수(공항→호텔 … →공항). 구간 시간은 호출부가 캐시·근사로 공급한다 */
+/** 장소 목록 → 순차 구간 분 수(공항→호텔 … →호텔→공항). 구간 시간은 호출부가 캐시·근사로 공급한다 */
 export type LegsFor<P> = (stops: readonly P[]) => number[];
 
 /** 순차 경로 코스 사용 시간(준비 제외) */
@@ -191,20 +238,36 @@ export function sequentialUsedMin<P extends { dur: number }>(legsFor: LegsFor<P>
   return legsFor(stops).reduce((a, b) => a + b, 0) + stops.reduce((a, p) => a + p.dur, 0);
 }
 
-/** "환승 내 가능" — 담겨 있으면 현재 일정, 아니면 끝에 붙인 일정이 코스 가용 시간 안인가 */
+/** 고른 데이유즈 블록이 있을 때의 호텔 복귀 제약: 공항 밖 시각 startMin, 블록 종료 endMin */
+export interface HotelBlockLimit {
+  startMin: number;
+  endMin: number;
+}
+
+/** 순차 경로가 코스 가용 시간 안이고, 블록이 있으면 호텔 복귀 ≤ 블록 종료인가 */
+export function fitsSequential<P extends { dur: number }>(availableMin: number, legsFor: LegsFor<P>, stops: readonly P[], block?: HotelBlockLimit | null): boolean {
+  const legs = legsFor(stops);
+  const stays = stops.map((p) => p.dur);
+  if (legs.reduce((a, b) => a + b, 0) + stays.reduce((a, b) => a + b, 0) > availableMin) return false;
+  if (!block || !stops.length) return true;
+  return sequentialCourse(block.startMin, legs, stays).hotelReturnAt <= block.endMin;
+}
+
+/** "환승 내 가능" — 담겨 있으면 현재 일정, 아니면 끝에 붙인 일정(…→마지막→후보→호텔→공항)이 제약 안인가 */
 export function wouldFitSequential<P extends { id: string; dur: number }>(
   availableMin: number,
   legsFor: LegsFor<P>,
   plan: readonly P[],
   candidate: P,
+  block?: HotelBlockLimit | null,
 ): boolean {
   const inPlan = plan.some((p) => p.id === candidate.id);
-  return sequentialUsedMin(legsFor, inPlan ? plan : [...plan, candidate]) <= availableMin;
+  return fitsSequential(availableMin, legsFor, inPlan ? plan : [...plan, candidate], block);
 }
 
 /**
  * 순차 경로 자동 추천 — 카테고리 순서·정렬은 레거시 autoBuild와 같다
- * (정렬 키 rankMove = 숙소→장소 분 + 체류). 판정만 순차 경로 used ≤ available.
+ * (정렬 키 rankMove = 숙소→장소 분 + 체류). 판정만 순차 경로(호텔 복귀 포함) 제약.
  */
 export function autoBuildSequential<P extends { id: string; cat: string; dur: number; rankMove: number }>(opts: {
   selected: readonly string[];
@@ -212,6 +275,7 @@ export function autoBuildSequential<P extends { id: string; cat: string; dur: nu
   places: readonly P[];
   legsFor: LegsFor<P>;
   availableMin: number;
+  block?: HotelBlockLimit | null;
 }): P[] {
   const pool = opts.selected.length ? [...opts.selected] : [...ACT_KEYS];
   const rank = (k: string) => {
@@ -223,7 +287,7 @@ export function autoBuildSequential<P extends { id: string; cat: string; dur: nu
     const best = opts.places
       .filter((p) => p.cat === cat && !chosen.some((c) => c.id === p.id))
       .sort((a, b) => a.rankMove + a.dur - (b.rankMove + b.dur))
-      .find((p) => sequentialUsedMin(opts.legsFor, [...chosen, p]) <= opts.availableMin);
+      .find((p) => fitsSequential(opts.availableMin, opts.legsFor, [...chosen, p], opts.block));
     if (best) chosen.push(best);
   }
   return chosen;
