@@ -6,11 +6,12 @@
 ## 시간
 | 용어 | 정의 | 코드 이름 | 공식 |
 |---|---|---|---|
-| **외출 가능 시간** | 공항 밖으로 나간 뒤 공항 복귀 추천 시각까지의 시간. **Time-Safe의 결과, 홈·온보딩에 표시.** 준비 시간은 빼지 않는다. 외출 불가면 0. | `outingMin` | [time-safe](formulas/time-safe.md) |
+| **외출 가능 시간** | 공항 밖 시각(도착 + 입국심사)부터 공항 복귀 추천 시각까지의 시간. **Time-Safe의 결과.** 홈·온보딩에 표시하고, 일정 요약의 "가용"으로도 쓴다. 준비 시간은 빼지 않는다. 외출 불가면 0. | `outingMin` / `scheduleSummary().availableMin` | [time-safe](formulas/time-safe.md) |
 | **코스 가용 시간** | 외출 가능 시간 − 코스 준비(`COURSE_PREP_MIN`, 20분). 코스 빌더 예산과 "환승 내 가능" 판단 기준. | `courseAvailableMin()` | [time-fit](formulas/time-fit.md) |
-| 코스 사용 시간 | 공항→숙소 + Σ(숙소→장소 + 체류) + 복귀 구간. 준비 시간 제외. | `courseUsedMin()` | [time-fit](formulas/time-fit.md) |
+| 코스 사용 시간 | 공항→숙소 + Σ(숙소→장소 + 체류) + 복귀 구간. **준비 제외** — 코스 가용 시간과 비교하는 내부 값. 화면 표기는 "사용 시간"(준비 포함)을 쓴다. | `courseUsedMin()` | [time-fit](formulas/time-fit.md) |
 | 남는 시간 / 초과 | 코스 가용 시간 − 코스 사용 시간. 음수면 초과. | — | [time-fit](formulas/time-fit.md) |
-| 일정 요약 | 화면 표기 "사용 X / 가용 Y". 사용·가용에 준비 시간을 어느 쪽에 넣을지 **확인 필요**([STATUS](STATUS.md)) | — | — |
+| **사용 시간** | 일정 요약 "**사용 X** / 가용 Y"의 X = 이동 + 체류 + **준비**(`COURSE_PREP_MIN`). 코스 사용 시간 + 20분. | `scheduleSummary().usedMin` | [time-fit](formulas/time-fit.md) |
+| 일정 요약 | "사용 X / 가용 Y" — X = 사용 시간, Y = 외출 가능 시간. Y − X = 남는 시간(코스 가용 − 코스 사용과 같은 값). 2026-10-16 결정 (b) | `scheduleSummary()` | [time-fit](formulas/time-fit.md) |
 | 총 환승 시간 | 도착 ~ 연결편 출발. 버퍼를 빼기 전. | `totalConnectionMin` | [time-safe](formulas/time-safe.md) |
 | 공항 밖 시각 | 도착 + 입국심사 버퍼. 외출 가능 시간의 시작점. | `exitAtMin` | [time-safe](formulas/time-safe.md) |
 | 공항 복귀 추천 시각 | 연결편 출발 − 복귀 버퍼. 외출 불가면 공항 밖 시각. | `returnByMin` | [time-safe](formulas/time-safe.md) |

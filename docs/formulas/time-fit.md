@@ -18,6 +18,7 @@ remain = BUDGET − used,  over = remain < 0
 | 이슈 | 결정 | 적용 |
 |---|---|---|
 | A5 | 예산 = **코스 가용 시간** = 외출 가능 시간 − `COURSE_PREP_MIN`. 코스 사용 시간에서 준비를 뺀다. 남는 분은 기존과 같다. | **적용** |
+| 요약 표기 | 일정 요약 "사용 X / 가용 Y" = (이동 + 체류 + 준비) / 외출 가능 시간 — (b) | **적용** (`scheduleSummary`) |
 | A6 | 장소 간 이동·복귀 구간 계산 방식 | **결정 필요** ([STATUS](../STATUS.md)) |
 
 #### 현재 공식
@@ -26,6 +27,8 @@ remain = BUDGET − used,  over = remain < 0
 코스 사용 시간 used      = roomMove + Σ (moveᵢ + durᵢ) + (장소 있으면 move_last, 없으면 roomMove)
 remain = available − used,  over = remain < 0
 "환승 내 가능" = (담겨 있으면 현재 일정, 아니면 일정 + 그 장소)의 used ≤ available
+
+일정 요약(화면 표기): 사용 = used + COURSE_PREP_MIN, 가용 = 외출 가능 시간, 여유 = 가용 − 사용 (= remain)
 
 타임라인: 공항 밖 시각 → +COURSE_PREP_MIN → +roomMove(체크인) → 장소마다 +move(도착) +dur(출발) → +복귀 구간
 ```
@@ -69,6 +72,7 @@ remain = available − used,  over = remain < 0
 | 8 | 공항↔호텔 오라 | 3.1625km → 자동차 | 같음 |
 | 9 | 더풋샵↔올리브영 0.12km | 도보 2분 | 같음 |
 | 10 | 외출 가능 181 | — | 코스 가용 **161** |
+| 11 | 외출 가능 181, 숙소 + 더풋샵 | — | 요약 **사용 2h02m / 가용 3h01m**, 여유 59 |
 
 ## 엣지 케이스
 | 상황 | 처리 |
@@ -84,4 +88,5 @@ remain = available − used,  over = remain < 0
 | 날짜 | 변경 |
 |---|---|
 | 2026-10-16 | 기존 동작 이식 + 고정 테스트 |
+| 2026-10-16 | 일정 요약 (b): `scheduleSummary` 추가(#11) |
 | 2026-10-16 | A5 적용: 코스 가용 시간 도입, `PREP`→`COURSE_PREP_MIN`, used에서 준비 제외(남는 분 동일), 타임라인 시작 = 공항 밖 시각, `budgetMin`→`availableMin` |

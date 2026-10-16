@@ -19,13 +19,26 @@
 
 두 데이터셋 모두 등록 2021-11-23, 최종 수정 2026-08-06(페이지 기준). 2022-05-31 PUBC → GateWay 전환([공지](https://www.data.go.kr/bbs/ntc/selectNotice.do?originId=NOTICE_0000000002432)) 이후 명세 기준.
 
-### 실제 대기 수준 참고 (언론, 미검증)
-| 내용 | 출처 |
+### 실제 대기 수준 참고 — 요약
+아래 수치는 보도에 나온 사례이며 **측정값이 아니다**. 출처별 확인 상태는 다음 절 "인용 보도·출처 확인"을 따른다.
+
+| 내용 | 확인 상태 |
 |---|---|
-| 2026-08-05 T1 외국인 입국심사 최대 약 **80분** 대기(정오 도착 → 13:20 이후 통과), 서편 외국인 창구 20개 중 11개 운영 | [Korea Times, 2026-08-05](https://www.koreatimes.co.kr/southkorea/others/20260805/foreign-tourists-stuck-in-immigration-lines-for-up-to-80-minutes-at-incheon-intl-airport) (한국일보 기사 번역) |
-| 도착 집중 시간대 입국 대기 1시간 초과 보도 | [Korea Herald](https://www.koreaherald.com/article/10830421) |
-| ICAO 권고: 입국심사 대기 45분 이내 | 위 Korea Times 기사 인용 |
-| 인천공항 자체 "출입국 혼잡 예측" 웹 화면(매일 17시 갱신) — 공개 API 여부 미확인 | [airport.kr](https://airport.kr/co/en/cpr/statisticPredictCrowdedOfInout.do) |
+| 2026-07-31(금) 낮 12시쯤 T1 도착 → "오후 1시 20분이 넘어서야 심사" → **약 80분 이상**(계산값) | 원문 확인, 측정 방식 미확인 |
+| 같은 날 13시 서편 외국인 심사대 20개 중 11개 운영 | 원문 확인, 출처 미명시 |
+| 2026년 설 연휴 입국 소요 "길게는 1시간 54분" | 원문 확인, 출처 미명시 |
+| ICAO 입국 45분 목표 | 2차 자료로 확인, 현행 원문 미확인 |
+| 인천공항 "출입국 혼잡 예측" 웹 화면(매일 17시 갱신), 공개 API 여부 | 미확인 — [airport.kr](https://airport.kr/co/en/cpr/statisticPredictCrowdedOfInout.do) |
+
+## 인용 보도·출처 확인 (2026-10-16 원문 대조)
+| # | 보도 | 원문 링크 | 원문 확인 | 원문 표현·수치 | 비고 |
+|---|---|---|---|---|---|
+| S1 | 한국일보, 이환직 기자, **입력 2026-08-04 04:30** — "한국 '여름휴가' 오는 외국인 폭증…공항 입국 심사에만 '1시간 20분'" | [hankookilbo.com](https://www.hankookilbo.com/news/article/A2026080308310005207) | **확인함**(웹 원문) | 7/31 T1 "낮 12시쯤 도착 … 오후 1시 20분이 넘어서야 심사"; 서편 외국인 심사대 "20개 중 11개만 운영", 내국인 10개 중 5개; 설 연휴 "길게는 1시간 54분"; "ICAO는 입국 대기시간을 45분으로 권고" | **원본 기사.** "80분"·"최대"라는 표현은 원문에 없음(1시간 20분 = 80분은 제목과 시각에서 나온 값). 수치를 누가 어떻게 쟀는지 **미확인**(기사에 명시 없음) |
+| S2 | Korea Times, 2026-08-05 — "Foreign tourists stuck in immigration lines for up to 80 minutes at Incheon Int'l Airport" | [koreatimes.co.kr](https://www.koreatimes.co.kr/southkorea/others/20260805/foreign-tourists-stuck-in-immigration-lines-for-up-to-80-minutes-at-incheon-intl-airport) | **확인함**(웹 원문) | "up to 80 minutes", 정오 도착 → 1:20 p.m. 이후 | **S1의 AI 번역·편집본**(기사에 명시). "up to(최대)"는 번역본에서 붙은 표현. 1차 출처로 쓰지 않는다 |
+| S3 | Korea Herald, Tammy Park, 2026-08-04 — "Foreign tourist surge puts pressure on Incheon Airport during summer peak" | [koreaherald.com](https://www.koreaherald.com/article/10830421) | **확인함**(웹 원문) | 부제 "beyond an hour", 정오 도착 → "after 1:20 p.m."; 분 단위 수치 없음 | "local media/local report" 인용 — S1과 같은 사례로 보이나 **동일 출처 여부 미확인** |
+| S4 | ICAO Annex 9(Facilitation) 입국 45분·출국 60분 목표 | [FAL12 WP44](https://www.icao.int:443/Meetings/FAL12/Documents/fal12wp044_en.pdf), [FALP3 WP6](https://www.icao.int:443/Meetings/FALP/Documents/Falp3_2001/wp06e.pdf) | **부분 확인**(2차 자료) | 하기 후 45분 내 통관 — 표준(Standard)이 아닌 **권고(Recommended Practice)**. 조항 번호는 판마다 다름(3.31 / 3.39 등) | **현행 Annex 9 원문은 미확인** |
+
+**이전 판 정정(2026-10-16):** 이 문서 첫 판은 S2를 근거로 "2026-08-05 T1 최대 약 80분"이라고 썼다. 원문(S1) 기준으로 사례 날짜는 **2026-07-31**이고 "최대"라는 표현은 원문에 없다.
 
 ## 결론
 1. **분 단위 입국 대기시간을 주는 공개 API는 찾지 못했다.** 출국장과 달리 입국 쪽은 대기 **인원**(실시간)과 예상 **승객 수**(예측)뿐이다.
@@ -33,9 +46,11 @@
    `추정 대기(분) = 외국인 대기인원 ÷ (운영 창구 수 × 창구당 처리량)`
    창구 수·처리량은 공개 데이터에 없어 **가정값이 들어간다** → 지금 도입하면 "미검증 값으로 미검증 값을 덮는" 구조라 보류를 권장.
 3. 도입한다면 출국 쪽과 같은 하한 방식 `max(ARRIVAL_IMMIGRATION_MIN, 추정 대기)`만 허용(값을 줄이는 방향 금지).
-4. 기본값 50분은 ICAO 권고(45분)보다는 크지만 2026-08 보도된 성수기 최대치(약 80분)보다 작다. "보수적"인지는 시간대에 따라 다르다.
+4. 기본값 50분은 ICAO 권고 목표(45분, S4)보다는 크지만, 보도된 성수기 사례(2026-07-31 약 80분 이상 S1, 설 연휴 1시간 54분 S1)보다 작다. 이 사례들은 측정 방식이 확인되지 않은 보도라 근거값으로 쓰지 않는다. "보수적"인지는 시간대에 따라 다르다.
 
 ## 다음 할 일
 - [ ] 서버 키로 `getArrivalsCongestion` 한 건 호출 → `docs/api/`에 실제 필드 기록(대기인원 단위·갱신 시각 확인)
 - [ ] 승객예고 활용가이드(docx)에서 필드명 확인
+- [ ] 현행 ICAO Annex 9 원문에서 45분 조항 번호 확인(S4)
+- [ ] 공사·법무부의 공식 입국 소요시간 통계가 있는지 확인(보도 사례 대체용)
 - [ ] 창구당 처리량 근거(법무부·공사 자료) 확보 전까지 ① 실시간 적용 보류 — [STATUS](../STATUS.md)

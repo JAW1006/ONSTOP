@@ -26,6 +26,21 @@ export function courseUsedMin(roomMove: number | null, stops: readonly CourseSto
   return used;
 }
 
+export interface ScheduleSummary {
+  /** 사용 시간 = 이동 + 체류 + 준비(COURSE_PREP_MIN) */
+  usedMin: number;
+  /** 가용 = 외출 가능 시간 */
+  availableMin: number;
+  /** 가용 − 사용 (음수면 초과). 코스 가용 시간 − 코스 사용 시간과 같다 */
+  remainMin: number;
+}
+
+/** 일정 요약 "사용 X / 가용 Y" (2026-10-16 결정 (b)) */
+export function scheduleSummary(outingMin: number, roomMove: number | null, stops: readonly CourseStop[]): ScheduleSummary {
+  const usedMin = courseUsedMin(roomMove, stops) + COURSE_PREP_MIN;
+  return { usedMin, availableMin: outingMin, remainMin: outingMin - usedMin };
+}
+
 /** availableMin = 코스 가용 시간 */
 export function fitsBudget(availableMin: number, roomMove: number | null, stops: readonly CourseStop[]): boolean {
   return courseUsedMin(roomMove, stops) <= availableMin;
