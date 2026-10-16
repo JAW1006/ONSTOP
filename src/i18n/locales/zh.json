@@ -1,0 +1,296 @@
+{
+  "booking": {
+    "browseStays": "浏览住宿",
+    "checkoutPastReturn": "退房时间晚于建议返回时间({{time}})。请提前离开。",
+    "chooseCheckIn": "选择入住时间",
+    "chooseTimeBlock": "选择时段",
+    "earliestCheckIn": "考虑到前往住宿的移动时间,最早可于 {{time}} 后办理入住",
+    "empty": "暂无预订记录",
+    "includes": "含淋浴·休息·行李寄存",
+    "payment": {
+      "methods": "简易支付 · 支付宝 · 微信支付 · 信用卡",
+      "pay": "立即支付",
+      "title": "付款明细",
+      "total": "支付总额"
+    },
+    "plan": {
+      "count": "路线规划中添加的{{n}}项活动",
+      "title": "已规划行程"
+    },
+    "subtitle": "预订您的时段",
+    "title": "钟点房预订"
+  },
+  "brand": {
+    "tagline": {
+      "line1": "放下行李,",
+      "line2": "在仁川度过转机时光"
+    }
+  },
+  "category": {
+    "beauty": "美容",
+    "brand": "品牌",
+    "food": "美食",
+    "massage": "按摩",
+    "rest": "休息",
+    "shopping": "购物",
+    "sightseeing": "观光"
+  },
+  "common": {
+    "backToHome": "返回首页",
+    "badge": {
+      "demo": "示例",
+      "live": "实时",
+      "partnerAd": "合作 广告",
+      "topPick": "推荐"
+    },
+    "comingSoon": "即将推出",
+    "dismiss": "关闭",
+    "more": "更多",
+    "next": "下一步",
+    "remove": "删除",
+    "showMoreCount": "显示更多(还有{{n}}个)"
+  },
+  "confirm": {
+    "alertOn": "提醒已开启",
+    "bookingNumber": "预订编号",
+    "complete": "预订完成",
+    "included": "含",
+    "includedValue": "淋浴·休息·行李寄存",
+    "returnAt": "建议返回 {{time}}",
+    "stay": "住宿",
+    "subtitle": "我的预订",
+    "title": "预订确认"
+  },
+  "course": {
+    "autoBuild": {
+      "cta": "Time-Fit 自动排程",
+      "note": "OR-Tools 优化 · 依中转时间与动线自动安排"
+    },
+    "bookThisStay": "预订此住宿 →",
+    "budget": {
+      "arriveReturn": "到达 {{arrive}} · 建议返回 {{return}}",
+      "hours": "中转空闲 {{h}}小时",
+      "over": "超出{{min}}分钟",
+      "spare": "剩余{{min}}分钟"
+    },
+    "category": {
+      "note": "(可多选)",
+      "title": "② 添加活动类别"
+    },
+    "map": {
+      "allPlacesNote": "放大地图后,住宿附近的真实餐厅·咖啡馆·便利店·超市·景点·美妆店(Olive Young等)会显示为小点 · 点击小点可查看信息并在其中加入/移出行程 · 已加入行程的地点会显示为带编号的大图钉 · 放大后医院·药店仅以小点显示(仅供参考,不会加入行程)",
+      "pickRoomNote": "地图上会显示所有合作钟点房住宿的图钉 · 点击图钉即可选择该住宿",
+      "referenceOnly": "仅供参考 · 无法加入行程",
+      "routeLegend": "线上的数字和颜色代表访问顺序(与图钉编号一致) · 线型代表交通方式:●●● 驾车 · ┄┄ 步行 · ⋯⋯ 公共交通",
+      "unavailable": "无法加载地图。请确认该域名已在 Kakao Developers 中注册。"
+    },
+    "places": {
+      "add": "加入行程",
+      "chooseCategory": "请选择类别",
+      "chooseRoomFirst": "请先选择住宿",
+      "combined": "已合并 {{list}}",
+      "fits": "中转时间内可行",
+      "roomFirstHint": "① 先选择钟点房,才能添加活动。",
+      "tight": "时间紧张",
+      "title": "活动地点"
+    },
+    "room": {
+      "required": "(必选·行程据点)",
+      "title": "① 选择钟点房"
+    },
+    "route": {
+      "live": "已应用实际路程时间(步行·公交·驾车)",
+      "loading": "正在查询实际路程时间…"
+    },
+    "save": "保存行程",
+    "schedule": {
+      "emptyHint": "选择住宿后将生成行程",
+      "overWarning": "已超出中转时间{{min}}分钟。请减少地点或选择更短的行程。",
+      "pickRoom": {
+        "bold": "据点",
+        "prefix": "请先将钟点房选为",
+        "suffix": "。"
+      },
+      "summary": "{{n}}项活动 · 共{{h}}小时{{m}}分钟",
+      "title": "我的中转行程"
+    },
+    "step": {
+      "arrive": {
+        "sub": "行李托管取件",
+        "title": "抵达机场 · 寄存行李"
+      },
+      "checkIn": {
+        "sub": "钟点房据点 · 可寄存行李·淋浴(移动{{move}}分钟)",
+        "title": "入住 {{room}}"
+      },
+      "place": {
+        "sub": "{{area}} · 停留{{dur}}分钟(移动{{move}}分钟)",
+        "subNoStay": "{{area}}(移动{{move}}分钟)"
+      },
+      "return": {
+        "sub": "Time-Safe 提醒 · 预留30分钟",
+        "title": "返回机场"
+      }
+    },
+    "subtitle": "类别 → 选地点 → 自动生成行程",
+    "title": "制作转机路线"
+  },
+  "dayuse": {
+    "feature": {
+      "luggage": "寄存",
+      "rest": "休息",
+      "shower": "淋浴"
+    },
+    "perBlock": "/时段",
+    "timeBlock": "时段"
+  },
+  "flight": {
+    "arrivalLine": "{{airline}} {{flightId}} · 预计到达 {{time}}",
+    "change": "输入其他航班",
+    "delayed": "延误{{n}}分钟",
+    "departs": "起飞",
+    "departureLine": "{{airline}} {{flightId}} · 预定出发 {{time}}",
+    "error": {
+      "noArrivalTime": "暂无到达时间信息",
+      "noDepartureTime": "暂无出发时间信息",
+      "notFound": "未找到匹配的航班"
+    },
+    "from": "出发地",
+    "gate": "登机口",
+    "notice": {
+      "arrivalChanged": "到达时间有变动 · {{old}} → {{new}}",
+      "returnByChanged": "连接航班时间有变动 · 建议返回 {{old}} → {{new}}"
+    },
+    "onTime": "正常",
+    "refresh": "重新查询航班",
+    "status": "状态",
+    "terminal": "航站楼",
+    "to": "目的地"
+  },
+  "home": {
+    "dayuse": {
+      "subtitle": "3–9小时灵活预订 · 淋浴/休息",
+      "title": "钟点房 · 时段预订"
+    },
+    "greeting": "你好,旅行者!👋",
+    "hotPlaces": {
+      "subtitle": "合作商家精选",
+      "title": "热门地点"
+    },
+    "luggageBanner": {
+      "subtitle": "机场寄存 · 酒店/商圈配送 → 轻装出行",
+      "title": "行李管家 (无负重出行)"
+    },
+    "subtitle": "我们为您准备了符合空闲时间的仁川行程。",
+    "timeFit": {
+      "build": {
+        "bold": "专属转机路线",
+        "cta": "制作",
+        "prefix": "选择类别,打造",
+        "suffix": ""
+      },
+      "subtitle": "按兴趣挑选,自动生成转机行程",
+      "title": "Time-Fit 推荐路线"
+    }
+  },
+  "luggage": {
+    "banner": {
+      "bold": "轻装出行",
+      "prefix": "寄存沉重的行李箱,",
+      "suffix": "。我们会在您的航班返程前将行李送回机场。"
+    },
+    "option": {
+      "inAirport": {
+        "description": "T1·T2智能储物柜即时寄存",
+        "title": "机场内寄存"
+      },
+      "toDistrict": {
+        "description": "在永宗岛·唐人街据点领取",
+        "title": "配送至商圈"
+      },
+      "toHotel": {
+        "description": "行李接送至钟点房住宿",
+        "title": "配送至酒店"
+      }
+    },
+    "subtitle": "无负重出行",
+    "title": "行李管家"
+  },
+  "my": {
+    "bookingCount": "{{n}}笔预订",
+    "greeting": "你好,旅行者!",
+    "menu": {
+      "bookingHistory": "预订记录",
+      "coupons": "优惠券",
+      "language": "语言设置",
+      "passport": "护照认证",
+      "timeSafeAlerts": "Time-Safe 提醒"
+    },
+    "subtitle": "我的页面",
+    "title": "我的页面"
+  },
+  "nav": {
+    "booking": "预订",
+    "course": "路线",
+    "home": "首页",
+    "luggage": "行李",
+    "my": "我的"
+  },
+  "onboarding": {
+    "flights": {
+      "arrivalLabel": "您刚搭乘抵达的航班",
+      "arrivalPlaceholder": "例如: KE085",
+      "connectionLabel": "下一段连接航班",
+      "connectionPlaceholder": "例如: MU2043",
+      "cta": "智能推荐路线",
+      "lookingUp": "查询中…",
+      "lookup": "实时查询",
+      "needBothHint": "需要实时查询到达航班和连接航班才能继续。",
+      "note": "Time-Safe 自动计算空闲时间",
+      "retryHint": "请核对航班号后重新查询。",
+      "title": "请输入您的转机航班"
+    },
+    "interests": {
+      "note": "可多选 · 用于Time-Fit推荐",
+      "title": "请选择您感兴趣的活动"
+    },
+    "language": {
+      "title": "请选择语言"
+    }
+  },
+  "savedCourse": {
+    "edit": "编辑",
+    "empty": "暂无已保存的行程",
+    "subtitle": "已保存的行程",
+    "title": "已保存的行程"
+  },
+  "timeSafe": {
+    "arrive": "到达",
+    "bufferNote": "安检{{sec}}分钟 + 登机截止{{gate}}分钟 = 共{{total}}分钟缓冲(暂不含住宿→机场移动时间)",
+    "cannotGoOut": {
+      "description": "扣除安检和登机截止时间后,已没有足够时间外出往返。请在机场内等候。",
+      "title": "无法外出"
+    },
+    "heading": "TIME-SAFE 计算结果",
+    "liveDepartureApplied": "已应用实时出发数据",
+    "liveSecurityWait": "已反映出境大厅实时等待时间(T1)",
+    "needArrival": "查询到达航班后,中转时间会显示在这里。",
+    "needConnection": "查询连接航班后即可计算中转时间。",
+    "outingAvailable": "可在机场外停留",
+    "outingAvailableShort": "实际可停留(已扣除缓冲)",
+    "pushScheduled": "已设置返回前30分钟推送提醒",
+    "returnBy": "建议返回",
+    "returnRecommended": "建议返回机场",
+    "totalConnection": "从到达到出发的总中转时间 {{dur}}"
+  },
+  "unit": {
+    "hourRange": "{{a}}–{{b}}小时",
+    "hours": "{{h}}小时",
+    "hoursMinutes": "{{h}}小时{{m}}分钟",
+    "minFromAirport": "距机场{{n}}分钟",
+    "minutes": "{{n}}分钟",
+    "nextDay": "次日",
+    "stayMin": "停留{{n}}分钟",
+    "transferMin": "移动{{n}}分钟"
+  }
+}

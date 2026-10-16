@@ -1,0 +1,296 @@
+{
+  "booking": {
+    "browseStays": "숙소 보러가기",
+    "checkoutPastReturn": "체크아웃이 복귀 추천 시각({{time}}) 이후예요. 실제로는 그 전에 나와야 해요.",
+    "chooseCheckIn": "체크인 시각 선택",
+    "chooseTimeBlock": "타임블록 선택",
+    "earliestCheckIn": "숙소까지 이동시간 고려 시 {{time}} 이후부터 체크인 가능",
+    "empty": "아직 예약 내역이 없어요",
+    "includes": "샤워·휴식·짐보관 포함",
+    "payment": {
+      "methods": "간편결제 · Alipay · WeChat Pay · Card",
+      "pay": "결제하기",
+      "title": "결제 내역",
+      "total": "총 결제금액"
+    },
+    "plan": {
+      "count": "코스 빌더에서 담은 {{n}}개 활동",
+      "title": "예약에 포함된 일정"
+    },
+    "subtitle": "Day-use booking",
+    "title": "데이유즈 예약"
+  },
+  "brand": {
+    "tagline": {
+      "line1": "짐은 맡기고,",
+      "line2": "환승 시간을 인천에서"
+    }
+  },
+  "category": {
+    "beauty": "뷰티",
+    "brand": "브랜드",
+    "food": "맛집",
+    "massage": "마사지",
+    "rest": "휴식",
+    "shopping": "쇼핑",
+    "sightseeing": "관광"
+  },
+  "common": {
+    "backToHome": "홈으로",
+    "badge": {
+      "demo": "데모값",
+      "live": "실시간",
+      "partnerAd": "제휴 AD",
+      "topPick": "추천"
+    },
+    "comingSoon": "준비중",
+    "dismiss": "닫기",
+    "more": "더보기",
+    "next": "다음",
+    "remove": "삭제",
+    "showMoreCount": "더보기 ({{n}}곳 더 있음)"
+  },
+  "confirm": {
+    "alertOn": "알림 ON",
+    "bookingNumber": "예약번호",
+    "complete": "예약 완료",
+    "included": "포함",
+    "includedValue": "샤워 · 휴식 · 짐보관",
+    "returnAt": "복귀 {{time}}",
+    "stay": "숙소",
+    "subtitle": "My booking",
+    "title": "예약 확인"
+  },
+  "course": {
+    "autoBuild": {
+      "cta": "Time-Fit 자동 코스 짜기",
+      "note": "OR-Tools 최적화 · 환승시간·이동동선 기준 자동 배치"
+    },
+    "bookThisStay": "이 숙소로 예약하기 →",
+    "budget": {
+      "arriveReturn": "도착 {{arrive}} · 복귀 추천 {{return}}",
+      "hours": "환승 여유 {{h}}시간",
+      "over": "{{min}}분 초과",
+      "spare": "여유 {{min}}분"
+    },
+    "category": {
+      "note": "(복수 선택)",
+      "title": "② 활동 카테고리 합치기"
+    },
+    "map": {
+      "allPlacesNote": "숙소 주변 실제 음식점·카페·편의점·마트·관광명소·뷰티(올리브영 등)가 작은 점으로 떠요(지도를 확대해야 나타나요) · 점을 탭하면 정보가 뜨고 거기서 일정에 추가/제거 · 이미 담긴 곳은 순번이 붙은 큰 핀으로 표시 · 병원·약국은 확대 시 참고용 점으로만 표시(일정에는 안 담김)",
+      "pickRoomNote": "지도에 제휴 데이유즈 숙소가 전부 핀으로 떠요 · 핀을 탭하면 그 숙소가 바로 선택돼요",
+      "referenceOnly": "참고용 · 일정에는 추가할 수 없어요",
+      "routeLegend": "선 위 숫자·색이 방문 순서(핀 번호와 동일) · 선 모양은 이동수단: ●●● 자동차 · ┄┄ 도보 · ⋯⋯ 대중교통",
+      "unavailable": "지도를 불러올 수 없어요. 이 도메인이 카카오 개발자 콘솔에 등록됐는지 확인해주세요."
+    },
+    "places": {
+      "add": "일정에 추가",
+      "chooseCategory": "카테고리를 선택하세요",
+      "chooseRoomFirst": "먼저 숙소를 선택하세요",
+      "combined": "{{list}} 합침",
+      "fits": "환승 내 가능",
+      "roomFirstHint": "① 데이유즈 숙소를 먼저 선택하면 활동을 담을 수 있어요.",
+      "tight": "시간 빠듯",
+      "title": "활동 방문지"
+    },
+    "room": {
+      "required": "(필수 · 코스의 거점)",
+      "title": "① 데이유즈 숙소 선택"
+    },
+    "route": {
+      "live": "실제 이동시간(도보·대중교통·자동차) 반영중",
+      "loading": "실제 이동시간 조회 중…"
+    },
+    "save": "코스 저장하기",
+    "schedule": {
+      "emptyHint": "숙소를 선택하면 일정이 생성돼요",
+      "overWarning": "환승 시간을 {{min}}분 초과했어요. 장소를 줄이거나 짧은 코스로 바꿔보세요.",
+      "pickRoom": {
+        "bold": "거점",
+        "prefix": "데이유즈 숙소를",
+        "suffix": "으로 먼저 골라주세요."
+      },
+      "summary": "{{n}}개 활동 · 총 {{h}}시간 {{m}}분",
+      "title": "내 환승 일정"
+    },
+    "step": {
+      "arrive": {
+        "sub": "수하물 케어 픽업",
+        "title": "공항 도착 · 짐 맡기기"
+      },
+      "checkIn": {
+        "sub": "데이유즈 거점 · 짐 보관·샤워 가능 (이동 {{move}}분)",
+        "title": "{{room}} 체크인"
+      },
+      "place": {
+        "sub": "{{area}} · 체류 {{dur}}분 (이동 {{move}}분)",
+        "subNoStay": "{{area}} (이동 {{move}}분)"
+      },
+      "return": {
+        "sub": "Time-Safe 알림 · 여유 30분",
+        "title": "공항 복귀"
+      }
+    },
+    "subtitle": "카테고리 → 장소 선택 → 일정 자동 생성",
+    "title": "환승 코스 만들기"
+  },
+  "dayuse": {
+    "feature": {
+      "luggage": "짐보관",
+      "rest": "휴식",
+      "shower": "샤워"
+    },
+    "perBlock": "/블록",
+    "timeBlock": "타임블록"
+  },
+  "flight": {
+    "arrivalLine": "{{airline}} {{flightId}} · 도착 예상 {{time}}",
+    "change": "다른 항공편 입력",
+    "delayed": "{{n}}분 지연",
+    "departs": "출발",
+    "departureLine": "{{airline}} {{flightId}} · 출발 예정 {{time}}",
+    "error": {
+      "noArrivalTime": "도착 시각 정보가 없어요",
+      "noDepartureTime": "출발 시각 정보가 없어요",
+      "notFound": "일치하는 항공편이 없어요"
+    },
+    "from": "출발지",
+    "gate": "게이트",
+    "notice": {
+      "arrivalChanged": "도착편 시각이 바뀌었어요 · 도착 {{old}} → {{new}}",
+      "returnByChanged": "연결편 시각이 바뀌었어요 · 복귀 추천 {{old}} → {{new}}"
+    },
+    "onTime": "정상",
+    "refresh": "항공편 다시 조회",
+    "status": "상태",
+    "terminal": "터미널",
+    "to": "도착지"
+  },
+  "home": {
+    "dayuse": {
+      "subtitle": "3–9시간 유연 예약 · 샤워/휴식",
+      "title": "데이유즈 · 타임블록 예약"
+    },
+    "greeting": "안녕하세요, 여행자님! 👋",
+    "hotPlaces": {
+      "subtitle": "제휴 스팟 모아보기",
+      "title": "핫플레이스"
+    },
+    "luggageBanner": {
+      "subtitle": "공항 보관 · 호텔/상권 배송 → 가볍게 이동",
+      "title": "수하물 케어 (Luggage-Free)"
+    },
+    "subtitle": "여유 시간에 딱 맞는 인천 코스를 준비했어요.",
+    "timeFit": {
+      "build": {
+        "bold": "나만의 환승 코스",
+        "cta": "만들기",
+        "prefix": "카테고리를 골라",
+        "suffix": "를 만들어보세요"
+      },
+      "subtitle": "관심사별로 골라 환승 일정 자동 생성",
+      "title": "Time-Fit 추천 코스"
+    }
+  },
+  "luggage": {
+    "banner": {
+      "bold": "가볍게",
+      "prefix": "무거운 캐리어는 맡기고",
+      "suffix": "이동하세요. 항공편 복귀 시간에 맞춰 짐을 공항으로 되돌려 드립니다."
+    },
+    "option": {
+      "inAirport": {
+        "description": "T1 · T2 스마트 락커 즉시 보관",
+        "title": "공항 내 보관"
+      },
+      "toDistrict": {
+        "description": "영종도·차이나타운 거점 수령",
+        "title": "상권으로 배송"
+      },
+      "toHotel": {
+        "description": "데이유즈 숙소로 짐 픽업·배송",
+        "title": "호텔로 배송"
+      }
+    },
+    "subtitle": "Luggage-Free",
+    "title": "수하물 케어"
+  },
+  "my": {
+    "bookingCount": "예약 {{n}}건",
+    "greeting": "안녕하세요, 여행자님!",
+    "menu": {
+      "bookingHistory": "예약 내역",
+      "coupons": "쿠폰",
+      "language": "언어 설정",
+      "passport": "여권 인증",
+      "timeSafeAlerts": "Time-Safe 알림"
+    },
+    "subtitle": "My page",
+    "title": "마이 페이지"
+  },
+  "nav": {
+    "booking": "예약",
+    "course": "코스",
+    "home": "홈",
+    "luggage": "짐 케어",
+    "my": "마이"
+  },
+  "onboarding": {
+    "flights": {
+      "arrivalLabel": "지금 타고 온 도착편",
+      "arrivalPlaceholder": "예: KE085",
+      "connectionLabel": "다음 연결편",
+      "connectionPlaceholder": "예: MU2043",
+      "cta": "스마트 코스 추천",
+      "lookingUp": "조회 중…",
+      "lookup": "실시간 조회",
+      "needBothHint": "도착편과 연결편을 모두 실시간 조회해야 다음으로 진행할 수 있어요.",
+      "note": "Time-Safe 여유 시간 자동 계산",
+      "retryHint": "편명을 다시 확인하고 조회해주세요.",
+      "title": "환승 항공편을 입력해주세요"
+    },
+    "interests": {
+      "note": "복수 선택 · Time-Fit 추천에 사용",
+      "title": "관심 있는 활동을 골라주세요"
+    },
+    "language": {
+      "title": "언어를 선택해주세요"
+    }
+  },
+  "savedCourse": {
+    "edit": "수정하기",
+    "empty": "아직 저장된 코스가 없어요",
+    "subtitle": "Saved course",
+    "title": "저장된 코스"
+  },
+  "timeSafe": {
+    "arrive": "도착",
+    "bufferNote": "수속 {{sec}}분 + 게이트마감 {{gate}}분 = 총 {{total}}분 버퍼 반영(숙소→공항 이동시간은 일단 제외)",
+    "cannotGoOut": {
+      "description": "연결편까지 수속·게이트 마감 시간을 빼면 밖에 나갔다 올 여유가 없어요. 공항 안에서 대기해주세요.",
+      "title": "외출 불가"
+    },
+    "heading": "TIME-SAFE 계산 결과",
+    "liveDepartureApplied": "출발편 실시간 반영",
+    "liveSecurityWait": "출국장 실시간 대기시간 반영(T1)",
+    "needArrival": "도착편을 조회하면 환승 시간이 여기에 표시돼요.",
+    "needConnection": "연결편을 조회하면 환승 시간이 계산돼요.",
+    "outingAvailable": "공항 밖 체류 가능",
+    "outingAvailableShort": "실제 체류 가능(버퍼 제외)",
+    "pushScheduled": "복귀 30분 전 푸시 알림 예약됨",
+    "returnBy": "복귀 추천",
+    "returnRecommended": "공항 복귀 추천",
+    "totalConnection": "도착~출발 총 환승 시간 {{dur}}"
+  },
+  "unit": {
+    "hourRange": "{{a}}–{{b}}시간",
+    "hours": "{{h}}시간",
+    "hoursMinutes": "{{h}}시간 {{m}}분",
+    "minFromAirport": "공항 {{n}}분",
+    "minutes": "{{n}}분",
+    "nextDay": "익일",
+    "stayMin": "체류 {{n}}분",
+    "transferMin": "이동 {{n}}분"
+  }
+}

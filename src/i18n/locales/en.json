@@ -1,0 +1,296 @@
+{
+  "booking": {
+    "browseStays": "Browse stays",
+    "checkoutPastReturn": "Checkout falls after your recommended return time ({{time}}). You'll need to leave before then.",
+    "chooseCheckIn": "Choose check-in time",
+    "chooseTimeBlock": "Choose a time block",
+    "earliestCheckIn": "Earliest check-in is {{time}}, based on travel time to this stay",
+    "empty": "No bookings yet",
+    "includes": "Includes shower, rest & luggage storage",
+    "payment": {
+      "methods": "Easy pay · Alipay · WeChat Pay · Card",
+      "pay": "Pay now",
+      "title": "Payment details",
+      "total": "Total payment"
+    },
+    "plan": {
+      "count": "{{n}} activities from your course builder",
+      "title": "Planned itinerary"
+    },
+    "subtitle": "Book your time block",
+    "title": "Day-Use Booking"
+  },
+  "brand": {
+    "tagline": {
+      "line1": "Drop your bags,",
+      "line2": "and spend your layover in Incheon"
+    }
+  },
+  "category": {
+    "beauty": "Beauty",
+    "brand": "Brand",
+    "food": "Food",
+    "massage": "Massage",
+    "rest": "Rest",
+    "shopping": "Shopping",
+    "sightseeing": "Sightseeing"
+  },
+  "common": {
+    "backToHome": "Back to home",
+    "badge": {
+      "demo": "Demo",
+      "live": "Live",
+      "partnerAd": "Partner AD",
+      "topPick": "Top pick"
+    },
+    "comingSoon": "Coming soon",
+    "dismiss": "Dismiss",
+    "more": "More",
+    "next": "Next",
+    "remove": "Remove",
+    "showMoreCount": "Show more ({{n}} more spots)"
+  },
+  "confirm": {
+    "alertOn": "Alert ON",
+    "bookingNumber": "Booking number",
+    "complete": "Booking complete",
+    "included": "Included",
+    "includedValue": "Shower · rest · luggage storage",
+    "returnAt": "Return by {{time}}",
+    "stay": "Stay",
+    "subtitle": "My booking",
+    "title": "Booking Confirmed"
+  },
+  "course": {
+    "autoBuild": {
+      "cta": "Auto-build with Time-Fit",
+      "note": "OR-Tools optimized · auto-arranged by layover time & routing"
+    },
+    "bookThisStay": "Book this stay →",
+    "budget": {
+      "arriveReturn": "Arrive {{arrive}} · Return by {{return}}",
+      "hours": "{{h}}h transit time",
+      "over": "{{min}} min over",
+      "spare": "{{min}} min to spare"
+    },
+    "category": {
+      "note": "(Select multiple)",
+      "title": "② Add activity categories"
+    },
+    "map": {
+      "allPlacesNote": "Real nearby restaurants, cafes, convenience stores, marts, attractions & beauty shops (Olive Young, etc.) show as small dots once you zoom in · tap a dot to see info and add/remove it from your plan there · spots already in your plan show as bigger numbered pins · hospitals & pharmacies show as reference dots when zoomed in (not added to your plan)",
+      "pickRoomNote": "All partner day-use stays show as pins on the map · tap a pin to select that stay",
+      "referenceOnly": "For reference only · can't be added to your plan",
+      "routeLegend": "Number & color on the line = visit order (matches pin numbers) · line style = mode: ●●● car · ┄┄ walk · ⋯⋯ transit",
+      "unavailable": "Couldn't load the map. Make sure this domain is registered in Kakao Developers."
+    },
+    "places": {
+      "add": "Add to plan",
+      "chooseCategory": "Select a category",
+      "chooseRoomFirst": "Choose your stay first",
+      "combined": "{{list}} combined",
+      "fits": "Fits in layover",
+      "roomFirstHint": "① Choose a day-use stay first to start adding activities.",
+      "tight": "Tight on time",
+      "title": "Activity spots"
+    },
+    "room": {
+      "required": "(Required · course home base)",
+      "title": "① Choose your day-use stay"
+    },
+    "route": {
+      "live": "Live travel times applied (walk · transit · drive)",
+      "loading": "Looking up real travel times…"
+    },
+    "save": "Save course",
+    "schedule": {
+      "emptyHint": "Pick a stay to generate your schedule",
+      "overWarning": "You're {{min}} min over your transit time. Remove a spot or pick a shorter course.",
+      "pickRoom": {
+        "bold": "home base",
+        "prefix": "Choose a day-use stay as your",
+        "suffix": "first."
+      },
+      "summary": "{{n}} activities · {{h}}h {{m}}m total",
+      "title": "My transit schedule"
+    },
+    "step": {
+      "arrive": {
+        "sub": "Luggage care pickup",
+        "title": "Arrive at airport · drop luggage"
+      },
+      "checkIn": {
+        "sub": "Day-use base · luggage storage & shower available (transfer {{move}} min)",
+        "title": "Check in at {{room}}"
+      },
+      "place": {
+        "sub": "{{area}} · stay {{dur}} min (transfer {{move}} min)",
+        "subNoStay": "{{area}} (transfer {{move}} min)"
+      },
+      "return": {
+        "sub": "Time-Safe alert · 30 min buffer",
+        "title": "Return to airport"
+      }
+    },
+    "subtitle": "Category → pick spots → auto-schedule",
+    "title": "Build Your Transit Course"
+  },
+  "dayuse": {
+    "feature": {
+      "luggage": "Storage",
+      "rest": "Rest",
+      "shower": "Shower"
+    },
+    "perBlock": "/block",
+    "timeBlock": "time block"
+  },
+  "flight": {
+    "arrivalLine": "{{airline}} {{flightId}} · Est. arrival {{time}}",
+    "change": "Enter a different flight",
+    "delayed": "{{n}} min delayed",
+    "departs": "Departs",
+    "departureLine": "{{airline}} {{flightId}} · Scheduled departure {{time}}",
+    "error": {
+      "noArrivalTime": "No arrival time available",
+      "noDepartureTime": "No departure time available",
+      "notFound": "No matching flight found"
+    },
+    "from": "From",
+    "gate": "Gate",
+    "notice": {
+      "arrivalChanged": "Arrival time changed · {{old}} → {{new}}",
+      "returnByChanged": "Connecting flight time changed · return by {{old}} → {{new}}"
+    },
+    "onTime": "On time",
+    "refresh": "Refresh flight status",
+    "status": "Status",
+    "terminal": "Terminal",
+    "to": "To"
+  },
+  "home": {
+    "dayuse": {
+      "subtitle": "Flexible 3–9 hr booking · shower/rest",
+      "title": "Day-Use · Time Block Booking"
+    },
+    "greeting": "Hello, Traveler! 👋",
+    "hotPlaces": {
+      "subtitle": "Featured partner spots",
+      "title": "Hot Places"
+    },
+    "luggageBanner": {
+      "subtitle": "Airport storage · hotel/area delivery → travel light",
+      "title": "Luggage Care (Luggage-Free)"
+    },
+    "subtitle": "We've prepped an Incheon course to fit your free time.",
+    "timeFit": {
+      "build": {
+        "bold": "your own transit course",
+        "cta": "Build",
+        "prefix": "Pick categories to build",
+        "suffix": ""
+      },
+      "subtitle": "Pick your interests to auto-build a transit plan",
+      "title": "Time-Fit Recommended Course"
+    }
+  },
+  "luggage": {
+    "banner": {
+      "bold": "light",
+      "prefix": "Check in your heavy suitcase and travel",
+      "suffix": ". We'll return your bags to the airport in time for your flight."
+    },
+    "option": {
+      "inAirport": {
+        "description": "Instant smart lockers at T1 · T2",
+        "title": "In-Airport Storage"
+      },
+      "toDistrict": {
+        "description": "Pick up at Yeongjong-do / Chinatown hubs",
+        "title": "Delivery to Shopping Area"
+      },
+      "toHotel": {
+        "description": "Pickup & delivery to your day-use stay",
+        "title": "Delivery to Hotel"
+      }
+    },
+    "subtitle": "Luggage-Free",
+    "title": "Luggage Care"
+  },
+  "my": {
+    "bookingCount": "{{n}} bookings",
+    "greeting": "Hello, Traveler!",
+    "menu": {
+      "bookingHistory": "Booking History",
+      "coupons": "Coupons",
+      "language": "Language Settings",
+      "passport": "Passport Verification",
+      "timeSafeAlerts": "Time-Safe Alerts"
+    },
+    "subtitle": "My page",
+    "title": "My Page"
+  },
+  "nav": {
+    "booking": "Bookings",
+    "course": "Course",
+    "home": "Home",
+    "luggage": "Luggage",
+    "my": "My"
+  },
+  "onboarding": {
+    "flights": {
+      "arrivalLabel": "The flight you just arrived on",
+      "arrivalPlaceholder": "e.g. KE085",
+      "connectionLabel": "Your next connecting flight",
+      "connectionPlaceholder": "e.g. MU2043",
+      "cta": "Get smart course picks",
+      "lookingUp": "Looking up…",
+      "lookup": "Live lookup",
+      "needBothHint": "Look up both your arrival and connecting flight to continue.",
+      "note": "Time-Safe auto-calculates your free time",
+      "retryHint": "Please check the flight number and look up again.",
+      "title": "Enter your transit flights"
+    },
+    "interests": {
+      "note": "Select multiple · used for Time-Fit recommendations",
+      "title": "Pick your interests"
+    },
+    "language": {
+      "title": "Choose your language"
+    }
+  },
+  "savedCourse": {
+    "edit": "Edit",
+    "empty": "No saved course yet",
+    "subtitle": "Saved course",
+    "title": "Saved Course"
+  },
+  "timeSafe": {
+    "arrive": "Arrive",
+    "bufferNote": "{{sec}}min security + {{gate}}min gate cutoff = {{total}}min buffer applied (stay→airport travel time excluded for now)",
+    "cannotGoOut": {
+      "description": "After security and gate cutoff time, there's no time left to leave and come back. Please stay inside the airport.",
+      "title": "You can't leave the airport"
+    },
+    "heading": "TIME-SAFE RESULT",
+    "liveDepartureApplied": "Live departure applied",
+    "liveSecurityWait": "Live security wait time (T1)",
+    "needArrival": "Look up your arrival flight to see your layover time here.",
+    "needConnection": "Look up your connecting flight to calculate your layover time.",
+    "outingAvailable": "free outside the airport",
+    "outingAvailableShort": "Actual free time (buffer excluded)",
+    "pushScheduled": "Push alert scheduled 30 min before return",
+    "returnBy": "Return by",
+    "returnRecommended": "Recommended return",
+    "totalConnection": "Total connection time {{dur}} (arrival to departure)"
+  },
+  "unit": {
+    "hourRange": "{{a}}–{{b}} hrs",
+    "hours": "{{h}}h",
+    "hoursMinutes": "{{h}}h {{m}}m",
+    "minFromAirport": "{{n}} min from airport",
+    "minutes": "{{n}} min",
+    "nextDay": "Next day",
+    "stayMin": "{{n}} min stay",
+    "transferMin": "{{n}} min transfer"
+  }
+}

@@ -14,9 +14,11 @@
     "noUncheckedIndexedAccess": true,
     "verbatimModuleSyntax": true,
     "isolatedModules": true,
+    "resolveJsonModule": true,
     "skipLibCheck": true,
     "noEmit": true,
     "paths": { "@/*": ["./src/*"] }
   },
-  "include": ["src"]
+  "include": ["src"],
+  "exclude": ["src/**/*.test.ts", "src/**/*.test.tsx"]
 }

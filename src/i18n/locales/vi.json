@@ -1,0 +1,296 @@
+{
+  "booking": {
+    "browseStays": "Xem chỗ nghỉ",
+    "checkoutPastReturn": "Giờ trả phòng muộn hơn giờ nên quay lại ({{time}}). Bạn cần rời đi trước thời điểm đó.",
+    "chooseCheckIn": "Chọn giờ nhận phòng",
+    "chooseTimeBlock": "Chọn khung giờ",
+    "earliestCheckIn": "Sớm nhất có thể nhận phòng từ {{time}}, tính theo thời gian di chuyển đến chỗ nghỉ",
+    "empty": "Chưa có lượt đặt chỗ nào",
+    "includes": "Bao gồm tắm, nghỉ ngơi & gửi hành lý",
+    "payment": {
+      "methods": "Thanh toán nhanh · Alipay · WeChat Pay · Thẻ",
+      "pay": "Thanh toán",
+      "title": "Chi tiết thanh toán",
+      "total": "Tổng thanh toán"
+    },
+    "plan": {
+      "count": "{{n}} hoạt động từ trình tạo lộ trình",
+      "title": "Lịch trình đã lên kế hoạch"
+    },
+    "subtitle": "Đặt khung giờ của bạn",
+    "title": "Đặt chỗ Day-Use"
+  },
+  "brand": {
+    "tagline": {
+      "line1": "Gửi hành lý lại,",
+      "line2": "và tận hưởng thời gian quá cảnh tại Incheon"
+    }
+  },
+  "category": {
+    "beauty": "Làm đẹp",
+    "brand": "Thương hiệu",
+    "food": "Ẩm thực",
+    "massage": "Massage",
+    "rest": "Nghỉ ngơi",
+    "shopping": "Mua sắm",
+    "sightseeing": "Tham quan"
+  },
+  "common": {
+    "backToHome": "Về trang chủ",
+    "badge": {
+      "demo": "Demo",
+      "live": "Trực tiếp",
+      "partnerAd": "Đối tác QC",
+      "topPick": "Đề xuất"
+    },
+    "comingSoon": "Sắp ra mắt",
+    "dismiss": "Đóng",
+    "more": "Xem thêm",
+    "next": "Tiếp theo",
+    "remove": "Xóa",
+    "showMoreCount": "Xem thêm ({{n}} địa điểm nữa)"
+  },
+  "confirm": {
+    "alertOn": "Bật thông báo",
+    "bookingNumber": "Mã đặt chỗ",
+    "complete": "Đặt chỗ thành công",
+    "included": "Bao gồm",
+    "includedValue": "Tắm · nghỉ ngơi · gửi hành lý",
+    "returnAt": "Quay lại {{time}}",
+    "stay": "Chỗ nghỉ",
+    "subtitle": "Đặt chỗ của tôi",
+    "title": "Xác nhận đặt chỗ"
+  },
+  "course": {
+    "autoBuild": {
+      "cta": "Tự động lên lịch Time-Fit",
+      "note": "Tối ưu bằng OR-Tools · tự sắp xếp theo thời gian quá cảnh và lộ trình"
+    },
+    "bookThisStay": "Đặt chỗ nghỉ này →",
+    "budget": {
+      "arriveReturn": "Đến {{arrive}} · Nên quay lại {{return}}",
+      "hours": "Thời gian trống quá cảnh {{h}} giờ",
+      "over": "Vượt quá {{min}} phút",
+      "spare": "Còn dư {{min}} phút"
+    },
+    "category": {
+      "note": "(Chọn nhiều)",
+      "title": "② Thêm danh mục hoạt động"
+    },
+    "map": {
+      "allPlacesNote": "Phóng to bản đồ để thấy nhà hàng, quán cà phê, cửa hàng tiện lợi, siêu thị, điểm tham quan & cửa hàng làm đẹp (Olive Young, v.v.) thực tế gần chỗ nghỉ hiện thành chấm nhỏ · chạm vào chấm để xem thông tin và thêm/bớt khỏi lịch trình ngay tại đó · nơi đã có trong lịch trình hiện thành ghim lớn có đánh số · khi phóng to, bệnh viện & nhà thuốc hiện thành chấm để tham khảo (không thêm vào lịch trình)",
+      "pickRoomNote": "Mọi chỗ nghỉ Day-Use đối tác đều hiện thành ghim trên bản đồ · chạm vào ghim để chọn chỗ nghỉ đó",
+      "referenceOnly": "Chỉ để tham khảo · không thể thêm vào lịch trình",
+      "routeLegend": "Số & màu trên đường = thứ tự ghé thăm (khớp số trên ghim) · kiểu đường = phương tiện: ●●● ô tô · ┄┄ đi bộ · ⋯⋯ phương tiện công cộng",
+      "unavailable": "Không tải được bản đồ. Hãy chắc chắn tên miền này đã được đăng ký trong Kakao Developers."
+    },
+    "places": {
+      "add": "Thêm vào lịch trình",
+      "chooseCategory": "Hãy chọn danh mục",
+      "chooseRoomFirst": "Hãy chọn chỗ nghỉ trước",
+      "combined": "Kết hợp {{list}}",
+      "fits": "Phù hợp thời gian quá cảnh",
+      "roomFirstHint": "① Chọn chỗ nghỉ Day-Use trước để thêm hoạt động.",
+      "tight": "Thời gian gấp",
+      "title": "Địa điểm hoạt động"
+    },
+    "room": {
+      "required": "(Bắt buộc · điểm trung tâm của lộ trình)",
+      "title": "① Chọn chỗ nghỉ Day-Use"
+    },
+    "route": {
+      "live": "Đang áp dụng thời gian di chuyển thực tế (đi bộ · phương tiện công cộng · lái xe)",
+      "loading": "Đang tra cứu thời gian di chuyển thực tế…"
+    },
+    "save": "Lưu lộ trình",
+    "schedule": {
+      "emptyHint": "Chọn chỗ nghỉ để tạo lịch trình",
+      "overWarning": "Bạn đã vượt quá thời gian quá cảnh {{min}} phút. Hãy bớt điểm đến hoặc chọn lộ trình ngắn hơn.",
+      "pickRoom": {
+        "bold": "điểm trung tâm",
+        "prefix": "Hãy chọn chỗ nghỉ Day-Use làm",
+        "suffix": " trước tiên."
+      },
+      "summary": "{{n}} hoạt động · tổng {{h}} giờ {{m}} phút",
+      "title": "Lịch trình quá cảnh của tôi"
+    },
+    "step": {
+      "arrive": {
+        "sub": "Nhận dịch vụ hành lý",
+        "title": "Đến sân bay · gửi hành lý"
+      },
+      "checkIn": {
+        "sub": "Điểm trung tâm Day-Use · có thể gửi hành lý & tắm (di chuyển {{move}} phút)",
+        "title": "Nhận phòng tại {{room}}"
+      },
+      "place": {
+        "sub": "{{area}} · lưu trú {{dur}} phút (di chuyển {{move}} phút)",
+        "subNoStay": "{{area}} (di chuyển {{move}} phút)"
+      },
+      "return": {
+        "sub": "Thông báo Time-Safe · dự phòng 30 phút",
+        "title": "Quay lại sân bay"
+      }
+    },
+    "subtitle": "Danh mục → chọn địa điểm → tự tạo lịch",
+    "title": "Tạo lộ trình quá cảnh"
+  },
+  "dayuse": {
+    "feature": {
+      "luggage": "Gửi đồ",
+      "rest": "Nghỉ ngơi",
+      "shower": "Tắm"
+    },
+    "perBlock": "/khung giờ",
+    "timeBlock": "khung giờ"
+  },
+  "flight": {
+    "arrivalLine": "{{airline}} {{flightId}} · Dự kiến đến {{time}}",
+    "change": "Nhập chuyến bay khác",
+    "delayed": "Trễ {{n}} phút",
+    "departs": "Khởi hành",
+    "departureLine": "{{airline}} {{flightId}} · Giờ khởi hành dự kiến {{time}}",
+    "error": {
+      "noArrivalTime": "Không có thông tin giờ đến",
+      "noDepartureTime": "Không có thông tin giờ khởi hành",
+      "notFound": "Không tìm thấy chuyến bay phù hợp"
+    },
+    "from": "Từ",
+    "gate": "Cửa",
+    "notice": {
+      "arrivalChanged": "Giờ đến đã thay đổi · {{old}} → {{new}}",
+      "returnByChanged": "Giờ bay nối chuyến đã thay đổi · nên quay lại {{old}} → {{new}}"
+    },
+    "onTime": "Đúng giờ",
+    "refresh": "Làm mới thông tin chuyến bay",
+    "status": "Trạng thái",
+    "terminal": "Nhà ga",
+    "to": "Đến"
+  },
+  "home": {
+    "dayuse": {
+      "subtitle": "Đặt linh hoạt 3–9 giờ · tắm/nghỉ",
+      "title": "Day-Use · Đặt theo khung giờ"
+    },
+    "greeting": "Xin chào, Nhà du hành! 👋",
+    "hotPlaces": {
+      "subtitle": "Tổng hợp địa điểm đối tác",
+      "title": "Địa điểm nổi bật"
+    },
+    "luggageBanner": {
+      "subtitle": "Gửi tại sân bay · giao đến khách sạn/khu mua sắm → di chuyển nhẹ nhàng",
+      "title": "Chăm sóc hành lý (Luggage-Free)"
+    },
+    "subtitle": "Chúng tôi đã chuẩn bị lộ trình Incheon vừa vặn thời gian rảnh của bạn.",
+    "timeFit": {
+      "build": {
+        "bold": "lộ trình quá cảnh của riêng bạn",
+        "cta": "Tạo",
+        "prefix": "Chọn danh mục để tạo",
+        "suffix": ""
+      },
+      "subtitle": "Chọn theo sở thích để tự động tạo lịch quá cảnh",
+      "title": "Lộ trình đề xuất Time-Fit"
+    }
+  },
+  "luggage": {
+    "banner": {
+      "bold": "nhẹ nhàng",
+      "prefix": "Gửi vali nặng lại và di chuyển",
+      "suffix": ". Chúng tôi sẽ trả hành lý về sân bay đúng giờ bay của bạn."
+    },
+    "option": {
+      "inAirport": {
+        "description": "Tủ khóa thông minh T1 · T2, gửi ngay",
+        "title": "Gửi đồ trong sân bay"
+      },
+      "toDistrict": {
+        "description": "Nhận tại điểm Yeongjong-do · Phố người Hoa",
+        "title": "Giao đến khu mua sắm"
+      },
+      "toHotel": {
+        "description": "Lấy và giao hành lý đến chỗ nghỉ Day-Use",
+        "title": "Giao đến khách sạn"
+      }
+    },
+    "subtitle": "Luggage-Free",
+    "title": "Chăm sóc hành lý"
+  },
+  "my": {
+    "bookingCount": "{{n}} lượt đặt chỗ",
+    "greeting": "Xin chào, Nhà du hành!",
+    "menu": {
+      "bookingHistory": "Lịch sử đặt chỗ",
+      "coupons": "Phiếu giảm giá",
+      "language": "Cài đặt ngôn ngữ",
+      "passport": "Xác minh hộ chiếu",
+      "timeSafeAlerts": "Thông báo Time-Safe"
+    },
+    "subtitle": "Trang của tôi",
+    "title": "Trang của tôi"
+  },
+  "nav": {
+    "booking": "Đặt chỗ",
+    "course": "Lộ trình",
+    "home": "Trang chủ",
+    "luggage": "Hành lý",
+    "my": "Của tôi"
+  },
+  "onboarding": {
+    "flights": {
+      "arrivalLabel": "Chuyến bay bạn vừa đến",
+      "arrivalPlaceholder": "VD: KE085",
+      "connectionLabel": "Chuyến bay nối chuyến tiếp theo",
+      "connectionPlaceholder": "VD: MU2043",
+      "cta": "Gợi ý lộ trình thông minh",
+      "lookingUp": "Đang tra cứu…",
+      "lookup": "Tra cứu trực tiếp",
+      "needBothHint": "Hãy tra cứu trực tiếp cả chuyến bay đến và chuyến bay nối chuyến để tiếp tục.",
+      "note": "Time-Safe tự động tính thời gian rảnh",
+      "retryHint": "Vui lòng kiểm tra lại số hiệu chuyến bay và tra cứu lại.",
+      "title": "Nhập chuyến bay quá cảnh của bạn"
+    },
+    "interests": {
+      "note": "Chọn nhiều · dùng để gợi ý Time-Fit",
+      "title": "Chọn hoạt động bạn quan tâm"
+    },
+    "language": {
+      "title": "Chọn ngôn ngữ của bạn"
+    }
+  },
+  "savedCourse": {
+    "edit": "Chỉnh sửa",
+    "empty": "Chưa có lộ trình đã lưu",
+    "subtitle": "Lộ trình đã lưu",
+    "title": "Lộ trình đã lưu"
+  },
+  "timeSafe": {
+    "arrive": "Đến",
+    "bufferNote": "An ninh {{sec}} phút + đóng cửa lên máy bay {{gate}} phút = tổng đệm {{total}} phút (chưa gồm thời gian di chuyển từ chỗ nghỉ ra sân bay)",
+    "cannotGoOut": {
+      "description": "Sau khi trừ thời gian an ninh và đóng cửa lên máy bay, bạn không còn đủ thời gian ra ngoài rồi quay lại. Vui lòng chờ trong sân bay.",
+      "title": "Không thể ra ngoài"
+    },
+    "heading": "KẾT QUẢ TIME-SAFE",
+    "liveDepartureApplied": "Đã áp dụng giờ khởi hành trực tiếp",
+    "liveSecurityWait": "Áp dụng thời gian chờ an ninh thực tế (T1)",
+    "needArrival": "Tra cứu chuyến bay đến để xem thời gian quá cảnh tại đây.",
+    "needConnection": "Tra cứu chuyến bay nối chuyến để tính thời gian quá cảnh.",
+    "outingAvailable": "có thể ở ngoài sân bay",
+    "outingAvailableShort": "Thời gian rảnh thực tế (đã trừ đệm)",
+    "pushScheduled": "Đã đặt thông báo đẩy 30 phút trước khi quay lại",
+    "returnBy": "Nên quay lại",
+    "returnRecommended": "Đề xuất quay lại sân bay",
+    "totalConnection": "Tổng thời gian quá cảnh {{dur}} (từ lúc đến đến lúc khởi hành)"
+  },
+  "unit": {
+    "hourRange": "{{a}}–{{b}} giờ",
+    "hours": "{{h}} giờ",
+    "hoursMinutes": "{{h}} giờ {{m}} phút",
+    "minFromAirport": "Cách sân bay {{n}} phút",
+    "minutes": "{{n}} phút",
+    "nextDay": "Hôm sau",
+    "stayMin": "Lưu trú {{n}} phút",
+    "transferMin": "Di chuyển {{n}} phút"
+  }
+}

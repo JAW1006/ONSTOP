@@ -22,6 +22,7 @@ Vite + React + TypeScript · Tailwind v4 + shadcn/ui(Radix) · React Router · T
 | `src/components/ui/` | shadcn/ui 기반 공통 컴포넌트. 비즈니스 로직 없음. |
 | `src/styles/tokens.css` | 디자인 토큰. 원본 표는 `docs/design/design-tokens.md`. |
 | `src/app/` | 라우팅·레이아웃·탭바. |
+| `src/i18n/` | react-i18next. 문구는 `locales/<lang>.json` 5개에 같은 키로 추가. 화면에 문자열 하드코딩 금지. |
 | `legacy/` | 이식 완료된 기존 HTML/JS 보관(5단계에 이동). 수정 금지. |
 | `server/` | Express API 프록시. 이번 마이그레이션 범위 밖. |
 
