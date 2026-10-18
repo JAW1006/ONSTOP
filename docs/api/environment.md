@@ -1,9 +1,9 @@
 # 환경변수
 
-> 상태: 확정 · 최종 수정 2026-10-16 · 확인 방법: `server/` 코드의 `process.env` 전수 검색(node_modules 제외)
+> 상태: 확정 · 최종 수정 2026-10-18 · 확인 방법: `server/` 코드의 `process.env` 전수 검색(node_modules 제외)
 > 템플릿: [`server/.env.example`](../../server/.env.example) · 배포 선언: [`render.yaml`](../../render.yaml)
 
-## 서버(`server/server.js`)가 읽는 변수
+## 서버(`server/server.js`, `server/booking.js`)가 읽는 변수
 `dotenv/config`로 **실행 위치의 `.env`**를 읽는다(`cd server && npm start` → `server/.env`).
 
 | 변수 | 필수 | 용도 | 사용 엔드포인트 | 발급처 | 없을 때 | render.yaml |
@@ -12,10 +12,17 @@
 | `KAKAO_REST_API_KEY` | **필수** | 카카오 REST API 키(비밀) | `/api/route`, `/api/places`, `/api/places/search` | [Kakao Developers](https://developers.kakao.com) → 앱 키 → REST API 키. 제품 "카카오모빌리티"·"카카오맵" 활성화 필요 | 해당 엔드포인트 500 → 더미 이동시간, 주변 가게 없음 | 선언됨 |
 | `ODSAY_API_KEY` | 선택 | 대중교통 경로 | `/api/transit` | [ODsay Lab](https://lab.odsay.com) → API 신청 | 500 → 앱이 자동차 이동시간으로 대체 | 선언됨 |
 | `PORT` | 선택 | 서버 포트(기본 `3001`) | 전체 + `app/` 정적 서빙 | — | 3001 | 미선언(Render가 자동 주입) |
+| `DATABASE_URL` | 예약 요청 쓸 때 **필수** | 예약 요청 저장용 PostgreSQL 접속 문자열. 서버 시작 시 `server/migrations/*.sql` 자동 적용 | `/api/booking-requests` 전체 | 관리형 PostgreSQL — 공급자 **결정 전**([ADR-0002](../decisions/ADR-0002-database.md)) | 서버는 뜨고 경고만. 해당 엔드포인트 `500 database_not_configured` | 선언됨 |
+| `ADMIN_USER` | `/admin` 쓸 때 **필수** | 관리 화면·관리자 API의 HTTP Basic 사용자명 | `GET /api/booking-requests`, `PATCH /api/booking-requests/:id`, `/admin` | 직접 정함(긴 임의 문자열) | **실제 핸들러를 등록하지 않고 `503 admin_disabled`**(fail-closed) | 선언됨 |
+| `ADMIN_PASSWORD` | `/admin` 쓸 때 **필수** | 위와 같은 Basic 비밀번호. 비교는 `crypto.timingSafeEqual` | 위와 같음 | 직접 정함 | 위와 같음 | 선언됨 |
+
+`DATABASE_URL`·`ADMIN_*`는 `server/booking.js`가 읽는다. 호스트가 `localhost`/`127.0.0.1`이면 SSL 없이, 그 밖이면 SSL로 붙되 체인 검증은 끈다(관리형 Postgres의 자체 서명 체인 — 공급자 확정 후 CA 번들로 교체 예정). 환경별로 **다른 DB·다른 자격증명**을 쓴다([ADR-0005](../decisions/ADR-0005-environments-deploy.md)).
+
+⚠ 관리 화면에는 이용자의 **이름·이메일**이 보인다. 자격증명을 공유하지 않고, 보관 기간·파기는 [legal 2-1](../legal-checklist.md) 확인 후 정한다.
 
 2026-10-16 점검: 카카오 앱이 둘이다. **레거시 지도와 같은 앱**(JavaScript 키 `7bcb39…`)의 REST 키는 길찾기·로컬 검색 모두 정상 → `server/.env`에 사용. **"모빌리티" 앱** REST 키(2개)는 길찾기만 되고 로컬 검색은 "카카오맵" 제품이 꺼져 있어 403 → 사용 안 함. ODsay는 **서버용 키 + 허용 IP 등록**이 필요하다(미등록이면 `ApiKeyAuthFailed`) — 개발 PC IP 등록 후 정상, 배포 서버 IP는 별도 등록.
 
-코드 위치: `server.js` 17줄(`AIRPORT_SERVICE_KEY`), 187줄(`KAKAO_REST_API_KEY`), 320줄(`ODSAY_API_KEY`), 365줄(`PORT`).
+코드 위치(2026-10-18): `server.js` 22줄(`AIRPORT_SERVICE_KEY`), 232줄(`KAKAO_REST_API_KEY`), 365줄(`ODSAY_API_KEY`), 417줄(`PORT`) · `booking.js` 206–208줄(`DATABASE_URL`, `ADMIN_USER`, `ADMIN_PASSWORD`).
 
 ## 환경변수가 아닌 키
 | 키 | 위치 | 성격 |

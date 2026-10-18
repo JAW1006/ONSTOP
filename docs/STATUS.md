@@ -1,6 +1,6 @@
 # 진행 상태
 
-> 상태: 확정 · 최종 수정 2026-10-16
+> 상태: 확정 · 최종 수정 2026-10-18
 
 > 서비스 운영 계획: [product/roadmap](product/roadmap.md) (2026-10-16 공모전 종료, 실제 서비스 전환)
 
@@ -17,12 +17,36 @@
 | 항목 | 상태 |
 |---|---|
 | 작업 브랜치 | `migration/react-ts` (main 금지 — Render 자동 배포) |
+| `wip/server-booking` | 2026-10-18 백업 전용 브랜치. 레거시 `main` 위에서 만든 예약 요청 작업(결제 폼·T2 통합·DB 1차안)을 잃지 않게 담아둔 것 — **그대로 머지하지 않는다.** 살릴 부분은 이미 이 브랜치로 옮겼다(아래 2026-10-18 항목) |
+| 로컬 `main` | `origin/main`과 커밋 해시가 갈라져 있다(force-push 이력, **파일 내용은 동일**). main으로 돌아갈 일이 생기면 `git branch -f main origin/main`으로 맞춘다 |
+| 새 환경변수 | `DATABASE_URL`, `ADMIN_USER`, `ADMIN_PASSWORD` — `server/.env.example` 참고. 환경별로 다른 DB·자격증명을 쓴다 |
 | push | 가능 — 이 저장소만 `credential.https://github.com.username = JAW1006`(로컬 설정). `main`에는 올리지 않음 |
 | 백업 | git bundle: `C:\Users\OpenLink\ONSTOP-backup\onstop-migration-react-ts-2026-10-16.bundle` (`migration/react-ts` + `main`, 전체 이력). 복원: `git clone -b migration/react-ts <bundle> <폴더>` |
+
+## 2026-10-18 — 예약 요청 서버 API
+레거시 `main`에서 만들던 예약 요청 서버 작업을 이 브랜치로 옮겼다. 프런트는 **이미 있는 `src/features/booking/`을 쓰고**, 서버만 새로 넣었다.
+
+| 결정 | 내용 |
+|---|---|
+| **B8 "진행 중 1건" 기준** | **정규화된 이메일**(소문자·공백 제거). 숙소와 무관하게 1건. DB 부분 유니크 인덱스로 보장해서 동시 요청에도 2건이 생기지 않는다. 걸리면 `409`이고 **응답에 기존 요청 내용을 담지 않는다**(존재 여부만). 한계: 다른 이메일로는 우회된다 |
+| 관리자 인증 | `/admin`과 관리자 API는 HTTP Basic(`ADMIN_USER`/`ADMIN_PASSWORD`). 둘 중 하나라도 비면 **실제 핸들러를 등록하지 않고 503**(fail-closed) — 인증 없이 열린 채 배포되는 경우를 구조적으로 막는다 |
+| 스키마 관리 | `server/migrations/*.sql`(이름순 적용, `schema_migrations`에 기록). 코드에서 `CREATE TABLE` 안 한다. 표준 Postgres만 — 공급자를 옮겨도 그대로 돈다 |
+| ADR-0002(DB) | **제안 상태 유지.** 구현만 벤더 중립(`DATABASE_URL` + 표준 SQL)으로 먼저 했다. 공급자 확정은 요금·리전·보관기간 확인 후 |
+| 로그 | 이메일·이름을 로그·오류 메시지에 쓰지 않는다. pg가 유니크 위반 시 `err.detail`에 이메일을 담으므로 `detail`은 로그에 넣지 않는다 |
+| 서버 분리 | 예약 기능은 `server/booking.js`, `server.js`에는 연결 코드만. 외부 API 프록시는 손대지 않았다 |
+
+**버린 것**(이 브랜치에 이미 더 나은 구현이 있어서):
+| 버린 것 | 대신 쓰는 것 |
+|---|---|
+| `app/index.html`의 연락처·요청 폼(전화번호 수집) | `src/features/booking/BookingScreen.tsx` — 동의 3개·필드별 검증·오류 상태·테스트 있음. 연락처는 **이메일** |
+| `/api/security-wait?terminal=` 통합안 | 이미 있는 `/api/security-wait` + `/api/security-wait/t2` |
+
+**교훈** → [AGENTS.md](../AGENTS.md) 0장 규칙으로 남겼다: 작업 시작 전 브랜치와 이 문서를 확인하고, 이미 있는 구현·명세를 따른다.
 
 ## 결정됨
 | # | 결정 | 공식 | 적용 |
 |---|---|---|---|
+| 예약 요청 서버 | 저장·조회·취소 + 관리자 목록·상태 변경. 결제 없음, 호텔 자동 전달 없음 | [api/booking-requests](api/booking-requests.md) | 적용 (DB 경로 **미검증** — 아래 "검증 부족") |
 | B1 | 코스 경로 **공항 → 호텔 → 장소들 → 호텔(짐 찾기) → 공항**. 데이유즈 블록을 고르면 **호텔 복귀 ≤ 블록 종료**가 코스 제약, 예약 화면 경고(B3)도 이 기준. 코스 사용 시간이 늘어 추천이 더 보수적 | [time-fit](formulas/time-fit.md), [결과](results/2026-10-16-hotel-return-route.md) | 적용 |
 | 예약 요청 (B2–B8) | 코스 없이도 요청(근사), 블록 초과·복귀 늦음은 경고 + 확인 체크, 연락처는 이름(영문 허용)·이메일만, 상태 요청됨·확정·거절·만료·취소됨(만료 시간은 호텔 응답 속도로 정함), 거절·만료 시 대안 숙소 제안, 진행 중 요청 1건, 요청됨만 즉시 취소(확정 후는 호텔 문의 + 연락처·규정 표시) | [screens/booking](design/screens/booking.md) | 적용(데모) |
 | 요청 모드 | 가격표 있는 호텔 = 상품 선택 후 요청, 없는 호텔 = **견적 요청**(호텔이 가격·가능 여부 회신). 데모는 데모용 가격표 파일(`src/data/demo-offers.json`, 사용자 입력) | [screens/booking](design/screens/booking.md), [dayuse-pricing](formulas/dayuse-pricing.md) | 적용(데모) |
@@ -62,6 +86,9 @@
 | # | 내용 | 근거 문서 |
 |---|---|---|
 | 운영 ADR | DB(ADR-0002)·인증(0003)·결제·정산 구조(0004, 제안 — A/B 비교·법적 확인 L1~L7)·환경·배포(0005)·복귀 알림(0006, 방향만 확정) — 모두 초안 | [decisions/](decisions/) |
+| DB 공급자 | ADR-0002를 확정하려면: Render PG vs Supabase 요금·백업, 데이터 **리전**(국외 이전 — legal 2-4), 보관 기간·파기(legal 2-1), dev/staging/prod DB 분리, SSL CA 번들. 구현은 벤더 중립이라 **지금 막혀 있지 않다** | [ADR-0002](decisions/ADR-0002-database.md) "결정 전에 할 일" |
+| 요청 만료 기한 | 자동 만료를 켤 기한 값(호텔 응답 속도 — 인터뷰 2-2·2-6). 지금 `expiresAt`은 항상 null이고 `expired`는 관리자 수기만 | [screens/booking](design/screens/booking.md) 6번 |
+| 동의 문구 버전 | 서버가 `consentVersion`을 저장한다. legal 확인으로 문구가 확정되면 버전 값을 정해 프런트·문서에 같이 박는다 | [legal-checklist](legal-checklist.md) 2-1·7-6 |
 | 외부 API | 공공데이터 운영계정 전환, ODsay 쿼터·상업 이용(**사용자 확인 중**), 경로 API 대안(TMAP 등, 미확인), 카카오모빌리티 쿼터·계약, 카카오 응답 저장 금지 준수(레거시 좌표 교체) | [operations/external-apis](operations/external-apis.md) |
 | 법률 | 0장(사진 허락·외출≠입국) 먼저, 나머지 전 항목 확인(결론 없음, 전문가 확인 필요) | [legal-checklist](legal-checklist.md) |
 | 데이터 | 숙소·장소 미검증 값 116개 | [design/data-verification](design/data-verification.md) |
@@ -73,10 +100,12 @@
 | 탑승동 셔틀 버퍼 | 탑승동(P02, 게이트 101~132) 출발은 T1 출국장 통과 후 셔틀트레인을 탄다. 이 이동·대기에 별도 버퍼가 필요한지 **미검증** — 지금은 추가 버퍼 없음(게이트 여유 30분 안에 흡수된다고 가정, 근거 없음). 근거 후보는 아래 "탑승동 셔틀트레인 근거" | [time-safe](formulas/time-safe.md) |
 | 입국 실시간 | 입국장 대기인원 → 분 환산(창구 수·처리량 가정 필요). 근거 확보 전 보류 권장 | [조사](results/2026-10-16-arrival-wait-data.md) |
 
-## 운영 배포 금지·예약 요청 운영 기준 (2026-10-16 결정)
+## 운영 배포 금지·예약 요청 운영 기준 (2026-10-16 결정 · 2026-10-18 유지)
 **운영(프로덕션) 배포 금지**: 서버가 예약 요청을 **실제로 호텔에 전달하고 회신을 받기 전까지** prod에 배포하지 않는다([ADR-0005](decisions/ADR-0005-environments-deploy.md) "운영 배포 금지 조건").
-- 지금 예약 요청은 데모다. 메모리에만 저장되고 호텔에 가지 않는다.
-- 요청 버튼은 **데모 표시가 있는 환경**(`VITE_DEMO_MODE=true` 또는 개발 서버)에서만 동작한다. 그 밖의 빌드에서는 비활성이고 "준비 중"으로 표시한다.
+- 2026-10-18: 서버 저장이 생겼지만 **금지는 그대로다.** 저장·회신 반영(수기)은 되지만 **호텔 자동 전달과 이메일 발송이 없다** — 금지의 핵심 조건이 그것이다.
+- 프런트 요청은 여전히 데모다. 프런트는 아직 메모리 저장소를 쓰고 서버 API로 교체되지 않았다.
+- 요청 버튼은 **데모 표시가 있는 환경**(`VITE_DEMO_MODE=true` 또는 개발 서버)에서만 동작한다. 그 밖의 빌드에서는 비활성이고 "준비 중"으로 표시한다. **서버가 생겼다는 이유로 이 게이트를 열지 않는다.**
+- 관리자 화면은 자격증명이 없으면 503으로 닫힌다(fail-closed). 이 동작을 느슨하게 만들지 않는다.
 
 **예약 요청을 운영에서 켜는 기준(모두 충족)**
 | # | 기준 | 확인 위치 |
@@ -84,7 +113,7 @@
 | 1 | 참여 상태 **확정** 호텔이 1곳 이상(몇 곳부터 공개할지는 결정 필요) | data-verification 수동 입력 구역, [hotel-interview](product/hotel-interview.md) 0-6 |
 | 2 | 그 호텔의 요청 접수 방법·응답 기한(만료 시간) 확인 | 인터뷰 0-5·2-6 |
 | 3 | 그 호텔의 연락처(앱 표시 허락)·확정 후 취소 규정 입력 | 인터뷰 4-5~4-8 |
-| 4 | 서버가 요청 저장·호텔 전달·회신 반영·이메일 발송 | ADR-0002·0003, 서버 구현 |
+| 4 | 서버가 요청 저장·호텔 전달·회신 반영·이메일 발송 — **저장·회신 반영(수기)만 됨. 호텔 전달·이메일 발송 미구현** | [api/booking-requests](api/booking-requests.md) "미구현 / 의존" |
 | 5 | legal 0장(사진·외출≠입국), 개인정보 수집·제3자 제공 동의 문구, 7장(제휴 형태) 확인 | [legal-checklist](legal-checklist.md) |
 
 **대안 — 정보 보기 모드**(기준 충족 전 운영을 열어야 할 때)
@@ -162,6 +191,24 @@
 | # | 내용 | 계획 |
 |---|---|---|
 | 실제 카카오맵 화면 | 코스 지도는 모의 지도로만 테스트 | 사용자 확인 — 위 "실제 지도 확인 절차" |
+| **예약 요청 API의 DB 경로** | 작업 PC에 PostgreSQL·Docker가 없어 **DB에 붙는 경로를 한 번도 실행하지 못했다.** 확인된 것은 DB 없는 경로뿐: 입력 검증 400 6종, Basic 인증 401/통과, 자격증명 미설정 503, DB 미설정 500, `/admin` 서빙, 로그에 이메일 없음 | `DATABASE_URL`을 넣고 아래 항목을 실제로 확인한다 |
+
+### 예약 요청 API — DB 연결 후 확인할 것
+| # | 확인 | 기대 |
+|---|---|---|
+| 1 | 서버 시작 | 로그에 `applied migration 001_booking_requests.sql`, 두 번째 시작에는 안 나옴 |
+| 2 | `POST` 정상 요청 | `201` + `TS-` 8자 요청번호 |
+| 3 | 같은 이메일로 `POST` 재시도 (B8) | `409 active_request_exists`, 본문에 기존 요청 내용 없음 |
+| 4 | 대문자·공백 섞은 같은 이메일로 `POST` | 역시 `409` (정규화가 동작하는지) |
+| 5 | `GET /:id?email=` 맞는 이메일 / 틀린 이메일 | `200` / `404`(요청번호 존재 여부가 드러나지 않음) |
+| 6 | `POST /:id/cancel` 요청됨 → 재시도 | `200 cancelled` → `409 not_cancellable` |
+| 7 | 취소 후 같은 이메일로 새 `POST` | `201` (종료 상태는 B8에 안 걸림) |
+| 8 | 관리자 `PATCH` `confirmed` → `declined` | `409 invalid_transition` |
+| 9 | 관리자 `PATCH` `declined` (사유 없이 / 사유 있게) | `400 decline_reason_required` / `200` |
+| 10 | `/admin` 화면 | 목록·필터·확정/거절/만료/취소 버튼이 전이 규칙대로만 보임 |
+| 11 | 서버 로그 전체 | 이메일·이름이 한 줄도 없음 |
+
+결과는 `docs/results/YYYY-MM-DD-booking-api.md`에 남긴다.
 
 ## 검증 완료
 | # | 내용 | 근거 |

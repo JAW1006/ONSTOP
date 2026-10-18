@@ -24,9 +24,11 @@ Vite + React + TypeScript · Tailwind v4 + shadcn/ui(Radix) · React Router · T
 | `src/app/` | 라우팅·레이아웃·탭바. |
 | `src/i18n/` | react-i18next. 문구는 `locales/<lang>.json` 5개에 같은 키로 추가. 화면에 문자열 하드코딩 금지. |
 | `legacy/` | 이식 완료된 기존 HTML/JS 보관(5단계에 이동). 수정 금지. |
-| `server/` | Express API 프록시. 이번 마이그레이션 범위 밖. |
+| `server/` | Express. 외부 API 프록시(항공편·카카오·ODsay) + 예약 요청 API(`booking.js`) + 관리자 화면(`admin/`). 프록시 부분은 마이그레이션 범위 밖이다. |
+| `server/migrations/` | DB 스키마의 **유일한 출처**(`*.sql`, 이름순 적용). 코드에서 `CREATE TABLE`을 하지 않는다. 바꿀 때는 새 번호 파일을 더한다. |
 
 ## 반드시 지킬 규칙
+0. **작업 시작 전에 현재 브랜치와 [docs/STATUS.md](docs/STATUS.md)를 확인하고, 이미 있는 구현·명세를 따른다.** 같은 기능이 다른 브랜치나 `src/`에 이미 있으면 새로 만들지 않고 그것을 고친다. 절차와 이유는 [AGENTS.md](AGENTS.md) 0장.
 1. **공식의 단일 출처는 `docs/formulas/*.md`.** 공식 수정 시 md를 먼저 갱신하고, 같은 변경에서 `src/domain` 코드와 테스트를 함께 고친다.
 2. 테스트의 입력·기댓값은 공식 md의 "예시" 표와 **같은 숫자**를 쓴다.
 3. 새 화면은 `docs/design/screens/<화면>.md`에 명세를 먼저 쓴다.

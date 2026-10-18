@@ -1,6 +1,7 @@
 # 데이유즈 예약 (예약 요청 · 견적 요청 · 요청 내역)
 
-> 상태: **확정 — 구현 완료(데모)** · 최종 수정 2026-10-16 · 코드: [`src/features/booking/`](../../../src/features/booking/) · 비교: [results](../../results/2026-10-16-booking-screen.md)
+> 상태: **확정 — 구현 완료(데모)** · 최종 수정 2026-10-18 · 코드: [`src/features/booking/`](../../../src/features/booking/) · 비교: [results](../../results/2026-10-16-booking-screen.md)
+> 2026-10-18: 서버 API가 생겼다([api/booking-requests](../../api/booking-requests.md)). **프런트는 아직 메모리 저장소를 쓴다** — 교체는 다음 작업. 운영 배포 금지와 데모 게이트(B6)는 그대로다.
 > 레거시: `Booking`(app/index.html 1015–1107줄), `Confirm`(1115–1180줄)
 > 공식: [dayuse-pricing](../../formulas/dayuse-pricing.md)(A9 `DayuseOffer`, 예약 시각 계산) · [time-fit](../../formulas/time-fit.md)(A6 순차 경로 + B1 호텔 복귀) · [time-safe](../../formulas/time-safe.md)
 > 관련 결정: [ADR-0003 인증](../../decisions/ADR-0003-auth.md)(비회원) · [ADR-0004 결제](../../decisions/ADR-0004-payment.md)(제안 — 결제 없음) · [ADR-0005 배포](../../decisions/ADR-0005-environments-deploy.md)(운영 배포 금지 조건) · [legal-checklist](../../legal-checklist.md) 0장
@@ -117,7 +118,7 @@
 | 데모 가격표 | `src/data/demo-offers.json` — 사용자가 채움 | 데모에서만 |
 | 외출 가능·복귀 목표·공항 밖 | Time-Safe(기존) | |
 | 코스 | 진입 ①: `useCourseModel(roomId, plan, { live: true })` | 실패 시 근사 |
-| 요청 저장 | 데모: 메모리 저장소(`BookingRequestStore` 인터페이스) → 나중에 서버 API로 교체 | 운영: 서버 + DB(ADR-0002) |
+| 요청 저장 | 데모: 메모리 저장소(`BookingRequestStore` 인터페이스). 서버 API는 2026-10-18에 생겼지만 **프런트는 아직 교체 전** | 서버 API 명세: [api/booking-requests](../../api/booking-requests.md). 교체 시 `email`·`consentVersion`·`planIds`를 그대로 보낸다 |
 | 언어 | 요청에 사용자 언어 저장(호텔 회신·이메일 언어) | |
 
 ### 요청 레코드
@@ -135,7 +136,7 @@
 ### 의존 (운영 전 필요)
 | 의존 | 왜 |
 |---|---|
-| DB(ADR-0002) + 서버 API(`POST/GET /api/booking-requests`, 취소) | 요청 저장·상태 |
+| ~~DB(ADR-0002) + 서버 API(`POST/GET /api/booking-requests`, 취소)~~ → **2026-10-18 구현됨** ([api/booking-requests](../../api/booking-requests.md)). 남은 것: 프런트를 이 API로 교체 | 요청 저장·상태 |
 | 호텔에 요청 전달 + 회신 받기 | 인터뷰 2장 결과에 따라(이메일·관리 화면 등). **이게 없으면 운영 배포 금지** |
 | 이메일 발송 | 접수·확정·거절 알림 |
 | 호텔 데이터(참여 상태·가격표·연락처·취소 규정) | 인터뷰 |

@@ -1,9 +1,11 @@
 # TimeStay 문서 목차
 
-> 상태: 확정 · 최종 수정 2026-10-16
+> 상태: 확정 · 최종 수정 2026-10-18
 
 | 영역 | 문서 | 상태 | 내용 |
 |---|---|---|---|
+| **작업 규칙** | [AGENTS.md](../AGENTS.md) | 확정 | **작업 시작 전 확인 절차**(브랜치·STATUS·기존 구현), 명세 우선, 배포 금지, 개인정보 |
+| 작업 규칙 | [CLAUDE.md](../CLAUDE.md) | 확정 | 스택·명령어·폴더 책임·공식 단일 출처·문서 템플릿 |
 | 진행 | [STATUS.md](STATUS.md) | 확정 | 단계 진행, 결정됨 / **결정 필요** 목록 |
 | 용어 | [GLOSSARY.md](GLOSSARY.md) | 초안 | 외출 가능 시간·코스 가용 시간·버퍼 등 용어 정의 |
 | 제품 | [product/overview.md](product/overview.md) | 초안 | 서비스 개요·핵심 기능·수익 모델 |
@@ -32,6 +34,8 @@
 | 운영 | [operations/monitoring.md](operations/monitoring.md) | 초안 | 모니터링·에러 추적 |
 | 법률 | [legal-checklist.md](legal-checklist.md) | 초안 | 법률·약관·개인정보·면책 확인 항목(법률 자문 아님) |
 | API | [api/](api/README.md) | 초안 | 외부 API 실제 응답 샘플·필드 형식 |
+| API | [api/booking-requests.md](api/booking-requests.md) | 초안 | **자체 API** — 예약 요청 생성·조회·취소·관리자. 스키마, 상태 전이, B8, 에러, 개인정보 |
+| API | [api/environment.md](api/environment.md) | 확정 | 서버 환경변수(키·DB·관리자 자격증명) |
 | 결과 | [results/](results/) | — | 날짜-주제.md 실험·검증 기록 |
 | 이력 | [changelog.md](changelog.md) | — | 한 줄 변경 기록 |
 

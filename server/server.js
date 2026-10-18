@@ -3,6 +3,7 @@ import express from "express";
 import cors from "cors";
 import path from "path";
 import { fileURLToPath } from "url";
+import { mountBookingRequests } from "./booking.js";
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const app = express();
@@ -11,6 +12,10 @@ app.use(cors());
 // 카카오맵 JS SDK는 등록된 도메인(http/https)에서만 동작하고 file://에서는 안 뜨므로,
 // 같은 프로세스에서 app/ 정적 파일도 같이 서빙해서 http://localhost:3001 로 열 수 있게 한다.
 app.use(express.static(path.join(__dirname, "..", "app")));
+
+// 예약 요청 API + 관리자 페이지 — 구현과 스키마는 booking.js / migrations/ 에 있다.
+// 명세: docs/api/booking-requests.md
+const booking = mountBookingRequests(app);
 
 // data.go.kr issues both an "Encoding" and a "Decoding" key; accept either by
 // normalizing to the decoded form before URLSearchParams re-encodes it once.
@@ -410,15 +415,29 @@ app.get("/api/transit", async (req, res) => {
 });
 
 const PORT = process.env.PORT || 3001;
-app.listen(PORT, () => {
-  console.log(`Airport proxy listening on http://localhost:${PORT}`);
-  if (!SERVICE_KEY) {
-    console.warn("AIRPORT_SERVICE_KEY is not set — requests will fail until .env is configured.");
-  }
-  if (!KAKAO_REST_KEY) {
-    console.warn("KAKAO_REST_API_KEY is not set — /api/route will fail until .env is configured.");
-  }
-  if (!ODSAY_API_KEY) {
-    console.warn("ODSAY_API_KEY is not set — /api/transit will fail until .env is configured (falls back to driving times).");
-  }
-});
+
+// 마이그레이션이 실패해도 나머지 API(항공편·경로·혼잡도)는 떠야 하므로 listen은 막지 않는다.
+// 예약 요청만 저장에 실패하고, 그 이유는 로그로 남긴다.
+booking
+  .init()
+  .catch((err) => console.error("[booking] migrations failed — /api/booking-requests will not work:", err.message))
+  .finally(() => {
+    app.listen(PORT, () => {
+      console.log(`Airport proxy listening on http://localhost:${PORT}`);
+      if (!SERVICE_KEY) {
+        console.warn("AIRPORT_SERVICE_KEY is not set — requests will fail until .env is configured.");
+      }
+      if (!KAKAO_REST_KEY) {
+        console.warn("KAKAO_REST_API_KEY is not set — /api/route will fail until .env is configured.");
+      }
+      if (!ODSAY_API_KEY) {
+        console.warn("ODSAY_API_KEY is not set — /api/transit will fail until .env is configured (falls back to driving times).");
+      }
+      if (!booking.databaseConfigured) {
+        console.warn("DATABASE_URL is not set — /api/booking-requests will fail until .env is configured.");
+      }
+      if (!booking.adminEnabled) {
+        console.warn("ADMIN_USER / ADMIN_PASSWORD are not set — /admin and the admin API are closed (503).");
+      }
+    });
+  });
