@@ -131,6 +131,8 @@ i18n 변환 패턴(프런트가 실제로 이 API들을 호출하게 될 때 적
 
 범위를 밝히고 싶으면 `feat(booking): ...`처럼 괄호로 붙인다. 이 harness가 덧붙이는 `Co-Authored-By` 같은 귀속 줄은 이 규칙과 별개로 그대로 유지한다.
 
+**CI가 검사한다**(`.github/workflows/ci.yml` `commitlint` 잡) — 그 푸시(또는 PR)가 **새로 들여온 커밋**의 제목만, `git log`로 범위를 계산해서 본다. 과거 커밋은 다시 검사하지 않는다. 로컬 pre-commit 훅은 두지 않는다(강제하지 않고, push 시점에만 걸린다).
+
 ## 10. 브랜치 이름
 
 ```
@@ -174,3 +176,4 @@ type은 위 커밋 type과 같은 집합(`feat/`, `fix/`, `docs/`, `test/`, `ref
 | 2026-10-19 | `checkInMin`/`slotMin` 통일, `move`/`dur`에 `Min` 접미사 부여(실제로 코드에 적용 — STATUS.md "컨벤션 불일치" #2·#3 해소)                                               |
 | 2026-10-19 | Prettier 도입(`.prettierrc.json`·`.prettierignore`), 리포 전체 1회 포맷, CI에 `format` 잡 추가. 포맷 커밋은 `.git-blame-ignore-revs`에 등록(아래)                      |
 | 2026-10-19 | 최소 린트 도입(미사용 변수·`src/domain` import 경계) — typescript-eslint가 TS 7을 지원하지 않아 oxlint로. CI `web` 잡에 `npm run lint` 추가                            |
+| 2026-10-19 | 커밋 메시지 형식을 CI `commitlint` 잡이 검사(그 푸시/PR이 들여온 커밋만, `git log` 범위 계산). 로컬 훅 없음                                                            |

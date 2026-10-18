@@ -128,3 +128,38 @@ jobs:
             exit 1
           fi
           echo "✅ 키 패턴 없음"
+
+  commitlint:
+    name: 커밋 메시지 형식 (docs/conventions.md 9장)
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0 # 이 푸시/PR이 들여온 범위를 git log로 계산하려면 전체 이력이 필요하다.
+
+      - name: 이 푸시/PR이 추가한 커밋 제목만 검사
+        run: |
+          if [ "${{ github.event_name }}" = "pull_request" ]; then
+            RANGE="${{ github.event.pull_request.base.sha }}..${{ github.sha }}"
+          elif [ -n "${{ github.event.before }}" ] && [ "${{ github.event.before }}" != "0000000000000000000000000000000000000000" ]; then
+            RANGE="${{ github.event.before }}..${{ github.sha }}"
+          else
+            # 새 브랜치의 첫 푸시 등 이전 상태가 없는 경우 — 최신 커밋 하나만 본다.
+            RANGE="${{ github.sha }}~1..${{ github.sha }}"
+          fi
+
+          git log --no-merges --format=%s "$RANGE" > /tmp/subjects.txt
+          echo "검사 범위: $RANGE"
+          cat /tmp/subjects.txt
+
+          # docs/conventions.md 9장 — 2026-10-18부터 적용. 그 전 커밋은 검사하지 않는다(과거 커밋은 다시 안 씀).
+          PATTERN='^(feat|fix|docs|test|refactor|chore)(\([a-z0-9.-]+\))?: .+'
+          fail=0
+          while IFS= read -r line; do
+            [ -z "$line" ] && continue
+            if ! echo "$line" | grep -qE "$PATTERN"; then
+              echo "✗ 커밋 메시지가 '<type>: <설명>' 형식이 아니다 (type: feat/fix/docs/test/refactor/chore): $line" >&2
+              fail=1
+            fi
+          done < /tmp/subjects.txt
+          exit $fail
