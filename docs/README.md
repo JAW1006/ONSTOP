@@ -10,6 +10,7 @@
 | 진행          | [STATUS.md](STATUS.md)                                                                 | 확정       | 단계 진행, 결정됨 / **결정 필요** 목록                                                    |
 | 용어          | [GLOSSARY.md](GLOSSARY.md)                                                             | 초안       | 외출 가능 시간·코스 가용 시간·버퍼 등 용어 정의                                           |
 | 컨벤션        | [conventions.md](conventions.md)                                                       | 확정       | 폴더·파일·함수·상수·DB/API·오류 응답·커밋·브랜치 이름 규칙. **코드를 쓰기 전에 읽는다**   |
+| 레거시        | [legacy-readme.md](legacy-readme.md)                                                   | 폐기 예정  | 옛 루트 README — 레거시 단일 HTML 프로토타입(`app/index.html`) 실행·API 안내              |
 | 제품          | [product/overview.md](product/overview.md)                                             | 초안       | 서비스 개요·핵심 기능·수익 모델                                                           |
 | 제품          | [product/market.md](product/market.md)                                                 | 초안       | 시장 규모·타깃 (수치 미검증)                                                              |
 | 제품          | [product/roadmap.md](product/roadmap.md)                                               | 초안       | 서비스 운영 로드맵(기반 / 서비스 핵심 / 신뢰·품질), 남은 화면 순서, 서버 TS·모노레포 계획 |

@@ -1,6 +1,6 @@
 services:
   - type: web
-    name: dropshopping
+    name: timestay
     runtime: node
     plan: free
     rootDir: server

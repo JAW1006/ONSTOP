@@ -24,35 +24,130 @@
 
 ## 병합 준비(main에 합칠 때) 할 일
 
-| #   | 내용                                                                                                                       | 비고                                                                                                                                         |
-| --- | -------------------------------------------------------------------------------------------------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------- |
-| 1   | `render.yaml`의 `name: dropshopping` → TimeStay 이름으로 변경(Render 서비스 식별자, 배포 도메인도 바뀜 — 재배포 순서 주의) | 2026-10-18 검색에서 발견. 지금은 안 바꿈(사용자 지시)                                                                                        |
-| 2   | `README.md`의 폴더 구조 트리 루트 `DropShopping/` → 새 이름                                                                | 같은 검색. README 자체는 이미 레거시 전용 안내로 표시돼 있다([README.md](../README.md) 상단 배너) — 병합 때 이 README를 교체하면서 같이 처리 |
+**지금 사용 중인 사용자가 없어서 실서비스 교체여도 괜찮다는 전제(사용자 확인, 2026-10-18).** 아직 머지는 안 했다 — 아래 "병합 전 점검" 보고를 사용자가 확인한 뒤에 한다.
+
+| #   | 내용                                                                                  | 상태                                                                                        |
+| --- | ------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------- |
+| 1   | `render.yaml`의 `name: dropshopping` → `timestay`                                     | ✅ 2026-10-18 변경함(아래 "Render 재배포" 참고 — 이름을 바꾸면 Render가 새 서비스를 만든다) |
+| 2   | `README.md`의 폴더 구조 트리 루트 `DropShopping/` → 새 이름                           | ✅ 2026-10-18 README 전체 교체(아래 참고)                                                   |
+| 3   | 예약 요청이 호텔에 전달되지 않는 동안 "시연용" 표시 또는 전송 차단                    | ✅ 이미 돼 있었다 — 아래 "데모 게이트" 참고                                                 |
+| 4   | 디자인 이식 1단계 산출물(`docs/design-tokens.md`→`docs/design/`, `design/reference/`) | ✅ 이미 돼 있었다(2026-10-18 이전 세션)                                                     |
+
+### Render 재배포 (B2 — 빌드/시작 명령·환경변수·마이그레이션)
+
+**지금 배포 중인 것과 다르다.** `render.yaml`은 지금 `rootDir: server`만 빌드·실행해서 **레거시 `app/`을 정적 서빙**한다(React 앱은 배포 안 됨, ADR-0005 "배경" 참고). 병합 시 React 빌드를 같이 내보내려면 서버가 `app/` 대신 `dist/`를 서빙하도록 **`server/server.js`를 고쳐야 한다** — 이건 아직 안 했다(아래 "병합 전 점검"의 위험 #1).
+
+| 항목                           | 지금(레거시)                                                                                                                                                                                                                                                                     | 병합 후(React, 제안)                                                                                                                     |
+| ------------------------------ | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------- |
+| `rootDir`                      | `server`                                                                                                                                                                                                                                                                         | 저장소 루트(프런트 빌드와 서버 설치를 한 서비스에서 같이 함 — ADR-0005의 "정적 사이트 분리"는 더 큰 구조이고, 여기선 단일 서비스로 가정) |
+| 빌드 명령                      | `npm install`                                                                                                                                                                                                                                                                    | `npm ci && npm run build && npm --prefix server ci` (프런트 `dist/` 생성 + 서버 의존성 설치)                                             |
+| 시작 명령                      | `npm start`(`server/` 안에서 `node server.js`)                                                                                                                                                                                                                                   | `node server/server.js` — **단, server.js가 `app/` 대신 `dist/`를 서빙하도록 먼저 고쳐야 동작한다**                                      |
+| 환경변수(이름·용도만, 값 없음) | `AIRPORT_SERVICE_KEY`(항공편·혼잡도), `KAKAO_REST_API_KEY`(길찾기·장소검색), `ODSAY_API_KEY`(대중교통, 선택), `DATABASE_URL`(예약 요청 저장), `ADMIN_USER`/`ADMIN_PASSWORD`(관리자 화면, 둘 다 있어야 `/admin` 열림) — 전체 설명은 [server/.env.example](../server/.env.example) | 동일(새로 필요한 변수 없음)                                                                                                              |
+| DB 마이그레이션 적용           | 서버 시작 시 자동(`server/booking.js`의 `runMigrations` — `server/migrations/*.sql`을 이름순으로 적용, 적용분은 `schema_migrations` 테이블에 기록, 재시작해도 멱등)                                                                                                              | 동일 — 별도 배포 단계 필요 없음. `DATABASE_URL`만 가리키는 DB가 맞는지 확인                                                              |
+
+### render.yaml 이름 변경의 실제 효과 (B3)
+
+Render는 Blueprint(`render.yaml`) 동기화 시 **`name` 값으로 기존 서비스와 매칭**한다 — 이름이 같으면 그 서비스 설정을 덮어쓰고(adopt), 이름이 다르면 **새 서비스를 만든다**(Render 공식 문서·커뮤니티 답변 확인, 아래 출처). 즉 `dropshopping` → `timestay`로 바꾸면:
+
+- 기존 `dropshopping` 서비스는 **자동으로 이름이 바뀌지도, 삭제되지도 않는다.** 그대로 남아서 계속 돈다(무료 플랜도 과금 대상 리소스로 남을 수 있음).
+- 새 `timestay` 서비스가 **새로** 만들어지고, URL도 새로 받는다(`*.onrender.com` 서브도메인이 이름을 따라간다 — 커스텀 도메인을 썼다면 재연결 필요).
+- 정리 순서(제안): ① `timestay` 서비스가 정상 동작 확인 → ② 커스텀 도메인·외부 링크를 새 서비스로 옮김 → ③ Render 대시보드에서 `dropshopping` 서비스를 수동으로 Suspend 또는 Delete(블루프린트가 자동으로 안 해준다).
+- **미확인**: 이 매칭·생성 동작은 Render 공식 문서(Blueprint YAML Reference)와 커뮤니티 답변으로 확인했지만, 실제로 `render blueprint` 동기화를 돌려서 확인한 적은 없다 — 동기화 화면이 "diff 미리보기"를 보여주므로, 실제 적용 전에 그 화면에서 "새로 만듦"으로 표시되는지 한 번 더 확인한다.
+
+출처: [Render Blueprint YAML Reference](https://render.com/docs/blueprint-spec), [Render community — Migration from Existing Services to Blueprints](https://community.render.com/t/migration-from-existing-services-to-blueprints/5131)("Adding a render.yaml will 'adopt' the services if the names defined in the render.yaml match what your services are named"), [Render community — staging/prod 블루프린트 패턴](https://community.render.com/t/best-practices-for-staging-prod-environments-like-a-pipeline-using-blueprints/4007)(이름이 겹치면 블루프린트가 임의 접두사를 붙여 구분한다)
+
+### 데모 게이트 (B4 — 이미 돼 있음)
+
+둘 다 이미 구현돼 있다(Time-Safe·예약 단계에서):
+
+- 전송 차단: [BookingScreen.tsx:120](../src/features/booking/BookingScreen.tsx#L120) — `canSubmit = demo && model.canGoOut && ...`. 운영 빌드(`VITE_DEMO_MODE` 없음)에서는 `demo`가 거짓이라 제출 버튼이 막힌다.
+- 화면 표시: [BookingScreen.tsx:40-44](../src/features/booking/BookingScreen.tsx#L40-L44) — 데모 모드일 때만 `demo.banner`(공지 문구) 노출, [BookingScreen.tsx:438](../src/features/booking/BookingScreen.tsx#L438) — 데모가 아니면 `booking.submit.notReady` 안내문 표시.
+- 전환점: [app-mode.tsx:7](../src/app/app-mode.tsx#L7) — `ENV_DEMO_MODE = VITE_DEMO_MODE === "true" || import.meta.env.DEV`. **운영 빌드에 `VITE_DEMO_MODE`를 넣지 않으면 자동으로 막힌다**(ADR-0005 "운영 배포 금지 조건"에 이미 문서화돼 있던 내용, 2026-10-18 실제 코드로 재확인).
+- 코드 변경 없음 — 둘 다 "화면 표시"와 "전송 차단"을 **동시에** 이미 하고 있어서 "어느 쪽이 작은지" 비교할 필요가 없었다.
+
+### README 교체 (B5)
+
+루트 [README.md](../README.md)를 새 구조(실제 `src/`/`server/`/`docs/`/`design/` 트리, TimeStay 이름) 기준으로 다시 썼다. 레거시 전용 상세 안내(항공편·이동시간·카카오맵 API 설명, 알려진 제한사항)는 그대로 [docs/legacy-readme.md](legacy-readme.md)로 옮겨서 **정보 손실 없이 보존**했다. [SETUP.md](../SETUP.md)의 README 참조도 그 경로로 갱신, [docs/README.md](README.md) 색인에 행 추가.
+
+## 병합 전 점검 (C) — 여기서 멈춤, 사용자 확인 후 병합
+
+### 새 클론 검증
+
+> 미확인 — 이번 세션에선 안 돌렸다. 직전 "설치 검증"(2026-10-18, 아래)에서 **같은 브랜치**로 이미 빈 클론 검증을 했지만, 그건 이번 병합 준비 커밋들 이전 상태였다. 병합 직전에 다시 한 번 새 클론 `npm ci && npm run lint && npm test && npm run build`(+ `server`도 동일)를 돌려서 확인해야 한다.
+
+### 변경 요약
+
+(병합 PR 기준 — `migration/react-ts` 전체를 `main`에 합치는 경우, `git diff main...migration/react-ts --stat`로 정확한 수치를 다시 뽑아야 한다. 방향만 적는다.)
+
+- **삭제되는 레거시 파일**: 지금은 없다. `app/index.html`과 `app/assets/`는 5단계("레거시 비교 검증 후 `legacy/`로 이동")가 끝나야 옮겨진다 — **아직 안 끝났다**(코스 빌더·예약·짐 케어·마이 화면 비교 전). 지금 병합하면 `app/`이 레포에 그대로 남는다(서빙만 끊긴다, 아래 위험 #1).
+- **추가된 것**: `src/`(React 앱 전체), `server/booking.js`+`migrations/`+`admin/`(예약 요청 API), `docs/`(공식·화면 명세·결정), `design/reference/`, 새 루트 설정 파일들(`SETUP.md`, `.nvmrc`, `.gitattributes` 등)
+
+### Render에서 실패할 수 있는 지점 3가지
+
+| #   | 지점                                                                                                                                                                                                                   | 대응                                                                                                                   |
+| --- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ---------------------------------------------------------------------------------------------------------------------- |
+| 1   | **서버가 아직 `app/`을 서빙한다** — `render.yaml`만 고치고 `server/server.js`의 정적 서빙 경로(`express.static(path.join(__dirname, "..", "app"))`)를 안 고치면, 빌드는 돼도 배포된 사이트는 여전히 레거시 화면이 뜬다 | 병합 PR에 `server.js`가 `dist/`를 서빙하도록 바꾸는 커밋을 포함시킨다(지금 이 세션에는 없음 — 별도 작업 필요)          |
+| 2   | **아직 이식 안 된 화면**(4단계 "진행 중" — 짐 케어·마이·호텔 찾기 등)이 React 앱에 없거나 깨져 있다                                                                                                                    | 병합 = 운영 교체이므로, 병합 전에 "지금 React 앱에 없는 화면은 무엇이고 사용자가 그걸 받아들이는지" 한 번 더 확인 필요 |
+| 3   | **DB 없이 배포**(`DATABASE_URL` 미설정) — 예약 요청 API가 500으로 막히고 화면엔 "보내지 못했어요"만 뜬다(서비스 전체가 죽진 않음, booking.js의 fail 동작)                                                              | 배포 전에 Render 환경변수에 `DATABASE_URL`·`ADMIN_USER`·`ADMIN_PASSWORD`가 들어갔는지 확인(위 "Render 재배포" 표)      |
+
+### 되돌리는 방법 (legacy-final 태그 기준)
+
+**지금은 태그를 만들지 않는다** — 병합 직전에 사용자가 만든다. 명령(참고용, 실행 안 함):
+
+```bash
+# 병합 직전, main이 지금 배포 중인 레거시 상태를 가리킬 때
+git checkout main
+git tag legacy-final
+git push origin legacy-final
+```
+
+되돌리기:
+
+```bash
+# 코드만 되돌리기
+git checkout main
+git reset --hard legacy-final   # main을 legacy-final 시점으로
+git push origin main --force-with-lease   # 신중히 — main은 Render 자동 배포
+
+# Render는 별도로: "Render 재배포" 섹션에서 만든 timestay 서비스를 멈추고
+# 수동으로 보관해 둔 dropshopping 서비스를 다시 활성화(위 "render.yaml 이름 변경의 실제 효과" 참고)
+```
+
+### 병합 PR 순서 (제안, 아직 실행 안 함)
+
+1. `migration/react-ts`에서 새 클론 검증(위 "새 클론 검증") 통과 확인
+2. `main`에서 `git tag legacy-final && git push origin legacy-final`(위 명령)
+3. GitHub에서 `migration/react-ts` → `main` PR 생성, 이 STATUS.md의 "병합 전 점검" 섹션을 PR 설명에 링크
+4. 리뷰·CI(`.github/workflows/ci.yml`) 통과 확인
+5. 병합 직전에 `server/server.js`를 `dist/` 서빙으로 바꾸는 커밋이 포함됐는지 재확인(위 위험 #1) — 안 됐으면 이 PR에 추가하거나 병합을 보류
+6. 병합(머지 커밋, squash 아님 — 이력 보존) → Render가 `main` 자동 배포 감지 → 새 `render.yaml`로 `timestay` 서비스 생성됨(위 "render.yaml 이름 변경의 실제 효과")
+7. `timestay` 서비스에 환경변수 입력(위 표) → 배포 로그 확인 → 실제 URL로 화면 확인
+8. 확인되면 `dropshopping` 서비스 Suspend(바로 Delete 안 함 — 문제 생기면 비교용으로 잠깐 남겨둠)
 
 ## 디자인 이식 진행
 
 기준: [design-tokens.md](design/design-tokens.md). 단계 순서(사용자 지시): 1 기반 → 2 시작 흐름 → 3 홈·Time-Safe → 4 코스·호텔 찾기 → 5 호텔 상세·예약 요청·예약 상태·내역 → 6 수하물·저장·마이·설정 → 7 전역 상태 → 8 호텔 응답·파트너.
 
-| 단계 | 내용                                          | 상태                      |
-| ---- | --------------------------------------------- | ------------------------- |
+| 단계 | 내용                                          | 상태                                                                                                                                                                         |
+| ---- | --------------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | 1    | 기반 — 색 토큰·폰트·시스템 영역·공통 컴포넌트 | **코드 완료, 시각 검증 대기**(합격 아님) — 390px/360px 스크린샷 대비(`docs/design-diff/stage1/`)를 브라우저 도구 연결 끊김으로 못 했다(2026-10-18). 통과 처리는 그 검증 이후 |
-| 2-8  | 화면 이식                                     | 대기                       |
+| 2-8  | 화면 이식                                     | 대기                                                                                                                                                                         |
 
 ### 화면 이식 완료 후 정리할 것
 
-| #   | 내용                                                                                        | 비고                                                                              |
-| --- | --------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------ |
-| 1   | 옛 `--ts-*` 토큰(`--ts-blue`·`--ts-ink`·`--ts-gold`·`--ts-success`·`--ts-line` 등) 전부 제거 | 8단계 화면이 모두 v2 컴포넌트로 옮겨가면 `src/styles/tokens.css`에서 삭제          |
-| 2   | `--ts-v2-*`/`--color-v2-*`의 `v2` 접두사 제거(옛 토큰이 빠져서 이름 충돌이 없어지면)         | 아래 "이식 후 수정 목록" #3과 같은 작업                                           |
-| 3   | 옛 공통 컴포넌트(`src/components/ui/button.tsx`·`chip.tsx` 등, 구 화면 전용) 삭제            | 구 화면이 전부 v2로 바뀌면 참조가 없어진다                                        |
+| #   | 내용                                                                                         | 비고                                                                      |
+| --- | -------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------- |
+| 1   | 옛 `--ts-*` 토큰(`--ts-blue`·`--ts-ink`·`--ts-gold`·`--ts-success`·`--ts-line` 등) 전부 제거 | 8단계 화면이 모두 v2 컴포넌트로 옮겨가면 `src/styles/tokens.css`에서 삭제 |
+| 2   | `--ts-v2-*`/`--color-v2-*`의 `v2` 접두사 제거(옛 토큰이 빠져서 이름 충돌이 없어지면)         | 아래 "이식 후 수정 목록" #3과 같은 작업                                   |
+| 3   | 옛 공통 컴포넌트(`src/components/ui/button.tsx`·`chip.tsx` 등, 구 화면 전용) 삭제            | 구 화면이 전부 v2로 바뀌면 참조가 없어진다                                |
 
 ### 이식 후 수정 목록 (지금은 안 바꿈, 전부 화면 이식 단계에서 재검토)
 
-| #   | 내용                                                                                                         | 비고                                                                                                                                                |
-| --- | -------------------------------------------------------------------------------------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------- |
-| 1   | reference `AppHeader`의 `flight` 상수가 미사용(App.tsx:182, oxlint no-unused-vars) — reference 결함, 그대로 둠 | 이식한 `AppHeader`는 `flightLabel`을 prop으로 받게 바꿔서 이 결함을 베끼지 않았다                                                                     |
-| 2   | reference `TimeBar`/`TransitTimeBar`의 데모 기본값(`defaultTimeSegments` 등, 한국어 라벨 내장)                | 이식본은 `segments`를 필수 prop으로 받는다(데모값 기본 export 없음) — "데모 값 프로덕션 제외" 규칙에 맞춤. 실제 화면 이식 때 호출부가 번역된 라벨을 넘긴다 |
-| 3   | `--ts-v2-*`/`--color-v2-*` 네임스페이스는 임시 — 기존 화면(`--ts-blue` 등)과 색 이름이 겹쳐서(success/gold/ink/line) 분리함 | 8단계 화면 이식이 모두 끝나 구 토큰·컴포넌트가 빠지면 `v2` 접두사를 없앤다                                                                           |
+| #   | 내용                                                                                                                        | 비고                                                                                                                                                       |
+| --- | --------------------------------------------------------------------------------------------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| 1   | reference `AppHeader`의 `flight` 상수가 미사용(App.tsx:182, oxlint no-unused-vars) — reference 결함, 그대로 둠              | 이식한 `AppHeader`는 `flightLabel`을 prop으로 받게 바꿔서 이 결함을 베끼지 않았다                                                                          |
+| 2   | reference `TimeBar`/`TransitTimeBar`의 데모 기본값(`defaultTimeSegments` 등, 한국어 라벨 내장)                              | 이식본은 `segments`를 필수 prop으로 받는다(데모값 기본 export 없음) — "데모 값 프로덕션 제외" 규칙에 맞춤. 실제 화면 이식 때 호출부가 번역된 라벨을 넘긴다 |
+| 3   | `--ts-v2-*`/`--color-v2-*` 네임스페이스는 임시 — 기존 화면(`--ts-blue` 등)과 색 이름이 겹쳐서(success/gold/ink/line) 분리함 | 8단계 화면 이식이 모두 끝나 구 토큰·컴포넌트가 빠지면 `v2` 접두사를 없앤다                                                                                 |
 
 ## 브랜치·배포
 
@@ -260,14 +355,14 @@ docker run --rm node:22-bookworm bash -c '
 
 ### reference와 다른 점(결함 아님, 설계상 필요)
 
-| 구분                          | reference                                                             | 이식본                                                                      | 이유                                                                                                                |
-| ----------------------------- | ---------------------------------------------------------------------- | ---------------------------------------------------------------------------- | --------------------------------------------------------------------------------------------------------------------- |
-| (a) 글자용 ink 색             | 없음                                                                   | `danger-ink`/`success-ink`/`travel-ink`/`gold-ink` 추가                     | 사용자 지시 (a) — WCAG 대비 실패 보정                                                                                |
-| (b) TransitTimeBar 범례       | 구간 폭 비례 4열 그리드(좁은 구간 글자 줄바꿈 깨짐)                   | 2열 범례(견본+이름+분+출처 뱃지), 구간 폭과 무관한 고정 그리드               | 사용자 지시 (b)                                                                                                     |
-| TimeBar/TransitTimeBar 폭 계산 | `data-size="N"`/`data-minutes="N"` 정수별 고정 CSS 클래스(예시값만 대응) | `style={{ flex: N }}` 인라인 계산                                            | design-tokens.md 5절 "폭은 분 비율로 계산한다. 고정 퍼센트 금지" — 레퍼런스의 예시 전용 정적 클래스는 새 분 값에 대응 못 함 |
-| TimeBar/TransitTimeBar 기본값 | `defaultTimeSegments` 등 한국어 라벨 내장 데모 기본 export            | `segments` 필수 prop(기본값 없음)                                            | design-tokens.md 6절 "데모 값... 프로덕션 빌드에서 제외"                                                            |
-| AppHeader                     | 미사용 `flight` 상수(App.tsx:182, reference 자체 결함)                | `flightLabel` prop으로 받음                                                  | reference 결함을 복제하지 않음(reference는 수정 금지라 그 파일 자체는 그대로 둠)                                   |
-| Icon                          | 커스텀 SVG path, lucide-react 미사용                                  | 동일 — lucide-react로 바꾸지 않고 reference의 path 배열을 그대로 옮김       | "허용되는 의도된 차이는 두 가지뿐" 규칙을 지키기 위해 모양을 그대로 복제                                             |
+| 구분                           | reference                                                                | 이식본                                                                | 이유                                                                                                                        |
+| ------------------------------ | ------------------------------------------------------------------------ | --------------------------------------------------------------------- | --------------------------------------------------------------------------------------------------------------------------- |
+| (a) 글자용 ink 색              | 없음                                                                     | `danger-ink`/`success-ink`/`travel-ink`/`gold-ink` 추가               | 사용자 지시 (a) — WCAG 대비 실패 보정                                                                                       |
+| (b) TransitTimeBar 범례        | 구간 폭 비례 4열 그리드(좁은 구간 글자 줄바꿈 깨짐)                      | 2열 범례(견본+이름+분+출처 뱃지), 구간 폭과 무관한 고정 그리드        | 사용자 지시 (b)                                                                                                             |
+| TimeBar/TransitTimeBar 폭 계산 | `data-size="N"`/`data-minutes="N"` 정수별 고정 CSS 클래스(예시값만 대응) | `style={{ flex: N }}` 인라인 계산                                     | design-tokens.md 5절 "폭은 분 비율로 계산한다. 고정 퍼센트 금지" — 레퍼런스의 예시 전용 정적 클래스는 새 분 값에 대응 못 함 |
+| TimeBar/TransitTimeBar 기본값  | `defaultTimeSegments` 등 한국어 라벨 내장 데모 기본 export               | `segments` 필수 prop(기본값 없음)                                     | design-tokens.md 6절 "데모 값... 프로덕션 빌드에서 제외"                                                                    |
+| AppHeader                      | 미사용 `flight` 상수(App.tsx:182, reference 자체 결함)                   | `flightLabel` prop으로 받음                                           | reference 결함을 복제하지 않음(reference는 수정 금지라 그 파일 자체는 그대로 둠)                                            |
+| Icon                           | 커스텀 SVG path, lucide-react 미사용                                     | 동일 — lucide-react로 바꾸지 않고 reference의 path 배열을 그대로 옮김 | "허용되는 의도된 차이는 두 가지뿐" 규칙을 지키기 위해 모양을 그대로 복제                                                    |
 
 ## 결정됨
 

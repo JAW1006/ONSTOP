@@ -2,7 +2,7 @@
 
 > 상태: 확정 · 최종 수정 2026-10-18
 > 이 문서가 **설치·실행 절차의 단일 출처**다. 여기 없는 명령이 필요하면 이 문서의 결함이다 — 고치고 `docs/STATUS.md`에 남긴다.
-> 작업 브랜치는 `migration/react-ts`다(`main`은 Render 자동 배포 — [AGENTS.md](AGENTS.md) 0장). 레거시 단일 파일 앱(`app/index.html`)의 안내는 [README.md](README.md)에 그대로 남아 있다 — 지금 실제로 돌리는 건 이 문서가 설명하는 Vite+React 쪽이다.
+> 작업 브랜치는 `migration/react-ts`다(`main`은 Render 자동 배포 — [AGENTS.md](AGENTS.md) 0장). 레거시 단일 파일 앱(`app/index.html`)의 안내는 [docs/legacy-readme.md](docs/legacy-readme.md)에 있다 — 지금 실제로 돌리는 건 이 문서가 설명하는 Vite+React 쪽이다.
 
 ## 0. 요구사항
 
