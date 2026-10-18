@@ -4,9 +4,16 @@ import cors from "cors";
 import path from "path";
 import { fileURLToPath } from "url";
 import { mountBookingRequests } from "./booking.js";
+import { ERROR_CODES, fail } from "./error-codes.js";
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const app = express();
+// trust proxy는 의도적으로 안 켠다(기본값 false 유지) — req.ip가 X-Forwarded-For를 신뢰하게 되고,
+// 2026-10-18 조사 당시 proxy-addr 1.1.0~2.0.7의 IP 스푸핑 취약점(IPv4-mapped IPv6 trust subnet,
+// GHSA-jqcg-44mw-7w3h)이 바로 이 설정에서만 악용된다. 패치(2.0.8)는 했지만, 레이트리밋·중복요청
+// 방지 등을 IP 기준으로 새로 만들 때 이 설정을 켜게 되면 신뢰할 proxy 목록(Render 등)을 정확히
+// 지정해야 한다 — docs/STATUS.md "설치 검증" 참고. B8(예약 요청 중복 방지)은 IP가 아니라
+// 이메일 기준이라 이 설정과 무관하다(booking.js).
 app.use(cors());
 
 // 카카오맵 JS SDK는 등록된 도메인(http/https)에서만 동작하고 file://에서는 안 뜨므로,
@@ -158,7 +165,7 @@ const CONGESTION_URL = "https://apis.data.go.kr/B551177/statusOfDepartureCongest
 
 app.get("/api/security-wait", async (req, res) => {
   if (!SERVICE_KEY) {
-    return res.status(500).json({ error: "AIRPORT_SERVICE_KEY is not configured on the server" });
+    return fail(res, 500, ERROR_CODES.CONGESTION_NOT_CONFIGURED, "AIRPORT_SERVICE_KEY is not configured on the server");
   }
 
   const url = new URL(CONGESTION_URL);
@@ -173,12 +180,16 @@ app.get("/api/security-wait", async (req, res) => {
     try {
       data = JSON.parse(raw);
     } catch {
-      return res.status(502).json({ error: "congestion API returned a non-JSON response", detail: raw.slice(0, 300) });
+      return fail(res, 502, ERROR_CODES.CONGESTION_INVALID_RESPONSE, "T1 congestion API returned a non-JSON response", {
+        detail: raw.slice(0, 300),
+      });
     }
 
     const header = data?.response?.header;
     if (header && header.resultCode !== "00") {
-      return res.status(502).json({ error: header.resultMsg || "congestion API error", resultCode: header.resultCode });
+      return fail(res, 502, ERROR_CODES.CONGESTION_UPSTREAM_ERROR, header.resultMsg || "T1 congestion API error", {
+        resultCode: header.resultCode,
+      });
     }
 
     const items = normalizeItems(data?.response?.body?.items);
@@ -189,7 +200,7 @@ app.get("/api/security-wait", async (req, res) => {
 
     res.json({ gates });
   } catch (err) {
-    res.status(502).json({ error: "failed to reach congestion API", detail: String(err) });
+    fail(res, 502, ERROR_CODES.CONGESTION_UNREACHABLE, "failed to reach T1 congestion API", { detail: String(err) });
   }
 });
 
@@ -200,7 +211,7 @@ const CONGESTION_T2_URL = "https://apis.data.go.kr/B551177/statusOfDepartureCong
 
 app.get("/api/security-wait/t2", async (req, res) => {
   if (!SERVICE_KEY) {
-    return res.status(500).json({ error: "AIRPORT_SERVICE_KEY is not configured on the server" });
+    return fail(res, 500, ERROR_CODES.CONGESTION_NOT_CONFIGURED, "AIRPORT_SERVICE_KEY is not configured on the server");
   }
 
   const url = new URL(CONGESTION_T2_URL);
@@ -215,16 +226,16 @@ app.get("/api/security-wait/t2", async (req, res) => {
     try {
       data = JSON.parse(raw);
     } catch {
-      return res
-        .status(502)
-        .json({ error: "T2 congestion API returned a non-JSON response", detail: raw.slice(0, 300) });
+      return fail(res, 502, ERROR_CODES.CONGESTION_INVALID_RESPONSE, "T2 congestion API returned a non-JSON response", {
+        detail: raw.slice(0, 300),
+      });
     }
 
     const header = data?.response?.header;
     if (header && header.resultCode !== "00") {
-      return res
-        .status(502)
-        .json({ error: header.resultMsg || "T2 congestion API error", resultCode: header.resultCode });
+      return fail(res, 502, ERROR_CODES.CONGESTION_UPSTREAM_ERROR, header.resultMsg || "T2 congestion API error", {
+        resultCode: header.resultCode,
+      });
     }
 
     const items = normalizeItems(data?.response?.body?.items);
@@ -234,7 +245,7 @@ app.get("/api/security-wait/t2", async (req, res) => {
 
     res.json({ gates });
   } catch (err) {
-    res.status(502).json({ error: "failed to reach T2 congestion API", detail: String(err) });
+    fail(res, 502, ERROR_CODES.CONGESTION_UNREACHABLE, "failed to reach T2 congestion API", { detail: String(err) });
   }
 });
 

@@ -1,6 +1,6 @@
 # 설치·실행 가이드
 
-> 상태: 확정 · 최종 수정 2026-10-19
+> 상태: 확정 · 최종 수정 2026-10-18
 > 이 문서가 **설치·실행 절차의 단일 출처**다. 여기 없는 명령이 필요하면 이 문서의 결함이다 — 고치고 `docs/STATUS.md`에 남긴다.
 > 작업 브랜치는 `migration/react-ts`다(`main`은 Render 자동 배포 — [AGENTS.md](AGENTS.md) 0장). 레거시 단일 파일 앱(`app/index.html`)의 안내는 [README.md](README.md)에 그대로 남아 있다 — 지금 실제로 돌리는 건 이 문서가 설명하는 Vite+React 쪽이다.
 
@@ -53,13 +53,15 @@ cp .env.example .env
 
 `.env`를 열어 값을 채운다 — 전체 표는 [docs/api/environment.md](docs/api/environment.md).
 
-| 변수                          | 없으면                                                           |
-| ----------------------------- | ---------------------------------------------------------------- |
-| `AIRPORT_SERVICE_KEY`         | 항공편·혼잡도 엔드포인트 500, 앱은 데모 값으로 동작              |
-| `KAKAO_REST_API_KEY`          | 길찾기·주변장소 500, 앱은 더미 이동시간으로 동작                 |
-| `ODSAY_API_KEY`               | 선택. 없으면 대중교통 대신 자동차 값으로 대체                    |
-| `DATABASE_URL`                | `/api/booking-requests`가 500. **서버 자체는 뜬다**              |
-| `ADMIN_USER`/`ADMIN_PASSWORD` | `/admin`과 관리자 API가 503으로 닫힌다(fail-closed, 의도된 동작) |
+| 변수                          | 없으면                                                                                                                                                                |
+| ----------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `AIRPORT_SERVICE_KEY`         | 항공편 엔드포인트는 500 + 자유 문장(미정리). 혼잡도(`/api/security-wait*`)는 500 + `{ "error": { "code": "CONGESTION_NOT_CONFIGURED", ... } }`. 앱은 데모 값으로 동작 |
+| `KAKAO_REST_API_KEY`          | 길찾기·주변장소 500 + 자유 문장(미정리), 앱은 더미 이동시간으로 동작                                                                                                  |
+| `ODSAY_API_KEY`               | 선택. 없으면 대중교통 대신 자동차 값으로 대체                                                                                                                         |
+| `DATABASE_URL`                | `/api/booking-requests`가 500 + `{ "error": { "code": "DATABASE_NOT_CONFIGURED", ... } }`. **서버 자체는 뜬다**                                                       |
+| `ADMIN_USER`/`ADMIN_PASSWORD` | `/admin`과 관리자 API가 503 + `{ "error": { "code": "ADMIN_DISABLED", ... } }`으로 닫힌다(fail-closed, 의도된 동작)                                                   |
+
+오류 코드 전체 목록은 [docs/api/errors.md](docs/api/errors.md). `/api/flight/*`·`/api/route`·`/api/places*`·`/api/transit`는 아직 코드가 없는 자유 문장이다(컨벤션 불일치 — [docs/STATUS.md](docs/STATUS.md) "컨벤션 불일치" #1).
 
 **즉, 위 변수를 전부 빈칸으로 둬도 서버는 뜬다.** 해당 기능만 비활성화된다 — 처음 설치해서 화면이 뜨는지만 보려면 키 없이 시작해도 된다.
 
@@ -97,6 +99,16 @@ npm run dev                    # :5173, /api를 :3001로 프록시
 
 브라우저로 **`http://localhost:5173`**을 연다(`127.0.0.1`은 안 됨 — Vite가 `localhost`만 수신하고, 카카오맵 도메인도 `http://localhost:5173`으로 등록돼 있다).
 
+`/api` 프록시가 실제로 `:3001`까지 가는지는 **HTTP 상태코드만으로 판단하지 않는다** — 키가 없으면 500이 정상이고 키가 있으면 200이 정상이라, 상태코드 하나로는 "프록시가 됐다"와 "안 됐다(404)"를 구분하기 쉽다. 응답 **본문**을 본다:
+
+```bash
+curl -s http://localhost:5173/api/security-wait | head -c 200
+```
+
+- 키를 안 넣었으면: `{"error":{"code":"CONGESTION_NOT_CONFIGURED", ...}}` — 프록시가 서버까지 갔다가 **정상적으로** "키 없음"을 알려준 것이다.
+- 키를 넣었으면: `{"gates":[...]}` 200.
+- 둘 다 아니고 Vite의 404/HTML이 나오면 프록시가 안 된 것이다(`vite.config.ts`의 `server.proxy` 확인).
+
 카카오맵을 실제로 보려면 저장소 루트에 `.env.local`을 만들고 `VITE_KAKAO_JS_KEY`를 채운다(`.env.example` 참고). 비어 있으면 지도 자리에 안내 문구만 뜨고 나머지는 동작한다.
 
 ## 5. 자주 막히는 지점
@@ -114,4 +126,4 @@ npm run dev                    # :5173, /api를 :3001로 프록시
 
 | 날짜       | 내용                                                                                             |
 | ---------- | ------------------------------------------------------------------------------------------------ |
-| 2026-10-19 | 최초 작성 — 빈 클론에서 실제로 따라가며 검증(절차: [docs/STATUS.md](docs/STATUS.md) "설치 검증") |
+| 2026-10-18 | 최초 작성 — 빈 클론에서 실제로 따라가며 검증(절차: [docs/STATUS.md](docs/STATUS.md) "설치 검증") |

@@ -1,9 +1,9 @@
 # 오류 코드 (단일 출처)
 
-> 상태: 확정 · 최종 수정 2026-10-19
+> 상태: 확정 · 최종 수정 2026-10-18
 > 이 문서가 **오류 코드의 유일한 출처**다. 코드를 추가·변경·삭제할 때는 이 문서, 실제 서버 코드의
 > 상수, 관련 테스트를 한 번에 고친다. 형식·설계 원칙은 [docs/conventions.md](../conventions.md) "오류 응답".
-> `server/errors-consistency.test.js`가 이 문서의 코드 목록과 `server/booking.js`의 `ERROR_CODES`를 맞비교한다 — 한쪽에만 있으면 테스트가 실패한다.
+> `server/errors-consistency.test.js`가 이 문서의 코드 목록과 `server/error-codes.js`의 `ERROR_CODES`(`booking.js`·`server.js`가 공유)를 맞비교한다 — 한쪽에만 있으면 테스트가 실패한다.
 
 ## 응답 모양
 
@@ -56,11 +56,23 @@
 | `DATABASE_NOT_CONFIGURED` | 500  | `DATABASE_URL`이 설정되지 않음                                                          | —         |
 | `SERVER_ERROR`            | 500  | 그 외 서버 오류(DB 쿼리 실패 등) — 자세한 내용은 로그로만, 응답 `message`는 일반적 설명 | —         |
 
+### 출국장 혼잡도 (`CONGESTION_*`) — `server/server.js` `/api/security-wait`, `/api/security-wait/t2`
+
+2026-10-18 추가. T1/T2는 코드로 구분하지 않는다 — `message`가 어느 터미널인지 말하고, `code`는 "무슨 일이 있었는지"만 말한다. `server/error-codes.js` 신설로 `booking.js`·`server.js`가 `ERROR_CODES`·`fail()`을 공유한다(전에는 `booking.js` 안에만 있었다).
+
+| 코드                          | HTTP | 언제                                           | 추가 필드           |
+| ----------------------------- | ---- | ---------------------------------------------- | ------------------- |
+| `CONGESTION_NOT_CONFIGURED`   | 500  | `AIRPORT_SERVICE_KEY`가 설정되지 않음          | —                   |
+| `CONGESTION_INVALID_RESPONSE` | 502  | 공공데이터포털 응답이 JSON이 아님              | `detail`(원문 일부) |
+| `CONGESTION_UPSTREAM_ERROR`   | 502  | 공공데이터포털이 `resultCode` 오류를 돌려줌    | `resultCode`        |
+| `CONGESTION_UNREACHABLE`      | 502  | 공공데이터포털에 접속 자체를 못함(네트워크 등) | `detail`            |
+
 ## 이 목록을 쓰는 API
 
-| API       | 문서                                           |
-| --------- | ---------------------------------------------- |
-| 예약 요청 | [api/booking-requests.md](booking-requests.md) |
+| API                  | 문서                                                                                                                |
+| -------------------- | ------------------------------------------------------------------------------------------------------------------- |
+| 예약 요청            | [api/booking-requests.md](booking-requests.md)                                                                      |
+| 출국장 혼잡도(T1/T2) | [api/incheon-congestion.md](incheon-congestion.md) — 외부 API 응답 형식. 우리 프록시의 오류 코드는 이 문서에만 있다 |
 
 다른 API가 생기면 이 문서에 섹션을 더하고, 그 API 문서에서 여기로 링크한다(booking-requests.md처럼).
 
@@ -78,5 +90,5 @@ errors.<code를 소문자 camelCase로>
 | 날짜       | 내용                                                                                                                        |
 | ---------- | --------------------------------------------------------------------------------------------------------------------------- |
 | 2026-10-18 | 최초 작성. `booking-requests.md`의 평평한 오류 코드(소문자 스네이크)를 여기로 분리하며 `도메인_이유` 대문자 스네이크로 변경 |
-| 2026-10-19 | `message`·로그 사용 원칙 절 추가(conventions.md와 동일 원칙)                                                                |
-| 2026-10-19 | `server/errors-consistency.test.js` 추가 — 이 문서와 `ERROR_CODES`가 어긋나면 테스트가 실패한다                             |
+| 2026-10-18 | `message`·로그 사용 원칙 절 추가(conventions.md와 동일 원칙)                                                                |
+| 2026-10-18 | `server/errors-consistency.test.js` 추가 — 이 문서와 `ERROR_CODES`가 어긋나면 테스트가 실패한다                             |

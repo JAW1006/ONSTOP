@@ -12,31 +12,11 @@ import fs from "fs/promises";
 import nodePath from "path";
 import { fileURLToPath } from "url";
 import pg from "pg";
+import { ERROR_CODES, fail } from "./error-codes.js";
 
 const __dirname = nodePath.dirname(fileURLToPath(import.meta.url));
 
 const STATUSES = ["requested", "confirmed", "declined", "expired", "cancelled"];
-
-// 오류 코드 — 단일 출처는 docs/api/errors.md다. 값을 바꾸거나 코드를 추가하면 그 문서도 같이 고친다.
-// 형식: 도메인_이유(대문자 스네이크). message는 디버그용/관리자 화면용이고, 고객용 다국어 화면은
-// code를 i18n 키로 변환해 쓴다(docs/conventions.md "오류 응답").
-// export: server/errors-consistency.test.js가 이 집합과 docs/api/errors.md를 맞비교한다.
-export const ERROR_CODES = {
-  BOOKING_INVALID_FIELD: "BOOKING_INVALID_FIELD",
-  BOOKING_INVALID_EMAIL: "BOOKING_INVALID_EMAIL",
-  BOOKING_CONSENT_REQUIRED: "BOOKING_CONSENT_REQUIRED",
-  BOOKING_EMAIL_REQUIRED: "BOOKING_EMAIL_REQUIRED",
-  BOOKING_ACTIVE_REQUEST_EXISTS: "BOOKING_ACTIVE_REQUEST_EXISTS",
-  BOOKING_NOT_FOUND: "BOOKING_NOT_FOUND",
-  BOOKING_NOT_CANCELLABLE: "BOOKING_NOT_CANCELLABLE",
-  BOOKING_INVALID_STATUS: "BOOKING_INVALID_STATUS",
-  BOOKING_INVALID_TRANSITION: "BOOKING_INVALID_TRANSITION",
-  BOOKING_DECLINE_REASON_REQUIRED: "BOOKING_DECLINE_REASON_REQUIRED",
-  ADMIN_UNAUTHORIZED: "ADMIN_UNAUTHORIZED",
-  ADMIN_DISABLED: "ADMIN_DISABLED",
-  DATABASE_NOT_CONFIGURED: "DATABASE_NOT_CONFIGURED",
-  SERVER_ERROR: "SERVER_ERROR",
-};
 const MODES = ["product", "quote"];
 const LANGS = ["ko", "en", "zh", "ja", "vi"];
 const PRICE_SOURCES = ["hotel", "demo"];
@@ -72,9 +52,6 @@ const trimmed = (value) => (typeof value === "string" ? value.trim() : "");
 function logError(what, err) {
   console.error(`[booking] ${what} failed`, { code: err.code, constraint: err.constraint, message: err.message });
 }
-
-// 오류 본문에도 이메일·이름을 넣지 않는다. 모양: { error: { code, message, ...extra } } — docs/conventions.md.
-const fail = (res, status, code, message, extra) => res.status(status).json({ error: { code, message, ...extra } });
 
 function rowToRequest(row) {
   return {

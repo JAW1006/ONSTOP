@@ -1,9 +1,10 @@
 // 오류 코드 ↔ docs/api/errors.md 일치 테스트.
 // 단일 출처는 그 문서다(docs/conventions.md 8장) — 코드에만 있거나 문서에만 있는 코드를 둘 다 잡는다.
+// ERROR_CODES는 server/error-codes.js 하나에 모여 있고 booking.js·server.js가 같이 가져다 쓴다.
 import test from "node:test";
 import assert from "node:assert/strict";
 import fs from "node:fs";
-import { ERROR_CODES } from "./booking.js";
+import { ERROR_CODES } from "./error-codes.js";
 
 // errors.md "코드 목록"의 표 행만 뽑는다 — 첫 칸이 `BACKTICK_CODE`이고 둘째 칸이 HTTP 상태 숫자인 행.
 // (문서의 다른 표, 예: "이 목록을 쓰는 API"는 이 모양이 아니라서 안 걸린다.)
@@ -18,7 +19,7 @@ function codesInCode() {
   return new Set(Object.values(ERROR_CODES));
 }
 
-test("server/booking.js의 ERROR_CODES와 docs/api/errors.md의 코드 목록이 정확히 같다", () => {
+test("server/error-codes.js의 ERROR_CODES와 docs/api/errors.md의 코드 목록이 정확히 같다", () => {
   const inDocs = codesInDocs();
   const inCode = codesInCode();
 
