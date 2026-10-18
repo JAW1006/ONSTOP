@@ -11,7 +11,9 @@ export function FakeQR({ size = 150 }: { size?: number }) {
       for (let x = 0; x < n; x++) {
         const finder = (x < 7 && y < 7) || (x >= n - 7 && y < 7) || (x < 7 && y >= n - 7);
         // 레거시 식 그대로(파인더 3곳에 같은 좌표 규칙을 쓴다 — 5단계 비교를 위해 보정하지 않음)
-        const on = finder ? x === 0 || x === 6 || y === 0 || y === 6 || (x >= 2 && x <= 4 && y >= 2 && y <= 4) : rnd() > 0.55;
+        const on = finder
+          ? x === 0 || x === 6 || y === 0 || y === 6 || (x >= 2 && x <= 4 && y >= 2 && y <= 4)
+          : rnd() > 0.55;
         if (on) out.push({ x, y });
       }
     return out;

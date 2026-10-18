@@ -42,7 +42,13 @@ export function CourseMap({
     const lang = i18n.language;
     const legLabel = (leg: RouteLeg) => {
       const time = leg.approx ? t("course.leg.approxMinutes", { n: leg.min }) : t("course.leg.minutes", { n: leg.min });
-      const mode = t(leg.mode === "transit" ? "course.leg.mode.transit" : leg.mode === "walk" ? "course.leg.mode.walk" : "course.leg.mode.taxi");
+      const mode = t(
+        leg.mode === "transit"
+          ? "course.leg.mode.transit"
+          : leg.mode === "walk"
+            ? "course.leg.mode.walk"
+            : "course.leg.mode.taxi",
+      );
       return { time, mode };
     };
     const mapLegs: MapLeg[] = legs.map((leg, index) => {
@@ -58,7 +64,12 @@ export function CourseMap({
         path: leg.path,
         mode: leg.mode,
         isReturn: leg.isReturn,
-        chip: { icon: MODE_EMOJI[leg.mode], text, sub, ariaLabel: `${tag ? tag + " · " : ""}${mode} ${time}${sub ? ` · ${sub}` : ""}` },
+        chip: {
+          icon: MODE_EMOJI[leg.mode],
+          text,
+          sub,
+          ariaLabel: `${tag ? tag + " · " : ""}${mode} ${time}${sub ? ` · ${sub}` : ""}`,
+        },
       };
     });
     const planIds = new Set(plan.map((p) => p.id));
@@ -66,17 +77,37 @@ export function CourseMap({
       center: room?.coord ?? AIRPORT_COORD,
       pins: [
         { id: "airport", kind: "airport", coord: AIRPORT_COORD, label: "ICN" },
-        ...listedRooms(demo).filter((r) => r.id === roomId || showOtherHotels).map((r) => ({
-          id: `room:${r.id}`,
-          kind: r.id === roomId ? ("hotel" as const) : ("hotel-other" as const),
-          coord: r.coord,
-          label: localize(r.name, lang),
+        ...listedRooms(demo)
+          .filter((r) => r.id === roomId || showOtherHotels)
+          .map((r) => ({
+            id: `room:${r.id}`,
+            kind: r.id === roomId ? ("hotel" as const) : ("hotel-other" as const),
+            coord: r.coord,
+            label: localize(r.name, lang),
+          })),
+        ...plan.map((p, i) => ({
+          id: `place:${p.id}`,
+          kind: "place" as const,
+          coord: p.coord,
+          label: localize(p.name, lang),
+          number: i + 1,
         })),
-        ...plan.map((p, i) => ({ id: `place:${p.id}`, kind: "place" as const, coord: p.coord, label: localize(p.name, lang), number: i + 1 })),
       ],
       dots: [
-        ...candidates.filter((p) => !planIds.has(p.id)).map((p) => ({ id: `place:${p.id}`, kind: "candidate" as const, coord: p.coord, name: localize(p.name, lang) })),
-        ...refPois.map((p) => ({ id: `ref:${p.id}`, kind: "ref" as const, coord: p.coord, name: `${p.name} · ${t("course.map.referenceOnly")}` })),
+        ...candidates
+          .filter((p) => !planIds.has(p.id))
+          .map((p) => ({
+            id: `place:${p.id}`,
+            kind: "candidate" as const,
+            coord: p.coord,
+            name: localize(p.name, lang),
+          })),
+        ...refPois.map((p) => ({
+          id: `ref:${p.id}`,
+          kind: "ref" as const,
+          coord: p.coord,
+          name: `${p.name} · ${t("course.map.referenceOnly")}`,
+        })),
       ],
       legs: mapLegs,
       selectedLeg,

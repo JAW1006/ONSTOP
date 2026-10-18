@@ -254,7 +254,13 @@ const setPath = (obj, path, value) => {
   cur[leaf] = value;
 };
 const sortDeep = (o) =>
-  typeof o === "object" ? Object.fromEntries(Object.keys(o).sort().map((k) => [k, sortDeep(o[k])])) : o;
+  typeof o === "object"
+    ? Object.fromEntries(
+        Object.keys(o)
+          .sort()
+          .map((k) => [k, sortDeep(o[k])]),
+      )
+    : o;
 
 fs.mkdirSync("src/i18n/locales", { recursive: true });
 for (const lang of LANGS) {
@@ -265,7 +271,9 @@ for (const lang of LANGS) {
 }
 
 const rows = [
-  ...Object.entries(KEY_MAP).map(([l, k]) => `| \`${l}\` | \`${k}\` | ${STR[l].ko.replace(/\|/g, "\\|")} | ${FLAGGED[l] ?? ""} |`),
+  ...Object.entries(KEY_MAP).map(
+    ([l, k]) => `| \`${l}\` | \`${k}\` | ${STR[l].ko.replace(/\|/g, "\\|")} | ${FLAGGED[l] ?? ""} |`,
+  ),
   ...Object.entries(CATEGORY_MAP).map(([l, k]) => `| \`CAT_LABELS.${l}\` | \`${k}\` | ${CAT_LABELS[l].ko} | |`),
 ];
 fs.writeFileSync(

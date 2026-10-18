@@ -7,14 +7,68 @@ import { renderApp } from "@/test/render-app";
 
 type Flight = Record<string, string | null>;
 const ARRIVALS: Record<string, Flight> = {
-  KE085: { flightId: "KE085", airline: "Korean Air", fromAirport: "Los Angeles", scheduleDateTime: "1030", estimatedDateTime: "1030", terminal: "P03", gate: "230", remark: null },
-  NIGHT1: { flightId: "NIGHT1", airline: "Night Air", fromAirport: "Bangkok", scheduleDateTime: "2200", estimatedDateTime: null, terminal: "P01", gate: "12", remark: null },
+  KE085: {
+    flightId: "KE085",
+    airline: "Korean Air",
+    fromAirport: "Los Angeles",
+    scheduleDateTime: "1030",
+    estimatedDateTime: "1030",
+    terminal: "P03",
+    gate: "230",
+    remark: null,
+  },
+  NIGHT1: {
+    flightId: "NIGHT1",
+    airline: "Night Air",
+    fromAirport: "Bangkok",
+    scheduleDateTime: "2200",
+    estimatedDateTime: null,
+    terminal: "P01",
+    gate: "12",
+    remark: null,
+  },
 };
 const DEPARTURES: Record<string, Flight> = {
-  MU2043: { flightId: "MU2043", airline: "China Eastern", toAirport: "Qingdao", scheduleDateTime: "1451", estimatedDateTime: "1451", terminal: "P02", gate: "129", remark: null },
-  NIGHT2: { flightId: "NIGHT2", airline: "Night Air", toAirport: "Tokyo", scheduleDateTime: "0130", estimatedDateTime: null, terminal: "P02", gate: "20", remark: null },
-  SOON1: { flightId: "SOON1", airline: "Soon Air", toAirport: "Osaka", scheduleDateTime: "1250", estimatedDateTime: null, terminal: "P02", gate: "1", remark: null },
-  T1DEP: { flightId: "T1DEP", airline: "T1 Air", toAirport: "Hanoi", scheduleDateTime: "1451", estimatedDateTime: null, terminal: "P01", gate: "40", remark: null },
+  MU2043: {
+    flightId: "MU2043",
+    airline: "China Eastern",
+    toAirport: "Qingdao",
+    scheduleDateTime: "1451",
+    estimatedDateTime: "1451",
+    terminal: "P02",
+    gate: "129",
+    remark: null,
+  },
+  NIGHT2: {
+    flightId: "NIGHT2",
+    airline: "Night Air",
+    toAirport: "Tokyo",
+    scheduleDateTime: "0130",
+    estimatedDateTime: null,
+    terminal: "P02",
+    gate: "20",
+    remark: null,
+  },
+  SOON1: {
+    flightId: "SOON1",
+    airline: "Soon Air",
+    toAirport: "Osaka",
+    scheduleDateTime: "1250",
+    estimatedDateTime: null,
+    terminal: "P02",
+    gate: "1",
+    remark: null,
+  },
+  T1DEP: {
+    flightId: "T1DEP",
+    airline: "T1 Air",
+    toAirport: "Hanoi",
+    scheduleDateTime: "1451",
+    estimatedDateTime: null,
+    terminal: "P01",
+    gate: "40",
+    remark: null,
+  },
 };
 
 // 기본 T1 출국장 평균 25분(< 기준 50분) — 65분이 필요한 테스트에서만 바꾼다
@@ -24,8 +78,10 @@ const fetchMock = vi.fn(async (url: string) => {
   const u = new URL(url, "http://localhost");
   const json = (status: number, body: unknown) => new Response(JSON.stringify(body), { status });
   const id = u.searchParams.get("flightId") ?? "";
-  if (u.pathname === "/api/flight/arrival") return ARRIVALS[id] ? json(200, { flights: [ARRIVALS[id]] }) : json(404, { error: `no arrival found for "${id}"` });
-  if (u.pathname === "/api/flight/departure") return DEPARTURES[id] ? json(200, { flights: [DEPARTURES[id]] }) : json(404, { error: "x" });
+  if (u.pathname === "/api/flight/arrival")
+    return ARRIVALS[id] ? json(200, { flights: [ARRIVALS[id]] }) : json(404, { error: `no arrival found for "${id}"` });
+  if (u.pathname === "/api/flight/departure")
+    return DEPARTURES[id] ? json(200, { flights: [DEPARTURES[id]] }) : json(404, { error: "x" });
   if (u.pathname === "/api/security-wait") return json(200, { gates: securityGates });
   return json(500, { error: "unexpected" });
 });
@@ -81,7 +137,9 @@ describe("항공편 조회 + Time-Safe", () => {
     await waitFor(() => expect(card().textContent).toContain("2h 11m"));
     expect(card().textContent).toContain("Total connection time 4h 21m");
     expect(card().textContent).toContain("Return by 13:31");
-    expect(card().textContent).toContain("Estimated times applied: immigration ~50 min · security & exit check ~50 min · gate margin ~30 min");
+    expect(card().textContent).toContain(
+      "Estimated times applied: immigration ~50 min · security & exit check ~50 min · gate margin ~30 min",
+    );
     expect(cta().disabled).toBe(false);
 
     await act(async () => fireEvent.click(cta()));
@@ -129,7 +187,11 @@ describe("항공편 조회 + Time-Safe", () => {
   it("404 → '일치하는 항공편 없음' 번역 문구", async () => {
     renderApp("/onboarding?step=2");
     await lookUp(ARR, "XX999");
-    await waitFor(() => expect(screen.getByRole("alert").textContent).toBe("No matching flight found · Please check the flight number and look up again."));
+    await waitFor(() =>
+      expect(screen.getByRole("alert").textContent).toBe(
+        "No matching flight found · Please check the flight number and look up again.",
+      ),
+    );
     expect(cta().disabled).toBe(true);
   });
 

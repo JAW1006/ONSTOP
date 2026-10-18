@@ -9,7 +9,9 @@ import { fetchArrival, fetchDeparture, fetchSecurityWaitMin } from "./api";
 
 function useApiLang() {
   const { i18n } = useTranslation();
-  const code = (LANGUAGE_CODES as readonly string[]).includes(i18n.language) ? (i18n.language as LanguageCode) : DEFAULT_LANGUAGE;
+  const code = (LANGUAGE_CODES as readonly string[]).includes(i18n.language)
+    ? (i18n.language as LanguageCode)
+    : DEFAULT_LANGUAGE;
   return AIRPORT_API_LANG[code];
 }
 
@@ -73,12 +75,16 @@ export function useTimeSafe() {
     connection,
     result,
     /** 새로고침 버튼: 도착·출발(·T1 대기) 다시 조회 */
-    refetchAll: () => Promise.all([arrival.refetch(), departure.refetch(), securityWait.isEnabled ? securityWait.refetch() : null]),
+    refetchAll: () =>
+      Promise.all([arrival.refetch(), departure.refetch(), securityWait.isEnabled ? securityWait.refetch() : null]),
     isRefetching: arrival.isFetching || departure.isFetching || securityWait.isFetching,
     bothReady: !!arrival.data && !!departure.data && connection?.departMin != null,
     liveSecurityApplied: isLiveSecurityApplied(departureTerminal, liveSecurityWaitMin),
     /** 배지용: 실시간 대기를 받은 터미널("T1"/"T2")과 그 평균. 못 받았으면 terminal null */
-    liveSecurity: { terminal: liveSecurityWaitMin != null ? liveSecurityTerminal(departureTerminal) : null, waitMin: liveSecurityWaitMin },
+    liveSecurity: {
+      terminal: liveSecurityWaitMin != null ? liveSecurityTerminal(departureTerminal) : null,
+      waitMin: liveSecurityWaitMin,
+    },
   };
 }
 

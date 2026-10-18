@@ -66,7 +66,11 @@ describe("A9 가격표·예약 시각 계산", () => {
   const P3 = { hours: 3, price: 50000, vatIncluded: true };
   const P4 = { hours: 4, price: 58000, vatIncluded: true, startWindow: { from: "12:00", to: "14:00" } };
   const P6 = { hours: 6, price: 80000, vatIncluded: true };
-  const offer = { products: [P6, P3, P4], includes: ["shower"], source: { date: "2026-10-16", method: "demo" as const, by: "test" } };
+  const offer = {
+    products: [P6, P3, P4],
+    includes: ["shower"],
+    source: { date: "2026-10-16", method: "demo" as const, by: "test" },
+  };
   // time-fit S3: 공항 밖 11:20, 구간 18·12·8·8·18, 체류 25·20 → 체크인 11:58, 숙소 복귀 13:11, 공항 13:29
   const s3 = () => sequentialCourse(680, [18, 12, 8, 8, 18], [25, 20]);
   const RETURN_BY = 811;

@@ -6,7 +6,8 @@ import { approxTravel, haversineKm, type LatLng } from "@/domain/travel";
 import { fetchTravel, type TravelResult } from "./api";
 
 const round = (n: number) => Math.round(n * 1e5) / 1e5;
-export const travelKey = (from: LatLng, to: LatLng) => ["travel", round(from.lat), round(from.lng), round(to.lat), round(to.lng)] as const;
+export const travelKey = (from: LatLng, to: LatLng) =>
+  ["travel", round(from.lat), round(from.lng), round(to.lat), round(to.lng)] as const;
 
 export function approxResult(from: LatLng, to: LatLng): TravelResult {
   const a = approxTravel(haversineKm(from, to));
@@ -34,7 +35,10 @@ export function routePoints(hotel: LatLng | null, stops: readonly { coord: LatLn
  * 경로의 각 구간. live = true(확정된 코스)면 실제 경로를 조회해 캐시, 결과 전까지·실패 시 근사값.
  * live = false(코스 빌더)면 조회하지 않고 보수적 근사만.
  */
-export function useRouteLegs(points: readonly LatLng[], { live }: { live: boolean }): { legs: RouteLeg[]; loading: boolean } {
+export function useRouteLegs(
+  points: readonly LatLng[],
+  { live }: { live: boolean },
+): { legs: RouteLeg[]; loading: boolean } {
   const pairs = useMemo(() => points.slice(0, -1).map((from, i) => ({ from, to: points[i + 1]! })), [points]);
   const results = useQueries({
     queries: (live ? pairs : []).map(({ from, to }) => ({
@@ -48,7 +52,14 @@ export function useRouteLegs(points: readonly LatLng[], { live }: { live: boolea
   const legs = pairs.map(({ from, to }, i) => {
     const r = results[i];
     const base = r?.data ?? approxResult(from, to);
-    return { ...base, from, to, isReturn: i === pairs.length - 1 && pairs.length > 1, isHotelReturn: pairs.length > 2 && i === pairs.length - 2, loading: !!r?.isPending };
+    return {
+      ...base,
+      from,
+      to,
+      isReturn: i === pairs.length - 1 && pairs.length > 1,
+      isHotelReturn: pairs.length > 2 && i === pairs.length - 2,
+      loading: !!r?.isPending,
+    };
   });
   return { legs, loading: results.some((r) => r.isPending) };
 }

@@ -43,7 +43,13 @@ const BookingRequestsContext = createContext<BookingRequestStore | null>(null);
 
 const demoId = () => `DEMO-${String(Math.floor(Math.random() * 1_000_000)).padStart(6, "0")}`;
 
-export function BookingRequestsProvider({ children, initial = [] }: { children: ReactNode; initial?: BookingRequest[] }) {
+export function BookingRequestsProvider({
+  children,
+  initial = [],
+}: {
+  children: ReactNode;
+  initial?: BookingRequest[];
+}) {
   const [requests, setRequests] = useState<BookingRequest[]>(initial);
   const store = useMemo<BookingRequestStore>(
     () => ({
@@ -53,7 +59,10 @@ export function BookingRequestsProvider({ children, initial = [] }: { children: 
         setRequests((prev) => [req, ...prev]);
         return req;
       },
-      cancel: (id) => setRequests((prev) => prev.map((r) => (r.id === id && r.status === "requested" ? { ...r, status: "cancelled" } : r))),
+      cancel: (id) =>
+        setRequests((prev) =>
+          prev.map((r) => (r.id === id && r.status === "requested" ? { ...r, status: "cancelled" } : r)),
+        ),
     }),
     [requests],
   );

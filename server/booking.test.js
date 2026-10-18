@@ -77,7 +77,9 @@ describe("예약 요청 API (진짜 Postgres)", suiteOpts, () => {
 
     // 로그에 이메일·이름이 섞이지 않는지 보기 위해 console.error를 모은다.
     realError = console.error;
-    console.error = (...args) => { errorLogs.push(args.map(String).join(" ")); };
+    console.error = (...args) => {
+      errorLogs.push(args.map(String).join(" "));
+    };
 
     const app = express();
     booking = mountBookingRequests(app);
@@ -100,8 +102,7 @@ describe("예약 요청 API (진짜 Postgres)", suiteOpts, () => {
   });
 
   // --- 호출 도우미 ---------------------------------------------------------
-  const authHeader = (u = ADMIN.user, p = ADMIN.password) =>
-    "Basic " + Buffer.from(`${u}:${p}`).toString("base64");
+  const authHeader = (u = ADMIN.user, p = ADMIN.password) => "Basic " + Buffer.from(`${u}:${p}`).toString("base64");
 
   async function call(method, path, { body, auth } = {}) {
     const res = await fetch(`${base}${path}`, {
@@ -121,7 +122,10 @@ describe("예약 요청 API (진짜 Postgres)", suiteOpts, () => {
   // --- 확인 1: 마이그레이션 -----------------------------------------------
   it("1. 마이그레이션이 테이블·제약·B8 인덱스를 만들고, 두 번 돌려도 한 번만 적용된다", async () => {
     const applied = await pool.query("SELECT filename FROM schema_migrations ORDER BY filename");
-    assert.deepEqual(applied.rows.map((r) => r.filename), ["001_booking_requests.sql"]);
+    assert.deepEqual(
+      applied.rows.map((r) => r.filename),
+      ["001_booking_requests.sql"],
+    );
 
     await booking.init(); // 다시 실행해도 중복 적용되지 않아야 한다
     const again = await pool.query("SELECT count(*)::int AS n FROM schema_migrations");

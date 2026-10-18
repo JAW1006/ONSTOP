@@ -48,10 +48,20 @@ export function TimeSafeSummaryCard() {
       </div>
 
       {arrival.data && connection && (
-        <FlightStatusLine flight={arrival.data} min={connection.arriveMin} label="flight.arrivalLine" className="mt-2.5" />
+        <FlightStatusLine
+          flight={arrival.data}
+          min={connection.arriveMin}
+          label="flight.arrivalLine"
+          className="mt-2.5"
+        />
       )}
       {departure.data && connection?.departMin != null && (
-        <FlightStatusLine flight={departure.data} min={connection.departMin} label="flight.departureLine" className="mt-1" />
+        <FlightStatusLine
+          flight={departure.data}
+          min={connection.departMin}
+          label="flight.departureLine"
+          className="mt-1"
+        />
       )}
       {connection?.departMin != null && connection.warning !== "DEPART_BEFORE_ARRIVAL" && (
         <p className="mt-1.5 text-caption font-bold text-ink">

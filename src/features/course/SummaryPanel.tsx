@@ -24,7 +24,12 @@ const SEGMENT_CLASS: Record<Segment["key"], string> = {
 export function budgetSegments(prep: number, travel: number, stay: number, available: number, wait = 0): Segment[] {
   const out: Segment[] = [];
   let used = 0;
-  for (const [key, min] of [["prep", prep], ["wait", wait], ["travel", travel], ["stay", stay]] as const) {
+  for (const [key, min] of [
+    ["prep", prep],
+    ["wait", wait],
+    ["travel", travel],
+    ["stay", stay],
+  ] as const) {
     const fit = Math.max(0, Math.min(min, available - used));
     if (fit > 0) out.push({ key, min: fit });
     used += min;
@@ -57,23 +62,41 @@ export function SummaryPanel({ model }: { model: CourseModel }) {
     <section aria-label={t("course.header.title")} className="mt-3 rounded-t-2xl bg-card px-4 pt-4 pb-4 shadow-card">
       <div className="flex items-baseline justify-between gap-2">
         <p className="flex flex-wrap items-baseline gap-1.5">
-          <span className="text-title font-black text-ink">{t("course.summary.used", { time: fmt.duration(summary.usedMin) })}</span>
-          <span className="text-body text-sub">{t("course.summary.available", { time: fmt.duration(summary.availableMin) })}</span>
+          <span className="text-title font-black text-ink">
+            {t("course.summary.used", { time: fmt.duration(summary.usedMin) })}
+          </span>
+          <span className="text-body text-sub">
+            {t("course.summary.available", { time: fmt.duration(summary.availableMin) })}
+          </span>
         </p>
         <Badge variant={over ? "danger" : "success"} className="shrink-0 px-2.5 py-1 text-body">
-          {over ? t("course.budget.over", { min: -summary.remainMin }) : t("course.budget.spare", { min: summary.remainMin })}
+          {over
+            ? t("course.budget.over", { min: -summary.remainMin })
+            : t("course.budget.spare", { min: summary.remainMin })}
         </Badge>
       </div>
 
-      <div className="mt-3 flex h-3 w-full overflow-hidden rounded-full bg-role-spare" role="img" aria-label={labels.map((s) => t(`course.summary.segment.${s.key}`, { n: s.min })).join(", ")}>
+      <div
+        className="mt-3 flex h-3 w-full overflow-hidden rounded-full bg-role-spare"
+        role="img"
+        aria-label={labels.map((s) => t(`course.summary.segment.${s.key}`, { n: s.min })).join(", ")}
+      >
         {segments.map((s, i) => (
-          <div key={i} data-segment={s.key} className={SEGMENT_CLASS[s.key]} style={{ width: `${(s.min / total) * 100}%` }} />
+          <div
+            key={i}
+            data-segment={s.key}
+            className={SEGMENT_CLASS[s.key]}
+            style={{ width: `${(s.min / total) * 100}%` }}
+          />
         ))}
       </div>
       <ul className="mt-2 flex flex-wrap gap-x-3 gap-y-1 text-caption text-sub">
         {labels.map((s) => (
           <li key={s.key} className={cn("flex items-center gap-1", s.key === "over" && "font-bold text-role-return")}>
-            <span aria-hidden className={cn("inline-block size-2.5 rounded-sm border border-line", SEGMENT_CLASS[s.key])} />
+            <span
+              aria-hidden
+              className={cn("inline-block size-2.5 rounded-sm border border-line", SEGMENT_CLASS[s.key])}
+            />
             {t(`course.summary.segment.${s.key}`, { n: s.min })}
           </li>
         ))}
@@ -82,16 +105,26 @@ export function SummaryPanel({ model }: { model: CourseModel }) {
       {!course && <p className="mt-3 text-caption text-faint">{t("course.summary.noRoom")}</p>}
 
       {over && (
-        <p role="alert" className="mt-3 flex gap-1.5 rounded-md bg-danger-bg px-3 py-2.5 text-body font-bold text-role-return">
+        <p
+          role="alert"
+          className="mt-3 flex gap-1.5 rounded-md bg-danger-bg px-3 py-2.5 text-body font-bold text-role-return"
+        >
           <TriangleAlert size={16} className="mt-0.5 shrink-0" aria-hidden />
           {t("course.summary.overWarning")}
         </p>
       )}
 
       {course && returnPlan?.blockOver && returnPlan.blockEndMin != null && (
-        <p role="alert" className="mt-3 flex gap-1.5 rounded-md bg-danger-bg px-3 py-2.5 text-body font-bold text-role-return">
+        <p
+          role="alert"
+          className="mt-3 flex gap-1.5 rounded-md bg-danger-bg px-3 py-2.5 text-body font-bold text-role-return"
+        >
           <TriangleAlert size={16} className="mt-0.5 shrink-0" aria-hidden />
-          {t("course.summary.blockOver", { time: fmt.time(course.hotelReturnAt), end: fmt.time(returnPlan.blockEndMin), min: returnPlan.blockOverMin })}
+          {t("course.summary.blockOver", {
+            time: fmt.time(course.hotelReturnAt),
+            end: fmt.time(returnPlan.blockEndMin),
+            min: returnPlan.blockOverMin,
+          })}
         </p>
       )}
 
@@ -102,7 +135,10 @@ export function SummaryPanel({ model }: { model: CourseModel }) {
             <div className="flex justify-between gap-3 py-1">
               <span className="text-body text-sub">{t("course.summary.expectedReturn")}</span>
               <span className="text-right text-body font-bold text-role-return">
-                {t("course.summary.lateThan", { time: fmt.time(course.returnAt), target: fmt.time(returnPlan.targetMin) })}
+                {t("course.summary.lateThan", {
+                  time: fmt.time(course.returnAt),
+                  target: fmt.time(returnPlan.targetMin),
+                })}
               </span>
             </div>
           ) : (
@@ -113,7 +149,11 @@ export function SummaryPanel({ model }: { model: CourseModel }) {
                 value={t("course.summary.until", { time: fmt.time(returnPlan.lastDepartureDeadlineMin) })}
               />
               {course.stops.length > 0 && (
-                <KeyValueRow size="md" label={t("course.summary.lastDepartureHotel")} value={t("course.summary.until", { time: fmt.time(returnPlan.hotelDepartureDeadlineMin) })} />
+                <KeyValueRow
+                  size="md"
+                  label={t("course.summary.lastDepartureHotel")}
+                  value={t("course.summary.until", { time: fmt.time(returnPlan.hotelDepartureDeadlineMin) })}
+                />
               )}
             </>
           )}

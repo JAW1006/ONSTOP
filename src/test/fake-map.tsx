@@ -11,7 +11,13 @@ export function FakeMapView({ scene, onPinClick, onDotClick, onLegClick }: MapVi
       <ul aria-label="map pins">
         {scene.pins.map((p) => (
           <li key={p.id}>
-            <button type="button" data-pin={p.id} data-kind={p.kind} data-number={p.number ?? ""} onClick={() => onPinClick(p.id)}>
+            <button
+              type="button"
+              data-pin={p.id}
+              data-kind={p.kind}
+              data-number={p.number ?? ""}
+              onClick={() => onPinClick(p.id)}
+            >
               {p.label}
             </button>
           </li>

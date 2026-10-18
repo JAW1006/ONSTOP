@@ -44,7 +44,10 @@ const TripContext = createContext<TripState | null>(null);
 export const DEFAULT_INTERESTS = ["Shopping", "Rest"];
 
 type TripInitial = Partial<
-  Pick<TripState, "onboarded" | "interests" | "arrivalFlightId" | "departureFlightId" | "courseRoomId" | "coursePlan" | "savedCourse">
+  Pick<
+    TripState,
+    "onboarded" | "interests" | "arrivalFlightId" | "departureFlightId" | "courseRoomId" | "coursePlan" | "savedCourse"
+  >
 >;
 
 export function TripProvider({ children, initial }: { children: ReactNode; initial?: TripInitial }) {
@@ -63,7 +66,8 @@ export function TripProvider({ children, initial }: { children: ReactNode; initi
   const value = useMemo<TripState>(
     () => ({
       interests,
-      toggleInterest: (key) => setInterests((prev) => (prev.includes(key) ? prev.filter((k) => k !== key) : [...prev, key])),
+      toggleInterest: (key) =>
+        setInterests((prev) => (prev.includes(key) ? prev.filter((k) => k !== key) : [...prev, key])),
       arrivalInput,
       setArrivalInput,
       departureInput,
@@ -83,7 +87,18 @@ export function TripProvider({ children, initial }: { children: ReactNode; initi
       savedCourse,
       setSavedCourse,
     }),
-    [interests, arrivalInput, departureInput, arrivalFlightId, departureFlightId, onboarded, courseRoomId, coursePlan, courseCatsState, savedCourse],
+    [
+      interests,
+      arrivalInput,
+      departureInput,
+      arrivalFlightId,
+      departureFlightId,
+      onboarded,
+      courseRoomId,
+      coursePlan,
+      courseCatsState,
+      savedCourse,
+    ],
   );
   return <TripContext.Provider value={value}>{children}</TripContext.Provider>;
 }

@@ -128,7 +128,12 @@ export function HomeScreen() {
             return (
               <li key={p.id} className="min-w-[132px] shrink-0">
                 <button type="button" onClick={() => setHot(p)} className="w-full cursor-pointer text-left">
-                  <Photo icon={<Icon size={22} color="#fff" />} tint={p.tint} height={82} badge={t("common.badge.partnerAd")} />
+                  <Photo
+                    icon={<Icon size={22} color="#fff" />}
+                    tint={p.tint}
+                    height={82}
+                    badge={t("common.badge.partnerAd")}
+                  />
                   <span className="mt-1.5 block text-body font-bold text-ink">{localize(p.name, i18n.language)}</span>
                   <span className="block text-micro text-faint">
                     {localize(p.area, i18n.language)} · {t("unit.transferMin", { n: p.moveMin })}
@@ -140,7 +145,11 @@ export function HomeScreen() {
         </ul>
       </div>
 
-      <BottomSheet open={!!hot} onOpenChange={(o) => !o && setHot(null)} title={hot ? localize(hot.name, i18n.language) : ""}>
+      <BottomSheet
+        open={!!hot}
+        onOpenChange={(o) => !o && setHot(null)}
+        title={hot ? localize(hot.name, i18n.language) : ""}
+      >
         {hot && <HotPlaceDetail place={hot} />}
       </BottomSheet>
     </div>
@@ -152,7 +161,12 @@ function HotPlaceDetail({ place }: { place: Place }) {
   const Icon = categoryIcon(place.cat);
   return (
     <div className="flex flex-col gap-2.5">
-      <Photo icon={<Icon size={28} color="#fff" />} tint={place.tint} height={120} badge={t("common.badge.partnerAd")} />
+      <Photo
+        icon={<Icon size={28} color="#fff" />}
+        tint={place.tint}
+        height={120}
+        badge={t("common.badge.partnerAd")}
+      />
       <p className="text-body text-sub">{localize(place.area, i18n.language)}</p>
       <div className="flex flex-wrap gap-2">
         <Badge className="px-2.5 py-1.5 text-body">{t("unit.transferMin", { n: place.moveMin })}</Badge>

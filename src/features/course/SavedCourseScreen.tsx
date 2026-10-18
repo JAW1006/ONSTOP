@@ -21,7 +21,10 @@ export function SavedCourseScreen() {
   const trip = useTrip();
   const saved = trip.savedCourse;
   // 확정된 코스 — 여기서만 실제 경로를 조회한다
-  const model = useCourseModel(saved?.roomId ?? null, saved?.plan ?? [], { live: true, booking: useActiveBlock(saved?.roomId ?? null) });
+  const model = useCourseModel(saved?.roomId ?? null, saved?.plan ?? [], {
+    live: true,
+    booking: useActiveBlock(saved?.roomId ?? null),
+  });
   const [selectedLeg, setSelectedLeg] = useState<number | null>(null);
 
   if (!saved || !model.room) {
@@ -42,15 +45,29 @@ export function SavedCourseScreen() {
       <div className="p-4">
         {!model.canGoOut && <CannotGoOutBox />}
         <Card className="mb-3.5 flex gap-3 p-3.5">
-          <div className="flex size-[66px] shrink-0 items-center justify-center overflow-hidden rounded-md" style={{ background: room.tint }}>
-            {roomImage(room) ? <img src={roomImage(room)} alt="" className="size-full object-cover" /> : <Bed size={26} color="#fff" aria-hidden />}
+          <div
+            className="flex size-[66px] shrink-0 items-center justify-center overflow-hidden rounded-md"
+            style={{ background: room.tint }}
+          >
+            {roomImage(room) ? (
+              <img src={roomImage(room)} alt="" className="size-full object-cover" />
+            ) : (
+              <Bed size={26} color="#fff" aria-hidden />
+            )}
           </div>
           <div>
             <p className="font-extrabold text-ink">{localize(room.name, i18n.language)}</p>
             <p className="mt-0.5 text-caption text-faint">{t("booking.plan.count", { n: saved.plan.length })}</p>
           </div>
         </Card>
-        <CourseMap roomId={room.id} plan={saved.plan} legs={model.legs} showOtherHotels={false} selectedLeg={selectedLeg} onSelectLeg={setSelectedLeg} />
+        <CourseMap
+          roomId={room.id}
+          plan={saved.plan}
+          legs={model.legs}
+          showOtherHotels={false}
+          selectedLeg={selectedLeg}
+          onSelectLeg={setSelectedLeg}
+        />
         {model.legs.length > 0 && <p className="mt-2 text-micro text-faint">{t("course.map.legend")}</p>}
         {selectedLeg != null && model.legs[selectedLeg] && <LegDetail leg={model.legs[selectedLeg]!} />}
         <p className={model.routeLoading ? "mt-1 text-micro text-faint" : "mt-1 text-micro font-bold text-success"}>
@@ -74,7 +91,12 @@ export function SavedCourseScreen() {
           >
             {t("savedCourse.edit")}
           </Button>
-          <Button size="md" className="flex-1" disabled={!model.canGoOut} onClick={() => navigate(`/booking/${saved.roomId}`)}>
+          <Button
+            size="md"
+            className="flex-1"
+            disabled={!model.canGoOut}
+            onClick={() => navigate(`/booking/${saved.roomId}`)}
+          >
             {t("course.bookThisStay")}
           </Button>
         </div>

@@ -14,6 +14,20 @@ concurrency:
   cancel-in-progress: true
 
 jobs:
+  format:
+    name: 포맷 검사 (Prettier)
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+          cache: npm
+      - run: npm ci
+      # Prettier는 루트 devDependency 하나로 리포 전체(프런트 + server/*.js + docs/*.md)를 본다.
+      # .prettierignore의 자동 생성 문서·레거시 app/index.html·lock 파일은 빠진다.
+      - run: npx prettier --check .
+
   web:
     name: 프런트 — 테스트 + 빌드
     runs-on: ubuntu-latest

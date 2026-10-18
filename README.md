@@ -133,10 +133,12 @@ ODSAY_API_KEY=발급받은_ODsay_키
 ```
 
 **카카오모빌리티**
+
 1. [Kakao Developers](https://developers.kakao.com)에 로그인 → **내 애플리케이션** → 앱 생성
 2. 생성한 앱 → **앱 키** 탭의 **REST API 키**를 그대로 `KAKAO_REST_API_KEY`에 입력 (Encoding/Decoding 구분 없음)
 
 **ODsay (대중교통)**
+
 1. [ODsay Lab](https://lab.odsay.com)에 회원가입 → API 신청에서 키 발급
 2. 발급받은 키를 `ODSAY_API_KEY`에 입력 (비워두면 대중교통 구간도 자동차 값으로 계산됨)
 

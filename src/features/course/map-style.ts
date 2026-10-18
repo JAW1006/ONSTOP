@@ -42,7 +42,12 @@ function token(name: keyof typeof FALLBACK): string {
 export function polylineStyle(kind: LineKind, selection: "none" | "selected" | "dimmed") {
   const width = parseFloat(token(WIDTH_TOKEN[kind] as keyof typeof FALLBACK));
   const boost = selection === "selected" ? parseFloat(token("--ts-line-selected-boost")) : 0;
-  const opacity = selection === "dimmed" ? parseFloat(token("--ts-line-dimmed-opacity")) : selection === "selected" ? 1 : parseFloat(token("--ts-line-opacity"));
+  const opacity =
+    selection === "dimmed"
+      ? parseFloat(token("--ts-line-dimmed-opacity"))
+      : selection === "selected"
+        ? 1
+        : parseFloat(token("--ts-line-opacity"));
   return {
     strokeWeight: width + boost,
     strokeColor: token(kind === "return" ? "--ts-role-return" : "--ts-role-route"),

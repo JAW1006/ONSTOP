@@ -25,11 +25,16 @@ const places = Object.entries(PLACES).flatMap(([cat, arr]) =>
 
 const ids = [...rooms.map((r) => r.id), ...places.map((p) => p.id)];
 if (new Set(ids).size !== ids.length) throw new Error("duplicate id");
-for (const id of [...AD_PLACES, ...HOT_PLACE_IDS]) if (!places.some((p) => p.id === id)) throw new Error(`unknown place ${id}`);
+for (const id of [...AD_PLACES, ...HOT_PLACE_IDS])
+  if (!places.some((p) => p.id === id)) throw new Error(`unknown place ${id}`);
 
 fs.mkdirSync("src/data", { recursive: true });
 fs.writeFileSync(
   "src/data/legacy-data.json",
-  JSON.stringify({ source: "app/index.html (legacy)", rooms, places, adPlaceIds: AD_PLACES, hotPlaceIds: HOT_PLACE_IDS }, null, 2) + "\n",
+  JSON.stringify(
+    { source: "app/index.html (legacy)", rooms, places, adPlaceIds: AD_PLACES, hotPlaceIds: HOT_PLACE_IDS },
+    null,
+    2,
+  ) + "\n",
 );
 console.log(`rooms ${rooms.length}, places ${places.length}, ad ${AD_PLACES.length}, hot ${HOT_PLACE_IDS.length}`);

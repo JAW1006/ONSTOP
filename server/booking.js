@@ -113,11 +113,14 @@ function parseNewRequest(body) {
   if (!Number.isInteger(b.endMin)) return bad(ERROR_CODES.BOOKING_INVALID_FIELD, "endMin must be an integer");
 
   const hours = b.hours ?? null;
-  if (hours !== null && !Number.isInteger(hours)) return bad(ERROR_CODES.BOOKING_INVALID_FIELD, "hours must be an integer");
-  if (b.mode === "product" && hours === null) return bad(ERROR_CODES.BOOKING_INVALID_FIELD, "hours is required when mode is product");
+  if (hours !== null && !Number.isInteger(hours))
+    return bad(ERROR_CODES.BOOKING_INVALID_FIELD, "hours must be an integer");
+  if (b.mode === "product" && hours === null)
+    return bad(ERROR_CODES.BOOKING_INVALID_FIELD, "hours is required when mode is product");
 
   const price = b.price ?? null;
-  if (price !== null && !Number.isInteger(price)) return bad(ERROR_CODES.BOOKING_INVALID_FIELD, "price must be an integer");
+  if (price !== null && !Number.isInteger(price))
+    return bad(ERROR_CODES.BOOKING_INVALID_FIELD, "price must be an integer");
 
   const priceSource = b.priceSource ?? null;
   if (priceSource !== null && !PRICE_SOURCES.includes(priceSource)) {
@@ -262,14 +265,33 @@ export function mountBookingRequests(app) {
             name, email, email_normalized, lang, consented_at, consent_version)
          VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12,$13, now(), $14)
          RETURNING *`,
-        [newRequestId(), v.roomId, v.mode, v.checkInMin, v.endMin, v.hours, v.price, v.priceSource,
-          v.planIds, v.name, v.email, normalizeEmail(v.email), v.lang, v.consentVersion],
+        [
+          newRequestId(),
+          v.roomId,
+          v.mode,
+          v.checkInMin,
+          v.endMin,
+          v.hours,
+          v.price,
+          v.priceSource,
+          v.planIds,
+          v.name,
+          v.email,
+          normalizeEmail(v.email),
+          v.lang,
+          v.consentVersion,
+        ],
       );
       return res.status(201).json({ request: rowToRequest(rows[0]) });
     } catch (err) {
       // B8 — 부분 유니크 인덱스에 걸린 경우. 응답에 기존 요청 내용을 담지 않는다(존재 여부만).
       if (err.code === "23505" && err.constraint === "booking_requests_one_active_per_email") {
-        return fail(res, 409, ERROR_CODES.BOOKING_ACTIVE_REQUEST_EXISTS, "there is already an active booking request for this contact");
+        return fail(
+          res,
+          409,
+          ERROR_CODES.BOOKING_ACTIVE_REQUEST_EXISTS,
+          "there is already an active booking request for this contact",
+        );
       }
       logError("create booking request", err);
       return fail(res, 500, ERROR_CODES.SERVER_ERROR, "failed to save the booking request");
@@ -282,12 +304,13 @@ export function mountBookingRequests(app) {
     if (noDatabase(res)) return;
 
     try {
-      const { rows } = await pool.query(
-        "SELECT * FROM booking_requests WHERE id = $1 AND email_normalized = $2",
-        [req.params.id, normalizeEmail(email)],
-      );
+      const { rows } = await pool.query("SELECT * FROM booking_requests WHERE id = $1 AND email_normalized = $2", [
+        req.params.id,
+        normalizeEmail(email),
+      ]);
       // 요청번호가 없는 경우와 이메일이 틀린 경우를 구분하지 않는다 — 요청번호 존재 여부가 드러나지 않게.
-      if (!rows.length) return fail(res, 404, ERROR_CODES.BOOKING_NOT_FOUND, "no booking request matches that number and contact");
+      if (!rows.length)
+        return fail(res, 404, ERROR_CODES.BOOKING_NOT_FOUND, "no booking request matches that number and contact");
       return res.json({ request: rowToRequest(rows[0]) });
     } catch (err) {
       logError("read booking request", err);
@@ -312,14 +335,21 @@ export function mountBookingRequests(app) {
       if (rows.length) return res.json({ request: rowToRequest(rows[0]) });
 
       // 안 바뀌었으면 "없음"인지 "취소할 수 없는 상태"인지 가려서 알려준다.
-      const found = await pool.query(
-        "SELECT status FROM booking_requests WHERE id = $1 AND email_normalized = $2",
-        [req.params.id, normalizeEmail(email)],
+      const found = await pool.query("SELECT status FROM booking_requests WHERE id = $1 AND email_normalized = $2", [
+        req.params.id,
+        normalizeEmail(email),
+      ]);
+      if (!found.rows.length)
+        return fail(res, 404, ERROR_CODES.BOOKING_NOT_FOUND, "no booking request matches that number and contact");
+      return fail(
+        res,
+        409,
+        ERROR_CODES.BOOKING_NOT_CANCELLABLE,
+        "only a requested booking can be cancelled in the app",
+        {
+          status: found.rows[0].status,
+        },
       );
-      if (!found.rows.length) return fail(res, 404, ERROR_CODES.BOOKING_NOT_FOUND, "no booking request matches that number and contact");
-      return fail(res, 409, ERROR_CODES.BOOKING_NOT_CANCELLABLE, "only a requested booking can be cancelled in the app", {
-        status: found.rows[0].status,
-      });
     } catch (err) {
       logError("cancel booking request", err);
       return fail(res, 500, ERROR_CODES.SERVER_ERROR, "failed to cancel the booking request");
@@ -369,10 +399,14 @@ export function mountBookingRequests(app) {
 
       try {
         const found = await pool.query("SELECT status FROM booking_requests WHERE id = $1", [req.params.id]);
-        if (!found.rows.length) return fail(res, 404, ERROR_CODES.BOOKING_NOT_FOUND, "no booking request with that number");
+        if (!found.rows.length)
+          return fail(res, 404, ERROR_CODES.BOOKING_NOT_FOUND, "no booking request with that number");
         const from = found.rows[0].status;
         if (!TRANSITIONS[from].includes(status)) {
-          return fail(res, 409, ERROR_CODES.BOOKING_INVALID_TRANSITION, "that status change is not allowed", { from, to: status });
+          return fail(res, 409, ERROR_CODES.BOOKING_INVALID_TRANSITION, "that status change is not allowed", {
+            from,
+            to: status,
+          });
         }
 
         // from을 WHERE에 넣어, 읽은 뒤 다른 요청이 상태를 바꾼 경우에는 덮어쓰지 않는다.

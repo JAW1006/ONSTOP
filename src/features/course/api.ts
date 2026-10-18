@@ -1,6 +1,14 @@
 // 이동시간·주변 장소 조회(server/ 프록시). 구간 출처 규칙: docs/design/screens/course-map.md "이동 시간·거리 데이터"
 import type { CoursePlace } from "@/data";
-import { haversineKm, pickTravelMode, routeSecToMin, transitMin, walkMin, type LatLng, type TravelMode } from "@/domain/travel";
+import {
+  haversineKm,
+  pickTravelMode,
+  routeSecToMin,
+  transitMin,
+  walkMin,
+  type LatLng,
+  type TravelMode,
+} from "@/domain/travel";
 
 export interface TravelResult {
   min: number;
@@ -24,7 +32,8 @@ async function getJson(url: string) {
   return data;
 }
 
-const q = (from: LatLng, to: LatLng) => `originLat=${from.lat}&originLng=${from.lng}&destLat=${to.lat}&destLng=${to.lng}`;
+const q = (from: LatLng, to: LatLng) =>
+  `originLat=${from.lat}&originLng=${from.lng}&destLat=${to.lat}&destLng=${to.lng}`;
 
 /**
  * 레거시 fetchTravelMin과 같은 분기: 직선 ≤ 1.2km 도보(추정, 조회 안 함), ≥ 6km 대중교통(ODsay) 실패 시 자동차,
@@ -33,7 +42,8 @@ const q = (from: LatLng, to: LatLng) => `originLat=${from.lat}&originLng=${from.
 export async function fetchTravel(from: LatLng, to: LatLng): Promise<TravelResult> {
   const km = haversineKm(from, to);
   const mode = pickTravelMode(km);
-  if (mode === "walk") return { min: walkMin(km), mode, approx: true, path: null, distanceM: null, transfers: null, fare: null };
+  if (mode === "walk")
+    return { min: walkMin(km), mode, approx: true, path: null, distanceM: null, transfers: null, fare: null };
   if (mode === "transit") {
     try {
       const d = await getJson(`/api/transit?${q(from, to)}`);
@@ -72,7 +82,13 @@ export async function fetchTravel(from: LatLng, to: LatLng): Promise<TravelResul
 /** 지도에 얹는 업종(카카오 category_group_code) */
 export const NEARBY_CATEGORIES = ["FD6", "CE7", "CS2", "MT1", "AT4", "HP8", "PM9"] as const;
 /** 일정에 담을 수 있는 업종 → 코스 카테고리. 나머지(병원 HP8·약국 PM9)는 참고용 점 */
-export const POI_ADDABLE_CAT: Record<string, CoursePlace["cat"]> = { FD6: "Food", CE7: "Food", CS2: "Shopping", MT1: "Shopping", AT4: "Sightseeing" };
+export const POI_ADDABLE_CAT: Record<string, CoursePlace["cat"]> = {
+  FD6: "Food",
+  CE7: "Food",
+  CS2: "Shopping",
+  MT1: "Shopping",
+  AT4: "Sightseeing",
+};
 /** 카테고리 코드가 없는 K-뷰티 리테일 — 이름으로 찾아 뷰티에 합친다 */
 export const BEAUTY_BRAND_KEYWORDS = ["올리브영", "에뛰드", "이니스프리", "미샤", "네이처리퍼블릭", "더샘", "토니모리"];
 
@@ -92,7 +108,17 @@ export interface RefPoi {
 const toLivePlace = (p: RawPoi, cat: CoursePlace["cat"]): CoursePlace => {
   const text = { ko: p.name, en: p.name, zh: p.name, ja: p.name, vi: p.name };
   const area = { ko: p.category, en: p.category, zh: p.category, ja: p.category, vi: p.category };
-  return { id: `live-${p.id}`, cat, name: text, area, durMin: 0, price: 0, tint: "", coord: { lat: p.lat, lng: p.lng }, live: true };
+  return {
+    id: `live-${p.id}`,
+    cat,
+    name: text,
+    area,
+    durMin: 0,
+    price: 0,
+    tint: "",
+    coord: { lat: p.lat, lng: p.lng },
+    live: true,
+  };
 };
 
 /** 숙소 주변 실시간 장소: 담을 수 있는 장소 + 참고용 점. 카카오 place id 기준 중복 제거(레거시 동일) */
@@ -100,14 +126,20 @@ export async function fetchNearby(center: LatLng): Promise<{ addable: CoursePlac
   const safe = (p: Promise<RawPoi[]>) => p.catch(() => [] as RawPoi[]);
   const byCat = await Promise.all(
     NEARBY_CATEGORIES.map((c) =>
-      safe(getJson(`/api/places?lat=${center.lat}&lng=${center.lng}&category=${c}&radius=1500`).then((d) => d.places ?? [])).then(
-        (list) => list.map((p: RawPoi) => ({ ...p, catCode: c })),
-      ),
+      safe(
+        getJson(`/api/places?lat=${center.lat}&lng=${center.lng}&category=${c}&radius=1500`).then(
+          (d) => d.places ?? [],
+        ),
+      ).then((list) => list.map((p: RawPoi) => ({ ...p, catCode: c }))),
     ),
   );
   const beauty = await Promise.all(
     BEAUTY_BRAND_KEYWORDS.map((kw) =>
-      safe(getJson(`/api/places/search?lat=${center.lat}&lng=${center.lng}&query=${encodeURIComponent(kw)}&radius=3000`).then((d) => d.places ?? [])),
+      safe(
+        getJson(
+          `/api/places/search?lat=${center.lat}&lng=${center.lng}&query=${encodeURIComponent(kw)}&radius=3000`,
+        ).then((d) => d.places ?? []),
+      ),
     ),
   );
   const seen = new Set<string>();

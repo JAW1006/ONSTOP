@@ -21,7 +21,10 @@ const koKeys = Object.keys(flat.ko!).sort();
 type AddedEntry = { stage: string; reviewed: boolean; kind?: "changed" | "removed" };
 const entries = Object.entries(addedKeys as Record<string, AddedEntry>);
 /** 레거시 이후 새로 만든 키 */
-const ADDED_KEYS = entries.filter(([, e]) => !e.kind).map(([k]) => k).sort();
+const ADDED_KEYS = entries
+  .filter(([, e]) => !e.kind)
+  .map(([k]) => k)
+  .sort();
 /** 레거시 키지만 문구를 의도적으로 바꾼 키 — 원문 대조에서 제외 */
 const CHANGED_KEYS = new Set(entries.filter(([, e]) => e.kind === "changed").map(([k]) => k));
 /** 레거시 키지만 기능이 없어 의도적으로 지운 키 — 존재·원문 대조에서 제외 */
@@ -42,7 +45,8 @@ describe("locales", () => {
   });
 
   it.each(LANGUAGE_CODES)("%s: 자리표시자가 ko와 같다", (lang) => {
-    for (const key of koKeys) expect([key, placeholders(flat[lang]![key]!)]).toEqual([key, placeholders(flat.ko![key]!)]);
+    for (const key of koKeys)
+      expect([key, placeholders(flat[lang]![key]!)]).toEqual([key, placeholders(flat.ko![key]!)]);
   });
 
   it("레거시 STR 원문과 일치({x} → {{x}} 변환 외 차이 없음)", () => {
@@ -54,7 +58,7 @@ describe("locales", () => {
     for (const [legacy, key] of map)
       if (!CHANGED_KEYS.has(key) && !REMOVED_KEYS.has(key))
         for (const lang of LANGUAGE_CODES)
-        expect([key, lang, flat[lang]![key]]).toEqual([key, lang, STR[legacy][lang].replace(/\{(\w+)\}/g, "{{$1}}")]);
+          expect([key, lang, flat[lang]![key]]).toEqual([key, lang, STR[legacy][lang].replace(/\{(\w+)\}/g, "{{$1}}")]);
   });
 });
 

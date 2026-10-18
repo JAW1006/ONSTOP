@@ -71,7 +71,11 @@ export interface CourseTimeline {
 }
 
 /** [레거시 별 모양 — 비교용] 일정 타임라인(분, 도착일 0시 기준) */
-export function buildCourseTimeline(startMin: number, roomMoveMin: number | null, stops: readonly CourseStop[]): CourseTimeline {
+export function buildCourseTimeline(
+  startMin: number,
+  roomMoveMin: number | null,
+  stops: readonly CourseStop[],
+): CourseTimeline {
   let clock = startMin + COURSE_PREP_MIN;
   let checkInAt: number | null = null;
   if (roomMoveMin != null) {
@@ -161,8 +165,13 @@ export interface SequentialCourse {
 /** 순차 경로에 필요한 구간 수 */
 export const sequentialLegCount = (stopCount: number) => (stopCount ? stopCount + 3 : 2);
 
-export function sequentialCourse(startMin: number, legs: readonly number[], stays: readonly number[]): SequentialCourse {
-  if (legs.length !== sequentialLegCount(stays.length)) throw new Error(`legs(${legs.length}) must be ${sequentialLegCount(stays.length)} for ${stays.length} stays`);
+export function sequentialCourse(
+  startMin: number,
+  legs: readonly number[],
+  stays: readonly number[],
+): SequentialCourse {
+  if (legs.length !== sequentialLegCount(stays.length))
+    throw new Error(`legs(${legs.length}) must be ${sequentialLegCount(stays.length)} for ${stays.length} stays`);
   let clock = startMin + COURSE_PREP_MIN + legs[0]!;
   const checkInAt = clock;
   const stops = stays.map((stay, i) => {
@@ -238,7 +247,8 @@ export function returnPlan(
   const lateMin = Math.max(0, course.returnAt - returnByMin);
   const hotelDepartureDeadlineMin = returnByMin - course.returnLegMin;
   const hasStops = course.stops.length > 0;
-  const hotelBy = hasStops && blockEndMin != null ? Math.min(hotelDepartureDeadlineMin, blockEndMin) : hotelDepartureDeadlineMin;
+  const hotelBy =
+    hasStops && blockEndMin != null ? Math.min(hotelDepartureDeadlineMin, blockEndMin) : hotelDepartureDeadlineMin;
   const blockOverMin = hasStops && blockEndMin != null ? Math.max(0, course.hotelReturnAt - blockEndMin) : 0;
   return {
     targetMin: returnByMin,
@@ -268,7 +278,12 @@ export interface HotelBlockLimit {
 }
 
 /** 순차 경로가 코스 가용 시간 안이고, 블록이 있으면 호텔 복귀 ≤ 블록 종료인가 */
-export function fitsSequential<P extends { durMin: number }>(availableMin: number, legsFor: LegsFor<P>, stops: readonly P[], block?: HotelBlockLimit | null): boolean {
+export function fitsSequential<P extends { durMin: number }>(
+  availableMin: number,
+  legsFor: LegsFor<P>,
+  stops: readonly P[],
+  block?: HotelBlockLimit | null,
+): boolean {
   const legs = legsFor(stops);
   const stays = stops.map((p) => p.durMin);
   const raw = sequentialCourse(block?.startMin ?? 0, legs, stays);

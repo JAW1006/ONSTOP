@@ -1,6 +1,16 @@
 // 기댓값은 docs/formulas/time-fit.md "순차 경로 예시"(S1–S6)와 같은 숫자다.
 import { describe, expect, it } from "vitest";
-import { alignCheckIn, courseAvailableMin, fitsSequential, returnPlan, scheduleSummary, sequentialCourse, sequentialUsedMin, autoBuildSequential, wouldFitSequential } from "./time-fit";
+import {
+  alignCheckIn,
+  courseAvailableMin,
+  fitsSequential,
+  returnPlan,
+  scheduleSummary,
+  sequentialCourse,
+  sequentialUsedMin,
+  autoBuildSequential,
+  wouldFitSequential,
+} from "./time-fit";
 import { approxTravel } from "./travel";
 import { hhmm } from "./time";
 
@@ -61,9 +71,18 @@ describe("sequentialCourse — 순차 경로(A6) + 호텔 복귀(B1)", () => {
 
   it("S6 블록 제약: S3에서 블록 종료 13:00이면 11분 늦음, 마지막 장소 출발 기한 12:52 / 종료 15:00이면 문제 없음", () => {
     const c = sequentialCourse(START, [18, 12, 8, 8, 18], [25, 20]);
-    expect(returnPlan(RETURN_BY, c, 780)).toMatchObject({ blockEndMin: 780, blockOver: true, blockOverMin: 11, lastDepartureDeadlineMin: 772 });
+    expect(returnPlan(RETURN_BY, c, 780)).toMatchObject({
+      blockEndMin: 780,
+      blockOver: true,
+      blockOverMin: 11,
+      lastDepartureDeadlineMin: 772,
+    });
     expect(hhmm(772)).toBe("12:52");
-    expect(returnPlan(RETURN_BY, c, 900)).toMatchObject({ blockOver: false, blockOverMin: 0, lastDepartureDeadlineMin: 785 });
+    expect(returnPlan(RETURN_BY, c, 900)).toMatchObject({
+      blockOver: false,
+      blockOverMin: 0,
+      lastDepartureDeadlineMin: 785,
+    });
     // 장소가 없으면 호텔 복귀 구간이 없어 블록 제약이 없다
     expect(returnPlan(RETURN_BY, sequentialCourse(START, [18, 18], []), 700).blockOver).toBe(false);
   });
@@ -95,10 +114,20 @@ describe("sequentialCourse — 순차 경로(A6) + 호텔 복귀(B1)", () => {
 describe("autoBuildSequential / wouldFitSequential — S5", () => {
   // 구간표(분). 장소→호텔은 호텔→장소와 같게 둔다. 없는 쌍은 테스트에서 쓰지 않는다
   const LEG: Record<string, number> = {
-    "airport>hotel": 18, "hotel>airport": 18,
-    "hotel>S1": 13, "S1>hotel": 13, "hotel>S2": 17, "S2>hotel": 17,
-    "hotel>F1": 16, "F1>hotel": 16, "hotel>F2": 40, "F2>hotel": 40,
-    "S1>F1": 5, "S1>F2": 30, "S2>F1": 6, "S2>F2": 31,
+    "airport>hotel": 18,
+    "hotel>airport": 18,
+    "hotel>S1": 13,
+    "S1>hotel": 13,
+    "hotel>S2": 17,
+    "S2>hotel": 17,
+    "hotel>F1": 16,
+    "F1>hotel": 16,
+    "hotel>F2": 40,
+    "F2>hotel": 40,
+    "S1>F1": 5,
+    "S1>F2": 30,
+    "S2>F1": 6,
+    "S2>F2": 31,
   };
   type P = { id: string; cat: string; durMin: number; rankMoveMin: number };
   const places: P[] = [

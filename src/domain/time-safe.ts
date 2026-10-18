@@ -147,7 +147,11 @@ export interface TimeSafeResult {
 }
 
 export function computeTimeSafe(input: TimeSafeInput, buffers: TimeSafeBuffers = DEFAULT_BUFFERS): TimeSafeResult {
-  const securityMin = securityBufferMin(input.departureTerminal, input.liveSecurityWaitMin, buffers.departureSecurityMin);
+  const securityMin = securityBufferMin(
+    input.departureTerminal,
+    input.liveSecurityWaitMin,
+    buffers.departureSecurityMin,
+  );
   const returnBufferMin = securityMin + buffers.gateMarginMin;
   const exitAtMin = input.arriveMin + buffers.arrivalImmigrationMin;
 

@@ -16,7 +16,13 @@ export function KeyValueRow({
   return (
     <div className={cn("flex justify-between gap-3", size === "md" && "py-1")}>
       <span className={cn(size === "md" ? "text-body text-sub" : "text-body text-faint")}>{label}</span>
-      <span className={cn("text-right text-body", size === "md" ? "font-semibold" : "font-bold", tone === "success" ? "text-success" : "text-ink")}>
+      <span
+        className={cn(
+          "text-right text-body",
+          size === "md" ? "font-semibold" : "font-bold",
+          tone === "success" ? "text-success" : "text-ink",
+        )}
+      >
         {value}
       </span>
     </div>

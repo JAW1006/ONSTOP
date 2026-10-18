@@ -61,7 +61,9 @@ function pinHtml(pin: MapScene["pins"][number]) {
 function chipHtml(leg: MapScene["legs"][number], selected: boolean) {
   const color = leg.isReturn ? "var(--ts-role-return)" : "var(--ts-role-route-text)";
   const border = leg.isReturn ? "1.5px dashed var(--ts-role-return)" : "1.5px solid var(--ts-role-route)";
-  const sub = leg.chip.sub ? `<span style="font:600 10px var(--ts-font-sans);color:var(--ts-sub);margin-left:3px">${esc(leg.chip.sub)}</span>` : "";
+  const sub = leg.chip.sub
+    ? `<span style="font:600 10px var(--ts-font-sans);color:var(--ts-sub);margin-left:3px">${esc(leg.chip.sub)}</span>`
+    : "";
   return `<div style="display:inline-flex;align-items:baseline;gap:3px;padding:3px 8px;border-radius:999px;background:#fff;border:${border};box-shadow:${selected ? "0 0 0 3px rgb(14 140 132/.25)" : "var(--ts-shadow-card)"};white-space:nowrap"><span aria-hidden="true">${leg.chip.icon}</span><b style="font:800 13px var(--ts-font-sans);color:${color}">${esc(leg.chip.text)}</b>${sub}</div>`;
 }
 
@@ -78,7 +80,10 @@ export function KakaoMapView({ scene, onPinClick, onDotClick, onLegClick, unavai
     loadKakao()
       .then((kakao) => {
         if (cancelled || !host.current || map.current) return;
-        map.current = new kakao.maps.Map(host.current, { center: new kakao.maps.LatLng(scene.center.lat, scene.center.lng), level: 7 });
+        map.current = new kakao.maps.Map(host.current, {
+          center: new kakao.maps.LatLng(scene.center.lat, scene.center.lng),
+          level: 7,
+        });
         kakao.maps.event.addListener(map.current, "zoom_changed", () => setLevel(map.current.getLevel()));
         setLevel(map.current.getLevel());
       })
@@ -112,22 +117,48 @@ export function KakaoMapView({ scene, onPinClick, onDotClick, onLegClick, unavai
       const selection = scene.selectedLeg == null ? "none" : scene.selectedLeg === leg.index ? "selected" : "dimmed";
       const kind = lineKind(leg.mode, leg.isReturn);
       const pts = leg.path && leg.path.length > 1 ? leg.path : [leg.from, leg.to];
-      const line = new kakao.maps.Polyline({ path: pts.map(latLng), ...polylineStyle(kind, selection), strokeStyle: KAKAO_STROKE_STYLE[kind] });
+      const line = new kakao.maps.Polyline({
+        path: pts.map(latLng),
+        ...polylineStyle(kind, selection),
+        strokeStyle: KAKAO_STROKE_STYLE[kind],
+      });
       kakao.maps.event.addListener(line, "click", () => onLegClick(leg.index));
       add(line);
       const mid = pts[Math.floor((pts.length - 1) / 2)]!;
-      const at = pts.length === 2 ? { lat: (pts[0]!.lat + pts[1]!.lat) / 2, lng: (pts[0]!.lng + pts[1]!.lng) / 2 } : mid;
-      add(new kakao.maps.CustomOverlay({ position: latLng(at), content: el(chipHtml(leg, scene.selectedLeg === leg.index), () => onLegClick(leg.index), leg.chip.ariaLabel), yAnchor: 0.5, zIndex: 3 }));
+      const at =
+        pts.length === 2 ? { lat: (pts[0]!.lat + pts[1]!.lat) / 2, lng: (pts[0]!.lng + pts[1]!.lng) / 2 } : mid;
+      add(
+        new kakao.maps.CustomOverlay({
+          position: latLng(at),
+          content: el(chipHtml(leg, scene.selectedLeg === leg.index), () => onLegClick(leg.index), leg.chip.ariaLabel),
+          yAnchor: 0.5,
+          zIndex: 3,
+        }),
+      );
     });
     scene.pins.forEach((pin) => {
       const clickable = pin.kind !== "airport";
-      add(new kakao.maps.CustomOverlay({ position: latLng(pin.coord), content: el(pinHtml(pin), clickable ? () => onPinClick(pin.id) : undefined, pin.label), yAnchor: 0.85, zIndex: pin.kind === "place" ? 5 : 4 }));
+      add(
+        new kakao.maps.CustomOverlay({
+          position: latLng(pin.coord),
+          content: el(pinHtml(pin), clickable ? () => onPinClick(pin.id) : undefined, pin.label),
+          yAnchor: 0.85,
+          zIndex: pin.kind === "place" ? 5 : 4,
+        }),
+      );
     });
     if (level <= DOT_VISIBLE_MAX_LEVEL) {
       scene.dots.forEach((dot) => {
         const size = dot.kind === "candidate" ? 11 : 8;
         const html = `<div title="${esc(dot.name)}" style="width:${size}px;height:${size}px;border-radius:999px;background:var(--ts-role-candidate);border:1.5px solid #fff;box-shadow:0 1px 3px rgb(0 0 0/.3)"></div>`;
-        add(new kakao.maps.CustomOverlay({ position: latLng(dot.coord), content: el(html, () => onDotClick(dot.id), dot.name), yAnchor: 0.5, zIndex: 1 }));
+        add(
+          new kakao.maps.CustomOverlay({
+            position: latLng(dot.coord),
+            content: el(html, () => onDotClick(dot.id), dot.name),
+            yAnchor: 0.5,
+            zIndex: 1,
+          }),
+        );
       });
     }
   }, [scene, level, onPinClick, onDotClick, onLegClick]);

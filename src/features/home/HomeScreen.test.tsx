@@ -15,8 +15,10 @@ const fetchMock = vi.fn(async (url: string) => {
   const u = new URL(url, "http://localhost");
   const json = (status: number, body: unknown) => new Response(JSON.stringify(body), { status });
   const id = u.searchParams.get("flightId") ?? "";
-  if (u.pathname === "/api/flight/arrival") return arrivals[id] ? json(200, { flights: [arrivals[id]] }) : json(404, {});
-  if (u.pathname === "/api/flight/departure") return departures[id] ? json(200, { flights: [departures[id]] }) : json(404, {});
+  if (u.pathname === "/api/flight/arrival")
+    return arrivals[id] ? json(200, { flights: [arrivals[id]] }) : json(404, {});
+  if (u.pathname === "/api/flight/departure")
+    return departures[id] ? json(200, { flights: [departures[id]] }) : json(404, {});
   if (u.pathname === "/api/security-wait") return json(200, { gates: securityGates });
   if (u.pathname === "/api/security-wait/t2") return json(200, { gates: securityGatesT2 });
   return json(500, {});
@@ -24,14 +26,68 @@ const fetchMock = vi.fn(async (url: string) => {
 
 beforeEach(async () => {
   arrivals = {
-    KE085: { flightId: "KE085", airline: "Korean Air", fromAirport: "Los Angeles", scheduleDateTime: "1030", estimatedDateTime: "1030", terminal: "P03", gate: "230", remark: null },
-    LATE1: { flightId: "LATE1", airline: "Late Air", fromAirport: "Manila", scheduleDateTime: "1015", estimatedDateTime: "1030", terminal: "P01", gate: "12", remark: null },
+    KE085: {
+      flightId: "KE085",
+      airline: "Korean Air",
+      fromAirport: "Los Angeles",
+      scheduleDateTime: "1030",
+      estimatedDateTime: "1030",
+      terminal: "P03",
+      gate: "230",
+      remark: null,
+    },
+    LATE1: {
+      flightId: "LATE1",
+      airline: "Late Air",
+      fromAirport: "Manila",
+      scheduleDateTime: "1015",
+      estimatedDateTime: "1030",
+      terminal: "P01",
+      gate: "12",
+      remark: null,
+    },
   };
   departures = {
-    MU2043: { flightId: "MU2043", airline: "China Eastern", toAirport: "Qingdao", scheduleDateTime: "1451", estimatedDateTime: "1451", terminal: "P02", gate: "129", remark: null },
-    SOON1: { flightId: "SOON1", airline: "Soon Air", toAirport: "Osaka", scheduleDateTime: "1250", estimatedDateTime: null, terminal: "P02", gate: "1", remark: null },
-    T2DEP: { flightId: "T2DEP", airline: "T2 Air", toAirport: "Tokyo", scheduleDateTime: "1451", estimatedDateTime: null, terminal: "P03", gate: "250", remark: null },
-    T1DEP: { flightId: "T1DEP", airline: "T1 Air", toAirport: "Hanoi", scheduleDateTime: "1451", estimatedDateTime: null, terminal: "P01", gate: "40", remark: null },
+    MU2043: {
+      flightId: "MU2043",
+      airline: "China Eastern",
+      toAirport: "Qingdao",
+      scheduleDateTime: "1451",
+      estimatedDateTime: "1451",
+      terminal: "P02",
+      gate: "129",
+      remark: null,
+    },
+    SOON1: {
+      flightId: "SOON1",
+      airline: "Soon Air",
+      toAirport: "Osaka",
+      scheduleDateTime: "1250",
+      estimatedDateTime: null,
+      terminal: "P02",
+      gate: "1",
+      remark: null,
+    },
+    T2DEP: {
+      flightId: "T2DEP",
+      airline: "T2 Air",
+      toAirport: "Tokyo",
+      scheduleDateTime: "1451",
+      estimatedDateTime: null,
+      terminal: "P03",
+      gate: "250",
+      remark: null,
+    },
+    T1DEP: {
+      flightId: "T1DEP",
+      airline: "T1 Air",
+      toAirport: "Hanoi",
+      scheduleDateTime: "1451",
+      estimatedDateTime: null,
+      terminal: "P01",
+      gate: "40",
+      remark: null,
+    },
   };
   securityGates = [{ waitTimeMin: 20 }, { waitTimeMin: 30 }]; // 평균 25 < 기준 50
   securityGatesT2 = [{ waitTimeMin: 70 }];
@@ -128,7 +184,9 @@ describe("홈 — 재조회와 변경 배너", () => {
 
     departures.MU2043 = { ...departures.MU2043!, estimatedDateTime: "1521" };
     await act(async () => fireEvent.click(screen.getByRole("button", { name: "Refresh flight status" })));
-    await waitFor(() => expect(screen.getByRole("status").textContent).toBe("Connecting flight time changed · return by 13:31 → 14:01"));
+    await waitFor(() =>
+      expect(screen.getByRole("status").textContent).toBe("Connecting flight time changed · return by 13:31 → 14:01"),
+    );
     expect(card().textContent).toContain("2h 41m");
     expect(card().textContent).toContain("30 min delayed");
 
@@ -152,7 +210,9 @@ describe("홈 — 재조회와 변경 배너", () => {
     // 출국장 대기 조회가 끝나야 새로고침 버튼이 풀린다
     await waitFor(() => expect(card().textContent).toContain("now ~25 min"));
     await act(async () => fireEvent.click(screen.getByRole("button", { name: "Refresh flight status" })));
-    await waitFor(() => expect((screen.getByRole("button", { name: "Refresh flight status" }) as HTMLButtonElement).disabled).toBe(false));
+    await waitFor(() =>
+      expect((screen.getByRole("button", { name: "Refresh flight status" }) as HTMLButtonElement).disabled).toBe(false),
+    );
     expect(screen.queryByRole("status")).toBeNull();
   });
 });

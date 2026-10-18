@@ -6,7 +6,10 @@ import { renderApp } from "@/test/render-app";
 
 const renderAt = (path: string, onboarded = true) => renderApp(path, { onboarded });
 const tabs = () => within(screen.getByRole("navigation")).getAllByRole("link");
-const current = () => tabs().filter((a) => a.getAttribute("aria-current") === "page").map((a) => a.textContent);
+const current = () =>
+  tabs()
+    .filter((a) => a.getAttribute("aria-current") === "page")
+    .map((a) => a.textContent);
 
 describe("TabBar", () => {
   beforeEach(() => i18n.changeLanguage("en"));

@@ -16,7 +16,11 @@ afterEach(cleanup);
 describe("Button", () => {
   it("disabled면 클릭이 안 된다", () => {
     const onClick = vi.fn();
-    render(<Button disabled onClick={onClick}>Pay</Button>);
+    render(
+      <Button disabled onClick={onClick}>
+        Pay
+      </Button>,
+    );
     fireEvent.click(screen.getByRole("button", { name: "Pay" }));
     expect(onClick).not.toHaveBeenCalled();
   });

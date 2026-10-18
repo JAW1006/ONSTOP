@@ -50,7 +50,11 @@ export function BookingsScreen() {
           requests.map((r) => <RequestCard key={r.id} request={r} onCancel={() => setCancelling(r)} />)
         )}
       </div>
-      <BottomSheet open={!!cancelling} onOpenChange={(o) => !o && setCancelling(null)} title={t("bookings.cancelConfirm.title")}>
+      <BottomSheet
+        open={!!cancelling}
+        onOpenChange={(o) => !o && setCancelling(null)}
+        title={t("bookings.cancelConfirm.title")}
+      >
         <p className="mb-4 text-body text-sub">{t("bookings.cancelConfirm.body")}</p>
         <div className="flex gap-2.5">
           <Button variant="outline" size="md" className="flex-1" onClick={() => setCancelling(null)}>
@@ -117,16 +121,26 @@ function RequestCard({ request: r, onCancel }: { request: BookingRequest; onCanc
           <p className="text-caption text-ink">{t("bookings.confirmed.cancelHint")}</p>
           <KeyValueRow
             label={t("bookings.contact")}
-            value={[partner.contact?.phone, partner.contact?.email].filter(Boolean).join(" · ") || t("bookings.contactPending")}
+            value={
+              [partner.contact?.phone, partner.contact?.email].filter(Boolean).join(" · ") ||
+              t("bookings.contactPending")
+            }
           />
-          <KeyValueRow label={t("bookings.policy")} value={partner.cancellationPolicy ? text(partner.cancellationPolicy) : t("bookings.policyPending")} />
+          <KeyValueRow
+            label={t("bookings.policy")}
+            value={partner.cancellationPolicy ? text(partner.cancellationPolicy) : t("bookings.policyPending")}
+          />
         </div>
       )}
 
       {(r.status === "declined" || r.status === "expired") && (
         <div className="mt-3">
-          <p className="text-body font-bold text-red">{t(r.status === "declined" ? "bookings.declined.note" : "bookings.expired.note")}</p>
-          {r.declineReason && <p className="text-caption text-sub">{t("bookings.declined.reason", { reason: r.declineReason })}</p>}
+          <p className="text-body font-bold text-red">
+            {t(r.status === "declined" ? "bookings.declined.note" : "bookings.expired.note")}
+          </p>
+          {r.declineReason && (
+            <p className="text-caption text-sub">{t("bookings.declined.reason", { reason: r.declineReason })}</p>
+          )}
           <Alternatives excludeRoomId={r.roomId} hadCourse={r.planIds.length > 0} />
         </div>
       )}
@@ -155,7 +169,9 @@ function Alternatives({ excludeRoomId, hadCourse }: { excludeRoomId: string; had
                 <span className="block text-caption font-bold text-ink">{localize(room.name, i18n.language)}</span>
                 <span className="block text-micro text-faint">{t("booking.fromAirportApprox", { n: min })}</span>
               </span>
-              <span className="text-caption font-bold text-blue">{t(offerFor(room.id, demo).offer ? "bookings.alt.price" : "bookings.alt.quote")}</span>
+              <span className="text-caption font-bold text-blue">
+                {t(offerFor(room.id, demo).offer ? "bookings.alt.price" : "bookings.alt.quote")}
+              </span>
             </Link>
           </li>
         ))}

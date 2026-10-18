@@ -23,18 +23,21 @@ export function TimeSafeCard() {
 
       {a && connection && (
         <p className="mt-2.5 text-caption text-on-dark-muted">
-          {a.airline} {a.flightId} · {t("flight.from")} {a.fromAirport} · {t("timeSafe.arrive")} {fmt.time(connection.arriveMin)} ·{" "}
-          {t("flight.terminal")} {a.terminal || "-"} · {t("flight.gate")} {a.gate || "-"} · {t("flight.status")}{" "}
-          {a.remark || t("flight.onTime")}
+          {a.airline} {a.flightId} · {t("flight.from")} {a.fromAirport} · {t("timeSafe.arrive")}{" "}
+          {fmt.time(connection.arriveMin)} · {t("flight.terminal")} {a.terminal || "-"} · {t("flight.gate")}{" "}
+          {a.gate || "-"} · {t("flight.status")} {a.remark || t("flight.onTime")}
         </p>
       )}
 
-      {a && !bothReady && <p className="mt-2.5 text-body leading-relaxed text-on-dark-muted">{t("timeSafe.needConnection")}</p>}
+      {a && !bothReady && (
+        <p className="mt-2.5 text-body leading-relaxed text-on-dark-muted">{t("timeSafe.needConnection")}</p>
+      )}
 
       {bothReady && d && connection?.departMin != null && (
         <>
           <p className="mt-1.5 text-caption text-on-dark-muted">
-            {d.airline} {d.flightId} · {t("flight.to")} {d.toAirport} · {t("flight.departs")} {fmt.time(connection.departMin)}
+            {d.airline} {d.flightId} · {t("flight.to")} {d.toAirport} · {t("flight.departs")}{" "}
+            {fmt.time(connection.departMin)}
           </p>
           {connection.warning === "DEPART_BEFORE_ARRIVAL" ? (
             <p role="alert" className="mt-2 text-caption font-bold text-on-dark-danger">
@@ -67,7 +70,9 @@ export function TimeSafeCard() {
           ) : (
             <div role="alert" className="mt-2.5 rounded-md border border-red bg-on-dark-danger-bg px-3 py-2.5">
               <p className="text-body font-extrabold text-on-dark-danger">{t("timeSafe.cannotGoOut.title")}</p>
-              <p className="mt-1 text-caption leading-normal text-on-dark-danger-sub">{t("timeSafe.cannotGoOut.description")}</p>
+              <p className="mt-1 text-caption leading-normal text-on-dark-danger-sub">
+                {t("timeSafe.cannotGoOut.description")}
+              </p>
             </div>
           )}
           <p className="mt-2 text-micro text-on-dark-muted">

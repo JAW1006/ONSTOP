@@ -21,10 +21,8 @@ const booking = mountBookingRequests(app);
 // normalizing to the decoded form before URLSearchParams re-encodes it once.
 const RAW_SERVICE_KEY = process.env.AIRPORT_SERVICE_KEY;
 const SERVICE_KEY = RAW_SERVICE_KEY ? decodeURIComponent(RAW_SERVICE_KEY) : RAW_SERVICE_KEY;
-const ARRIVALS_URL =
-  "https://apis.data.go.kr/B551177/StatusOfPassengerFlightsOdp/getPassengerArrivalsOdp";
-const DEPARTURES_URL =
-  "https://apis.data.go.kr/B551177/StatusOfPassengerFlightsOdp/getPassengerDeparturesOdp";
+const ARRIVALS_URL = "https://apis.data.go.kr/B551177/StatusOfPassengerFlightsOdp/getPassengerArrivalsOdp";
+const DEPARTURES_URL = "https://apis.data.go.kr/B551177/StatusOfPassengerFlightsOdp/getPassengerDeparturesOdp";
 
 // data.go.kr wraps results as response.body.items, which can be a single
 // object, an array, or an empty string when nothing matches — normalize here.
@@ -34,7 +32,9 @@ function normalizeItems(items) {
 }
 
 app.get("/api/flight/arrival", async (req, res) => {
-  const flightId = String(req.query.flightId || "").trim().toUpperCase();
+  const flightId = String(req.query.flightId || "")
+    .trim()
+    .toUpperCase();
   const lang = String(req.query.lang || "K");
 
   if (!flightId) {
@@ -68,7 +68,9 @@ app.get("/api/flight/arrival", async (req, res) => {
 
     const items = normalizeItems(data?.response?.body?.items);
     if (!items.length) {
-      return res.status(404).json({ error: `no arrival found for "${flightId}" today (this API only covers same-day flights)` });
+      return res
+        .status(404)
+        .json({ error: `no arrival found for "${flightId}" today (this API only covers same-day flights)` });
     }
 
     const flights = items.map((it) => ({
@@ -90,7 +92,9 @@ app.get("/api/flight/arrival", async (req, res) => {
 });
 
 app.get("/api/flight/departure", async (req, res) => {
-  const flightId = String(req.query.flightId || "").trim().toUpperCase();
+  const flightId = String(req.query.flightId || "")
+    .trim()
+    .toUpperCase();
   const lang = String(req.query.lang || "K");
 
   if (!flightId) {
@@ -124,7 +128,9 @@ app.get("/api/flight/departure", async (req, res) => {
 
     const items = normalizeItems(data?.response?.body?.items);
     if (!items.length) {
-      return res.status(404).json({ error: `no departure found for "${flightId}" today (this API only covers same-day flights)` });
+      return res
+        .status(404)
+        .json({ error: `no departure found for "${flightId}" today (this API only covers same-day flights)` });
     }
 
     const flights = items.map((it) => ({
@@ -209,12 +215,16 @@ app.get("/api/security-wait/t2", async (req, res) => {
     try {
       data = JSON.parse(raw);
     } catch {
-      return res.status(502).json({ error: "T2 congestion API returned a non-JSON response", detail: raw.slice(0, 300) });
+      return res
+        .status(502)
+        .json({ error: "T2 congestion API returned a non-JSON response", detail: raw.slice(0, 300) });
     }
 
     const header = data?.response?.header;
     if (header && header.resultCode !== "00") {
-      return res.status(502).json({ error: header.resultMsg || "T2 congestion API error", resultCode: header.resultCode });
+      return res
+        .status(502)
+        .json({ error: header.resultMsg || "T2 congestion API error", resultCode: header.resultCode });
     }
 
     const items = normalizeItems(data?.response?.body?.items);
@@ -301,17 +311,20 @@ app.get("/api/places", async (req, res) => {
       const apiRes = await fetch(url, { headers: { Authorization: `KakaoAK ${KAKAO_REST_KEY}` } });
       const data = await apiRes.json().catch(() => ({}));
       if (!apiRes.ok) {
-        if (page === 1) return res.status(502).json({ error: data.message || `kakao local API error (${apiRes.status})` });
+        if (page === 1)
+          return res.status(502).json({ error: data.message || `kakao local API error (${apiRes.status})` });
         break; // 이미 1페이지는 받았으니 이후 페이지 실패는 조용히 무시하고 지금까지 모은 것만 반환
       }
       const docs = data.documents || [];
-      places.push(...docs.map((d) => ({
-        id: d.id,
-        name: d.place_name,
-        lat: Number(d.y),
-        lng: Number(d.x),
-        category: d.category_name,
-      })));
+      places.push(
+        ...docs.map((d) => ({
+          id: d.id,
+          name: d.place_name,
+          lat: Number(d.y),
+          lng: Number(d.x),
+          category: d.category_name,
+        })),
+      );
       if (data.meta?.is_end !== false || docs.length < 15) break; // 다음 페이지가 없으면 그만 멈춘다
     }
     res.json({ places });
@@ -408,7 +421,12 @@ app.get("/api/transit", async (req, res) => {
     if (typeof best.info.totalDistance === "number") optional.distanceM = best.info.totalDistance;
     if (typeof best.info.busTransitCount === "number") optional.busTransitCount = best.info.busTransitCount;
     if (typeof best.info.subwayTransitCount === "number") optional.subwayTransitCount = best.info.subwayTransitCount;
-    res.json({ durationMin: totalTime, fare: best.info.payment ?? null, path: path.length > 1 ? path : null, ...optional });
+    res.json({
+      durationMin: totalTime,
+      fare: best.info.payment ?? null,
+      path: path.length > 1 ? path : null,
+      ...optional,
+    });
   } catch (err) {
     res.status(502).json({ error: "failed to reach odsay API", detail: String(err) });
   }
@@ -431,7 +449,9 @@ booking
         console.warn("KAKAO_REST_API_KEY is not set — /api/route will fail until .env is configured.");
       }
       if (!ODSAY_API_KEY) {
-        console.warn("ODSAY_API_KEY is not set — /api/transit will fail until .env is configured (falls back to driving times).");
+        console.warn(
+          "ODSAY_API_KEY is not set — /api/transit will fail until .env is configured (falls back to driving times).",
+        );
       }
       if (!booking.databaseConfigured) {
         console.warn("DATABASE_URL is not set — /api/booking-requests will fail until .env is configured.");

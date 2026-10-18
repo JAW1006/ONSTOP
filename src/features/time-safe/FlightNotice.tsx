@@ -25,8 +25,10 @@ export function useFlightChangeNotice() {
     const before = prev.current;
     prev.current = cur;
     if (!before || before.ids !== cur.ids) return;
-    if (cur.returnBy !== before.returnBy) setNotice({ key: "flight.notice.returnByChanged", from: before.returnBy, to: cur.returnBy });
-    else if (cur.arrive !== before.arrive) setNotice({ key: "flight.notice.arrivalChanged", from: before.arrive, to: cur.arrive });
+    if (cur.returnBy !== before.returnBy)
+      setNotice({ key: "flight.notice.returnByChanged", from: before.returnBy, to: cur.returnBy });
+    else if (cur.arrive !== before.arrive)
+      setNotice({ key: "flight.notice.arrivalChanged", from: before.arrive, to: cur.arrive });
   }, [bothReady, arrive, returnBy, arrivalFlightId, departureFlightId]);
 
   return { notice, dismiss: () => setNotice(null) };
@@ -44,8 +46,15 @@ export function FlightNotice() {
       className="absolute inset-x-2.5 top-2.5 z-40 flex items-center gap-2 rounded-md bg-ink px-3 py-2.5 text-white shadow-(--ts-shadow-toast)"
     >
       <Bell size={14} className="shrink-0 text-gold" aria-hidden />
-      <span className="flex-1 text-caption leading-snug">{t(notice.key, { old: fmt.time(notice.from), new: fmt.time(notice.to) })}</span>
-      <button type="button" onClick={dismiss} aria-label={t("common.dismiss")} className="shrink-0 cursor-pointer p-0.5 text-on-dark-muted">
+      <span className="flex-1 text-caption leading-snug">
+        {t(notice.key, { old: fmt.time(notice.from), new: fmt.time(notice.to) })}
+      </span>
+      <button
+        type="button"
+        onClick={dismiss}
+        aria-label={t("common.dismiss")}
+        className="shrink-0 cursor-pointer p-0.5 text-on-dark-muted"
+      >
         <X size={15} aria-hidden />
       </button>
     </div>

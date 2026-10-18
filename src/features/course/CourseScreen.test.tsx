@@ -14,35 +14,96 @@ const R = 6371;
 const km = (a: { lat: number; lng: number }, b: { lat: number; lng: number }) => {
   const dLat = ((b.lat - a.lat) * Math.PI) / 180;
   const dLng = ((b.lng - a.lng) * Math.PI) / 180;
-  const s = Math.sin(dLat / 2) ** 2 + Math.cos((a.lat * Math.PI) / 180) * Math.cos((b.lat * Math.PI) / 180) * Math.sin(dLng / 2) ** 2;
+  const s =
+    Math.sin(dLat / 2) ** 2 +
+    Math.cos((a.lat * Math.PI) / 180) * Math.cos((b.lat * Math.PI) / 180) * Math.sin(dLng / 2) ** 2;
   return R * 2 * Math.atan2(Math.sqrt(s), Math.sqrt(1 - s));
 };
 
 let routeFails = false;
 const departures: Record<string, object> = {
-  MU2043: { flightId: "MU2043", airline: "China Eastern", toAirport: "Qingdao", scheduleDateTime: "1451", estimatedDateTime: "1451", terminal: "P02", gate: "129", remark: null },
+  MU2043: {
+    flightId: "MU2043",
+    airline: "China Eastern",
+    toAirport: "Qingdao",
+    scheduleDateTime: "1451",
+    estimatedDateTime: "1451",
+    terminal: "P02",
+    gate: "129",
+    remark: null,
+  },
   // 13:40 출발 → 외출 가능 정확히 60분(MIN_STAY), 코스 가용 40분
-  TIGHT1: { flightId: "TIGHT1", airline: "Tight Air", toAirport: "Busan", scheduleDateTime: "1340", estimatedDateTime: null, terminal: "P02", gate: "2", remark: null },
+  TIGHT1: {
+    flightId: "TIGHT1",
+    airline: "Tight Air",
+    toAirport: "Busan",
+    scheduleDateTime: "1340",
+    estimatedDateTime: null,
+    terminal: "P02",
+    gate: "2",
+    remark: null,
+  },
   // 19:00 출발 → 외출 가능 6h20m(380), 코스 가용 360
-  LONG1: { flightId: "LONG1", airline: "Long Air", toAirport: "Tokyo", scheduleDateTime: "1900", estimatedDateTime: null, terminal: "P02", gate: "3", remark: null },
-  SOON1: { flightId: "SOON1", airline: "Soon Air", toAirport: "Osaka", scheduleDateTime: "1250", estimatedDateTime: null, terminal: "P02", gate: "1", remark: null },
+  LONG1: {
+    flightId: "LONG1",
+    airline: "Long Air",
+    toAirport: "Tokyo",
+    scheduleDateTime: "1900",
+    estimatedDateTime: null,
+    terminal: "P02",
+    gate: "3",
+    remark: null,
+  },
+  SOON1: {
+    flightId: "SOON1",
+    airline: "Soon Air",
+    toAirport: "Osaka",
+    scheduleDateTime: "1250",
+    estimatedDateTime: null,
+    terminal: "P02",
+    gate: "1",
+    remark: null,
+  },
 };
 const fetchMock = vi.fn(async (url: string) => {
   const u = new URL(url, "http://localhost");
   const json = (status: number, body: unknown) => new Response(JSON.stringify(body), { status });
   const p = u.searchParams;
-  const leg = () => km({ lat: +p.get("originLat")!, lng: +p.get("originLng")! }, { lat: +p.get("destLat")!, lng: +p.get("destLng")! });
+  const leg = () =>
+    km({ lat: +p.get("originLat")!, lng: +p.get("originLng")! }, { lat: +p.get("destLat")!, lng: +p.get("destLng")! });
   switch (u.pathname) {
     case "/api/flight/arrival":
-      return json(200, { flights: [{ flightId: "KE085", airline: "Korean Air", fromAirport: "Los Angeles", scheduleDateTime: "1030", estimatedDateTime: "1030", terminal: "P01", gate: "230", remark: null }] });
+      return json(200, {
+        flights: [
+          {
+            flightId: "KE085",
+            airline: "Korean Air",
+            fromAirport: "Los Angeles",
+            scheduleDateTime: "1030",
+            estimatedDateTime: "1030",
+            terminal: "P01",
+            gate: "230",
+            remark: null,
+          },
+        ],
+      });
     case "/api/flight/departure":
       return json(200, { flights: [departures[p.get("flightId")!]] });
     case "/api/security-wait":
       return json(200, { gates: [{ waitTimeMin: 25 }] });
     case "/api/route":
-      return routeFails ? json(502, { error: "down" }) : json(200, { durationSec: Math.round(leg() * 120), distanceM: Math.round(leg() * 1300), path: null });
+      return routeFails
+        ? json(502, { error: "down" })
+        : json(200, { durationSec: Math.round(leg() * 120), distanceM: Math.round(leg() * 1300), path: null });
     case "/api/transit":
-      return json(200, { durationMin: Math.round(leg() * 3), fare: 1500, path: null, distanceM: Math.round(leg() * 1400), busTransitCount: 1, subwayTransitCount: 1 });
+      return json(200, {
+        durationMin: Math.round(leg() * 3),
+        fare: 1500,
+        path: null,
+        distanceM: Math.round(leg() * 1400),
+        busTransitCount: 1,
+        subwayTransitCount: 1,
+      });
     case "/api/places":
     case "/api/places/search":
       return json(200, { places: [] });
@@ -62,7 +123,12 @@ afterEach(() => {
 });
 
 const open = (opts: { departure?: string; room?: string } = {}) =>
-  renderApp("/course", { onboarded: true, arrivalFlightId: "KE085", departureFlightId: opts.departure ?? "MU2043", courseRoomId: opts.room });
+  renderApp("/course", {
+    onboarded: true,
+    arrivalFlightId: "KE085",
+    departureFlightId: opts.departure ?? "MU2043",
+    courseRoomId: opts.room,
+  });
 const panel = () => screen.getByRole("region", { name: "My course" });
 const legs = () => within(screen.getByRole("list", { name: "map legs" })).queryAllByRole("button");
 const places = () => screen.getByRole("region", { name: "Activity spots" });
@@ -71,13 +137,20 @@ const rooms = () => screen.getByRole("list", { name: "① Choose your day-use st
 const addButton = (name: string) => within(places()).getByRole("button", { name: `Add to plan · ${name}` });
 const waitReady = () => waitFor(() => expect(panel().textContent).toContain("/ available 2h 11m"));
 
-const routeCalls = () => fetchMock.mock.calls.map(([u]) => String(u)).filter((u) => u.startsWith("/api/route") || u.startsWith("/api/transit"));
+const routeCalls = () =>
+  fetchMock.mock.calls
+    .map(([u]) => String(u))
+    .filter((u) => u.startsWith("/api/route") || u.startsWith("/api/transit"));
 const openSaved = (planIds: string[]) =>
   renderApp("/course/saved", {
     onboarded: true,
     arrivalFlightId: "KE085",
     departureFlightId: "MU2043",
-    savedCourse: { roomId: "hotel-aura-incheon", plan: planIds.map((id) => PLACES.find((p) => p.id === id)!), cats: ["Shopping"] },
+    savedCourse: {
+      roomId: "hotel-aura-incheon",
+      plan: planIds.map((id) => PLACES.find((p) => p.id === id)!),
+      cats: ["Shopping"],
+    },
   });
 
 describe("코스 빌더 — 보수적 근사만(실제 경로 조회 안 함)", () => {
@@ -108,8 +181,13 @@ describe("코스 빌더 — 보수적 근사만(실제 경로 조회 안 함)", 
     expect(placeCard(/Lotte Hi-Mart/).textContent).toContain("~47 min");
 
     await act(async () => fireEvent.click(addButton("Lotte Hi-Mart (Yeongjong)")));
-    await waitFor(() => expect(legs().map((b) => b.textContent)).toEqual(["~19 min", "~47 min", "To stay ~47 min", "Return ~19 min"]));
-    expect(fakeMap.scene!.pins.find((p) => p.kind === "place")).toMatchObject({ number: 1, label: "Lotte Hi-Mart (Yeongjong)" });
+    await waitFor(() =>
+      expect(legs().map((b) => b.textContent)).toEqual(["~19 min", "~47 min", "To stay ~47 min", "Return ~19 min"]),
+    );
+    expect(fakeMap.scene!.pins.find((p) => p.kind === "place")).toMatchObject({
+      number: 1,
+      label: "Lotte Hi-Mart (Yeongjong)",
+    });
     let text = panel().textContent!;
     expect(text).toContain("Used 3h 32m");
     expect(text).toContain("81 min over");
@@ -134,7 +212,11 @@ describe("코스 빌더 — 보수적 근사만(실제 경로 조회 안 함)", 
     open({ departure: "LONG1", room: "hotel-aura-incheon" });
     await waitFor(() => expect(panel().textContent).toContain("/ available 6h 20m"));
     await act(async () => fireEvent.click(screen.getByRole("button", { name: /Auto-build with Time-Fit/ })));
-    await waitFor(() => expect(fakeMap.scene!.pins.filter((p) => p.kind === "place").map((p) => p.label)).toEqual(["Olive Young (Unseo)"]));
+    await waitFor(() =>
+      expect(fakeMap.scene!.pins.filter((p) => p.kind === "place").map((p) => p.label)).toEqual([
+        "Olive Young (Unseo)",
+      ]),
+    );
     expect(panel().textContent).toContain("Used 3h 2m");
     expect(panel().textContent).toContain("198 min to spare");
     expect(panel().textContent).toContain("Leave your last stop by16:34");
@@ -147,7 +229,14 @@ describe("코스 빌더 — 보수적 근사만(실제 경로 조회 안 함)", 
 describe("저장된 코스 — 확정 후 실제 경로 조회", () => {
   it("하이마트: 실제 6분·23분·숙소로 23분·복귀 6분 → 사용 2h 18m, 7분 초과(호텔 복귀 전에는 여유 3)", async () => {
     openSaved(["sky72-outlet"]);
-    await waitFor(() => expect(legs().map((b) => b.textContent)).toEqual(["6 min 4.1 km", "23 min 10.9 km", "To stay 23 min 10.9 km", "Return 6 min 4.1 km"]));
+    await waitFor(() =>
+      expect(legs().map((b) => b.textContent)).toEqual([
+        "6 min 4.1 km",
+        "23 min 10.9 km",
+        "To stay 23 min 10.9 km",
+        "Return 6 min 4.1 km",
+      ]),
+    );
     const text = panel().textContent!;
     expect(text).toContain("Used 2h 18m");
     expect(text).toContain("7 min over");
@@ -200,7 +289,9 @@ describe("코스 지도 — 외출 불가·색 규칙", () => {
   it("외출 불가면 이유 표시, 숙소 선택·자동 추천 막힘", async () => {
     open({ departure: "SOON1" });
     await waitFor(() => expect(screen.getAllByRole("alert")[0]!.textContent).toContain("You can't leave the airport"));
-    expect((within(rooms()).getByRole("button", { name: /Hotel Aura Incheon Airport/ }) as HTMLButtonElement).disabled).toBe(true);
+    expect(
+      (within(rooms()).getByRole("button", { name: /Hotel Aura Incheon Airport/ }) as HTMLButtonElement).disabled,
+    ).toBe(true);
     expect((screen.getByRole("button", { name: /Auto-build with Time-Fit/ }) as HTMLButtonElement).disabled).toBe(true);
   });
 
@@ -210,7 +301,10 @@ describe("코스 지도 — 외출 불가·색 규칙", () => {
     const badge = within(placeCard(/Lotte Hi-Mart/)).getByText("Shopping");
     expect(badge.className).toContain("bg-muted");
     expect(badge.querySelector("svg")).toBeTruthy();
-    const segs = [...panel().querySelectorAll("[data-segment]")].map((e) => [e.getAttribute("data-segment"), e.className]);
+    const segs = [...panel().querySelectorAll("[data-segment]")].map((e) => [
+      e.getAttribute("data-segment"),
+      e.className,
+    ]);
     expect(segs).toEqual([
       ["prep", "bg-role-prep"],
       ["travel", "bg-role-route"],

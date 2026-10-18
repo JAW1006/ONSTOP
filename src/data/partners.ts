@@ -32,7 +32,10 @@ export function listedRooms(demo: boolean): Room[] {
 export const isListed = (roomId: string, demo: boolean) => listedRooms(demo).some((r) => r.id === roomId);
 
 /** 가격표와 출처. 운영은 호텔 데이터만, 데모는 호텔 데이터 → 데모 가격표 순. 둘 다 없으면 견적 요청 */
-export function offerFor(roomId: string, demo: boolean): { offer: DayuseOffer | null; source: "hotel" | "demo" | null } {
+export function offerFor(
+  roomId: string,
+  demo: boolean,
+): { offer: DayuseOffer | null; source: "hotel" | "demo" | null } {
   const hotel = partnerOf(roomId).offer;
   if (hotel?.products.length) return { offer: hotel, source: "hotel" };
   const demoOffer = demo ? DEMO_OFFERS[roomId] : undefined;

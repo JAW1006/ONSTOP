@@ -36,25 +36,61 @@ const R = 6371;
 const km = (a: { lat: number; lng: number }, b: { lat: number; lng: number }) => {
   const dLat = ((b.lat - a.lat) * Math.PI) / 180;
   const dLng = ((b.lng - a.lng) * Math.PI) / 180;
-  const s = Math.sin(dLat / 2) ** 2 + Math.cos((a.lat * Math.PI) / 180) * Math.cos((b.lat * Math.PI) / 180) * Math.sin(dLng / 2) ** 2;
+  const s =
+    Math.sin(dLat / 2) ** 2 +
+    Math.cos((a.lat * Math.PI) / 180) * Math.cos((b.lat * Math.PI) / 180) * Math.sin(dLng / 2) ** 2;
   return R * 2 * Math.atan2(Math.sqrt(s), Math.sqrt(1 - s));
 };
 const fetchMock = vi.fn(async (url: string) => {
   const u = new URL(url, "http://localhost");
   const json = (status: number, body: unknown) => new Response(JSON.stringify(body), { status });
   const p = u.searchParams;
-  const leg = () => km({ lat: +p.get("originLat")!, lng: +p.get("originLng")! }, { lat: +p.get("destLat")!, lng: +p.get("destLng")! });
+  const leg = () =>
+    km({ lat: +p.get("originLat")!, lng: +p.get("originLng")! }, { lat: +p.get("destLat")!, lng: +p.get("destLng")! });
   switch (u.pathname) {
     case "/api/flight/arrival":
-      return json(200, { flights: [{ flightId: "KE085", airline: "Korean Air", fromAirport: "Los Angeles", scheduleDateTime: "1030", estimatedDateTime: "1030", terminal: "P01", gate: "230", remark: null }] });
+      return json(200, {
+        flights: [
+          {
+            flightId: "KE085",
+            airline: "Korean Air",
+            fromAirport: "Los Angeles",
+            scheduleDateTime: "1030",
+            estimatedDateTime: "1030",
+            terminal: "P01",
+            gate: "230",
+            remark: null,
+          },
+        ],
+      });
     case "/api/flight/departure":
-      return json(200, { flights: [{ flightId: "MU2043", airline: "China Eastern", toAirport: "Qingdao", scheduleDateTime: "1451", estimatedDateTime: "1451", terminal: "P02", gate: "129", remark: null }] });
+      return json(200, {
+        flights: [
+          {
+            flightId: "MU2043",
+            airline: "China Eastern",
+            toAirport: "Qingdao",
+            scheduleDateTime: "1451",
+            estimatedDateTime: "1451",
+            terminal: "P02",
+            gate: "129",
+            remark: null,
+          },
+        ],
+      });
     case "/api/security-wait":
       return json(200, { gates: [{ waitTimeMin: 25 }] });
     case "/api/route":
       return json(200, { durationSec: Math.round(leg() * 120), distanceM: Math.round(leg() * 1300), path: null });
     case "/api/transit":
-      return json(200, { durationMin: Math.round(leg() * 3), fare: 1500, path: null, distanceM: Math.round(leg() * 1400), busTransitCount: 1, subwayTransitCount: 1 });
+      return json(200, {
+        durationMin: Math.round(leg() * 3),
+        fare: 1500,
+        path: null,
+        distanceM: Math.round(leg() * 1400),
+        busTransitCount: 1,
+        subwayTransitCount: 1,
+      });
     case "/api/places":
     case "/api/places/search":
       return json(200, { places: [] });
@@ -73,18 +109,24 @@ afterEach(() => {
 });
 
 const base = { onboarded: true, arrivalFlightId: "KE085", departureFlightId: "MU2043" };
-const open = (roomId: string, opts: Partial<Parameters<typeof renderApp>[1]> = {}) => renderApp(`/booking/${roomId}`, { ...base, ...opts });
+const open = (roomId: string, opts: Partial<Parameters<typeof renderApp>[1]> = {}) =>
+  renderApp(`/booking/${roomId}`, { ...base, ...opts });
 const timing = () => screen.getByRole("region", { name: "Time check" });
 const submitButton = (name = "Send booking request") => screen.getByRole("button", { name }) as HTMLButtonElement;
-const slot = (time: string) => within(screen.getByRole("region", { name: "Choose check-in time" })).getByRole("button", { name: time });
-const product = (re: RegExp) => within(screen.getByRole("region", { name: "Choose a time block" })).getByRole("button", { name: re }) as HTMLButtonElement;
+const slot = (time: string) =>
+  within(screen.getByRole("region", { name: "Choose check-in time" })).getByRole("button", { name: time });
+const product = (re: RegExp) =>
+  within(screen.getByRole("region", { name: "Choose a time block" })).getByRole("button", {
+    name: re,
+  }) as HTMLButtonElement;
 const fillContact = async () => {
   await act(async () => {
     fireEvent.change(screen.getByLabelText(/^Name/), { target: { value: "KIM MINJI" } });
     fireEvent.change(screen.getByLabelText(/^Email$/), { target: { value: "minji@example.test" } });
     fireEvent.change(screen.getByLabelText(/^Confirm email/), { target: { value: "minji@example.test" } });
   });
-  for (const box of within(screen.getByRole("group", { name: "Consent" })).getAllByRole("checkbox")) await act(async () => fireEvent.click(box));
+  for (const box of within(screen.getByRole("group", { name: "Consent" })).getAllByRole("checkbox"))
+    await act(async () => fireEvent.click(box));
 };
 const withSaved = (roomId: string, ids: string[]) => ({
   savedCourse: { roomId, plan: ids.map((id) => PLACES.find((p) => p.id === id)!), cats: ["Shopping"] },
@@ -115,7 +157,11 @@ describe("예약 요청 — 상품 요청(가격표 있음), 코스 없이 진�
     expect(screen.getByRole("note").textContent).toBe("Demo — requests are not sent to hotels");
     expect(screen.getByText("~19 min from airport · Shower · Storage", { exact: false })).toBeTruthy();
     expect(within(screen.getByRole("region", { name: "Choose a time block" })).getByText("Demo")).toBeTruthy();
-    expect(within(screen.getByRole("region", { name: "Choose a time block" })).getAllByRole("button").map((b) => b.textContent!.split("₩")[0])).toEqual(["1h", "3h", "4h", "6h"]);
+    expect(
+      within(screen.getByRole("region", { name: "Choose a time block" }))
+        .getAllByRole("button")
+        .map((b) => b.textContent!.split("₩")[0]),
+    ).toEqual(["1h", "3h", "4h", "6h"]);
     expect(product(/^1h/).getAttribute("aria-pressed")).toBe("true");
     expect(timing().textContent).toContain("Day-use ends13:00");
     expect(timing().textContent).not.toContain("Back at stay");
@@ -136,12 +182,18 @@ describe("예약 요청 — 상품 요청(가격표 있음), 코스 없이 진�
     const { router } = open("hotel-aura-incheon");
     await waitFor(() => expect(timing()).toBeTruthy());
     expect(submitButton().disabled).toBe(true);
-    await act(async () => fireEvent.change(screen.getByLabelText(/^Confirm email/), { target: { value: "other@example.test" } }));
+    await act(async () =>
+      fireEvent.change(screen.getByLabelText(/^Confirm email/), { target: { value: "other@example.test" } }),
+    );
     await fillContact();
-    await act(async () => fireEvent.change(screen.getByLabelText(/^Confirm email/), { target: { value: "other@example.test" } }));
+    await act(async () =>
+      fireEvent.change(screen.getByLabelText(/^Confirm email/), { target: { value: "other@example.test" } }),
+    );
     expect(submitButton().disabled).toBe(true);
     expect(screen.getByText("The emails don't match")).toBeTruthy();
-    await act(async () => fireEvent.change(screen.getByLabelText(/^Confirm email/), { target: { value: "minji@example.test" } }));
+    await act(async () =>
+      fireEvent.change(screen.getByLabelText(/^Confirm email/), { target: { value: "minji@example.test" } }),
+    );
     expect(submitButton().disabled).toBe(false);
     await act(async () => fireEvent.click(submitButton()));
     expect(router.state.location.pathname).toBe("/bookings");
@@ -151,7 +203,9 @@ describe("예약 요청 — 상품 요청(가격표 있음), 코스 없이 진�
     expect(card.textContent).toContain("1 h · 12:00–13:00");
     expect(card.textContent).toContain("₩20,000");
     await act(async () => fireEvent.click(within(card).getByRole("button", { name: "Cancel request" })));
-    await act(async () => fireEvent.click(within(screen.getByRole("dialog")).getByRole("button", { name: "Cancel request" })));
+    await act(async () =>
+      fireEvent.click(within(screen.getByRole("dialog")).getByRole("button", { name: "Cancel request" })),
+    );
     expect(within(screen.getByRole("article")).getByText("Cancelled")).toBeTruthy();
     expect(within(screen.getByRole("article")).queryByRole("button", { name: "Cancel request" })).toBeNull();
   });
@@ -191,7 +245,9 @@ describe("예약 요청 — 저장된 코스(진입 ①): 숙소 복귀 ≤ 이�
 describe("견적 요청(가격표 없음)·노출·데모 아님", () => {
   it("가격표 없는 숙소(제휴 전, 공항 약 37분) → 견적 요청: 희망 이용 시간 12:30 – 12:54(숙소 출발 기한)", async () => {
     open("goldentulip-yeongjong");
-    await waitFor(() => expect(screen.getByText("Requested time 12:30 – 12:54 (until you must leave the stay)")).toBeTruthy());
+    await waitFor(() =>
+      expect(screen.getByText("Requested time 12:30 – 12:54 (until you must leave the stay)")).toBeTruthy(),
+    );
     expect(screen.getByRole("heading", { name: "Day-use quote request" })).toBeTruthy();
     expect(screen.getByText("Not a partner yet")).toBeTruthy();
     expect(screen.queryByRole("region", { name: "Choose a time block" })).toBeNull();
@@ -246,7 +302,10 @@ describe("내 예약 — 확정·거절", () => {
   });
 
   it("거절: 사유 + 대안 숙소 3곳(거절한 숙소 제외, 공항에서 가까운 순) + 코스 다시 만들기 안내", async () => {
-    renderApp("/bookings", { ...base, bookingRequests: [request({ status: "declined", declineReason: "Fully booked", planIds: ["sky72-outlet"] })] });
+    renderApp("/bookings", {
+      ...base,
+      bookingRequests: [request({ status: "declined", declineReason: "Fully booked", planIds: ["sky72-outlet"] })],
+    });
     const card = screen.getByRole("article");
     expect(card.textContent).toContain("Reason: Fully booked");
     const alts = within(within(card).getByRole("region", { name: "Other stays nearby" })).getAllByRole("link");
@@ -265,6 +324,8 @@ describe("코스 화면 — 진행 중인 요청이 있으면 슬롯·이용 종
     });
     const panel = () => screen.getByRole("region", { name: "My course" });
     await waitFor(() => expect(panel().textContent).toContain("Check-in wait 14 min"));
-    expect(panel().textContent).toContain("You'd be back at your stay at 13:46, 46 min after your day-use ends (13:00)");
+    expect(panel().textContent).toContain(
+      "You'd be back at your stay at 13:46, 46 min after your day-use ends (13:00)",
+    );
   });
 });

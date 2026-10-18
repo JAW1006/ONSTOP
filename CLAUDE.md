@@ -4,33 +4,36 @@
 문서 목차: [docs/README.md](docs/README.md) · 진행·결정 필요: [docs/STATUS.md](docs/STATUS.md) · 용어: [docs/GLOSSARY.md](docs/GLOSSARY.md) · **이름 규칙: [docs/conventions.md](docs/conventions.md) — 코드를 쓰기 전에 읽는다**
 
 ## 스택 / 명령어
+
 Vite + React + TypeScript · Tailwind v4 + shadcn/ui(Radix) · React Router · TanStack Query · Vitest
 
-| 명령 | 용도 |
-|---|---|
-| `npm run dev` | 개발 서버 (`/api` → `localhost:3001` 프록시) |
-| `cd server && npm start` | API 프록시(인천공항·카카오·ODsay) — dev 전에 켜둔다 |
-| `npm test` | Vitest (프런트) |
-| `cd server && npm test` | 예약 요청 API 통합 테스트 — docker로 **일회용 Postgres**를 띄워 실행(Docker 없으면 `npm run test:nodb`) |
-| `npm run build` | 타입체크 + 빌드 |
+| 명령                     | 용도                                                                                                    |
+| ------------------------ | ------------------------------------------------------------------------------------------------------- |
+| `npm run dev`            | 개발 서버 (`/api` → `localhost:3001` 프록시)                                                            |
+| `cd server && npm start` | API 프록시(인천공항·카카오·ODsay) — dev 전에 켜둔다                                                     |
+| `npm test`               | Vitest (프런트)                                                                                         |
+| `cd server && npm test`  | 예약 요청 API 통합 테스트 — docker로 **일회용 Postgres**를 띄워 실행(Docker 없으면 `npm run test:nodb`) |
+| `npm run build`          | 타입체크 + 빌드                                                                                         |
 
 ## 폴더 책임
-| 경로 | 규칙 |
-|---|---|
-| `src/domain/` | 순수 함수 + `*.test.ts`. **React·fetch·DOM import 금지.** |
-| `src/domain/constants.ts` | 모든 상수(버퍼·수수료율 등)의 유일한 위치. md도 같은 이름으로 참조. |
-| `src/features/<기능>/` | 화면·훅·API 호출. 계산은 domain을 호출만 한다. |
-| `src/components/ui/` | shadcn/ui 기반 공통 컴포넌트. 비즈니스 로직 없음. |
-| `src/styles/tokens.css` | 디자인 토큰. 원본 표는 `docs/design/design-tokens.md`. |
-| `src/app/` | 라우팅·레이아웃·탭바. |
-| `src/i18n/` | react-i18next. 문구는 `locales/<lang>.json` 5개에 같은 키로 추가. 화면에 문자열 하드코딩 금지. |
-| `legacy/` | 이식 완료된 기존 HTML/JS 보관(5단계에 이동). 수정 금지. |
-| `server/` | Express. 외부 API 프록시(항공편·카카오·ODsay) + 예약 요청 API(`booking.js`) + 관리자 화면(`admin/`). 프록시 부분은 마이그레이션 범위 밖이다. |
-| `server/migrations/` | DB 스키마의 **유일한 출처**(`*.sql`, 이름순 적용). 코드에서 `CREATE TABLE`을 하지 않는다. 바꿀 때는 새 번호 파일을 더한다. |
+
+| 경로                      | 규칙                                                                                                                                         |
+| ------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------- |
+| `src/domain/`             | 순수 함수 + `*.test.ts`. **React·fetch·DOM import 금지.**                                                                                    |
+| `src/domain/constants.ts` | 모든 상수(버퍼·수수료율 등)의 유일한 위치. md도 같은 이름으로 참조.                                                                          |
+| `src/features/<기능>/`    | 화면·훅·API 호출. 계산은 domain을 호출만 한다.                                                                                               |
+| `src/components/ui/`      | shadcn/ui 기반 공통 컴포넌트. 비즈니스 로직 없음.                                                                                            |
+| `src/styles/tokens.css`   | 디자인 토큰. 원본 표는 `docs/design/design-tokens.md`.                                                                                       |
+| `src/app/`                | 라우팅·레이아웃·탭바.                                                                                                                        |
+| `src/i18n/`               | react-i18next. 문구는 `locales/<lang>.json` 5개에 같은 키로 추가. 화면에 문자열 하드코딩 금지.                                               |
+| `legacy/`                 | 이식 완료된 기존 HTML/JS 보관(5단계에 이동). 수정 금지.                                                                                      |
+| `server/`                 | Express. 외부 API 프록시(항공편·카카오·ODsay) + 예약 요청 API(`booking.js`) + 관리자 화면(`admin/`). 프록시 부분은 마이그레이션 범위 밖이다. |
+| `server/migrations/`      | DB 스키마의 **유일한 출처**(`*.sql`, 이름순 적용). 코드에서 `CREATE TABLE`을 하지 않는다. 바꿀 때는 새 번호 파일을 더한다.                   |
 
 ## 반드시 지킬 규칙
+
 0. **작업 시작 전에 현재 브랜치와 [docs/STATUS.md](docs/STATUS.md)를 확인하고, 이미 있는 구현·명세를 따른다.** 같은 기능이 다른 브랜치나 `src/`에 이미 있으면 새로 만들지 않고 그것을 고친다. 절차와 이유는 [AGENTS.md](AGENTS.md) 0장.
-0-1. **코드를 쓰기 전에 [docs/conventions.md](docs/conventions.md)를 따른다.** 폴더·파일·함수·상수·DB/API 필드·오류 응답·커밋·브랜치 이름의 단일 출처다. 기존 코드를 이 문서에 맞춰 한꺼번에 고치지 않는다 — 새 코드부터 적용하고, 어긋나는 기존 코드는 STATUS.md "컨벤션 불일치"에 쌓아 둔다.
+   0-1. **코드를 쓰기 전에 [docs/conventions.md](docs/conventions.md)를 따른다.** 폴더·파일·함수·상수·DB/API 필드·오류 응답·커밋·브랜치 이름의 단일 출처다. 기존 코드를 이 문서에 맞춰 한꺼번에 고치지 않는다 — 새 코드부터 적용하고, 어긋나는 기존 코드는 STATUS.md "컨벤션 불일치"에 쌓아 둔다.
 1. **공식의 단일 출처는 `docs/formulas/*.md`.** 공식 수정 시 md를 먼저 갱신하고, 같은 변경에서 `src/domain` 코드와 테스트를 함께 고친다.
 2. 테스트의 입력·기댓값은 공식 md의 "예시" 표와 **같은 숫자**를 쓴다.
 3. 새 화면은 `docs/design/screens/<화면>.md`에 명세를 먼저 쓴다.
@@ -42,6 +45,7 @@ Vite + React + TypeScript · Tailwind v4 + shadcn/ui(Radix) · React Router · T
 9. 토큰에 없는 색·반경·그림자를 하드코딩하지 않는다. 필요하면 tokens.css와 design-tokens.md에 먼저 추가.
 
 ## 문서 규칙
+
 - 모든 문서 상단: `> 상태: 초안 | 확정 | 폐기` (+ 최종 수정일)
 - 짧게, 표와 예시 위주.
 - 템플릿

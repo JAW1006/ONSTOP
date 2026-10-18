@@ -8,8 +8,14 @@ import fs from "node:fs";
 
 const LANGS = ["ko", "en", "zh", "ja", "vi"];
 const added = JSON.parse(fs.readFileSync("src/i18n/added-keys.json", "utf8"));
-const legacyReviewed = new Set(fs.existsSync("src/i18n/legacy-review.json") ? JSON.parse(fs.readFileSync("src/i18n/legacy-review.json", "utf8")).reviewed : []);
-const locales = Object.fromEntries(LANGS.map((l) => [l, JSON.parse(fs.readFileSync(`src/i18n/locales/${l}.json`, "utf8"))]));
+const legacyReviewed = new Set(
+  fs.existsSync("src/i18n/legacy-review.json")
+    ? JSON.parse(fs.readFileSync("src/i18n/legacy-review.json", "utf8")).reviewed
+    : [],
+);
+const locales = Object.fromEntries(
+  LANGS.map((l) => [l, JSON.parse(fs.readFileSync(`src/i18n/locales/${l}.json`, "utf8"))]),
+);
 const get = (obj, key) => key.split(".").reduce((o, k) => o?.[k], obj);
 const cell = (s) => (s ?? "**누락**").replace(/\|/g, "\\|");
 const langCells = (k) => LANGS.map((l) => cell(get(locales[l], k))).join(" | ");
@@ -20,11 +26,16 @@ const HOW = `## 검수 방법
 - 고칠 문구는 \`src/i18n/locales/<언어>.json\`을 고친 뒤 검수 완료를 기록하고 이 표를 다시 만든다.`;
 
 /* ---- 추가·변경 키 ---- */
-const keys = Object.keys(added).filter((k) => added[k].kind !== "removed").sort();
-const removed = Object.keys(added).filter((k) => added[k].kind === "removed").sort();
+const keys = Object.keys(added)
+  .filter((k) => added[k].kind !== "removed")
+  .sort();
+const removed = Object.keys(added)
+  .filter((k) => added[k].kind === "removed")
+  .sort();
 const pending = keys.filter((k) => !added[k].reviewed).length;
 const rows = keys.map(
-  (k) => `| \`${k}\` | ${added[k].kind === "changed" ? "레거시 변경" : "추가"} | ${added[k].stage} | ${langCells(k)} | ${added[k].reviewed ? "검수 완료" : "**미검수**"} |`,
+  (k) =>
+    `| \`${k}\` | ${added[k].kind === "changed" ? "레거시 변경" : "추가"} | ${added[k].stage} | ${langCells(k)} | ${added[k].reviewed ? "검수 완료" : "**미검수**"} |`,
 );
 fs.writeFileSync(
   "docs/design/i18n-review.md",
@@ -47,7 +58,9 @@ ${removed.map((k) => `| \`${k}\` | ${added[k].stage} |`).join("\n")}
 );
 
 /* ---- 레거시에서 옮긴 키 ---- */
-const mapping = [...fs.readFileSync("docs/design/i18n-keys.md", "utf8").matchAll(/^\| `([\w.]+)` \| `([\w.]+)` \|/gm)].map((m) => m[2]);
+const mapping = [
+  ...fs.readFileSync("docs/design/i18n-keys.md", "utf8").matchAll(/^\| `([\w.]+)` \| `([\w.]+)` \|/gm),
+].map((m) => m[2]);
 const legacyKeys = mapping.filter((k) => !added[k]);
 const legacyPending = legacyKeys.filter((k) => !legacyReviewed.has(k)).length;
 fs.writeFileSync(
@@ -65,4 +78,6 @@ ${HOW} 검수 완료는 \`src/i18n/legacy-review.json\`의 \`reviewed\` 배열�
 ${legacyKeys.map((k) => `| \`${k}\` | ${langCells(k)} | ${legacyReviewed.has(k) ? "검수 완료" : "**미검수**"} |`).join("\n")}
 `,
 );
-console.log(`review: added/changed ${keys.length} (${pending} pending), removed ${removed.length}; legacy ${legacyKeys.length} (${legacyPending} pending)`);
+console.log(
+  `review: added/changed ${keys.length} (${pending} pending), removed ${removed.length}; legacy ${legacyKeys.length} (${legacyPending} pending)`,
+);

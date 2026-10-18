@@ -34,11 +34,20 @@ export function UiShowcase() {
             </Chip>
           ))}
         </div>
-        <SectionHeader title={t("home.dayuse.title")} subtitle={t("home.dayuse.subtitle")} onMore={() => setSheet(true)} />
+        <SectionHeader
+          title={t("home.dayuse.title")}
+          subtitle={t("home.dayuse.subtitle")}
+          onMore={() => setSheet(true)}
+        />
         <Card className="p-4">
           <div className="grid grid-cols-2 gap-3">
             <Photo icon={<Bed size={30} color="#fff" />} tint="#BBD3F5" badge={t("common.badge.topPick")} />
-            <Photo icon={<Utensils size={22} color="#fff" />} tint="#F3C4B8" height={82} badge={t("common.badge.partnerAd")} />
+            <Photo
+              icon={<Utensils size={22} color="#fff" />}
+              tint="#F3C4B8"
+              height={82}
+              badge={t("common.badge.partnerAd")}
+            />
           </div>
           <div className="mt-3 flex flex-wrap gap-1.5">
             <Badge variant="success">{t("course.places.fits")}</Badge>
@@ -49,7 +58,9 @@ export function UiShowcase() {
             <CategoryBadge category="Brand">{t("category.brand")}</CategoryBadge>
           </div>
           <div className="mt-3 flex gap-1.5">
-            <Chip active={food} onClick={() => setFood(!food)}>{t("category.food")}</Chip>
+            <Chip active={food} onClick={() => setFood(!food)}>
+              {t("category.food")}
+            </Chip>
             <Chip>{t("category.shopping")}</Chip>
           </div>
         </Card>
@@ -64,8 +75,12 @@ export function UiShowcase() {
         <Button onClick={() => setSheet(true)}>{t("booking.payment.pay")}</Button>
         <Button disabled>{t("onboarding.flights.cta")}</Button>
         <div className="flex gap-2.5">
-          <Button variant="outline" size="md" className="flex-1">{t("savedCourse.edit")}</Button>
-          <Button variant="secondary" size="sm">{t("onboarding.flights.lookup")}</Button>
+          <Button variant="outline" size="md" className="flex-1">
+            {t("savedCourse.edit")}
+          </Button>
+          <Button variant="secondary" size="sm">
+            {t("onboarding.flights.lookup")}
+          </Button>
         </div>
         <div className="flex justify-center">
           <FakeQR />

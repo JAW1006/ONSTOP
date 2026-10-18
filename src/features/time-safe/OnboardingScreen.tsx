@@ -168,7 +168,9 @@ function FlightsStep() {
         iconClassName="text-gold"
         value={trip.departureInput}
         onChange={trip.setDepartureInput}
-        onLookup={() => lookup(trip.departureInput, trip.departureFlightId, trip.setDepartureFlightId, departure.refetch)}
+        onLookup={() =>
+          lookup(trip.departureInput, trip.departureFlightId, trip.setDepartureFlightId, departure.refetch)
+        }
         query={departure}
       />
       <TimeSafeCard />

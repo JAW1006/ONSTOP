@@ -13,7 +13,14 @@ import { PageHeader } from "@/components/ui/page-header";
 import { Photo } from "@/components/ui/photo";
 import { localize, roomById } from "@/data";
 import { isListed, offerFor, partnerOf } from "@/data/partners";
-import { bookingCheck, checkInSlots, defaultProduct, offerProducts, productStartsAt, type DayuseProduct } from "@/domain/dayuse-pricing";
+import {
+  bookingCheck,
+  checkInSlots,
+  defaultProduct,
+  offerProducts,
+  productStartsAt,
+  type DayuseProduct,
+} from "@/domain/dayuse-pricing";
 import { CannotGoOutBox } from "@/features/course/CourseScreen";
 import { useCourseModel } from "@/features/course/use-course";
 import { useTimeFormat, useTimeSafe } from "@/features/time-safe/hooks";
@@ -93,7 +100,8 @@ export function BookingScreen() {
         ? productPick
         : defaultProduct(products, slot, returnBy)
       : null;
-  const check = course && slot != null && (mode === "quote" || product) ? bookingCheck(course, slot, product, returnBy) : null;
+  const check =
+    course && slot != null && (mode === "quote" || product) ? bookingCheck(course, slot, product, returnBy) : null;
   const warn = !!check && (check.plan.blockOver || check.plan.late);
   // 견적 요청인데 숙소 출발 기한이 슬롯보다 이르면 이용할 시간이 없다
   const noTime = !!check && slot != null && check.endMin <= slot;
@@ -128,13 +136,19 @@ export function BookingScreen() {
 
   const typical = offer?.requestResponse?.typicalMinutes;
   // 포함 서비스는 아는 항목만 표시(호텔이 준 다른 항목은 데이터 정리 후)
-  const includes = (offer?.includes ?? []).filter((k): k is (typeof FEATURES)[number] => (FEATURES as readonly string[]).includes(k));
+  const includes = (offer?.includes ?? []).filter((k): k is (typeof FEATURES)[number] =>
+    (FEATURES as readonly string[]).includes(k),
+  );
   const text = (v: Record<string, string>) => v[lang] ?? v.ko ?? Object.values(v)[0] ?? "";
 
   return (
     <div>
       <DemoBanner />
-      <PageHeader title={t(mode === "product" ? "booking.request.title" : "booking.quote.title")} subtitle={t("booking.subtitle")} onBack={() => navigate(-1)} />
+      <PageHeader
+        title={t(mode === "product" ? "booking.request.title" : "booking.quote.title")}
+        subtitle={t("booking.subtitle")}
+        onBack={() => navigate(-1)}
+      />
       <div className="flex flex-col gap-3.5 p-4">
         {!model.canGoOut && ts.bothReady && <CannotGoOutBox />}
         {active && (
@@ -152,12 +166,16 @@ export function BookingScreen() {
           <div className="min-w-0">
             <p className="font-extrabold text-ink">{localize(room.name, lang)}</p>
             <p className="mt-0.5 text-caption text-faint">
-              {model.legs[0]?.approx ? t("booking.fromAirportApprox", { n: model.legs[0].min }) : t("unit.minFromAirport", { n: model.legs[0]?.min ?? room.distMin })}
+              {model.legs[0]?.approx
+                ? t("booking.fromAirportApprox", { n: model.legs[0].min })
+                : t("unit.minFromAirport", { n: model.legs[0]?.min ?? room.distMin })}
               {includes.length ? ` · ${includes.map((k) => t(`dayuse.feature.${k}`)).join(" · ")}` : ""}
             </p>
             {demo && participation !== "confirmed" && (
               <Badge variant="neutral" className="mt-1">
-                {t(participation === "negotiating" ? "booking.participation.negotiating" : "booking.participation.none")}
+                {t(
+                  participation === "negotiating" ? "booking.participation.negotiating" : "booking.participation.none",
+                )}
               </Badge>
             )}
           </div>
@@ -174,7 +192,11 @@ export function BookingScreen() {
         {/* 체크인 시각 */}
         <section aria-label={t("booking.chooseCheckIn")}>
           <h2 className="text-body font-extrabold text-ink">{t("booking.chooseCheckIn")}</h2>
-          {course && <p className="mt-0.5 text-micro text-faint">{t("booking.earliestCheckIn", { time: fmt.time(course.checkInAt) })}</p>}
+          {course && (
+            <p className="mt-0.5 text-micro text-faint">
+              {t("booking.earliestCheckIn", { time: fmt.time(course.checkInAt) })}
+            </p>
+          )}
           <div className="mt-2 flex gap-2 overflow-x-auto pb-1.5">
             {slots.map((s) => (
               <Chip key={s} active={s === slot} onClick={() => setSlotPick(s)}>
@@ -211,16 +233,26 @@ export function BookingScreen() {
                       on ? "border-2 border-blue bg-tint" : "border-line bg-card",
                     )}
                   >
-                    <span className={cn("block text-body font-extrabold", on ? "text-blue-deep" : "text-ink")}>{t("unit.hours", { h: p.hours })}</span>
+                    <span className={cn("block text-body font-extrabold", on ? "text-blue-deep" : "text-ink")}>
+                      {t("unit.hours", { h: p.hours })}
+                    </span>
                     <span className="block text-caption text-sub">{formatKrw(p.price)}</span>
-                    <span className="block text-micro text-faint">{t(p.vatIncluded ? "booking.product.vatIncluded" : "booking.product.vatExcluded")}</span>
-                    {p.startWindow && <span className="block text-micro text-faint">{t("booking.product.startWindow", p.startWindow)}</span>}
+                    <span className="block text-micro text-faint">
+                      {t(p.vatIncluded ? "booking.product.vatIncluded" : "booking.product.vatExcluded")}
+                    </span>
+                    {p.startWindow && (
+                      <span className="block text-micro text-faint">
+                        {t("booking.product.startWindow", p.startWindow)}
+                      </span>
+                    )}
                     {p.conditions && <span className="block text-micro text-faint">{text(p.conditions)}</span>}
                   </button>
                 );
               })}
             </div>
-            {slot != null && !product && <p className="mt-1 text-caption font-bold text-red">{t("booking.product.noneStartable")}</p>}
+            {slot != null && !product && (
+              <p className="mt-1 text-caption font-bold text-red">{t("booking.product.noneStartable")}</p>
+            )}
           </section>
         ) : (
           check &&
@@ -230,7 +262,9 @@ export function BookingScreen() {
                 <p className="text-body font-bold text-red">{t("booking.quote.noTime")}</p>
               ) : (
                 <>
-                  <p className="text-body font-bold text-blue-deep">{t("booking.quote.window", { from: fmt.time(slot), to: fmt.time(check.endMin) })}</p>
+                  <p className="text-body font-bold text-blue-deep">
+                    {t("booking.quote.window", { from: fmt.time(slot), to: fmt.time(check.endMin) })}
+                  </p>
                   <p className="mt-0.5 text-caption text-sub">{t("booking.quote.note")}</p>
                 </>
               )}
@@ -243,22 +277,46 @@ export function BookingScreen() {
           <Card className="p-4" aria-label={t("booking.timing.title")} role="region">
             <h2 className="mb-1.5 text-body font-extrabold text-ink">{t("booking.timing.title")}</h2>
             <KeyValueRow label={t("booking.timing.checkIn")} value={fmt.time(slot)} />
-            {check.course.stops.length > 0 && <KeyValueRow label={t("booking.timing.hotelReturn")} value={fmt.time(check.course.hotelReturnAt)} />}
+            {check.course.stops.length > 0 && (
+              <KeyValueRow label={t("booking.timing.hotelReturn")} value={fmt.time(check.course.hotelReturnAt)} />
+            )}
             <KeyValueRow label={t("booking.timing.end")} value={fmt.time(check.endMin)} />
             <KeyValueRow label={t("booking.timing.airport")} value={fmt.time(check.course.returnAt)} />
             <KeyValueRow label={t("course.summary.returnTarget")} value={fmt.time(returnBy)} />
-            {check.course.waitMin > 0 && <p className="mt-1.5 text-caption text-sub">{t("booking.timing.wait", { n: check.course.waitMin })}</p>}
+            {check.course.waitMin > 0 && (
+              <p className="mt-1.5 text-caption text-sub">{t("booking.timing.wait", { n: check.course.waitMin })}</p>
+            )}
             {!saved && <p className="mt-1.5 text-caption text-faint">{t("booking.timing.noCourse")}</p>}
             {warn && (
-              <div role="alert" className="mt-2.5 flex flex-col gap-1.5 rounded-md bg-danger-bg px-3 py-2.5 text-body font-bold text-role-return">
+              <div
+                role="alert"
+                className="mt-2.5 flex flex-col gap-1.5 rounded-md bg-danger-bg px-3 py-2.5 text-body font-bold text-role-return"
+              >
                 {check.plan.blockOver && (
-                  <Warning>{t("course.summary.blockOver", { time: fmt.time(check.course.hotelReturnAt), end: fmt.time(check.endMin), min: check.plan.blockOverMin })}</Warning>
+                  <Warning>
+                    {t("course.summary.blockOver", {
+                      time: fmt.time(check.course.hotelReturnAt),
+                      end: fmt.time(check.endMin),
+                      min: check.plan.blockOverMin,
+                    })}
+                  </Warning>
                 )}
                 {check.plan.late && (
-                  <Warning>{t("booking.timing.late", { time: fmt.time(check.course.returnAt), target: fmt.time(returnBy), min: check.plan.lateMin })}</Warning>
+                  <Warning>
+                    {t("booking.timing.late", {
+                      time: fmt.time(check.course.returnAt),
+                      target: fmt.time(returnBy),
+                      min: check.plan.lateMin,
+                    })}
+                  </Warning>
                 )}
                 <label className="mt-1 flex items-center gap-2 font-semibold text-ink">
-                  <input type="checkbox" checked={ack} onChange={(e) => setAck(e.target.checked)} className="size-4 accent-blue" />
+                  <input
+                    type="checkbox"
+                    checked={ack}
+                    onChange={(e) => setAck(e.target.checked)}
+                    className="size-4 accent-blue"
+                  />
                   {t("booking.timing.ack")}
                 </label>
               </div>
@@ -301,7 +359,11 @@ export function BookingScreen() {
               <>
                 <KeyValueRow
                   label={t("bookings.mode.product")}
-                  value={t("booking.summary.block", { h: product.hours, from: fmt.time(slot), to: fmt.time(check.endMin) })}
+                  value={t("booking.summary.block", {
+                    h: product.hours,
+                    from: fmt.time(slot),
+                    to: fmt.time(check.endMin),
+                  })}
                 />
                 <KeyValueRow label={t("booking.summary.price")} value={formatKrw(product.price)} />
                 <p className="text-micro text-faint">{t("booking.summary.priceNote")}</p>
@@ -322,14 +384,36 @@ export function BookingScreen() {
             <h2 className="text-body font-extrabold text-ink">{t("booking.contact.title")}</h2>
             <p className="text-micro text-faint">{t("booking.contact.minimal")}</p>
           </div>
-          <Field label={t("booking.contact.name")} hint={t("booking.contact.nameHint")} error={nameTouched ? errors.name : null}>
-            <input value={name} onChange={(e) => setName(e.target.value)} onBlur={() => setNameTouched(true)} autoComplete="name" className={INPUT} />
+          <Field
+            label={t("booking.contact.name")}
+            hint={t("booking.contact.nameHint")}
+            error={nameTouched ? errors.name : null}
+          >
+            <input
+              value={name}
+              onChange={(e) => setName(e.target.value)}
+              onBlur={() => setNameTouched(true)}
+              autoComplete="name"
+              className={INPUT}
+            />
           </Field>
           <Field label={t("booking.contact.email")} error={email ? errors.email : null}>
-            <input type="email" value={email} onChange={(e) => setEmail(e.target.value)} autoComplete="email" className={INPUT} />
+            <input
+              type="email"
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
+              autoComplete="email"
+              className={INPUT}
+            />
           </Field>
           <Field label={t("booking.contact.emailConfirm")} error={email2 ? errors.email2 : null}>
-            <input type="email" value={email2} onChange={(e) => setEmail2(e.target.value)} autoComplete="off" className={INPUT} />
+            <input
+              type="email"
+              value={email2}
+              onChange={(e) => setEmail2(e.target.value)}
+              autoComplete="off"
+              className={INPUT}
+            />
           </Field>
         </Card>
 
@@ -364,7 +448,17 @@ export function BookingScreen() {
 
 const INPUT = "w-full rounded-md border border-line bg-card px-3 py-2.5 text-body text-ink";
 
-function Field({ label, hint, error, children }: { label: string; hint?: string; error: string | null; children: ReactNode }) {
+function Field({
+  label,
+  hint,
+  error,
+  children,
+}: {
+  label: string;
+  hint?: string;
+  error: string | null;
+  children: ReactNode;
+}) {
   return (
     <label className="flex flex-col gap-1">
       <span className="text-caption font-bold text-ink">{label}</span>

@@ -3,7 +3,15 @@ import type { ReactNode } from "react";
 import { useTranslation } from "react-i18next";
 
 /** 화면 상단 흰 헤더(레거시 Top): 뒤로가기 + 제목/부제 */
-export function PageHeader({ title, subtitle, onBack }: { title: ReactNode; subtitle?: ReactNode; onBack?: () => void }) {
+export function PageHeader({
+  title,
+  subtitle,
+  onBack,
+}: {
+  title: ReactNode;
+  subtitle?: ReactNode;
+  onBack?: () => void;
+}) {
   const { t } = useTranslation();
   return (
     <header className="flex items-center gap-2.5 border-b border-line bg-card px-4 pt-[34px] pb-3.5">

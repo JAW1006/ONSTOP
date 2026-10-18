@@ -71,21 +71,30 @@ export function CourseScreen() {
     retry: false,
   });
   const candidates = useMemo(
-    () => [...PLACES.filter((p) => cats.includes(p.cat)), ...(nearby.data?.addable ?? []).filter((p) => cats.includes(p.cat))],
+    () => [
+      ...PLACES.filter((p) => cats.includes(p.cat)),
+      ...(nearby.data?.addable ?? []).filter((p) => cats.includes(p.cat)),
+    ],
     [cats, nearby.data],
   );
 
   // 숙소→후보 이동시간: 보수적 근사만(후보 구간 미리 조회 안 함 — ODsay 쿼터 확인 전, 2026-10-16 결정)
-  const hotelTo = (p: CoursePlace): TravelResult => (room ? approxResult(room.coord, p.coord) : { min: 0, mode: "walk", approx: true, path: null, distanceM: null, transfers: null, fare: null });
+  const hotelTo = (p: CoursePlace): TravelResult =>
+    room
+      ? approxResult(room.coord, p.coord)
+      : { min: 0, mode: "walk", approx: true, path: null, distanceM: null, transfers: null, fare: null };
   const sorted = [...candidates].sort((a, b) => hotelTo(a).min - hotelTo(b).min);
   const visible = room ? (showAll ? sorted : sorted.slice(0, VISIBLE_PLACES)) : [];
   const legsFor = useApproxLegsFor(room?.coord ?? null);
   const available = courseAvailableMin(model.outingMin);
   const inPlan = (p: CoursePlace) => plan.some((x) => x.id === p.id);
   // B1: 이 숙소에 고른 데이유즈 블록이 있으면 호텔 복귀 ≤ 블록 종료도 판정한다
-  const block = model.booking ? { startMin: model.exitAtMin, checkInMin: model.booking.checkInMin, endMin: model.booking.endMin } : null;
+  const block = model.booking
+    ? { startMin: model.exitAtMin, checkInMin: model.booking.checkInMin, endMin: model.booking.endMin }
+    : null;
   const fits = (p: CoursePlace) => !!room && wouldFitSequential(available, legsFor, plan, p, block);
-  const toggle = (p: CoursePlace) => trip.setCoursePlan((prev) => (prev.some((x) => x.id === p.id) ? prev.filter((x) => x.id !== p.id) : [...prev, p]));
+  const toggle = (p: CoursePlace) =>
+    trip.setCoursePlan((prev) => (prev.some((x) => x.id === p.id) ? prev.filter((x) => x.id !== p.id) : [...prev, p]));
   const autoBuild = () => {
     if (!room) return;
     const picked = autoBuildSequential({
@@ -112,7 +121,9 @@ export function CourseScreen() {
       <div className="p-4">
         {locked && <CannotGoOutBox />}
 
-        <p className="mb-2 text-micro text-faint">{room ? t("course.map.allPlacesNote") : t("course.map.pickRoomNote")}</p>
+        <p className="mb-2 text-micro text-faint">
+          {room ? t("course.map.allPlacesNote") : t("course.map.pickRoomNote")}
+        </p>
         <CourseMap
           roomId={room?.id ?? null}
           plan={plan}
@@ -142,10 +153,20 @@ export function CourseScreen() {
                   aria-pressed={on}
                   disabled={locked}
                   onClick={() => trip.setCourseRoomId(r.id)}
-                  className={cn("block w-[152px] cursor-pointer rounded-lg p-2.5 text-left disabled:cursor-not-allowed disabled:opacity-55", on ? "border-2 border-blue bg-tint" : "border border-line bg-card")}
+                  className={cn(
+                    "block w-[152px] cursor-pointer rounded-lg p-2.5 text-left disabled:cursor-not-allowed disabled:opacity-55",
+                    on ? "border-2 border-blue bg-tint" : "border border-line bg-card",
+                  )}
                 >
-                  <div className="relative flex h-[60px] items-center justify-center overflow-hidden rounded-sm" style={{ background: r.tint }}>
-                    {roomImage(r) ? <img src={roomImage(r)} alt="" className="size-full object-cover" /> : <Bed size={24} color="#fff" aria-hidden />}
+                  <div
+                    className="relative flex h-[60px] items-center justify-center overflow-hidden rounded-sm"
+                    style={{ background: r.tint }}
+                  >
+                    {roomImage(r) ? (
+                      <img src={roomImage(r)} alt="" className="size-full object-cover" />
+                    ) : (
+                      <Bed size={24} color="#fff" aria-hidden />
+                    )}
                     {on && (
                       <span className="absolute top-1.5 right-1.5 flex size-5 items-center justify-center rounded-full bg-blue text-white">
                         <Check size={13} aria-hidden />
@@ -172,7 +193,9 @@ export function CourseScreen() {
               key={c.key}
               active={cats.includes(c.key)}
               disabled={locked}
-              onClick={() => trip.setCourseCats(cats.includes(c.key) ? cats.filter((k) => k !== c.key) : [...cats, c.key])}
+              onClick={() =>
+                trip.setCourseCats(cats.includes(c.key) ? cats.filter((k) => k !== c.key) : [...cats, c.key])
+              }
             >
               {t(c.labelKey)}
             </Chip>
@@ -184,7 +207,10 @@ export function CourseScreen() {
         </Button>
         <p className="mt-1 mb-1 text-center text-micro text-faint">{t("course.autoBuild.note")}</p>
         {autoEmpty && (
-          <p role="alert" className="mb-1 rounded-md bg-danger-bg px-3 py-2 text-center text-caption font-bold text-role-return">
+          <p
+            role="alert"
+            className="mb-1 rounded-md bg-danger-bg px-3 py-2 text-center text-caption font-bold text-role-return"
+          >
             {t("course.autoBuild.empty")}
           </p>
         )}
@@ -195,7 +221,9 @@ export function CourseScreen() {
           subtitle={
             room
               ? cats.length
-                ? t("course.places.combined", { list: cats.map((k) => t(CATEGORIES.find((c) => c.key === k)!.labelKey)).join(" · ") })
+                ? t("course.places.combined", {
+                    list: cats.map((k) => t(CATEGORIES.find((c) => c.key === k)!.labelKey)).join(" · "),
+                  })
                 : t("course.places.chooseCategory")
               : t("course.places.chooseRoomFirst")
           }
@@ -203,7 +231,16 @@ export function CourseScreen() {
         <section aria-label={t("course.places.title")} className="mb-5 flex flex-col gap-2.5">
           {!room && <Card className="p-5 text-center text-caption text-faint">{t("course.places.roomFirstHint")}</Card>}
           {visible.map((p) => (
-            <PlaceCard key={p.id} place={p} travel={hotelTo(p)} on={inPlan(p)} fits={fits(p)} locked={locked} onToggle={() => toggle(p)} onInfo={() => setInfo(p)} />
+            <PlaceCard
+              key={p.id}
+              place={p}
+              travel={hotelTo(p)}
+              on={inPlan(p)}
+              fits={fits(p)}
+              locked={locked}
+              onToggle={() => toggle(p)}
+              onInfo={() => setInfo(p)}
+            />
           ))}
           {room && !showAll && sorted.length > VISIBLE_PLACES && (
             <Button variant="outline" size="md" className="w-full" onClick={() => setShowAll(true)}>
@@ -214,12 +251,28 @@ export function CourseScreen() {
 
         <SectionHeader
           title={t("course.schedule.title")}
-          subtitle={room ? t("course.schedule.summary", { n: plan.length, h: Math.floor(model.summary.usedMin / 60), m: model.summary.usedMin % 60 }) : t("course.schedule.emptyHint")}
+          subtitle={
+            room
+              ? t("course.schedule.summary", {
+                  n: plan.length,
+                  h: Math.floor(model.summary.usedMin / 60),
+                  m: model.summary.usedMin % 60,
+                })
+              : t("course.schedule.emptyHint")
+          }
         />
         {room ? (
           <>
-            <CourseTimeline model={model} plan={plan} onRemove={locked ? undefined : (id) => trip.setCoursePlan((prev) => prev.filter((x) => x.id !== id))} />
-            <Button className={cn("mt-4", model.summary.remainMin < 0 && "opacity-60")} disabled={locked} onClick={save}>
+            <CourseTimeline
+              model={model}
+              plan={plan}
+              onRemove={locked ? undefined : (id) => trip.setCoursePlan((prev) => prev.filter((x) => x.id !== id))}
+            />
+            <Button
+              className={cn("mt-4", model.summary.remainMin < 0 && "opacity-60")}
+              disabled={locked}
+              onClick={save}
+            >
               {t("course.save")}
             </Button>
           </>
@@ -234,7 +287,11 @@ export function CourseScreen() {
         )}
       </div>
 
-      <BottomSheet open={!!info} onOpenChange={(o) => !o && setInfo(null)} title={info ? localize(info.name, lang) : ""}>
+      <BottomSheet
+        open={!!info}
+        onOpenChange={(o) => !o && setInfo(null)}
+        title={info ? localize(info.name, lang) : ""}
+      >
         {info && (
           <PlaceDetail
             place={info}
@@ -253,9 +310,22 @@ export function CourseScreen() {
   );
 }
 
-export function CourseHeader({ model, onBack, titleKey = "course.header.title" }: { model: CourseModel; onBack: () => void; titleKey?: "course.header.title" | "savedCourse.title" }) {
+export function CourseHeader({
+  model,
+  onBack,
+  titleKey = "course.header.title",
+}: {
+  model: CourseModel;
+  onBack: () => void;
+  titleKey?: "course.header.title" | "savedCourse.title";
+}) {
   const { t } = useTranslation();
-  const meta = [model.arrivalFlightId, model.arrivalTerminal ? t("course.header.terminal", { terminal: model.arrivalTerminal }) : null].filter(Boolean).join(" · ");
+  const meta = [
+    model.arrivalFlightId,
+    model.arrivalTerminal ? t("course.header.terminal", { terminal: model.arrivalTerminal }) : null,
+  ]
+    .filter(Boolean)
+    .join(" · ");
   return (
     <div className="relative">
       <PageHeader title={t(titleKey)} onBack={onBack} />
@@ -276,7 +346,13 @@ export function CannotGoOutBox() {
 
 export function LegDetail({ leg }: { leg: RouteLeg }) {
   const { t } = useTranslation();
-  const mode = t(leg.mode === "transit" ? "course.leg.mode.transit" : leg.mode === "walk" ? "course.leg.mode.walk" : "course.leg.mode.taxi");
+  const mode = t(
+    leg.mode === "transit"
+      ? "course.leg.mode.transit"
+      : leg.mode === "walk"
+        ? "course.leg.mode.walk"
+        : "course.leg.mode.taxi",
+  );
   const parts = [
     leg.isReturn ? t("course.leg.return") : leg.isHotelReturn ? t("course.leg.hotelReturn") : null,
     mode,
@@ -286,7 +362,13 @@ export function LegDetail({ leg }: { leg: RouteLeg }) {
     leg.fare != null ? formatKrw(leg.fare) : null,
   ].filter(Boolean);
   return (
-    <p role="status" className={cn("mt-2 rounded-md px-3 py-2 text-caption font-bold", leg.isReturn ? "bg-danger-bg text-role-return" : "bg-tint text-role-route-text")}>
+    <p
+      role="status"
+      className={cn(
+        "mt-2 rounded-md px-3 py-2 text-caption font-bold",
+        leg.isReturn ? "bg-danger-bg text-role-return" : "bg-tint text-role-route-text",
+      )}
+    >
       {parts.join(" · ")}
     </p>
   );
@@ -310,12 +392,30 @@ function TravelText({ travel }: { travel: TravelResult }) {
   return (
     <>
       <ModeIcon size={11} aria-hidden />
-      <span>{travel.approx ? t("course.leg.approxMinutes", { n: travel.min }) : t("unit.transferMin", { n: travel.min })}</span>
+      <span>
+        {travel.approx ? t("course.leg.approxMinutes", { n: travel.min }) : t("unit.transferMin", { n: travel.min })}
+      </span>
     </>
   );
 }
 
-function PlaceCard({ place, travel, on, fits, locked, onToggle, onInfo }: { place: CoursePlace; travel: TravelResult; on: boolean; fits: boolean; locked: boolean; onToggle: () => void; onInfo: () => void }) {
+function PlaceCard({
+  place,
+  travel,
+  on,
+  fits,
+  locked,
+  onToggle,
+  onInfo,
+}: {
+  place: CoursePlace;
+  travel: TravelResult;
+  on: boolean;
+  fits: boolean;
+  locked: boolean;
+  onToggle: () => void;
+  onInfo: () => void;
+}) {
   const { t, i18n } = useTranslation();
   const Icon = categoryIcon(place.cat);
   const name = localize(place.name, i18n.language);
@@ -336,7 +436,9 @@ function PlaceCard({ place, travel, on, fits, locked, onToggle, onInfo }: { plac
           {place.durMin > 0 && <span>· {t("unit.stayMin", { n: place.durMin })}</span>}
         </span>
         <span className="mt-1.5 flex items-center gap-1.5">
-          <Badge variant={fits ? "success" : "danger"}>{fits ? t("course.places.fits") : t("course.places.tight")}</Badge>
+          <Badge variant={fits ? "success" : "danger"}>
+            {fits ? t("course.places.fits") : t("course.places.tight")}
+          </Badge>
           {place.price > 0 && <span className="text-micro text-sub">{formatKrw(place.price)}~</span>}
         </span>
       </button>
@@ -346,7 +448,10 @@ function PlaceCard({ place, travel, on, fits, locked, onToggle, onInfo }: { plac
         disabled={locked}
         aria-pressed={on}
         aria-label={`${on ? t("common.remove") : t("course.places.add")} · ${name}`}
-        className={cn("flex size-[34px] shrink-0 cursor-pointer items-center justify-center rounded-full text-lg font-extrabold disabled:cursor-not-allowed disabled:opacity-50", on ? "bg-blue text-white" : "bg-tint text-blue-deep")}
+        className={cn(
+          "flex size-[34px] shrink-0 cursor-pointer items-center justify-center rounded-full text-lg font-extrabold disabled:cursor-not-allowed disabled:opacity-50",
+          on ? "bg-blue text-white" : "bg-tint text-blue-deep",
+        )}
       >
         {on ? <Check size={18} aria-hidden /> : "+"}
       </button>
@@ -354,7 +459,21 @@ function PlaceCard({ place, travel, on, fits, locked, onToggle, onInfo }: { plac
   );
 }
 
-function PlaceDetail({ place, travel, on, fits, locked, onToggle }: { place: CoursePlace; travel: TravelResult; on: boolean; fits: boolean; locked: boolean; onToggle: () => void }) {
+function PlaceDetail({
+  place,
+  travel,
+  on,
+  fits,
+  locked,
+  onToggle,
+}: {
+  place: CoursePlace;
+  travel: TravelResult;
+  on: boolean;
+  fits: boolean;
+  locked: boolean;
+  onToggle: () => void;
+}) {
   const { t, i18n } = useTranslation();
   return (
     <div className="flex flex-col gap-2.5">
@@ -371,7 +490,13 @@ function PlaceDetail({ place, travel, on, fits, locked, onToggle }: { place: Cou
       <Badge variant={fits ? "success" : "danger"} className="self-start">
         {fits ? t("course.places.fits") : t("course.places.tight")}
       </Badge>
-      <Button variant={on ? "outline" : "primary"} size="md" className="mt-1.5 w-full" disabled={locked} onClick={onToggle}>
+      <Button
+        variant={on ? "outline" : "primary"}
+        size="md"
+        className="mt-1.5 w-full"
+        disabled={locked}
+        onClick={onToggle}
+      >
         {on ? t("common.remove") : t("course.places.add")}
       </Button>
     </div>
