@@ -40,7 +40,7 @@ MSG
 
   이미 다른 Postgres가 있다면 직접 지정해도 된다 — 테이블을 TRUNCATE하니 일회용 DB만:
        TEST_DATABASE_URL=postgresql://user:pw@127.0.0.1:5432/throwaway \
-         node --test booking.test.js
+         node --test
 MSG
   exit 1
 fi
@@ -53,5 +53,5 @@ trap cleanup EXIT
 echo "→ 일회용 Postgres 시작"
 docker compose -f "$COMPOSE_FILE" up -d --wait
 
-echo "→ 통합 테스트 실행"
-node --test booking.test.js
+echo "→ 테스트 실행 (통합 테스트 + 오류 코드 일치 테스트)"
+node --test

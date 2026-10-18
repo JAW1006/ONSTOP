@@ -20,7 +20,8 @@ const STATUSES = ["requested", "confirmed", "declined", "expired", "cancelled"];
 // 오류 코드 — 단일 출처는 docs/api/errors.md다. 값을 바꾸거나 코드를 추가하면 그 문서도 같이 고친다.
 // 형식: 도메인_이유(대문자 스네이크). message는 디버그용/관리자 화면용이고, 고객용 다국어 화면은
 // code를 i18n 키로 변환해 쓴다(docs/conventions.md "오류 응답").
-const ERROR_CODES = {
+// export: server/errors-consistency.test.js가 이 집합과 docs/api/errors.md를 맞비교한다.
+export const ERROR_CODES = {
   BOOKING_INVALID_FIELD: "BOOKING_INVALID_FIELD",
   BOOKING_INVALID_EMAIL: "BOOKING_INVALID_EMAIL",
   BOOKING_CONSENT_REQUIRED: "BOOKING_CONSENT_REQUIRED",

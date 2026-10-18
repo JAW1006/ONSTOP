@@ -7,7 +7,7 @@
     "start": "node server.js",
     "test": "bash scripts/test-with-db.sh",
     "test:db": "bash scripts/test-with-db.sh",
-    "test:nodb": "node --test booking.test.js"
+    "test:nodb": "node --test"
   },
   "dependencies": {
     "cors": "^2.8.5",
