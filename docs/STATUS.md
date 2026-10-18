@@ -56,6 +56,12 @@ Render는 Blueprint(`render.yaml`) 동기화 시 **`name` 값으로 기존 서�
 
 출처: [Render Blueprint YAML Reference](https://render.com/docs/blueprint-spec), [Render community — Migration from Existing Services to Blueprints](https://community.render.com/t/migration-from-existing-services-to-blueprints/5131)("Adding a render.yaml will 'adopt' the services if the names defined in the render.yaml match what your services are named"), [Render community — staging/prod 블루프린트 패턴](https://community.render.com/t/best-practices-for-staging-prod-environments-like-a-pipeline-using-blueprints/4007)(이름이 겹치면 블루프린트가 임의 접두사를 붙여 구분한다)
 
+### 병합 후 할 일
+
+| #   | 내용                                                                                          | 왜                                                                                                                                                                                |
+| --- | --------------------------------------------------------------------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| 1   | **Render `timestay` 서비스 주소가 정해지면 Kakao 개발자 콘솔에 그 도메인을 등록**(Web 플랫폼) | 카카오맵 JS SDK·카카오 로컬 검색은 등록된 도메인에서만 동작한다(지금은 `http://localhost:3001`만 등록돼 있을 가능성). 새 주소를 안 등록하면 지도·주변 장소 검색이 조용히 실패한다 |
+
 ### 데모 게이트 (B4 — 이미 돼 있음)
 
 둘 다 이미 구현돼 있다(Time-Safe·예약 단계에서):
@@ -128,6 +134,46 @@ git push origin main --force-with-lease   # 신중히 — main은 Render 자동 
 6. 병합(머지 커밋, squash 아님 — 이력 보존) → Render가 `main` 자동 배포 감지 → 새 `render.yaml`로 `timestay` 서비스 생성됨(위 "render.yaml 이름 변경의 실제 효과")
 7. `timestay` 서비스에 환경변수 입력(위 표) → 배포 로그 확인 → 실제 URL로 화면 확인
 8. 확인되면 `dropshopping` 서비스 Suspend(바로 Delete 안 함 — 문제 생기면 비교용으로 잠깐 남겨둠)
+
+## 2026-10-18 — PR #1: origin/main 병합 (완료, 아직 main 병합 안 함)
+
+[PR #1](https://github.com/JAW1006/ONSTOP/pull/1) `migration/react-ts` → `main`에서, `migration/react-ts..origin/main`에 있던 13개 커밋을 `git merge origin/main`(병합 커밋, rebase·force-push 없음)으로 통합했다.
+
+### main에만 있던 13개 커밋 = 내용은 이미 이 브랜치에 있던 것(해시만 다름)
+
+`migration/react-ts..origin/main`이 13개 커밋을 보여줬지만(72bf654~6afc54e, 2026-08-18~09-18, 레거시 `app/index.html` 실제 기능·버그 수정 + `render.yaml` 신설 + 카카오 JS 키 교체), 각 커밋을 `git rev-parse <hash>^{tree}`로 비교한 결과 **13개 전부 `migration/react-ts` 자신의 초기 역사에 있는 커밋과 트리 해시가 완전히 같았다.** 이 브랜치의 "Set up Vite + React + TS project" 커밋이 정확히 main의 13번째 커밋(`6afc54e`, 라이브 T1 보안대기 반영)과 같은 내용 바로 다음에서 시작한다 — 즉 **13개 커밋은 React 이식이 시작된 지점 그 자체**이고, 이미 `docs/results/2026-10-16-legacy-analysis.md`의 분석 대상(커밋 `e665a38`, `6afc54e`와 트리 동일)이었다. 이전에 STATUS.md에 적혀 있던 "로컬 main은 origin/main과 커밋 해시가 갈라져 있다(force-push 이력, 파일 내용은 동일)"와 같은 현상이다.
+
+- **(a) 레거시 기능/버그 수정 — 이식 필요 없음.** 백포트할 신규 기능 없음(이미 스펙에 다 들어가 있었음).
+- **(b) 인프라 — `render.yaml`은 main이 만든 최초 버전(`name: dropshopping`, env 3개)과 우리 버전이 트리까지 동일한 공통 조상에서 갈라져, 우리 쪽이 이름(`timestay`)·env(예약 요청 3개 추가)를 더 진행시킨 상태.** 유효, 충돌 해결에서 `ours` 채택.
+- **(c) 키 — `git log -p origin/main` 전체(app/, server/)에서 서버 쪽 비밀키(AIRPORT_SERVICE_KEY·KAKAO_REST_API_KEY·ODSAY_API_KEY·DATABASE_URL·ADMIN_PASSWORD) 실제 값은 이력에 전혀 없음**(전부 `process.env.*` 참조뿐). `app/index.html`에 카카오맵 **JavaScript 키**(공개·도메인 제한용, 비밀 아님)만 평문으로 있고, 우리 쪽 `app/index.html`에도 같은 값이 이미 있어 새로 노출된 게 아니다. **폐기·재발급 필요 없음.**
+- **(d) 문서·로고 — 리브랜딩(DropShopping→TimeStay) 커밋도 트리까지 동일하게 이미 양쪽에 있었다.**
+
+### 충돌 8개 — 전부 `ours`로 해결(근거: 8개 전부 origin/main 쪽 내용이 공유 시작점과 바이트까지 동일, 새로 가져올 내용 없음)
+
+| 파일                                              | 해결                                                                                                   |
+| ------------------------------------------------- | ------------------------------------------------------------------------------------------------------ |
+| `README.md`                                       | ours(새 구조 기준 README). main 내용은 `docs/legacy-readme.md`에 이미 보존                             |
+| `render.yaml`                                     | ours(`timestay` + 예약 요청 env 3개 — main 설정의 상위집합)                                            |
+| `server/server.js`                                | ours(main의 모든 수정이 이미 동일하게 들어 있고, 그 위에 `booking.js`/`error-codes.js` 연동이 더 있음) |
+| `server/.env.example`                             | ours(main의 안내 문구를 내용상 포함하는 더 상세한 버전)                                                |
+| `logo/README.md`, `logo/preview.html`             | ours(리브랜딩 문구는 동일, 포맷·레이아웃만 우리 쪽이 더 진행)                                          |
+| `server/package.json`, `server/package-lock.json` | 자동 병합(충돌 없음, `HEAD`와 diff 0 — main이 기여한 새 내용 없음)                                     |
+
+### 병합 직후 검증 (전부 통과)
+
+- `git diff origin/main HEAD -- app/` → **빈 diff**(레거시 앱 100% 동일)
+- `git diff origin/main HEAD -- logo/ app/assets/` → `logo/README.md`·`logo/preview.html`만 차이(의도된 차이, 위 표 참고), `app/assets/`(호텔 사진 10장 포함)는 **빈 diff**
+- `git diff origin/main HEAD -- server/server.js`의 삭제된 줄(`-`) 37개 전부 확인 — **실제 기능 삭제 없음.** 전부 (i) Prettier 줄바꿈 스타일 차이(예: `.trim().toUpperCase()` 한 줄→여러 줄) 또는 (ii) `/api/security-wait`가 평평한 `{error:"문자열"}`에서 `fail()`/`ERROR_CODES` 기반으로 바뀐 것(이미 계획된 리팩터, 메시지 내용은 그대로 옮겨짐)뿐
+- `server/package.json`·`.env.example`·`render.yaml` → main 대비 **전부 우리 쪽 추가분만** 있음(제거된 설정 없음) — diff 직접 확인
+
+### 새 클론 재검증 (병합 커밋 포함한 상태, 로컬 클론)
+
+프런트: `npm ci`(161개, 취약점 0) → lint 통과 → test 170개 통과 → build 통과
+서버: `npm ci`(85개, 취약점 0) → test(docker Postgres) 23개 통과
+
+### push·PR·CI
+
+`git push origin migration/react-ts`(force 아님) → PR #1 `mergeable: MERGEABLE`(충돌 해소됨). CI 5개 중 4개 통과(포맷·비밀값·프런트·서버 통합 테스트). **커밋 메시지 검사만 실패** — 원인: 이 잡이 `git log --no-merges "$before..$after"`로 범위를 계산하는데, 병합으로 main의 13개 옛 커밋이 이 브랜치에 처음으로 "도달 가능"해져서 전부 새로 검사 대상에 들어갔다(그 커밋들은 2026-10-18 컨벤션 적용 이전이라 형식이 안 맞음). `--no-merges`는 병합 커밋 자체만 빼고 그 조상은 못 거른다 — **merge가 끼면 이 잡이 구조적으로 이렇게 실패한다.** 병합 커밋 자체(`fix: merge origin/main, ...`)는 형식이 맞고, CI가 검사하는 다른 4개는 모두 통과했다. CI 스크립트를 `--first-parent`로 고치면 해결되지만 이번 작업 범위 밖이라 고치지 않았다 — 다음에 결정 필요.
 
 ## 디자인 이식 진행
 
