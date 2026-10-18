@@ -22,6 +22,13 @@
 
 진행 상태: **미착수.** 착수하면 이 표에 체크하고 "컨벤션 불일치" #1을 완전 해소로 갱신한다.
 
+## 병합 준비(main에 합칠 때) 할 일
+
+| #   | 내용                                                                                                                       | 비고                                                                                                                                         |
+| --- | -------------------------------------------------------------------------------------------------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------- |
+| 1   | `render.yaml`의 `name: dropshopping` → TimeStay 이름으로 변경(Render 서비스 식별자, 배포 도메인도 바뀜 — 재배포 순서 주의) | 2026-10-18 검색에서 발견. 지금은 안 바꿈(사용자 지시)                                                                                        |
+| 2   | `README.md`의 폴더 구조 트리 루트 `DropShopping/` → 새 이름                                                                | 같은 검색. README 자체는 이미 레거시 전용 안내로 표시돼 있다([README.md](../README.md) 상단 배너) — 병합 때 이 README를 교체하면서 같이 처리 |
+
 ## 브랜치·배포
 
 | 항목                 | 상태                                                                                                                                                                                                          |
@@ -31,7 +38,7 @@
 | 로컬 `main`          | `origin/main`과 커밋 해시가 갈라져 있다(force-push 이력, **파일 내용은 동일**). main으로 돌아갈 일이 생기면 `git branch -f main origin/main`으로 맞춘다                                                       |
 | 새 환경변수          | `DATABASE_URL`, `ADMIN_USER`, `ADMIN_PASSWORD` — `server/.env.example` 참고. 환경별로 다른 DB·자격증명을 쓴다                                                                                                 |
 | push                 | 가능 — 이 저장소만 `credential.https://github.com.username = JAW1006`(로컬 설정). `main`에는 올리지 않음                                                                                                      |
-| 백업                 | git bundle: `C:\Users\OpenLink\ONSTOP-backup\onstop-migration-react-ts-2026-10-16.bundle` (`migration/react-ts` + `main`, 전체 이력). 복원: `git clone -b migration/react-ts <bundle> <폴더>`                 |
+| 백업                 | git bundle 파일(`migration/react-ts` + `main`, 전체 이력) — 경로는 사용자 PC에만 기록(개인 사용자명 포함이라 문서에서 뺌). 복원: `git clone -b migration/react-ts <bundle> <폴더>`                            |
 
 ## 2026-10-18 — 예약 요청 서버 API
 

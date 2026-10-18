@@ -12,7 +12,15 @@
     "browser": true,
     "es2024": true
   },
-  "ignorePatterns": ["dist", "node_modules", "server/node_modules", "legacy", "local-docs", "app/index.html"],
+  "ignorePatterns": [
+    "dist",
+    "node_modules",
+    "server/node_modules",
+    "legacy",
+    "local-docs",
+    "app/index.html",
+    "design/reference"
+  ],
   "overrides": [
     {
       "files": ["src/domain/**/*.ts"],

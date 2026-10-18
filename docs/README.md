@@ -14,7 +14,8 @@
 | 제품          | [product/market.md](product/market.md)                                                 | 초안       | 시장 규모·타깃 (수치 미검증)                                                              |
 | 제품          | [product/roadmap.md](product/roadmap.md)                                               | 초안       | 서비스 운영 로드맵(기반 / 서비스 핵심 / 신뢰·품질), 남은 화면 순서, 서버 TS·모노레포 계획 |
 | 제품          | [product/hotel-interview.md](product/hotel-interview.md)                               | 초안       | 호텔 인터뷰 질문(데이유즈 블록·가격, 예약 확인, 정산, 노쇼, 사진 허락)                    |
-| 디자인        | [design/design-tokens.md](design/design-tokens.md)                                     | 초안       | 색·반경·그림자·타이포·레이아웃 토큰                                                       |
+| 디자인        | [design/design-tokens.md](design/design-tokens.md)                                     | 초안       | **색 토큰 단일 기준**(Figma Make UI Kit). 글자·시스템 영역·시간 바·범례 규칙도 포함       |
+| 디자인        | [design/design-tokens-legacy.md](design/design-tokens-legacy.md)                       | 초안       | 반경·그림자·타이포·레이아웃·카테고리 색(아직 이쪽이 기준). 색은 위 문서로 이전됨          |
 | 디자인        | [design/components.md](design/components.md)                                           | 초안       | 공통 UI 컴포넌트 목록                                                                     |
 | 디자인        | [design/data.md](design/data.md)                                                       | 초안       | 숙소·장소 데이터 출처·검증 상태                                                           |
 | 디자인        | [design/data-verification.md](design/data-verification.md)                             | 초안       | 숙소·장소 미검증 값 116개(항목·현재 값·확인 방법, 자동 생성)                              |

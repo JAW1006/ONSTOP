@@ -18,5 +18,9 @@ docs/design/data-verification.md
 # 이 파일의 원문을 그대로 파싱하므로, 포매팅이 공백·줄바꿈을 바꾸면 그 정규식이 깨질 수 있다.
 app/index.html
 
+# 디자인 이식 참고 원본(Figma Make UI Kit) — 수정 금지. 이식 중 바꾸고 싶은 점은
+# docs/STATUS.md "이식 후 수정 목록"에만 적는다(docs/design/design-tokens.md 참고).
+design/reference
+
 # 저장소에 안 넣는 로컬 문서(.gitignore와 동일 — 여기 있어도 해롭지 않지만 명시)
 local-docs

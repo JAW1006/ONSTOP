@@ -1,175 +1,96 @@
-# 디자인 토큰
+# 디자인 토큰 (TimeStay UI Kit, Figma Make 기준)
 
-> 상태: 초안 · 최종 수정 2026-10-16
-> 코드: [`src/styles/tokens.css`](../../src/styles/tokens.css) · 출처: 레거시 `app/index.html`의 `C` 팔레트와 인라인 스타일
+> 상태: 초안 · 최종 수정 2026-10-18
+> 코드 참고: [`design/reference/`](../../design/reference/)(Figma Make 원본, 수정 금지) · 이식 대상: `src/styles/tokens.css`
+> 이전 레거시 토큰 문서: [design-tokens-legacy.md](design-tokens-legacy.md)(반경·그림자·타이포·레이아웃은 아직 그쪽이 기준)
 
-토큰은 2층 구조다.
+출처: Figma Make `TimeStay-UI-Kit-Design` (dsv9OZvZ5glG8BgiJVK1Hu) 의 index.css / App.tsx.
+**이 문서가 색 토큰의 단일 기준이다.** 구현에서 임의로 값을 바꾸지 않는다.
 
-1. `--ts-*` 브랜드 원시 토큰 — 레거시 `C.*` 이름을 kebab-case로 그대로 옮김
-2. shadcn 시맨틱 토큰(`--primary` 등) — 1층을 참조
+## 1. 색 (한 색에는 한 의미만)
 
-Tailwind 유틸리티 이름은 3열(`bg-primary`, `text-ink` …).
+| 토큰         | 값      | 역할                                      | 사용 금지      |
+| ------------ | ------- | ----------------------------------------- | -------------- |
+| brand        | #2764e7 | 선택된 장소·선택 상태·주요 동작(버튼)     | 정상/성공 표시 |
+| brand-dark   | #1647af | brand hover/pressed                       |                |
+| brand-soft   | #eaf1ff | 선택된 카드/슬롯 배경                     | 체류 구간      |
+| success      | #23845a | 정상 운항·확정·완료                       | 이동 표시      |
+| success-soft | #e6f4ec | success 배경                              |                |
+| travel       | #168b8a | 시간 바 이동 구간, 이동 경로, 이동 칩에만 | 정상/선택/장식 |
+| prep         | #d4dae3 | 시간 바 준비 구간                         |                |
+| stay         | #9cccec | 시간 바 체류 구간                         | 선택 카드 배경 |
+| margin       | #efd99c | 시간 바 여유 구간                         |                |
+| track        | #edf0f4 | 시간 바 트랙                              |                |
+| gold         | #b88a35 | 호텔 베이스, 호텔 핀                      |                |
+| gold-soft    | #f7efd9 | 호텔 관련 안내 배경                       |                |
+| danger       | #d74a42 | 경고·시간 초과·공항 복귀·거절             |                |
+| danger-soft  | #fff0ee | danger 배경                               |                |
+| ink          | #142037 | 본문 글자, 진한 카드 배경                 |                |
+| ink-soft     | #4b5870 | 보조 글자                                 |                |
+| line         | #dce2eb | 구분선·테두리                             |                |
+| pale         | #f0f3f7 | 보조 배경                                 |                |
+| paper        | #ffffff | 화면 배경                                 |                |
+| canvas       | #f6f8fb | 바깥 배경                                 |                |
 
-## 색 — 브랜드
+### 글자용 어두운 색 (reference에는 없음, 이식 시 추가하는 의도된 차이)
 
-| 토큰             | 값        | Tailwind              | 레거시       | 쓰임                           |
-| ---------------- | --------- | --------------------- | ------------ | ------------------------------ |
-| `--ts-blue`      | `#2F7BE6` | `blue` / `primary`    | `C.blue`     | 주요 액션, 활성 탭             |
-| `--ts-blue-deep` | `#164FAE` | `blue-deep`           | `C.blueDeep` | 그라디언트 끝, 강조 숫자       |
-| `--ts-ink`       | `#153A52` | `ink` / `foreground`  | `C.ink`      | 본문·제목, Time-Safe 카드 배경 |
-| `--ts-gold`      | `#F2B134` | `gold`                | `C.gold`     | "Stay" 워드마크, 체류시간 숫자 |
-| `--ts-gold-deep` | `#D9971A` | `gold-deep`           | `C.goldDeep` | 제휴 AD 배지 글자              |
-| `--ts-red`       | `#E23B3B` | `red` / `destructive` | `C.red`      | 경고, 복귀 시각, 초과          |
-| `--ts-lime`      | `#8DBE36` | `lime`                | `C.lime`     | 실시간 반영 표시               |
+배경·막대·아이콘 채움에는 위 색을 그대로 쓰고, **글자와 얇은 선 아이콘**에만 아래 값을 쓴다.
 
-## 색 — 표면·텍스트
+| 토큰        | 값      | 대체 대상                                         | 대비 |
+| ----------- | ------- | ------------------------------------------------- | ---- |
+| danger-ink  | #b3342c | danger 글자 (danger-soft 위 5.5, 흰색 위 6.1)     | 통과 |
+| success-ink | #17694a | success 글자 (success-soft 위 5.87, 흰색 위 6.65) | 통과 |
+| travel-ink  | #0f6f6e | travel 글자 (흰색 위 5.97)                        | 통과 |
+| gold-ink    | #7a5a1c | gold 글자 (gold-soft 위 5.54)                     | 통과 |
 
-| 토큰            | 값        | Tailwind                   | 레거시    | 쓰임            |
-| --------------- | --------- | -------------------------- | --------- | --------------- |
-| `--ts-bg`       | `#F1F5FA` | `background`               | `C.bg`    | 앱 배경         |
-| `--ts-card`     | `#FFFFFF` | `card`                     | `C.card`  | 카드            |
-| `--ts-tint`     | `#EAF1FB` | `tint` / `secondary`       | `C.tint`  | 칩·선택 배경    |
-| `--ts-sub`      | `#5E7185` | `sub` / `muted-foreground` | `C.sub`   | 보조 텍스트     |
-| `--ts-faint`    | `#A9B4C4` | `faint`                    | `C.faint` | 캡션, 비활성 탭 |
-| `--ts-line`     | `#E3EAF3` | `line` / `border`          | `C.line`  | 구분선, 테두리  |
-| `--ts-backdrop` | `#E6ECF6` | `backdrop`                 | (인라인)  | 폰 프레임 바깥  |
+- 위험 배경 위의 흰 글자(경고 버튼, 복귀 시각 경과 배너)는 danger가 아니라 danger-ink 배경을 쓴다.
 
-## 색 — 상태 (레거시 인라인 값을 토큰화)
+### 대비 점검 (WCAG, 본문 4.5:1 / 큰 글자 3:1)
 
-| 토큰                            | 값                    | Tailwind              | 쓰임                              |
-| ------------------------------- | --------------------- | --------------------- | --------------------------------- |
-| `--ts-success`                  | `#2E9E5B`             | `success`             | "실시간", "환승 내 가능", 여유 분 |
-| `--ts-success-bg`               | `#E7F7EE`             | `success-bg`          | 위 배지 배경                      |
-| `--ts-danger-bg`                | `#FDECEA`             | `danger-bg`           | 경고 박스, 짐 케어 배너           |
-| `--ts-disabled`                 | `#C4D2E4`             | `disabled`            | 비활성 버튼                       |
-| `--ts-ad-bg` / `--ts-ad-border` | `#FFF3DC` / `#F5D089` | `ad-bg` / `ad-border` | 제휴 AD 배지                      |
-| `--ts-overlay`                  | `rgb(16 24 38 / .45)` | —                     | 바텀시트 딤                       |
+통과: ink-soft/white 7.17, brand/white 5.17, brand/brand-soft 4.56
+미달(조정 필요):
 
-## 색 — 어두운(ink) 배경 위 (4단계 추가, 레거시 인라인 값)
+- travel 글자 on white 4.12
+- success on success-soft 4.10
+- danger on danger-soft 3.83 (11px 안내문에 쓰이므로 글자는 더 어둡게)
+- gold on white 3.12 (아이콘·큰 글자만 사용, 작은 글자 금지)
+  시간 바 구간은 색만으로 구분하지 않고 라벨과 aria-label 값을 함께 쓴다.
 
-| 토큰                           | 값                     | Tailwind                  | 쓰임                  |
-| ------------------------------ | ---------------------- | ------------------------- | --------------------- |
-| `--ts-on-dark`                 | `#CFE0F5`              | `on-dark`                 | 결과 카드 본문        |
-| `--ts-on-dark-sub`             | `#BFD3F0`              | `on-dark-sub`             | 카드 머리줄           |
-| `--ts-on-dark-muted`           | `#9FB6D4`              | `on-dark-muted`           | 항공편 줄, 안내       |
-| `--ts-on-dark-danger` / `-sub` | `#FF8A8A` / `#F0C7C7`  | `on-dark-danger` / `-sub` | 외출 불가 제목 / 설명 |
-| `--ts-on-dark-danger-bg`       | `rgb(226 59 59 / .16)` | `on-dark-danger-bg`       | 외출 불가 박스        |
+## 2. 글자
 
-## 색 — 카테고리 (`CAT_META`)
+- 한국어 Noto Sans KR / 중국어 Noto Sans SC / 일본어 Noto Sans JP / 영어·베트남어 Noto Sans, 숫자 강조 Space Grotesk
+- 앱에 번들한다(원격 import 금지, 오프라인·개인정보 이유). :lang() 로 언어별 폰트 지정.
+- 최소 크기: 본문 12px, 보조 라벨 11px. 터치 영역 최소 44x44px.
 
-| 카테고리    | 토큰                   | 값                                                            |
-| ----------- | ---------------------- | ------------------------------------------------------------- |
-| Food        | `--ts-cat-food`        | gold                                                          |
-| Massage     | `--ts-cat-massage`     | lime                                                          |
-| Shopping    | `--ts-cat-shopping`    | blue                                                          |
-| Rest        | `--ts-cat-rest`        | ink                                                           |
-| Beauty      | `--ts-cat-beauty`      | red                                                           |
-| Sightseeing | `--ts-cat-sightseeing` | lime ⚠ Massage와 같은 색 (레거시 그대로, 구분 필요 여부 미정) |
-| Brand       | `--ts-cat-brand`       | gold-deep                                                     |
+## 3. 시스템 영역
 
-지도 전용 색(`ROUTE_COLORS` 8색, `POI_COLORS` 7색)은 지도 기능 데이터라 토큰이 아니라 `features/course`에 둔다(4단계).
+- 앱은 상태바·홈 인디케이터를 그리지 않는다. env(safe-area-inset-top/bottom)로 영역을 확보하고 헤더·탭바 배경만 이어 붙인다.
+- 54px / 34px 은 대표 기기 예시값이며 코드에 하드코딩하지 않는다.
+- 탭바 콘텐츠 높이 72px + safe-area-inset-bottom.
+- 높이는 100dvh 기준.
+- 화면별 상태바 글자색: 밝은 배경 화면 = 어두운 글자, 진한 배경 화면 = 밝은 글자, 바텀시트는 기존 유지, 중앙 모달은 딤과 함께 낮아짐.
 
-## 색 역할 규칙 (코스 지도, 2026-10-16)
+## 4. 이동 수단 표기 (지도·범례)
 
-**색은 역할 하나에만 쓴다. 구간마다 색을 바꾸지 않는다. 색만으로 의미를 전달하지 않는다**(아이콘·글자·선 모양을 함께). 토큰 이름은 색이 아니라 역할.
+- 대중교통: 굵은 실선 + 역 점 / 택시: 가는 실선 / 도보: 점선 / 공항 복귀: 빨간 점선
+- 선과 칩 아이콘의 수단은 반드시 일치시킨다.
 
-| 토큰                   | 역할                    | 값                 | Tailwind          | 함께 쓰는 비색 단서                                                     |
-| ---------------------- | ----------------------- | ------------------ | ----------------- | ----------------------------------------------------------------------- |
-| `--ts-role-place`      | 내가 고른 장소 핀       | = `--ts-blue`      | `role-place`      | 번호(1·2·3)                                                             |
-| `--ts-role-base`       | 호텔(거점) 핀           | = `--ts-gold-deep` | `role-base`       | H 아이콘, "호텔(거점)" 글자                                             |
-| `--ts-role-route`      | 이동(선·막대 이동 구간) | `#0E8C84` **임시** | `role-route`      | 수단 아이콘, 선 모양                                                    |
-| `--ts-role-route-text` | 이동 칩 글자            | `#0B7A73` **임시** | `role-route-text` | 흰 배경 대비 약 5.2:1 (`#0E8C84`는 약 4.1:1이라 작은 글자에 부족)       |
-| `--ts-role-return`     | 복귀 구간·초과·경고     | = `--ts-red`       | `role-return`     | "복귀"·"초과" 글자, 긴 파선, ⚠                                          |
-| `--ts-role-prep`       | 준비 구간               | = `--ts-faint`     | `role-prep`       | 막대 아래 "준비 N분"                                                    |
-| `--ts-role-stay`       | 체류 구간               | `#7FA8E8`          | `role-stay`       | 막대 아래 "체류 N분" — 금색(호텔)과 겹치지 않게 장소 파랑 계열을 연하게 |
-| `--ts-role-spare`      | 여유                    | = `--ts-line`      | `role-spare`      | "여유 N분"                                                              |
-| `--ts-role-candidate`  | 아직 안 고른 후보 점    | = `--ts-faint`     | `role-candidate`  | 탭하면 이름                                                             |
-| `--ts-role-airport`    | 공항 핀                 | = `--ts-ink`       | `role-airport`    | ✈                                                                       |
+## 5. 시간 바 규칙
 
-**임시**: 청록 두 값은 로고 브랜드 색(A13: 앱 Blue/Gold vs 로고 Teal/Coral)이 정해질 때까지 임시. 로고가 Teal로 정해지면 브랜드 색과 같은 계열이 되므로 역할 색을 다시 검토한다.
-**코스 화면 카테고리 배지**: 회색(`bg-muted text-sub`) + 카테고리 아이콘·글자 — 카테고리 색(`--ts-cat-*`)을 쓰지 않는다(다른 화면은 유지).
+- 입력: 구간 배열 [{kind, minutes, label}] (kind = prep | travel | stay | margin | overrun)
+- 폭은 분 비율로 계산한다. 고정 퍼센트 금지.
+- 정의: 사용 = 준비 + 이동 + 체류, 가능 = 외출 가능 시간, 여유 = 가능 − 사용. 초과 시 overrun 구간.
+- 화면에 "사용 / 가능"을 함께 표시하고 aria-label에 구간별 값과 총합을 넣는다.
 
-## 선 스타일 규칙 (코스 지도)
+## 5-1. 홈 Time-Safe 막대 범례 (reference의 결함을 고쳐서 이식)
 
-| 토큰(CSS)                                               | 구간               | 두께               | 카카오 `strokeStyle`                                    | 색     |
-| ------------------------------------------------------- | ------------------ | ------------------ | ------------------------------------------------------- | ------ |
-| `--ts-line-transit-width`                               | 대중교통           | 6px                | `solid`                                                 | route  |
-| `--ts-line-taxi-width`                                  | 택시(자동차 경로)  | 4px                | `solid`                                                 | route  |
-| `--ts-line-walk-width`                                  | 도보               | 3px                | `shortdot`(작은 점, 촘촘)                               | route  |
-| `--ts-line-return-width`                                | 공항 복귀          | 4px                | `longdash`(긴 파선 — 도보 점과 크기·간격이 확실히 다름) | return |
-| `--ts-line-selected-boost` / `--ts-line-dimmed-opacity` | 선택 구간 / 나머지 | +2px, 불투명 / 0.3 | —                                                       | —      |
+- reference는 라벨을 구간 폭에 맞춰 4열로 놓아서 좁은 구간(탑승구 30분)의 글자가 한 자씩 줄바꿈되고 출처 뱃지가 찌그러진다. 그대로 옮기지 않는다.
+- 막대 아래에 2열 범례로 놓는다: 견본(빗금=공항 절차, 외곽선=외출 가능) + 이름 + 분 + 출처 뱃지(실시간/안전 기준). 이름은 줄바꿈하지 않는다.
+- "외출 가능 구간 안의 코스" 막대는 범례 아래 전체 폭에 둔다.
+- 새 색은 추가하지 않는다. 계산 근거 시트(sheet)에도 같은 범례를 쓴다.
 
-카카오맵 `strokeStyle` 문자열은 CSS로 표현할 수 없어 `src/features/course/map-style.ts`에 같은 이름으로 둔다.
+## 6. 구현 제외 항목
 
-## 그라디언트
-
-| 토큰                | 값                                                                     |
-| ------------------- | ---------------------------------------------------------------------- |
-| `--ts-grad-primary` | `linear-gradient(135deg, blue, blue-deep)` — 헤더, 주요 버튼, 코스 FAB |
-
-## 반경
-
-| 토큰                | 값    | Tailwind                    | 쓰임                       |
-| ------------------- | ----- | --------------------------- | -------------------------- |
-| `--ts-radius-sm`    | 10px  | `rounded-sm`                | 경고 박스, 작은 버튼       |
-| `--ts-radius-md`    | 12px  | `rounded-md`                | 사진, 보조 버튼            |
-| `--ts-radius-lg`    | 14px  | `rounded-lg` (= `--radius`) | 주요 버튼, 입력, 선택 카드 |
-| `--ts-radius-xl`    | 18px  | `rounded-xl`                | 카드                       |
-| `--ts-radius-sheet` | 20px  | `rounded-2xl`               | 바텀시트 상단              |
-| `--ts-radius-hero`  | 22px  | `rounded-3xl`               | 홈 헤더 하단               |
-| `--ts-radius-panel` | 26px  | `rounded-t-panel`           | 온보딩 본문 패널 상단      |
-| `--ts-radius-pill`  | 999px | `rounded-full`              | 칩, 배지                   |
-
-## 그림자
-
-| 토큰                  | 값                               | Tailwind         | 쓰임                  |
-| --------------------- | -------------------------------- | ---------------- | --------------------- |
-| `--ts-shadow-card`    | `0 2px 14px rgb(40 70 130/.07)`  | `shadow-card`    | 카드                  |
-| `--ts-shadow-primary` | `0 6px 16px rgb(47 123 230/.32)` | `shadow-primary` | 주요 버튼             |
-| `--ts-shadow-fab`     | `0 6px 16px rgb(47 123 230/.45)` | `shadow-fab`     | 탭바 가운데 코스 버튼 |
-| `--ts-shadow-toast`   | `0 6px 16px rgb(0 0 0/.25)`      | —                | 항공편 변경 배너      |
-| `--ts-shadow-device`  | `0 20px 60px rgb(30 50 110/.25)` | —                | 데스크톱 폰 프레임    |
-
-## 타이포그래피
-
-폰트: 시스템 스택(`-apple-system, Segoe UI, Roboto`). 레거시는 font-size를 17종(9~36px) 사용 → 8단계로 수렴(3단계 적용, `index.css` `@theme --text-*`).
-
-| Tailwind          | px   | 역할                       | 레거시 px           | 굵기    |
-| ----------------- | ---- | -------------------------- | ------------------- | ------- |
-| `text-display-lg` | 36   | 온보딩 외출 가능 시간 숫자 | 36                  | 900     |
-| `text-display`    | 28   | 홈 외출 가능 시간 숫자     | 28                  | 900     |
-| `text-title`      | 22   | 화면 타이틀                | 21 / 26             | 900     |
-| `text-section`    | 16   | 섹션·헤더 제목             | 15 / 16 / 17        | 800     |
-| `text-emph`       | 14   | 본문 강조, 주요 버튼       | 13 / 13.5 / 14 / 15 | 700–800 |
-| `text-body`       | 12.5 | 본문, 칩                   | 12 / 12.5           | 500–600 |
-| `text-caption`    | 11   | 캡션                       | 10.5 / 11 / 11.5    | 500–700 |
-| `text-micro`      | 10   | 배지·탭 라벨               | 9 / 10              | 700     |
-
-예외: 탭바 가운데 코스 FAB 라벨 8px(레거시 그대로). `cn()`은 이 이름들을 글자 크기로 인식하도록 설정돼 있다(`src/lib/utils.ts`).
-
-## 레이아웃
-
-| 토큰                                       | 값               | 쓰임                                          |
-| ------------------------------------------ | ---------------- | --------------------------------------------- |
-| `--ts-app-width`                           | 390px            | 앱 최대 폭(데스크톱에선 폰 프레임 800px 높이) |
-| `--ts-nav-height`                          | 66px             | 하단 탭바                                     |
-| `--ts-fab-size`                            | 56px             | 가운데 코스 버튼(탭바 위로 22px 돌출)         |
-| `--ts-page-x`                              | 16px             | 화면 좌우 패딩                                |
-| `--ts-device-bezel` / `--ts-device-radius` | `#101826` / 34px | 데스크톱 폰 프레임 테두리                     |
-
-## 미결 사항
-
-| #   | 내용                                                                                                                                                                                |
-| --- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| 1   | `logo/README.md`의 브랜드 컬러(Teal `#22C9B7`·Coral `#FF6B5E`)와 앱 팔레트(Blue·Gold)가 다르다. 현재 토큰은 **실제 앱에 쓰인 Blue·Gold** 기준. 어느 쪽이 공식 브랜드인지 확인 필요. |
-| 2   | 다크 모드: 레거시에 없음. 범위 밖으로 둠.                                                                                                                                           |
-| 3   | Massage·Sightseeing 카테고리 색 중복.                                                                                                                                               |
-
-## 변경 이력
-
-| 날짜       | 변경                                                                                      |
-| ---------- | ----------------------------------------------------------------------------------------- |
-| 2026-10-16 | 레거시에서 추출해 초안 작성                                                               |
-| 2026-10-16 | 3단계: 타이포 8단계 스케일 적용, 폰 프레임 토큰 추가                                      |
-| 2026-10-16 | 코스 지도: 색 역할 규칙·선 스타일 규칙 토큰(`--ts-role-*`, `--ts-line-*`) 추가. 청록 임시 |
-| 2026-10-16 | 4단계 Time-Safe: 어두운 배경 글자색 6개, 패널 반경 추가                                   |
+- 마이 → DESIGN QA(상태 보드, 색 역할표, 다국어 확장 테스트, 시스템 영역 규칙, 기기 프레임)는 서비스 화면이 아니다. 개발용 경로로만 둔다.
+- 데모 값(₩48,000 데모 가격, 매출 예상, 샘플 이름·이메일)은 프로덕션 빌드에서 제외한다.
+- PHASE 2 표시 기능(마이 프로필, 오프라인, 파트너 로그인·가격표·사진·취소 정책·매출)은 이번 구현 범위가 아니다.
