@@ -1,7 +1,7 @@
 # TimeStay — 작업 규칙
 
 인천공항 환승 외국인을 위한 데이유즈 + AI 큐레이션 앱. 레거시 단일 HTML(`app/index.html`)을 React로 이식 중.
-문서 목차: [docs/README.md](docs/README.md) · 진행·결정 필요: [docs/STATUS.md](docs/STATUS.md) · 용어: [docs/GLOSSARY.md](docs/GLOSSARY.md) · **이름 규칙: [docs/conventions.md](docs/conventions.md) — 코드를 쓰기 전에 읽는다**
+**설치·실행: [SETUP.md](SETUP.md)** · 문서 목차: [docs/README.md](docs/README.md) · 진행·결정 필요: [docs/STATUS.md](docs/STATUS.md) · 용어: [docs/GLOSSARY.md](docs/GLOSSARY.md) · **이름 규칙: [docs/conventions.md](docs/conventions.md) — 코드를 쓰기 전에 읽는다**
 
 ## 스택 / 명령어
 

@@ -2,12 +2,17 @@
 
 인천공항 환승객을 위한 "짐은 맡기고, 환승 시간을 인천에서" 서비스 프로토타입입니다. 도착부터 공항 복귀까지 남는 환승 시간(Time-Safe)에 맞춰 데이유즈 숙소·짐 보관·주변 액티비티를 자동으로 코스로 짜줍니다.
 
-## 폴더 구성
+> ⚠ **지금 작업 중인 버전은 이 문서가 설명하는 것과 다르다.** 작업 브랜치 `migration/react-ts`는 아래 "빌드 도구 없는 단일 HTML"을 **Vite + React + TypeScript로 이식 중**이다(진행 상태: [docs/STATUS.md](docs/STATUS.md)).
+> **설치·실행은 [SETUP.md](SETUP.md)를 본다.** 이 README의 나머지 내용(폴더 구성 포함)은 **이식 전 레거시 프로토타입**(`app/index.html`, 지금도 참고용으로 레포에 남아 있다) 기준이고, 이식이 끝나면 `legacy/`로 옮겨진다([CLAUDE.md](CLAUDE.md) "폴더 책임"). 레거시와 새 버전을 비교한 결과는 `docs/results/`에 있다.
+
+## 폴더 구성 (레거시 프로토타입 기준)
+
+지금 실제로 돌리는 React 이식본은 `src/`(화면·도메인 로직)에 있고 `server/`는 그대로 공유한다. 설치·실행은 [SETUP.md](SETUP.md).
 
 ```
 DropShopping/
 ├── app/                  # 프론트엔드 (정적 프로토타입)
-│   ├── index.html        # 실제로 실행되는 단일 파일 앱 (React, 빌드 없음)
+│   ├── index.html        # 레거시 단일 파일 앱 (React, 빌드 없음) — 이식 원본, 수정하지 않는다
 │   └── assets/           # 앱에서 쓰는 로고 이미지
 ├── server/                # 인천공항 실시간 API 프록시 서버
 │   ├── server.js
