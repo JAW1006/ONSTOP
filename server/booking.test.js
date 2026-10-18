@@ -5,7 +5,7 @@
 //        또는 TEST_DATABASE_URL=... node --test booking.test.js
 //
 // ⚠ 이 테스트는 booking_requests를 TRUNCATE한다. 아래 가드가 운영·개발 DB를 가리키면 실행을 거부한다.
-import test, { before, after, beforeEach, describe, it } from "node:test";
+import { before, after, beforeEach, describe, it } from "node:test";
 import assert from "node:assert/strict";
 import express from "express";
 import pg from "pg";

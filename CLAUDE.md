@@ -14,6 +14,7 @@ Vite + React + TypeScript · Tailwind v4 + shadcn/ui(Radix) · React Router · T
 | `npm test`               | Vitest (프런트)                                                                                         |
 | `cd server && npm test`  | 예약 요청 API 통합 테스트 — docker로 **일회용 Postgres**를 띄워 실행(Docker 없으면 `npm run test:nodb`) |
 | `npm run build`          | 타입체크 + 빌드                                                                                         |
+| `npm run lint`           | oxlint — 미사용 변수, `src/domain` import 경계만(네이밍은 안 봄, `docs/conventions.md` 12장)            |
 
 ## 폴더 책임
 

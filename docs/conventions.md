@@ -150,6 +150,21 @@ type은 위 커밋 type과 같은 집합(`feat/`, `fix/`, `docs/`, `test/`, `ref
 - **`.prettierignore`로 뺀 것**: 자동 생성 문서(`docs/design/i18n-keys.md`·`i18n-review.md`·`i18n-review-legacy.md`·`data-verification.md` — 생성 스크립트가 형식을 정하고, 일부는 테스트가 그 표를 정규식으로 읽는다), 레거시 `app/index.html`(수정 금지 + 추출 스크립트가 정규식으로 원문을 읽는다), `legacy-data.json`·`package-lock.json`(생성기가 형식을 정함).
 - 새로 자동 생성 문서나 정규식으로 파싱하는 파일을 추가하면 `.prettierignore`에도 추가한다.
 
+## 12. 린트 (oxlint)
+
+**네이밍은 강제하지 않는다** — 이 문서의 이름 규칙은 린트로 틀어막지 않고 사람이 따른다. 린트가 보는 건 셋뿐이다.
+
+| 규칙             | 내용                                                                                                                  |
+| ---------------- | --------------------------------------------------------------------------------------------------------------------- |
+| 미사용 변수      | 전체 범위. `_` 접두사는 의도적으로 안 쓰는 값으로 보고 넘어간다(`{ rankMoveMin: _r, ...p }`처럼)                      |
+| import 경계      | `src/domain/**`에서 `react`·`react-dom`·`@/features/*`·`@/app/*`·`@/components/*` import 금지(CLAUDE.md "폴더 책임")  |
+| `fetch`/DOM 전역 | `src/domain/**`에서 `fetch`·`document`·`window`·`navigator`·`localStorage`·`sessionStorage` 금지                      |
+| 타입 오류        | 이 린터는 타입 검사를 하지 않는다 — `npm run build`(`tsc -b`)가 그 역할을 한다. 둘을 같이 돌려야 "타입 오류"가 잡힌다 |
+
+명령: `npm run lint`(저장소 루트). 설정은 `.oxlintrc.json`. CI(`web` 잡)가 `npm test`·`npm run build` 전에 돈다.
+
+**왜 ESLint/typescript-eslint가 아니라 oxlint인가**: 이 리포의 `typescript`는 `^7.0.2`인데, 2026-10-19 기준 `typescript-eslint`(와 `@typescript-eslint/parser`·`@typescript-eslint/eslint-plugin`)는 TypeScript 7을 실행 자체를 막는 가드가 있다(피어 범위 경고가 아니라 런타임 에러 — "`typescript-eslint` does not support TS 7.0"). `--legacy-peer-deps`로 설치는 되지만 실행이 안 된다. oxlint는 자체 TS/JSX 파서(Rust, Oxc)를 써서 `typescript` 패키지 버전과 무관하게 동작한다. typescript-eslint가 TS 7을 지원하게 되면 이 선택을 다시 검토할 수 있다.
+
 ## 변경 이력
 
 | 날짜       | 내용                                                                                                                                                                   |
@@ -158,3 +173,4 @@ type은 위 커밋 type과 같은 집합(`feat/`, `fix/`, `docs/`, `test/`, `ref
 | 2026-10-19 | 오류 메시지 사용 원칙을 별도 절로 명시(영어 로그용, 화면 비표시, 개인정보 금지, 관리자 화면 예외)                                                                      |
 | 2026-10-19 | `checkInMin`/`slotMin` 통일, `move`/`dur`에 `Min` 접미사 부여(실제로 코드에 적용 — STATUS.md "컨벤션 불일치" #2·#3 해소)                                               |
 | 2026-10-19 | Prettier 도입(`.prettierrc.json`·`.prettierignore`), 리포 전체 1회 포맷, CI에 `format` 잡 추가. 포맷 커밋은 `.git-blame-ignore-revs`에 등록(아래)                      |
+| 2026-10-19 | 최소 린트 도입(미사용 변수·`src/domain` import 경계) — typescript-eslint가 TS 7을 지원하지 않아 oxlint로. CI `web` 잡에 `npm run lint` 추가                            |

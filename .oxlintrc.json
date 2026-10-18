@@ -1,0 +1,62 @@
+{
+  "$schema": "./node_modules/oxlint/configuration_schema.json",
+  "plugins": ["typescript", "unicorn", "oxc"],
+  "categories": {
+    "correctness": "error"
+  },
+  "rules": {
+    "no-unused-vars": "error"
+  },
+  "env": {
+    "builtin": true,
+    "browser": true,
+    "es2024": true
+  },
+  "ignorePatterns": ["dist", "node_modules", "server/node_modules", "legacy", "local-docs", "app/index.html"],
+  "overrides": [
+    {
+      "files": ["src/domain/**/*.ts"],
+      "excludeFiles": ["src/domain/**/*.test.ts"],
+      "env": {
+        "builtin": true,
+        "browser": false
+      },
+      "globals": {
+        "fetch": "off",
+        "document": "off",
+        "window": "off",
+        "navigator": "off",
+        "localStorage": "off",
+        "sessionStorage": "off",
+        "XMLHttpRequest": "off",
+        "WebSocket": "off"
+      },
+      "rules": {
+        "no-restricted-globals": [
+          "error",
+          { "name": "fetch", "message": "src/domain은 순수 함수만 — fetch를 쓰지 않는다(CLAUDE.md 폴더 책임)." },
+          { "name": "document", "message": "src/domain은 순수 함수만 — DOM을 쓰지 않는다(CLAUDE.md 폴더 책임)." },
+          { "name": "window", "message": "src/domain은 순수 함수만 — DOM을 쓰지 않는다(CLAUDE.md 폴더 책임)." },
+          { "name": "navigator", "message": "src/domain은 순수 함수만 — DOM을 쓰지 않는다(CLAUDE.md 폴더 책임)." },
+          { "name": "localStorage", "message": "src/domain은 순수 함수만 — DOM을 쓰지 않는다(CLAUDE.md 폴더 책임)." },
+          { "name": "sessionStorage", "message": "src/domain은 순수 함수만 — DOM을 쓰지 않는다(CLAUDE.md 폴더 책임)." }
+        ],
+        "no-restricted-imports": [
+          "error",
+          {
+            "paths": [
+              { "name": "react", "message": "src/domain은 순수 함수만 — React를 쓰지 않는다(CLAUDE.md 폴더 책임)." },
+              { "name": "react-dom", "message": "src/domain은 순수 함수만 — React를 쓰지 않는다(CLAUDE.md 폴더 책임)." }
+            ],
+            "patterns": [
+              {
+                "group": ["react/*", "react-dom/*", "@/features/*", "@/app/*", "@/components/*"],
+                "message": "src/domain은 순수 함수만 — 화면·훅·API 호출 코드를 가져오지 않는다(CLAUDE.md 폴더 책임)."
+              }
+            ]
+          }
+        ]
+      }
+    }
+  ]
+}

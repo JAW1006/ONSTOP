@@ -39,6 +39,7 @@
 | 프런트              | `npm ci && npm test && npm run build`                                                                                                                                                                |
 | 서버(예약 요청 API) | `cd server && npm test` — docker로 **일회용 Postgres**를 띄워 진짜 DB에 붙는다. Docker가 없으면 `npm run test:nodb`(통합 테스트는 건너뜀)                                                            |
 | 포맷                | `npx prettier --check .`(저장소 루트에서). 커밋 전에 `npx prettier --write .`로 고친다. 설정은 `.prettierrc.json`, 손대지 않는 파일은 `.prettierignore`(자동 생성 문서, `app/index.html`, lock 파일) |
+| 린트                | `npm run lint`(oxlint — 미사용 변수, `src/domain` import 경계만. 네이밍은 안 봄. 왜 oxlint인지는 [conventions.md](docs/conventions.md) 12장)                                                         |
 
 - CI(`.github/workflows/ci.yml`)가 푸시마다 같은 것 + 비밀값 검사를 돌린다.
 - **`server/.env`의 `DATABASE_URL`로 테스트·마이그레이션을 돌리지 않는다.** 실제 DB다. 테스트는 `TEST_DATABASE_URL`만 쓰고, 그 값이 `DATABASE_URL`과 같거나 원격이면 스스로 중단한다.
