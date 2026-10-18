@@ -1,6 +1,6 @@
 # 코딩 컨벤션
 
-> 상태: 확정 · 최종 수정 2026-10-19
+> 상태: 확정 · 최종 수정 2026-10-18
 > **코드를 쓰기 전에 이 문서를 먼저 읽는다**([AGENTS.md](../AGENTS.md) 1장, [CLAUDE.md](../CLAUDE.md)).
 > 여기 없는 이름 규칙은 그 폴더·파일에서 **이미 쓰이고 있는 방식**을 따른다 — 새 패턴을 만들지 않는다.
 > 기존 코드를 이 문서에 맞춰 한꺼번에 고치는 작업은 하지 않는다. 새로 쓰는 코드부터 적용하고,
@@ -58,7 +58,7 @@
 
 ### 변수
 
-시간·거리를 담는 변수는 단위를 이름에 붙인다 — `checkInMin`, `returnByMin`, `availableMin`, `haversineKm`, `moveMin`, `durMin`. 전부 이 규칙을 따른다(`CourseStop.move`/`dur`·`Place.move`는 2026-10-19에 `moveMin`/`durMin`으로 통일했다 — [GLOSSARY](GLOSSARY.md) "이동(분)"·"체류(분)").
+시간·거리를 담는 변수는 단위를 이름에 붙인다 — `checkInMin`, `returnByMin`, `availableMin`, `haversineKm`, `moveMin`, `durMin`. 전부 이 규칙을 따른다(`CourseStop.move`/`dur`·`Place.move`는 2026-10-18에 `moveMin`/`durMin`으로 통일했다 — [GLOSSARY](GLOSSARY.md) "이동(분)"·"체류(분)").
 
 ## 5. DB ↔ API
 
@@ -99,7 +99,7 @@ booking.consent.thirdParty
 
 **오류 코드 목록의 단일 출처는 [docs/api/errors.md](api/errors.md)다.** 새 코드를 추가하거나 의미를 바꾸면 그 문서를 먼저(또는 같이) 고친다. 개별 API 문서(예: [api/booking-requests.md](api/booking-requests.md))는 자기가 쓰는 코드의 부분집합만 보여주고 전체 목록은 그 문서로 링크한다.
 
-### 오류 메시지 사용 원칙 (2026-10-19 명시)
+### 오류 메시지 사용 원칙 (2026-10-18 명시)
 
 | 규칙             | 내용                                                                                                                                                                                                                              |
 | ---------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
@@ -165,15 +165,15 @@ type은 위 커밋 type과 같은 집합(`feat/`, `fix/`, `docs/`, `test/`, `ref
 
 명령: `npm run lint`(저장소 루트). 설정은 `.oxlintrc.json`. CI(`web` 잡)가 `npm test`·`npm run build` 전에 돈다.
 
-**왜 ESLint/typescript-eslint가 아니라 oxlint인가**: 이 리포의 `typescript`는 `^7.0.2`인데, 2026-10-19 기준 `typescript-eslint`(와 `@typescript-eslint/parser`·`@typescript-eslint/eslint-plugin`)는 TypeScript 7을 실행 자체를 막는 가드가 있다(피어 범위 경고가 아니라 런타임 에러 — "`typescript-eslint` does not support TS 7.0"). `--legacy-peer-deps`로 설치는 되지만 실행이 안 된다. oxlint는 자체 TS/JSX 파서(Rust, Oxc)를 써서 `typescript` 패키지 버전과 무관하게 동작한다. typescript-eslint가 TS 7을 지원하게 되면 이 선택을 다시 검토할 수 있다.
+**왜 ESLint/typescript-eslint가 아니라 oxlint인가**: 이 리포의 `typescript`는 `^7.0.2`인데, 2026-10-18 기준 `typescript-eslint`(와 `@typescript-eslint/parser`·`@typescript-eslint/eslint-plugin`)는 TypeScript 7을 실행 자체를 막는 가드가 있다(피어 범위 경고가 아니라 런타임 에러 — "`typescript-eslint` does not support TS 7.0"). `--legacy-peer-deps`로 설치는 되지만 실행이 안 된다. oxlint는 자체 TS/JSX 파서(Rust, Oxc)를 써서 `typescript` 패키지 버전과 무관하게 동작한다. typescript-eslint가 TS 7을 지원하게 되면 이 선택을 다시 검토할 수 있다.
 
 ## 변경 이력
 
 | 날짜       | 내용                                                                                                                                                                   |
 | ---------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | 2026-10-18 | 최초 작성. 현재 코드·문서 조사를 바탕으로 기존 관행을 최대한 존중해 작성. 오류 응답 모양은 이 작성과 같은 작업에서 `server/booking.js`에 바로 적용(테스트 22개 재확인) |
-| 2026-10-19 | 오류 메시지 사용 원칙을 별도 절로 명시(영어 로그용, 화면 비표시, 개인정보 금지, 관리자 화면 예외)                                                                      |
-| 2026-10-19 | `checkInMin`/`slotMin` 통일, `move`/`dur`에 `Min` 접미사 부여(실제로 코드에 적용 — STATUS.md "컨벤션 불일치" #2·#3 해소)                                               |
-| 2026-10-19 | Prettier 도입(`.prettierrc.json`·`.prettierignore`), 리포 전체 1회 포맷, CI에 `format` 잡 추가. 포맷 커밋은 `.git-blame-ignore-revs`에 등록(아래)                      |
-| 2026-10-19 | 최소 린트 도입(미사용 변수·`src/domain` import 경계) — typescript-eslint가 TS 7을 지원하지 않아 oxlint로. CI `web` 잡에 `npm run lint` 추가                            |
-| 2026-10-19 | 커밋 메시지 형식을 CI `commitlint` 잡이 검사(그 푸시/PR이 들여온 커밋만, `git log` 범위 계산). 로컬 훅 없음                                                            |
+| 2026-10-18 | 오류 메시지 사용 원칙을 별도 절로 명시(영어 로그용, 화면 비표시, 개인정보 금지, 관리자 화면 예외)                                                                      |
+| 2026-10-18 | `checkInMin`/`slotMin` 통일, `move`/`dur`에 `Min` 접미사 부여(실제로 코드에 적용 — STATUS.md "컨벤션 불일치" #2·#3 해소)                                               |
+| 2026-10-18 | Prettier 도입(`.prettierrc.json`·`.prettierignore`), 리포 전체 1회 포맷, CI에 `format` 잡 추가. 포맷 커밋은 `.git-blame-ignore-revs`에 등록(아래)                      |
+| 2026-10-18 | 최소 린트 도입(미사용 변수·`src/domain` import 경계) — typescript-eslint가 TS 7을 지원하지 않아 oxlint로. CI `web` 잡에 `npm run lint` 추가                            |
+| 2026-10-18 | 커밋 메시지 형식을 CI `commitlint` 잡이 검사(그 푸시/PR이 들여온 커밋만, `git log` 범위 계산). 로컬 훅 없음                                                            |

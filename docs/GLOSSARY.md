@@ -1,6 +1,6 @@
 # 용어집
 
-> 상태: 초안 · 최종 수정 2026-10-19
+> 상태: 초안 · 최종 수정 2026-10-18
 > 화면 문구·코드 이름·문서가 같은 말을 쓰도록 여기서 정의한다. 시각·시간 단위는 분, 시각은 도착일 0시 기준.
 > 이름 규칙(폴더·함수·단위 접미사 등)의 단일 출처는 [conventions.md](conventions.md) — 여기는 **그 용어가 가리키는 개념**을 정의한다.
 
@@ -18,8 +18,8 @@
 | 공항 밖 시각        | 도착 + 입국심사 버퍼. 외출 가능 시간의 시작점.                                                                                                                                                                                                                                                        | `exitAtMin`                                    | [time-safe](formulas/time-safe.md)           |
 | 공항 복귀 추천 시각 | 연결편 출발 − 복귀 버퍼. 외출 불가면 공항 밖 시각.                                                                                                                                                                                                                                                    | `returnByMin`                                  | [time-safe](formulas/time-safe.md)           |
 | 외출 불가           | 연결편 출발 − 복귀 버퍼 − 공항 밖 시각 < `MIN_STAY`(60분).                                                                                                                                                                                                                                            | `canGoOut = false`                             | [time-safe](formulas/time-safe.md)           |
-| **체크인 슬롯**     | 고객이 고른 체크인 시각(분). 2026-10-19 전에는 함수마다 `checkInMin`(옛 타이어 로직)과 `slotMin`(상품·견적 로직)으로 갈려 있었다 — **`checkInMin`으로 통일**(컨벤션 불일치 #2 해소). `alignCheckIn`·`productStartsAt`·`defaultProduct`·`blockEndMin`·`bookingCheck`가 전부 이 이름으로 받는다         | `checkInMin`                                   | [dayuse-pricing](formulas/dayuse-pricing.md) |
-| 이동(분)            | 숙소→장소, 공항→숙소처럼 한 구간을 이동하는 데 걸리는 분. 2026-10-19 전에는 `CourseStop.move`/`Place.move`처럼 단위 접미사가 없었다 — **`moveMin`으로 통일**(컨벤션 4장 단위 접미사 규칙, 불일치 #3 해소). 숙소→장소·공항→숙소 한 구간을 가리키는 변수는 `roomMoveMin`, 정렬용 임시값은 `rankMoveMin` | `moveMin`, `roomMoveMin`, `rankMoveMin`        | [time-fit](formulas/time-fit.md)             |
+| **체크인 슬롯**     | 고객이 고른 체크인 시각(분). 2026-10-18 전에는 함수마다 `checkInMin`(옛 타이어 로직)과 `slotMin`(상품·견적 로직)으로 갈려 있었다 — **`checkInMin`으로 통일**(컨벤션 불일치 #2 해소). `alignCheckIn`·`productStartsAt`·`defaultProduct`·`blockEndMin`·`bookingCheck`가 전부 이 이름으로 받는다         | `checkInMin`                                   | [dayuse-pricing](formulas/dayuse-pricing.md) |
+| 이동(분)            | 숙소→장소, 공항→숙소처럼 한 구간을 이동하는 데 걸리는 분. 2026-10-18 전에는 `CourseStop.move`/`Place.move`처럼 단위 접미사가 없었다 — **`moveMin`으로 통일**(컨벤션 4장 단위 접미사 규칙, 불일치 #3 해소). 숙소→장소·공항→숙소 한 구간을 가리키는 변수는 `roomMoveMin`, 정렬용 임시값은 `rankMoveMin` | `moveMin`, `roomMoveMin`, `rankMoveMin`        | [time-fit](formulas/time-fit.md)             |
 | 체류(분)            | 장소에 머무는 분. 마찬가지로 접미사가 없던 `CourseStop.dur`/`Place.dur`를 **`durMin`으로 통일**                                                                                                                                                                                                       | `durMin`                                       | [time-fit](formulas/time-fit.md)             |
 
 ## 버퍼

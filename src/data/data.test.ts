@@ -23,7 +23,7 @@ describe("레거시 데이터", () => {
 
   it("레거시 원문과 값이 같다(숙소 가격·시간대·이동시간)", () => {
     const src = fs.readFileSync("app/index.html", "utf8").split("\r\n").join("\n");
-    // app/index.html(레거시 원문)은 아직 move 필드명 그대로다 — 이 레포(ROOMS)만 moveMin으로 통일했다(2026-10-19).
+    // app/index.html(레거시 원문)은 아직 move 필드명 그대로다 — 이 레포(ROOMS)만 moveMin으로 통일했다(2026-10-18).
     const legacy = new Function(`return ${src.match(/const ROOMS = (\[[\s\S]*?\n\]);\n/)![1]}`)() as (Omit<
       (typeof ROOMS)[number],
       "moveMin"
