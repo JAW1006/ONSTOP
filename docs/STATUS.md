@@ -73,7 +73,12 @@ Render는 Blueprint(`render.yaml`) 동기화 시 **`name` 값으로 기존 서�
 
 ### 새 클론 검증
 
-> 미확인 — 이번 세션에선 안 돌렸다. 직전 "설치 검증"(2026-10-18, 아래)에서 **같은 브랜치**로 이미 빈 클론 검증을 했지만, 그건 이번 병합 준비 커밋들 이전 상태였다. 병합 직전에 다시 한 번 새 클론 `npm ci && npm run lint && npm test && npm run build`(+ `server`도 동일)를 돌려서 확인해야 한다.
+**✅ 통과(2026-10-18, 이번 병합 준비 커밋들 포함한 현재 상태)** — 로컬 새 클론(`git clone --branch migration/react-ts`, origin 아닌 로컬 저장소에서 떠서 네트워크 지연 없음)에서:
+
+- 프런트: `npm ci`(161개 패키지, 취약점 0) → `npm run lint` 통과 → `npm test` 170개 통과 → `npm run build` 통과(가변 폰트 포함 정상 산출)
+- 서버: `npm ci`(85개 패키지, 취약점 0) → `npm test`(docker Postgres 일회용 컨테이너) 23개 통과(마이그레이션 멱등·B8 동시요청·fail-closed·오류 코드 일치까지)
+
+병합 직전에는 **원격**(`origin/migration/react-ts`) 기준으로 한 번 더 같은 검증을 돌린다 — 로컬 클론은 아직 push 전 상태를 봤다.
 
 ### 변경 요약
 
