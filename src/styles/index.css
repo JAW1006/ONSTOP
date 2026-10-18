@@ -2,26 +2,17 @@
 @import "tw-animate-css";
 @import "./tokens.css";
 
-/* v2 폰트 — design-tokens.md 2절("원격 import 금지"), @fontsource로 번들 */
-@import "@fontsource/space-grotesk/500.css";
-@import "@fontsource/space-grotesk/600.css";
-@import "@fontsource/space-grotesk/700.css";
-@import "@fontsource/noto-sans/400.css";
-@import "@fontsource/noto-sans/500.css";
-@import "@fontsource/noto-sans/600.css";
-@import "@fontsource/noto-sans/700.css";
-@import "@fontsource/noto-sans-kr/400.css";
-@import "@fontsource/noto-sans-kr/500.css";
-@import "@fontsource/noto-sans-kr/600.css";
-@import "@fontsource/noto-sans-kr/700.css";
-@import "@fontsource/noto-sans-sc/400.css";
-@import "@fontsource/noto-sans-sc/500.css";
-@import "@fontsource/noto-sans-sc/600.css";
-@import "@fontsource/noto-sans-sc/700.css";
-@import "@fontsource/noto-sans-jp/400.css";
-@import "@fontsource/noto-sans-jp/500.css";
-@import "@fontsource/noto-sans-jp/600.css";
-@import "@fontsource/noto-sans-jp/700.css";
+/*
+ * v2 폰트 — design-tokens.md 2절("원격 import 금지"), @fontsource로 번들.
+ * 가변 폰트(@fontsource-variable)를 쓴다 — 고정 가중치별 @fontsource보다 용량이 훨씬 작다
+ * (2026-10-18 실측, npm run build 결과: 고정 가중치 400/600/700 3종 = 2,130개 파일/52MB →
+ * 가변 1종 = 357개 파일/14MB, docs/STATUS.md 참고). 쓰는 가중치가 늘어나도 파일이 늘지 않는다.
+ */
+@import "@fontsource-variable/space-grotesk/wght.css";
+@import "@fontsource-variable/noto-sans/wght.css";
+@import "@fontsource-variable/noto-sans-kr/wght.css";
+@import "@fontsource-variable/noto-sans-sc/wght.css";
+@import "@fontsource-variable/noto-sans-jp/wght.css";
 
 /* tokens.css 변수를 Tailwind 유틸리티(bg-primary, text-ink, rounded-xl …)로 노출 */
 @theme inline {

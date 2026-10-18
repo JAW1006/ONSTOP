@@ -35,8 +35,16 @@
 
 | 단계 | 내용                                          | 상태                      |
 | ---- | --------------------------------------------- | ------------------------- |
-| 1    | 기반 — 색 토큰·폰트·시스템 영역·공통 컴포넌트 | 완료(2026-10-18, 아래 참고) — **스크린샷 대비 검증은 못 함** |
+| 1    | 기반 — 색 토큰·폰트·시스템 영역·공통 컴포넌트 | **코드 완료, 시각 검증 대기**(합격 아님) — 390px/360px 스크린샷 대비(`docs/design-diff/stage1/`)를 브라우저 도구 연결 끊김으로 못 했다(2026-10-18). 통과 처리는 그 검증 이후 |
 | 2-8  | 화면 이식                                     | 대기                       |
+
+### 화면 이식 완료 후 정리할 것
+
+| #   | 내용                                                                                        | 비고                                                                              |
+| --- | --------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------ |
+| 1   | 옛 `--ts-*` 토큰(`--ts-blue`·`--ts-ink`·`--ts-gold`·`--ts-success`·`--ts-line` 등) 전부 제거 | 8단계 화면이 모두 v2 컴포넌트로 옮겨가면 `src/styles/tokens.css`에서 삭제          |
+| 2   | `--ts-v2-*`/`--color-v2-*`의 `v2` 접두사 제거(옛 토큰이 빠져서 이름 충돌이 없어지면)         | 아래 "이식 후 수정 목록" #3과 같은 작업                                           |
+| 3   | 옛 공통 컴포넌트(`src/components/ui/button.tsx`·`chip.tsx` 등, 구 화면 전용) 삭제            | 구 화면이 전부 v2로 바뀌면 참조가 없어진다                                        |
 
 ### 이식 후 수정 목록 (지금은 안 바꿈, 전부 화면 이식 단계에서 재검토)
 
@@ -238,7 +246,9 @@ docker run --rm node:22-bookworm bash -c '
 범위는 [design-tokens.md](design/design-tokens.md) 1절 "할 일" 그대로. 화면은 옮기지 않았다(어느 화면도 아직 v2 컴포넌트를 쓰지 않는다).
 
 - **색 토큰**: `src/styles/tokens.css`에 `--ts-v2-*`(브랜드+4개 글자용 ink 포함) 추가, `src/styles/index.css`의 `@theme inline`에 `--color-v2-*`로 노출. 기존 `--ts-*`(화면에서 이미 쓰는 중)는 손대지 않았다.
-- **폰트**: `@fontsource/{noto-sans,noto-sans-kr,noto-sans-sc,noto-sans-jp,space-grotesk}` 번들(원격 import 없음). `.ts-v2-root`(새 컴포넌트만 감싸는 범위) 안에서만 `:lang()` 규칙 적용 — 기존 화면의 전역 `body` 폰트는 그대로.
+- **폰트**: `@fontsource-variable/{noto-sans,noto-sans-kr,noto-sans-sc,noto-sans-jp,space-grotesk}`(가변 폰트) 번들, 원격 import 없음. `.ts-v2-root`(새 컴포넌트만 감싸는 범위) 안에서만 `:lang()` 규칙 적용 — 기존 화면의 전역 `body` 폰트는 그대로.
+  - 처음엔 고정 가중치 `@fontsource/*`(400/500/600/700 각각 별 파일)로 넣었다가, 실제 쓰는 가중치(400·600·700)만 남겨도 `npm run build` 결과 **2,130개 파일 · 52MB**였다(CJK 폰트는 가중치별로 유니코드 범위 서브셋이 수백 개로 쪼개진다). 가변 폰트로 바꾸니 **357개 파일 · 14MB**(가중치 축 전체를 1개 파일/서브셋으로 담아서 — 쓰는 가중치가 늘어도 파일이 안 늘어난다). 전부 `@fontsource-variable/*`로 교체, 번들 CSS도 1.28MB → 326KB로 줄었다. `npm test`(170)·`npm run lint`·`npm run build` 재확인
+  - 네트워크상 유니코드 범위별로 필요한 서브셋만 내려받으므로(브라우저가 실제 쓰는 글자의 `unicode-range`만 요청) `dist/assets`에 있는 357개 전부가 매 방문자에게 다 나가는 건 아니다 — 다만 전부 앱 번들에는 포함된다(빌드 산출물 크기로는 14MB)
 - **시스템 영역**: 상태바·홈 인디케이터 코드 없음. `--ts-v2-tabbar-content-height: 72px` + `env(safe-area-inset-bottom)`. `.ts-v2-root`는 `100dvh` 기준.
 - **공통 컴포넌트** (`src/components/ui/v2/`): `icon.tsx`(경로 그대로 복제), `button.tsx`, `pill.tsx`, `field.tsx`, `brand.tsx`, `app-header.tsx`, `tab-bar.tsx`, `time-bar.tsx`, `transit-time-bar.tsx`(범례만 2열로, 의도된 차이 b). 기존 `src/components/ui/button.tsx`·`chip.tsx`(구 화면용)는 손대지 않았다.
 - **i18n**: 탭바 라벨은 기존 `nav.*`(이미 5개 언어 검수 완료) 재사용. 새 키(`brand.subtitle`, `timeBar.*`, `transitTimeBar.*`)는 ko/en을 직접 채우고 ja/zh/vi는 기계적으로 옮긴 값 — [i18n-todo.md](../docs/i18n-todo.md)에 목록.
