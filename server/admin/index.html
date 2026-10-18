@@ -1,0 +1,141 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<title>TimeStay 예약 요청 관리</title>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<style>
+  :root { color-scheme: light; }
+  * { box-sizing: border-box; }
+  body { margin: 0; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; background: #F3F5F9; color: #16233F; }
+  header { padding: 20px 24px 14px; }
+  h1 { font-size: 18px; margin: 0 0 4px; }
+  .sub { font-size: 12.5px; color: #6B7B99; }
+  .toolbar { display: flex; align-items: center; gap: 10px; padding: 0 24px 14px; flex-wrap: wrap; }
+  select, button.refresh { font-size: 12.5px; padding: 7px 12px; border-radius: 8px; border: 1px solid #D5DCEA; background: #fff; color: #16233F; cursor: pointer; }
+  button.refresh { border-color: #2255DD; color: #2255DD; font-weight: 700; }
+  .count { font-size: 12px; color: #6B7B99; margin-left: auto; }
+  .empty { padding: 60px 24px; text-align: center; color: #8895AC; font-size: 13.5px; }
+  .list { padding: 0 24px 40px; display: flex; flex-direction: column; gap: 10px; }
+  .card { background: #fff; border: 1px solid #E3E8F2; border-radius: 14px; padding: 16px 18px; }
+  .row1 { display: flex; justify-content: space-between; align-items: flex-start; gap: 10px; flex-wrap: wrap; }
+  .room { font-weight: 800; font-size: 14.5px; }
+  .badge { font-size: 11px; font-weight: 700; padding: 3px 10px; border-radius: 999px; white-space: nowrap; }
+  .badge.requested { background: #FFF3D6; color: #A9720C; }
+  .badge.confirmed { background: #E1F5E9; color: #1F8A4C; }
+  .badge.cancelled { background: #F2E4E4; color: #A13A3A; }
+  .meta { font-size: 12.5px; color: #4C5A78; margin-top: 8px; line-height: 1.7; }
+  .meta b { color: #16233F; }
+  .meta a { color: #2255DD; text-decoration: none; font-weight: 700; }
+  .plan { font-size: 11.5px; color: #6B7B99; margin-top: 6px; }
+  .actions { display: flex; gap: 8px; margin-top: 12px; }
+  .actions button { font-size: 12px; font-weight: 700; padding: 7px 12px; border-radius: 8px; cursor: pointer; border: 1px solid #D5DCEA; background: #fff; }
+  .actions button.confirm { color: #1F8A4C; border-color: #BEE6CE; }
+  .actions button.cancel { color: #A13A3A; border-color: #F0C9C9; }
+  .actions button:disabled { opacity: .4; cursor: default; }
+  .created { font-size: 10.5px; color: #A7B1C4; margin-top: 10px; }
+</style>
+</head>
+<body>
+<header>
+  <h1>예약 요청 관리</h1>
+  <div class="sub">TimeStay 앱으로 들어온 요청 — 결제 없음, 호텔에 직접 연락해 확정하세요</div>
+</header>
+<div class="toolbar">
+  <select id="filter">
+    <option value="all" selected>전체</option>
+    <option value="requested">대기중</option>
+    <option value="confirmed">확정됨</option>
+    <option value="cancelled">취소됨</option>
+  </select>
+  <button class="refresh" id="refreshBtn">새로고침</button>
+  <span class="count" id="count"></span>
+</div>
+<div id="root"></div>
+<script>
+const STATUS_LABEL = { requested: "대기중", confirmed: "확정됨", cancelled: "취소됨" };
+
+function fmtTime(min) {
+  const mm = ((min % 1440) + 1440) % 1440;
+  const dayOffset = Math.floor(min / 1440);
+  const h = String(Math.floor(mm / 60)).padStart(2, "0");
+  const m = String(mm % 60).padStart(2, "0");
+  return dayOffset !== 0 ? `${h}:${m} (+${dayOffset}일)` : `${h}:${m}`;
+}
+
+function fmtWon(n) {
+  return n == null ? "-" : `${n.toLocaleString("ko-KR")}원`;
+}
+
+function fmtCreatedAt(iso) {
+  const d = new Date(iso);
+  return d.toLocaleString("ko-KR", { month: "2-digit", day: "2-digit", hour: "2-digit", minute: "2-digit" });
+}
+
+async function loadRequests() {
+  const res = await fetch("/api/booking-requests");
+  const data = await res.json();
+  return (data.requests || []).sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
+}
+
+async function setStatus(id, status) {
+  await fetch(`/api/booking-requests/${encodeURIComponent(id)}`, {
+    method: "PATCH",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ status }),
+  });
+  render();
+}
+
+function card(r) {
+  const el = document.createElement("div");
+  el.className = "card";
+  const plan = (r.plan || []).map((p) => p.name).join(", ");
+  el.innerHTML = `
+    <div class="row1">
+      <div class="room">${r.roomName || r.roomId}</div>
+      <span class="badge ${r.status}">${STATUS_LABEL[r.status] || r.status}</span>
+    </div>
+    <div class="meta">
+      <b>${r.name}</b> · <a href="tel:${r.phone}">${r.phone}</a><br>
+      체크인 ${fmtTime(r.checkIn)} – 체크아웃 ${fmtTime(r.checkOut)} · 예상 요금 <b>${fmtWon(r.price)}</b>
+    </div>
+    ${plan ? `<div class="plan">일정: ${plan}</div>` : ""}
+    <div class="actions">
+      <button class="confirm" ${r.status === "confirmed" ? "disabled" : ""}>확정 처리</button>
+      <button class="cancel" ${r.status === "cancelled" ? "disabled" : ""}>취소 처리</button>
+    </div>
+    <div class="created">요청 시각 ${fmtCreatedAt(r.createdAt)} · ${r.id}</div>
+  `;
+  el.querySelector(".confirm").addEventListener("click", () => setStatus(r.id, "confirmed"));
+  el.querySelector(".cancel").addEventListener("click", () => setStatus(r.id, "cancelled"));
+  return el;
+}
+
+async function render() {
+  const root = document.getElementById("root");
+  const filter = document.getElementById("filter").value;
+  const all = await loadRequests();
+  const requests = filter === "all" ? all : all.filter((r) => r.status === filter);
+
+  document.getElementById("count").textContent = `${requests.length}건`;
+  root.innerHTML = "";
+  if (!requests.length) {
+    const empty = document.createElement("div");
+    empty.className = "empty";
+    empty.textContent = "표시할 예약 요청이 없어요.";
+    root.appendChild(empty);
+    return;
+  }
+  const list = document.createElement("div");
+  list.className = "list";
+  requests.forEach((r) => list.appendChild(card(r)));
+  root.appendChild(list);
+}
+
+document.getElementById("refreshBtn").addEventListener("click", render);
+document.getElementById("filter").addEventListener("change", render);
+render();
+</script>
+</body>
+</html>

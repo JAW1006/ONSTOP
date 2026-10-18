@@ -2,15 +2,19 @@ import "dotenv/config";
 import express from "express";
 import cors from "cors";
 import path from "path";
+import pg from "pg";
 import { fileURLToPath } from "url";
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const app = express();
 app.use(cors());
+app.use(express.json());
 
 // 카카오맵 JS SDK는 등록된 도메인(http/https)에서만 동작하고 file://에서는 안 뜨므로,
 // 같은 프로세스에서 app/ 정적 파일도 같이 서빙해서 http://localhost:3001 로 열 수 있게 한다.
 app.use(express.static(path.join(__dirname, "..", "app")));
+// 예약 요청을 사람이 보기 편하게 확인하는 내부용 페이지 — 고객용 앱과 분리된 별도 정적 파일.
+app.use("/admin", express.static(path.join(__dirname, "admin")));
 
 // data.go.kr issues both an "Encoding" and a "Decoding" key; accept either by
 // normalizing to the decoded form before URLSearchParams re-encodes it once.
@@ -140,18 +144,21 @@ app.get("/api/flight/departure", async (req, res) => {
   }
 });
 
-// 인천공항 출국장 혼잡도 API — 같은 AIRPORT_SERVICE_KEY로 자동 승인되어 있었다(2026-09-18 확인).
-// 제1여객터미널(P01)의 출국장 1~6번(동/서 게이트별)만 제공 — 제2터미널(P03)은 이 API 자체에 데이터가
-// 없다(공사 공식 사이트 실시간 대기시간 페이지도 T1만 표시). T2 항공편은 이 값을 못 쓰고 서버가 아닌
-// 프론트의 고정 버퍼(SECURITY_BUFFER_MIN)로 폴백해야 한다.
-const CONGESTION_URL = "https://apis.data.go.kr/B551177/statusOfDepartureCongestion/getDepartureCongestion";
+// 인천공항 출국장 혼잡도 API — 같은 AIRPORT_SERVICE_KEY로 T1/T2 둘 다 자동 승인되어 있었다
+// (T1은 2026-09-18, T2는 별도 서비스(statusOfDepartureCongestionT2)로 같은 날 확인). 터미널마다
+// 엔드포인트 자체가 분리돼 있어서 요청 시 terminal 쿼리로 어느 쪽을 부를지 고른다.
+const CONGESTION_URLS = {
+  P01: "https://apis.data.go.kr/B551177/statusOfDepartureCongestion/getDepartureCongestion",
+  P03: "https://apis.data.go.kr/B551177/statusOfDepartureCongestionT2/getDepartureCongestionT2",
+};
 
 app.get("/api/security-wait", async (req, res) => {
+  const terminal = req.query.terminal === "P03" ? "P03" : "P01";
   if (!SERVICE_KEY) {
     return res.status(500).json({ error: "AIRPORT_SERVICE_KEY is not configured on the server" });
   }
 
-  const url = new URL(CONGESTION_URL);
+  const url = new URL(CONGESTION_URLS[terminal]);
   url.searchParams.set("serviceKey", SERVICE_KEY);
   url.searchParams.set("type", "json");
   url.searchParams.set("numOfRows", "50");
@@ -174,7 +181,7 @@ app.get("/api/security-wait", async (req, res) => {
     const items = normalizeItems(data?.response?.body?.items);
     // waitTime="" 인 항목(미운영 게이트)은 숫자로 못 바꾸니 제외.
     const gates = items
-      .filter((it) => it.terminalId === "P01" && it.waitTime !== "")
+      .filter((it) => it.terminalId === terminal && it.waitTime !== "")
       .map((it) => ({ gateId: it.gateId, waitTimeMin: Number(it.waitTime), waitLength: Number(it.waitLength) || 0 }));
 
     res.json({ gates });
@@ -362,16 +369,102 @@ app.get("/api/transit", async (req, res) => {
   }
 });
 
-const PORT = process.env.PORT || 3001;
-app.listen(PORT, () => {
-  console.log(`Airport proxy listening on http://localhost:${PORT}`);
-  if (!SERVICE_KEY) {
-    console.warn("AIRPORT_SERVICE_KEY is not set — requests will fail until .env is configured.");
-  }
-  if (!KAKAO_REST_KEY) {
-    console.warn("KAKAO_REST_API_KEY is not set — /api/route will fail until .env is configured.");
-  }
-  if (!ODSAY_API_KEY) {
-    console.warn("ODSAY_API_KEY is not set — /api/transit will fail until .env is configured (falls back to driving times).");
-  }
+// 예약 "요청" 저장소 — 아직 결제·재고 연동이 없는 제휴 호텔용. 고객은 결제 없이 연락처만 남기고,
+// 실제 확정은 호텔이 그 연락처로 직접 회신하는 구조(MOU 초안 제3조)라 결제 API가 필요 없다.
+// Supabase Postgres에 저장한다 — Render 등에 배포하면 로컬 파일시스템이 재배포마다 초기화돼서
+// JSON 파일 방식으로는 데이터가 날아가기 때문에(2026-09-18 확인) DB로 옮겼다.
+const DATABASE_URL = process.env.DATABASE_URL;
+const pool = DATABASE_URL ? new pg.Pool({ connectionString: DATABASE_URL, ssl: { rejectUnauthorized: false } }) : null;
+
+async function ensureBookingRequestsTable() {
+  if (!pool) return;
+  await pool.query(`
+    CREATE TABLE IF NOT EXISTS booking_requests (
+      id TEXT PRIMARY KEY,
+      room_id TEXT NOT NULL,
+      room_name TEXT,
+      check_in INTEGER NOT NULL,
+      check_out INTEGER NOT NULL,
+      price INTEGER,
+      name TEXT NOT NULL,
+      phone TEXT NOT NULL,
+      plan JSONB NOT NULL DEFAULT '[]',
+      status TEXT NOT NULL DEFAULT 'requested',
+      created_at TIMESTAMPTZ NOT NULL DEFAULT now()
+    )
+  `);
+}
+
+// DB row(snake_case) → API 응답 모양(camelCase). 프론트/관리자 페이지는 이 모양 그대로 기대한다.
+function rowToRequest(row) {
+  return {
+    id: row.id,
+    roomId: row.room_id,
+    roomName: row.room_name,
+    checkIn: row.check_in,
+    checkOut: row.check_out,
+    price: row.price,
+    name: row.name,
+    phone: row.phone,
+    plan: row.plan,
+    status: row.status,
+    createdAt: row.created_at.toISOString(),
+  };
+}
+
+app.get("/api/booking-requests", async (req, res) => {
+  if (!pool) return res.status(500).json({ error: "DATABASE_URL is not configured on the server" });
+  const { rows } = await pool.query("SELECT * FROM booking_requests ORDER BY created_at DESC");
+  res.json({ requests: rows.map(rowToRequest) });
 });
+
+app.post("/api/booking-requests", async (req, res) => {
+  const { roomId, roomName, checkIn, checkOut, price, name, phone, plan } = req.body || {};
+  if (!roomId || checkIn == null || checkOut == null || !name || !phone) {
+    return res.status(400).json({ error: "roomId, checkIn, checkOut, name, phone are required" });
+  }
+  if (!pool) return res.status(500).json({ error: "DATABASE_URL is not configured on the server" });
+
+  const id = `REQ${Date.now()}`;
+  const { rows } = await pool.query(
+    `INSERT INTO booking_requests (id, room_id, room_name, check_in, check_out, price, name, phone, plan)
+     VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9) RETURNING *`,
+    [id, roomId, roomName || null, checkIn, checkOut, price ?? null, name, phone, JSON.stringify(Array.isArray(plan) ? plan : [])]
+  );
+  res.status(201).json({ request: rowToRequest(rows[0]) });
+});
+
+// 관리자 페이지에서 "확정/취소 처리" 버튼으로 쓰는 상태 변경 — 호텔에 전화로 확인한 결과를 수기로 반영.
+const BOOKING_STATUSES = ["requested", "confirmed", "cancelled"];
+app.patch("/api/booking-requests/:id", async (req, res) => {
+  const { status } = req.body || {};
+  if (!BOOKING_STATUSES.includes(status)) {
+    return res.status(400).json({ error: `status must be one of ${BOOKING_STATUSES.join(", ")}` });
+  }
+  if (!pool) return res.status(500).json({ error: "DATABASE_URL is not configured on the server" });
+
+  const { rows } = await pool.query("UPDATE booking_requests SET status=$1 WHERE id=$2 RETURNING *", [status, req.params.id]);
+  if (!rows.length) return res.status(404).json({ error: `no booking request with id "${req.params.id}"` });
+  res.json({ request: rowToRequest(rows[0]) });
+});
+
+const PORT = process.env.PORT || 3001;
+ensureBookingRequestsTable()
+  .catch((err) => console.error("failed to set up booking_requests table:", err))
+  .finally(() => {
+    app.listen(PORT, () => {
+      console.log(`Airport proxy listening on http://localhost:${PORT}`);
+      if (!SERVICE_KEY) {
+        console.warn("AIRPORT_SERVICE_KEY is not set — requests will fail until .env is configured.");
+      }
+      if (!KAKAO_REST_KEY) {
+        console.warn("KAKAO_REST_API_KEY is not set — /api/route will fail until .env is configured.");
+      }
+      if (!ODSAY_API_KEY) {
+        console.warn("ODSAY_API_KEY is not set — /api/transit will fail until .env is configured (falls back to driving times).");
+      }
+      if (!DATABASE_URL) {
+        console.warn("DATABASE_URL is not set — /api/booking-requests will fail until .env is configured.");
+      }
+    });
+  });
