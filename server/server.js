@@ -3,23 +3,33 @@ import express from "express";
 import cors from "cors";
 import path from "path";
 import { fileURLToPath } from "url";
+import { mountBookingRequests } from "./booking.js";
+import { ERROR_CODES, fail } from "./error-codes.js";
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const app = express();
+// trust proxy는 의도적으로 안 켠다(기본값 false 유지) — req.ip가 X-Forwarded-For를 신뢰하게 되고,
+// 2026-10-18 조사 당시 proxy-addr 1.1.0~2.0.7의 IP 스푸핑 취약점(IPv4-mapped IPv6 trust subnet,
+// GHSA-jqcg-44mw-7w3h)이 바로 이 설정에서만 악용된다. 패치(2.0.8)는 했지만, 레이트리밋·중복요청
+// 방지 등을 IP 기준으로 새로 만들 때 이 설정을 켜게 되면 신뢰할 proxy 목록(Render 등)을 정확히
+// 지정해야 한다 — docs/STATUS.md "설치 검증" 참고. B8(예약 요청 중복 방지)은 IP가 아니라
+// 이메일 기준이라 이 설정과 무관하다(booking.js).
 app.use(cors());
 
 // 카카오맵 JS SDK는 등록된 도메인(http/https)에서만 동작하고 file://에서는 안 뜨므로,
 // 같은 프로세스에서 app/ 정적 파일도 같이 서빙해서 http://localhost:3001 로 열 수 있게 한다.
 app.use(express.static(path.join(__dirname, "..", "app")));
 
+// 예약 요청 API + 관리자 페이지 — 구현과 스키마는 booking.js / migrations/ 에 있다.
+// 명세: docs/api/booking-requests.md
+const booking = mountBookingRequests(app);
+
 // data.go.kr issues both an "Encoding" and a "Decoding" key; accept either by
 // normalizing to the decoded form before URLSearchParams re-encodes it once.
 const RAW_SERVICE_KEY = process.env.AIRPORT_SERVICE_KEY;
 const SERVICE_KEY = RAW_SERVICE_KEY ? decodeURIComponent(RAW_SERVICE_KEY) : RAW_SERVICE_KEY;
-const ARRIVALS_URL =
-  "https://apis.data.go.kr/B551177/StatusOfPassengerFlightsOdp/getPassengerArrivalsOdp";
-const DEPARTURES_URL =
-  "https://apis.data.go.kr/B551177/StatusOfPassengerFlightsOdp/getPassengerDeparturesOdp";
+const ARRIVALS_URL = "https://apis.data.go.kr/B551177/StatusOfPassengerFlightsOdp/getPassengerArrivalsOdp";
+const DEPARTURES_URL = "https://apis.data.go.kr/B551177/StatusOfPassengerFlightsOdp/getPassengerDeparturesOdp";
 
 // data.go.kr wraps results as response.body.items, which can be a single
 // object, an array, or an empty string when nothing matches — normalize here.
@@ -29,7 +39,9 @@ function normalizeItems(items) {
 }
 
 app.get("/api/flight/arrival", async (req, res) => {
-  const flightId = String(req.query.flightId || "").trim().toUpperCase();
+  const flightId = String(req.query.flightId || "")
+    .trim()
+    .toUpperCase();
   const lang = String(req.query.lang || "K");
 
   if (!flightId) {
@@ -63,7 +75,9 @@ app.get("/api/flight/arrival", async (req, res) => {
 
     const items = normalizeItems(data?.response?.body?.items);
     if (!items.length) {
-      return res.status(404).json({ error: `no arrival found for "${flightId}" today (this API only covers same-day flights)` });
+      return res
+        .status(404)
+        .json({ error: `no arrival found for "${flightId}" today (this API only covers same-day flights)` });
     }
 
     const flights = items.map((it) => ({
@@ -85,7 +99,9 @@ app.get("/api/flight/arrival", async (req, res) => {
 });
 
 app.get("/api/flight/departure", async (req, res) => {
-  const flightId = String(req.query.flightId || "").trim().toUpperCase();
+  const flightId = String(req.query.flightId || "")
+    .trim()
+    .toUpperCase();
   const lang = String(req.query.lang || "K");
 
   if (!flightId) {
@@ -119,7 +135,9 @@ app.get("/api/flight/departure", async (req, res) => {
 
     const items = normalizeItems(data?.response?.body?.items);
     if (!items.length) {
-      return res.status(404).json({ error: `no departure found for "${flightId}" today (this API only covers same-day flights)` });
+      return res
+        .status(404)
+        .json({ error: `no departure found for "${flightId}" today (this API only covers same-day flights)` });
     }
 
     const flights = items.map((it) => ({
@@ -141,14 +159,13 @@ app.get("/api/flight/departure", async (req, res) => {
 });
 
 // 인천공항 출국장 혼잡도 API — 같은 AIRPORT_SERVICE_KEY로 자동 승인되어 있었다(2026-09-18 확인).
-// 제1여객터미널(P01)의 출국장 1~6번(동/서 게이트별)만 제공 — 제2터미널(P03)은 이 API 자체에 데이터가
-// 없다(공사 공식 사이트 실시간 대기시간 페이지도 T1만 표시). T2 항공편은 이 값을 못 쓰고 서버가 아닌
-// 프론트의 고정 버퍼(SECURITY_BUFFER_MIN)로 폴백해야 한다.
+// 이 API는 제1여객터미널(P01)의 출국장 1~6번(동/서 게이트별)만 제공한다. 제2터미널(P03)은 별도 API
+// (statusOfDepartureCongestionT2) — 아래 /api/security-wait/t2 참고.
 const CONGESTION_URL = "https://apis.data.go.kr/B551177/statusOfDepartureCongestion/getDepartureCongestion";
 
 app.get("/api/security-wait", async (req, res) => {
   if (!SERVICE_KEY) {
-    return res.status(500).json({ error: "AIRPORT_SERVICE_KEY is not configured on the server" });
+    return fail(res, 500, ERROR_CODES.CONGESTION_NOT_CONFIGURED, "AIRPORT_SERVICE_KEY is not configured on the server");
   }
 
   const url = new URL(CONGESTION_URL);
@@ -163,12 +180,16 @@ app.get("/api/security-wait", async (req, res) => {
     try {
       data = JSON.parse(raw);
     } catch {
-      return res.status(502).json({ error: "congestion API returned a non-JSON response", detail: raw.slice(0, 300) });
+      return fail(res, 502, ERROR_CODES.CONGESTION_INVALID_RESPONSE, "T1 congestion API returned a non-JSON response", {
+        detail: raw.slice(0, 300),
+      });
     }
 
     const header = data?.response?.header;
     if (header && header.resultCode !== "00") {
-      return res.status(502).json({ error: header.resultMsg || "congestion API error", resultCode: header.resultCode });
+      return fail(res, 502, ERROR_CODES.CONGESTION_UPSTREAM_ERROR, header.resultMsg || "T1 congestion API error", {
+        resultCode: header.resultCode,
+      });
     }
 
     const items = normalizeItems(data?.response?.body?.items);
@@ -179,7 +200,52 @@ app.get("/api/security-wait", async (req, res) => {
 
     res.json({ gates });
   } catch (err) {
-    res.status(502).json({ error: "failed to reach congestion API", detail: String(err) });
+    fail(res, 502, ERROR_CODES.CONGESTION_UNREACHABLE, "failed to reach T1 congestion API", { detail: String(err) });
+  }
+});
+
+// 제2여객터미널(P03) 출국장 혼잡도 — 별도 API, 같은 AIRPORT_SERVICE_KEY(공공데이터포털에서 T2 API 활용신청 필요).
+// 응답 필드는 T1과 같다(gateId, terminalId, waitTime, waitLength, occurtime, operatingTime — 2026-10-16 실제 호출로 확인).
+// 응답 형식도 /api/security-wait와 같게 { gates: [...] }로 맞춘다.
+const CONGESTION_T2_URL = "https://apis.data.go.kr/B551177/statusOfDepartureCongestionT2/getDepartureCongestionT2";
+
+app.get("/api/security-wait/t2", async (req, res) => {
+  if (!SERVICE_KEY) {
+    return fail(res, 500, ERROR_CODES.CONGESTION_NOT_CONFIGURED, "AIRPORT_SERVICE_KEY is not configured on the server");
+  }
+
+  const url = new URL(CONGESTION_T2_URL);
+  url.searchParams.set("serviceKey", SERVICE_KEY);
+  url.searchParams.set("type", "json");
+  url.searchParams.set("numOfRows", "50");
+
+  try {
+    const apiRes = await fetch(url);
+    const raw = await apiRes.text();
+    let data;
+    try {
+      data = JSON.parse(raw);
+    } catch {
+      return fail(res, 502, ERROR_CODES.CONGESTION_INVALID_RESPONSE, "T2 congestion API returned a non-JSON response", {
+        detail: raw.slice(0, 300),
+      });
+    }
+
+    const header = data?.response?.header;
+    if (header && header.resultCode !== "00") {
+      return fail(res, 502, ERROR_CODES.CONGESTION_UPSTREAM_ERROR, header.resultMsg || "T2 congestion API error", {
+        resultCode: header.resultCode,
+      });
+    }
+
+    const items = normalizeItems(data?.response?.body?.items);
+    const gates = items
+      .filter((it) => it.terminalId === "P03" && it.waitTime !== "")
+      .map((it) => ({ gateId: it.gateId, waitTimeMin: Number(it.waitTime), waitLength: Number(it.waitLength) || 0 }));
+
+    res.json({ gates });
+  } catch (err) {
+    fail(res, 502, ERROR_CODES.CONGESTION_UNREACHABLE, "failed to reach T2 congestion API", { detail: String(err) });
   }
 });
 
@@ -256,17 +322,20 @@ app.get("/api/places", async (req, res) => {
       const apiRes = await fetch(url, { headers: { Authorization: `KakaoAK ${KAKAO_REST_KEY}` } });
       const data = await apiRes.json().catch(() => ({}));
       if (!apiRes.ok) {
-        if (page === 1) return res.status(502).json({ error: data.message || `kakao local API error (${apiRes.status})` });
+        if (page === 1)
+          return res.status(502).json({ error: data.message || `kakao local API error (${apiRes.status})` });
         break; // 이미 1페이지는 받았으니 이후 페이지 실패는 조용히 무시하고 지금까지 모은 것만 반환
       }
       const docs = data.documents || [];
-      places.push(...docs.map((d) => ({
-        id: d.id,
-        name: d.place_name,
-        lat: Number(d.y),
-        lng: Number(d.x),
-        category: d.category_name,
-      })));
+      places.push(
+        ...docs.map((d) => ({
+          id: d.id,
+          name: d.place_name,
+          lat: Number(d.y),
+          lng: Number(d.x),
+          category: d.category_name,
+        })),
+      );
       if (data.meta?.is_end !== false || docs.length < 15) break; // 다음 페이지가 없으면 그만 멈춘다
     }
     res.json({ places });
@@ -356,22 +425,50 @@ app.get("/api/transit", async (req, res) => {
       const stations = sp.passStopList && sp.passStopList.stations;
       if (stations) stations.forEach((st) => path.push({ lat: Number(st.y), lng: Number(st.x) }));
     });
-    res.json({ durationMin: totalTime, fare: best.info.payment ?? null, path: path.length > 1 ? path : null });
+    // 선택 필드(2026-10-16 추가, 기존 필드 변경 없음): ODsay info에 있을 때만 넘긴다.
+    // distanceM = info.totalDistance(도보 포함 총거리, m). bus/subwayTransitCount는 ODsay 원래 이름 그대로 —
+    // 실제 응답에서 "탄 횟수"와 같게 나와(버스1+지하철1 = 환승 1회) 환승 수 해석은 앱에서 한다.
+    const optional = {};
+    if (typeof best.info.totalDistance === "number") optional.distanceM = best.info.totalDistance;
+    if (typeof best.info.busTransitCount === "number") optional.busTransitCount = best.info.busTransitCount;
+    if (typeof best.info.subwayTransitCount === "number") optional.subwayTransitCount = best.info.subwayTransitCount;
+    res.json({
+      durationMin: totalTime,
+      fare: best.info.payment ?? null,
+      path: path.length > 1 ? path : null,
+      ...optional,
+    });
   } catch (err) {
     res.status(502).json({ error: "failed to reach odsay API", detail: String(err) });
   }
 });
 
 const PORT = process.env.PORT || 3001;
-app.listen(PORT, () => {
-  console.log(`Airport proxy listening on http://localhost:${PORT}`);
-  if (!SERVICE_KEY) {
-    console.warn("AIRPORT_SERVICE_KEY is not set — requests will fail until .env is configured.");
-  }
-  if (!KAKAO_REST_KEY) {
-    console.warn("KAKAO_REST_API_KEY is not set — /api/route will fail until .env is configured.");
-  }
-  if (!ODSAY_API_KEY) {
-    console.warn("ODSAY_API_KEY is not set — /api/transit will fail until .env is configured (falls back to driving times).");
-  }
-});
+
+// 마이그레이션이 실패해도 나머지 API(항공편·경로·혼잡도)는 떠야 하므로 listen은 막지 않는다.
+// 예약 요청만 저장에 실패하고, 그 이유는 로그로 남긴다.
+booking
+  .init()
+  .catch((err) => console.error("[booking] migrations failed — /api/booking-requests will not work:", err.message))
+  .finally(() => {
+    app.listen(PORT, () => {
+      console.log(`Airport proxy listening on http://localhost:${PORT}`);
+      if (!SERVICE_KEY) {
+        console.warn("AIRPORT_SERVICE_KEY is not set — requests will fail until .env is configured.");
+      }
+      if (!KAKAO_REST_KEY) {
+        console.warn("KAKAO_REST_API_KEY is not set — /api/route will fail until .env is configured.");
+      }
+      if (!ODSAY_API_KEY) {
+        console.warn(
+          "ODSAY_API_KEY is not set — /api/transit will fail until .env is configured (falls back to driving times).",
+        );
+      }
+      if (!booking.databaseConfigured) {
+        console.warn("DATABASE_URL is not set — /api/booking-requests will fail until .env is configured.");
+      }
+      if (!booking.adminEnabled) {
+        console.warn("ADMIN_USER / ADMIN_PASSWORD are not set — /admin and the admin API are closed (503).");
+      }
+    });
+  });

@@ -1,0 +1,26 @@
+# 빌드 산물 · 의존성
+node_modules
+dist
+build
+coverage
+
+# 자동 생성 — 각자의 생성 스크립트가 형식을 결정한다. 포매터가 손대면 재생성 시 diff가 생기고,
+# i18n-keys.md는 src/i18n/locales.test.ts가 표 형식을 정규식으로 파싱해 Prettier의 표 재정렬이 그 테스트를 깬다.
+package-lock.json
+server/package-lock.json
+src/data/legacy-data.json
+docs/design/i18n-keys.md
+docs/design/i18n-review.md
+docs/design/i18n-review-legacy.md
+docs/design/data-verification.md
+
+# 레거시 — app/index.html은 수정 금지(CLAUDE.md). scripts/extract-legacy-data.mjs가 정규식으로
+# 이 파일의 원문을 그대로 파싱하므로, 포매팅이 공백·줄바꿈을 바꾸면 그 정규식이 깨질 수 있다.
+app/index.html
+
+# 디자인 이식 참고 원본(Figma Make UI Kit) — 수정 금지. 이식 중 바꾸고 싶은 점은
+# docs/STATUS.md "이식 후 수정 목록"에만 적는다(docs/design/design-tokens.md 참고).
+design/reference
+
+# 저장소에 안 넣는 로컬 문서(.gitignore와 동일 — 여기 있어도 해롭지 않지만 명시)
+local-docs

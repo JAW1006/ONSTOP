@@ -1,0 +1,6 @@
+# git blame이 무시할 커밋 — 포맷팅/스타일만 바꾸고 로직은 안 바꾼 커밋.
+# 사용: git blame --ignore-revs-file=.git-blame-ignore-revs <파일>
+#   또는: git config blame.ignoreRevsFile .git-blame-ignore-revs (저장소별 1회 설정)
+
+# chore: adopt Prettier and format the whole repo once (docs/conventions.md 11장)
+dbdb42588e71bed97dbb0be5bff51c676c146cf8

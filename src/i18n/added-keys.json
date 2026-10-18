@@ -1,0 +1,551 @@
+{
+  "common.back": {
+    "stage": "3단계 공통 UI(뒤로 버튼 aria-label)",
+    "reviewed": false
+  },
+  "timeSafe.bufferBreakdown": {
+    "stage": "4단계 Time-Safe — 버퍼 구성 줄(예상치 표기)",
+    "reviewed": false
+  },
+  "timeSafe.warning.over24h": {
+    "stage": "4단계 Time-Safe — 24시간 초과 경고",
+    "reviewed": false
+  },
+  "timeSafe.warning.departBeforeArrival": {
+    "stage": "4단계 Time-Safe — 출발이 도착보다 빠름 경고",
+    "reviewed": false
+  },
+  "onboarding.flights.cannotGoOutHint": {
+    "stage": "4단계 Time-Safe — 외출 불가 시 CTA 비활성 이유",
+    "reviewed": false
+  },
+  "timeSafe.security.live": {
+    "stage": "4단계 T2 연동 — 홈 버퍼 줄의 출국장 실시간 배지(터미널·현재 대기)",
+    "reviewed": false
+  },
+  "timeSafe.security.notLive": {
+    "stage": "4단계 T2 연동 — 실시간 대기를 못 받은 경우(탑승동·조회 실패)",
+    "reviewed": false
+  },
+  "course.autoBuild.note": {
+    "stage": "A7 — 레거시 \"OR-Tools 최적화…\"를 실제 동작(카테고리별 탐욕 추천)에 맞게 변경",
+    "kind": "changed",
+    "reviewed": false
+  },
+  "course.header.title": {
+    "stage": "코스 지도 — 헤더 제목",
+    "reviewed": false
+  },
+  "course.header.terminal": {
+    "stage": "코스 지도 — 헤더 도착 터미널",
+    "reviewed": false
+  },
+  "course.summary.used": {
+    "stage": "코스 지도 — 요약 \"사용 X\"",
+    "reviewed": false
+  },
+  "course.summary.available": {
+    "stage": "코스 지도 — 요약 \"/ 가용 Y\"",
+    "reviewed": false
+  },
+  "course.summary.segment.prep": {
+    "stage": "코스 지도 — 시간 막대 구간 이름",
+    "reviewed": false
+  },
+  "course.summary.segment.travel": {
+    "stage": "코스 지도 — 시간 막대 구간 이름",
+    "reviewed": false
+  },
+  "course.summary.segment.stay": {
+    "stage": "코스 지도 — 시간 막대 구간 이름",
+    "reviewed": false
+  },
+  "course.summary.segment.spare": {
+    "stage": "코스 지도 — 시간 막대 구간 이름",
+    "reviewed": false
+  },
+  "course.summary.segment.over": {
+    "stage": "코스 지도 — 시간 막대 구간 이름",
+    "reviewed": false
+  },
+  "course.summary.returnTarget": {
+    "stage": "코스 지도 — 복귀 도착 목표 시각",
+    "reviewed": false
+  },
+  "course.summary.lastDeparture": {
+    "stage": "코스 지도 — 마지막 장소 출발 기한",
+    "reviewed": false
+  },
+  "course.summary.lastDepartureHotel": {
+    "stage": "코스 지도 — 장소가 없을 때 숙소 출발 기한",
+    "reviewed": false
+  },
+  "course.summary.until": {
+    "stage": "코스 지도 — \"HH:MM까지\"",
+    "reviewed": false
+  },
+  "course.summary.expectedReturn": {
+    "stage": "코스 지도 — 초과 시 복귀 도착 예상",
+    "reviewed": false
+  },
+  "course.summary.lateThan": {
+    "stage": "코스 지도 — 목표보다 늦음 명시",
+    "reviewed": false
+  },
+  "course.summary.overWarning": {
+    "stage": "코스 지도 — 초과 경고",
+    "reviewed": false
+  },
+  "course.summary.noRoom": {
+    "stage": "코스 지도 — 숙소 미선택 요약",
+    "reviewed": false
+  },
+  "course.leg.minutes": {
+    "stage": "코스 지도 — 구간 칩 시간(실제 경로)",
+    "reviewed": false
+  },
+  "course.leg.approxMinutes": {
+    "stage": "코스 지도 — 구간 칩 시간(근사값)",
+    "reviewed": false
+  },
+  "course.leg.km": {
+    "stage": "코스 지도 — 구간 칩 거리(실제 값일 때만)",
+    "reviewed": false
+  },
+  "course.leg.return": {
+    "stage": "코스 지도 — 공항 복귀 구간 칩",
+    "reviewed": false
+  },
+  "course.leg.mode.transit": {
+    "stage": "코스 지도 — 이동수단 이름(칩·목록 접근성)",
+    "reviewed": false
+  },
+  "course.leg.mode.taxi": {
+    "stage": "코스 지도 — 이동수단 이름",
+    "reviewed": false
+  },
+  "course.leg.mode.walk": {
+    "stage": "코스 지도 — 이동수단 이름",
+    "reviewed": false
+  },
+  "course.leg.transfers": {
+    "stage": "코스 지도 — 선택한 구간 정보",
+    "reviewed": false
+  },
+  "course.map.legend": {
+    "stage": "코스 지도 — 선 범례(레거시 routeLegend 대체)",
+    "reviewed": false
+  },
+  "course.step.return.target": {
+    "stage": "코스 지도 — 일정의 공항 복귀 줄(레거시 \"알림 · 여유 30분\" 대체)",
+    "reviewed": false
+  },
+  "timeSafe.pushScheduled": {
+    "stage": "알림 기능 없음 — \"복귀 30분 전 푸시 알림 예약됨\" 삭제(2026-10-16 사용자 지시)",
+    "kind": "removed",
+    "reviewed": true
+  },
+  "course.step.return.sub": {
+    "stage": "알림 기능 없음 — \"Time-Safe 알림 · 여유 30분\" 삭제, 일정 복귀 줄은 course.step.return.target",
+    "kind": "removed",
+    "reviewed": true
+  },
+  "confirm.alertOn": {
+    "stage": "알림 기능 없음 — 예약 확인의 \"알림 ON\" 삭제",
+    "kind": "removed",
+    "reviewed": true
+  },
+  "my.menu.timeSafeAlerts": {
+    "stage": "알림 기능 없음 — 마이의 \"Time-Safe 알림\" 토글 삭제",
+    "kind": "removed",
+    "reviewed": true
+  },
+  "course.autoBuild.empty": {
+    "stage": "코스 지도 — 자동 추천 결과가 0곳일 때 안내",
+    "reviewed": false
+  },
+  "course.route.estimateNote": {
+    "stage": "코스 빌더 — 보수적 근사 안내(실제 경로는 저장 후)",
+    "reviewed": false
+  },
+  "course.leg.hotelReturn": {
+    "stage": "B1 호텔 복귀 — 지도 칩·구간 정보 \"숙소로\"",
+    "reviewed": false
+  },
+  "course.step.hotelReturn.title": {
+    "stage": "B1 호텔 복귀 — 일정의 숙소 복귀 줄",
+    "reviewed": false
+  },
+  "course.step.hotelReturn.sub": {
+    "stage": "B1 호텔 복귀 — 일정의 숙소 복귀 줄 보조 문구",
+    "reviewed": false
+  },
+  "course.summary.blockOver": {
+    "stage": "B1 호텔 복귀 — 호텔 복귀가 데이유즈 블록 종료보다 늦을 때 경고",
+    "reviewed": false
+  },
+  "course.summary.segment.wait": {
+    "stage": "예약 — 체크인 슬롯 대기(코스 지연) 막대 구간",
+    "reviewed": false
+  },
+  "demo.banner": {
+    "stage": "예약 — 데모 띠(B6)",
+    "reviewed": false
+  },
+  "booking.request.title": {
+    "stage": "예약 — 요청 작성 헤더(상품 요청)",
+    "reviewed": false
+  },
+  "booking.quote.title": {
+    "stage": "예약 — 요청 작성 헤더(견적 요청)",
+    "reviewed": false
+  },
+  "booking.notFound": {
+    "stage": "예약 — 노출 안 되는 숙소·잘못된 주소",
+    "reviewed": false
+  },
+  "booking.participation.negotiating": {
+    "stage": "예약 — 데모의 호텔 참여 상태 표시",
+    "reviewed": false
+  },
+  "booking.participation.none": {
+    "stage": "예약 — 데모의 호텔 참여 상태 표시",
+    "reviewed": false
+  },
+  "booking.fromAirportApprox": {
+    "stage": "예약 — 숙소 카드 근사 이동시간",
+    "reviewed": false
+  },
+  "booking.entryNotice": {
+    "stage": "예약 — 외출≠입국 안내(B7 안 A)",
+    "reviewed": false
+  },
+  "booking.entryNoticeLink": {
+    "stage": "예약 — 외출≠입국 안내 공식 링크",
+    "reviewed": false
+  },
+  "booking.entryNoticeShort": {
+    "stage": "예약 — 버튼 위 입국 안내 한 줄",
+    "reviewed": false
+  },
+  "booking.product.vatIncluded": {
+    "stage": "예약 — 상품 칩 부가세 표시",
+    "reviewed": false
+  },
+  "booking.product.vatExcluded": {
+    "stage": "예약 — 상품 칩 부가세 표시",
+    "reviewed": false
+  },
+  "booking.product.startWindow": {
+    "stage": "예약 — 상품 시작 가능 시각",
+    "reviewed": false
+  },
+  "booking.product.noneStartable": {
+    "stage": "예약 — 슬롯에 시작 가능한 상품 없음",
+    "reviewed": false
+  },
+  "booking.quote.window": {
+    "stage": "예약 — 견적 요청 희망 이용 시간",
+    "reviewed": false
+  },
+  "booking.quote.note": {
+    "stage": "예약 — 견적 요청 안내",
+    "reviewed": false
+  },
+  "booking.timing.title": {
+    "stage": "예약 — 시간 맞춤 확인 제목",
+    "reviewed": false
+  },
+  "booking.timing.checkIn": {
+    "stage": "예약 — 시간 확인 줄",
+    "reviewed": false
+  },
+  "booking.timing.hotelReturn": {
+    "stage": "예약 — 시간 확인 줄",
+    "reviewed": false
+  },
+  "booking.timing.end": {
+    "stage": "예약 — 시간 확인 줄",
+    "reviewed": false
+  },
+  "booking.timing.airport": {
+    "stage": "예약 — 시간 확인 줄",
+    "reviewed": false
+  },
+  "booking.timing.wait": {
+    "stage": "예약 — 늦은 슬롯 안내(코스 지연)",
+    "reviewed": false
+  },
+  "booking.timing.late": {
+    "stage": "예약 — 공항 복귀 늦음 경고",
+    "reviewed": false
+  },
+  "booking.timing.ack": {
+    "stage": "예약 — 경고 확인 체크(B3)",
+    "reviewed": false
+  },
+  "booking.timing.noCourse": {
+    "stage": "예약 — 코스 없이 진입(B2)",
+    "reviewed": false
+  },
+  "booking.makeCourse": {
+    "stage": "예약 — 코스 만들기 버튼",
+    "reviewed": false
+  },
+  "booking.summary.title": {
+    "stage": "예약 — 요청 내용 제목",
+    "reviewed": false
+  },
+  "booking.summary.block": {
+    "stage": "예약 — 요청 내용 블록·시각",
+    "reviewed": false
+  },
+  "booking.summary.price": {
+    "stage": "예약 — 예상 금액",
+    "reviewed": false
+  },
+  "booking.summary.priceNote": {
+    "stage": "예약 — 결제 없음 안내",
+    "reviewed": false
+  },
+  "booking.summary.quote": {
+    "stage": "예약 — 견적 대기",
+    "reviewed": false
+  },
+  "booking.summary.policy": {
+    "stage": "예약 — 규정 줄",
+    "reviewed": false
+  },
+  "booking.summary.policyPending": {
+    "stage": "예약 — 규정 없음",
+    "reviewed": false
+  },
+  "booking.contact.title": {
+    "stage": "예약 — 연락처(B4 최소 수집)",
+    "reviewed": false
+  },
+  "booking.contact.minimal": {
+    "stage": "예약 — 최소 수집 안내",
+    "reviewed": false
+  },
+  "booking.contact.name": {
+    "stage": "예약 — 이름 입력(영문 허용)",
+    "reviewed": false
+  },
+  "booking.contact.nameHint": {
+    "stage": "예약 — 이름 입력 힌트",
+    "reviewed": false
+  },
+  "booking.contact.email": {
+    "stage": "예약 — 이메일 입력",
+    "reviewed": false
+  },
+  "booking.contact.emailConfirm": {
+    "stage": "예약 — 이메일 확인 입력",
+    "reviewed": false
+  },
+  "booking.contact.error.name": {
+    "stage": "예약 — 이름 오류",
+    "reviewed": false
+  },
+  "booking.contact.error.email": {
+    "stage": "예약 — 이메일 형식 오류",
+    "reviewed": false
+  },
+  "booking.contact.error.emailMismatch": {
+    "stage": "예약 — 이메일 확인 불일치",
+    "reviewed": false
+  },
+  "booking.consent.title": {
+    "stage": "예약 — 동의 제목(legal 확인 전 초안)",
+    "reviewed": false
+  },
+  "booking.consent.privacy": {
+    "stage": "예약 — 개인정보 수집·이용 동의(초안)",
+    "reviewed": false
+  },
+  "booking.consent.thirdParty": {
+    "stage": "예약 — 숙소 제공(제3자 제공) 동의(초안)",
+    "reviewed": false
+  },
+  "booking.consent.terms": {
+    "stage": "예약 — 계산 참고용·탑승 책임 동의(초안)",
+    "reviewed": false
+  },
+  "booking.submit.product": {
+    "stage": "예약 — 요청 버튼(결제 아님)",
+    "reviewed": false
+  },
+  "booking.submit.quote": {
+    "stage": "예약 — 견적 요청 버튼",
+    "reviewed": false
+  },
+  "booking.submit.note": {
+    "stage": "예약 — 버튼 아래 안내",
+    "reviewed": false
+  },
+  "booking.submit.noteTypical": {
+    "stage": "예약 — 버튼 아래 안내(응답 시간 있음)",
+    "reviewed": false
+  },
+  "booking.submit.notReady": {
+    "stage": "예약 — 데모 아닌 환경(B6)",
+    "reviewed": false
+  },
+  "booking.active": {
+    "stage": "예약 — 진행 중 요청 1건(B8)",
+    "reviewed": false
+  },
+  "booking.activeLink": {
+    "stage": "예약 — 진행 중 요청 링크",
+    "reviewed": false
+  },
+  "bookings.title": {
+    "stage": "요청 내역 — 헤더",
+    "reviewed": false
+  },
+  "bookings.requestId": {
+    "stage": "요청 내역 — 요청번호",
+    "reviewed": false
+  },
+  "bookings.mode.product": {
+    "stage": "요청 내역 — 모드",
+    "reviewed": false
+  },
+  "bookings.mode.quote": {
+    "stage": "요청 내역 — 모드",
+    "reviewed": false
+  },
+  "bookings.status.requested": {
+    "stage": "요청 내역 — 상태",
+    "reviewed": false
+  },
+  "bookings.status.confirmed": {
+    "stage": "요청 내역 — 상태",
+    "reviewed": false
+  },
+  "bookings.status.declined": {
+    "stage": "요청 내역 — 상태",
+    "reviewed": false
+  },
+  "bookings.status.expired": {
+    "stage": "요청 내역 — 상태",
+    "reviewed": false
+  },
+  "bookings.status.cancelled": {
+    "stage": "요청 내역 — 상태",
+    "reviewed": false
+  },
+  "bookings.requested.note": {
+    "stage": "요청 내역 — 요청됨 안내",
+    "reviewed": false
+  },
+  "bookings.cancel": {
+    "stage": "요청 내역 — 요청됨 취소(B8)",
+    "reviewed": false
+  },
+  "bookings.cancelConfirm.title": {
+    "stage": "요청 내역 — 취소 확인",
+    "reviewed": false
+  },
+  "bookings.cancelConfirm.body": {
+    "stage": "요청 내역 — 취소 확인",
+    "reviewed": false
+  },
+  "bookings.cancelConfirm.yes": {
+    "stage": "요청 내역 — 취소 확인",
+    "reviewed": false
+  },
+  "bookings.confirmed.note": {
+    "stage": "요청 내역 — 확정 안내",
+    "reviewed": false
+  },
+  "bookings.confirmed.cancelHint": {
+    "stage": "요청 내역 — 확정 후 취소 안내(B8)",
+    "reviewed": false
+  },
+  "bookings.contact": {
+    "stage": "요청 내역 — 호텔 연락처",
+    "reviewed": false
+  },
+  "bookings.contactPending": {
+    "stage": "요청 내역 — 연락처 없음",
+    "reviewed": false
+  },
+  "bookings.policy": {
+    "stage": "요청 내역 — 취소 규정",
+    "reviewed": false
+  },
+  "bookings.policyPending": {
+    "stage": "요청 내역 — 규정 없음",
+    "reviewed": false
+  },
+  "bookings.declined.note": {
+    "stage": "요청 내역 — 거절 안내",
+    "reviewed": false
+  },
+  "bookings.declined.reason": {
+    "stage": "요청 내역 — 거절 사유",
+    "reviewed": false
+  },
+  "bookings.expired.note": {
+    "stage": "요청 내역 — 만료 안내",
+    "reviewed": false
+  },
+  "bookings.alt.title": {
+    "stage": "요청 내역 — 대안 숙소 제안(B5)",
+    "reviewed": false
+  },
+  "bookings.alt.price": {
+    "stage": "요청 내역 — 대안 숙소(가격표 있음)",
+    "reviewed": false
+  },
+  "bookings.alt.quote": {
+    "stage": "요청 내역 — 대안 숙소(가격표 없음)",
+    "reviewed": false
+  },
+  "bookings.alt.courseHint": {
+    "stage": "요청 내역 — 대안 숙소 코스 안내",
+    "reviewed": false
+  },
+  "booking.quote.noTime": {
+    "stage": "예약 — 견적 요청인데 숙소 출발 기한이 슬롯보다 이름(이용할 시간 없음)",
+    "reviewed": false
+  },
+  "brand.subtitle": {
+    "stage": "디자인 이식 1단계 — 공통 AppHeader/Brand 로고 밑 음독(한국어만, 다른 언어는 빈 문자열)",
+    "reviewed": false
+  },
+  "timeBar.legend.prep": {
+    "stage": "디자인 이식 1단계 — 공통 TimeBar 범례",
+    "reviewed": false
+  },
+  "timeBar.legend.travel": {
+    "stage": "디자인 이식 1단계 — 공통 TimeBar 범례",
+    "reviewed": false
+  },
+  "timeBar.legend.stay": {
+    "stage": "디자인 이식 1단계 — 공통 TimeBar 범례",
+    "reviewed": false
+  },
+  "timeBar.legend.margin": {
+    "stage": "디자인 이식 1단계 — 공통 TimeBar 범례",
+    "reviewed": false
+  },
+  "timeBar.source.baseline": {
+    "stage": "디자인 이식 1단계 — 공통 TransitTimeBar 범례 출처 뱃지",
+    "reviewed": false
+  },
+  "timeBar.ariaLabel": {
+    "stage": "디자인 이식 1단계 — 공통 TimeBar aria-label",
+    "reviewed": false
+  },
+  "transitTimeBar.ariaLabel": {
+    "stage": "디자인 이식 1단계 — 공통 TransitTimeBar aria-label",
+    "reviewed": false
+  },
+  "transitTimeBar.nestedCourse": {
+    "stage": "디자인 이식 1단계 — 공통 TransitTimeBar 중첩 코스 라벨",
+    "reviewed": false
+  }
+}

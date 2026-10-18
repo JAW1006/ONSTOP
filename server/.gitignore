@@ -1,2 +1,6 @@
 node_modules/
 .env
+# `.env` 규칙은 정확히 일치만 막는다 — .env.local 등도 막아야 한다
+# (docs/api/environment.md "무시 규칙"에 기록된 구멍)
+.env.*
+!.env.example

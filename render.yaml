@@ -1,6 +1,6 @@
 services:
   - type: web
-    name: dropshopping
+    name: timestay
     runtime: node
     plan: free
     rootDir: server
@@ -12,4 +12,12 @@ services:
       - key: KAKAO_REST_API_KEY
         sync: false
       - key: ODSAY_API_KEY
+        sync: false
+      # 예약 요청 저장 — docs/api/booking-requests.md. 없으면 /api/booking-requests가 500.
+      - key: DATABASE_URL
+        sync: false
+      # 관리 화면(/admin) HTTP Basic. 비어 있으면 /admin과 관리자 API가 503으로 닫힌다.
+      - key: ADMIN_USER
+        sync: false
+      - key: ADMIN_PASSWORD
         sync: false

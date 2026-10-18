@@ -1,0 +1,620 @@
+# 진행 상태
+
+> 상태: 확정 · 최종 수정 2026-10-18
+
+> 서비스 운영 계획: [product/roadmap](product/roadmap.md) (2026-10-16 공모전 종료, 실제 서비스 전환)
+
+## 단계
+
+| 단계 | 내용                                                         | 상태                                  |
+| ---- | ------------------------------------------------------------ | ------------------------------------- |
+| 1    | 프로젝트 세팅 + docs 뼈대 + 토큰 + CLAUDE.md                 | 완료                                  |
+| 2    | domain 이식 + formulas md + Vitest                           | 완료                                  |
+| 3    | 공통 UI 컴포넌트 + 탭바 (+ 직전: i18n JSON 추출)             | 완료                                  |
+| 4    | 화면 이식 (Time-Safe → 홈 → 코스 지도 → 예약 → 짐 케어/마이) | 진행 중 — Time-Safe·홈·코스 지도 완료 |
+| 5    | 레거시 비교 검증 후 `legacy/`로 이동                         | 대기                                  |
+
+## ⚠ 필수 선행 작업 — 디자인 이식 2단계 시작 전
+
+| #   | 내용                                                                                                                                                                                       | 왜 지금 막아야 하나                                                                                                                                                                                                                               | 범위                                                                                                                                                                                                                                                                                                    |
+| --- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| 1   | **`/api/flight/*`·`/api/route`·`/api/places*`·`/api/transit`의 오류 코드를 `docs/api/errors.md` 체계로 통일** (컨벤션 불일치 #1의 나머지 — `/api/security-wait*`는 2026-10-18에 이미 끝냄) | 남은 화면(짐 케어·마이)이 이 엔드포인트들을 새로 호출하게 된다. 지금 고치지 않으면 **새 화면 코드가 코드 없는 `{error:"자유 문장"}`을 그대로 소비하는 패턴을 베껴 쓰게 되고**, 나중엔 호출부가 여러 화면에 퍼져 있어 한 번에 고치기 더 어려워진다 | `FLIGHT_*`(`/api/flight/arrival`·`departure`) · `ROUTE_*`(`/api/route`) · `PLACES_*`(`/api/places`·`/api/places/search`) · `TRANSIT_*`(`/api/transit`) — `CONGESTION_*`와 같은 패턴(`server/error-codes.js`에 추가, `docs/api/errors.md`에 등록, `server/errors-consistency.test.js`가 자동으로 맞비교) |
+
+진행 상태: **미착수.** 착수하면 이 표에 체크하고 "컨벤션 불일치" #1을 완전 해소로 갱신한다.
+
+## 병합 준비(main에 합칠 때) 할 일
+
+**지금 사용 중인 사용자가 없어서 실서비스 교체여도 괜찮다는 전제(사용자 확인, 2026-10-18).** 아직 머지는 안 했다 — 아래 "병합 전 점검" 보고를 사용자가 확인한 뒤에 한다.
+
+| #   | 내용                                                                                  | 상태                                                                                        |
+| --- | ------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------- |
+| 1   | `render.yaml`의 `name: dropshopping` → `timestay`                                     | ✅ 2026-10-18 변경함(아래 "Render 재배포" 참고 — 이름을 바꾸면 Render가 새 서비스를 만든다) |
+| 2   | `README.md`의 폴더 구조 트리 루트 `DropShopping/` → 새 이름                           | ✅ 2026-10-18 README 전체 교체(아래 참고)                                                   |
+| 3   | 예약 요청이 호텔에 전달되지 않는 동안 "시연용" 표시 또는 전송 차단                    | ✅ 이미 돼 있었다 — 아래 "데모 게이트" 참고                                                 |
+| 4   | 디자인 이식 1단계 산출물(`docs/design-tokens.md`→`docs/design/`, `design/reference/`) | ✅ 이미 돼 있었다(2026-10-18 이전 세션)                                                     |
+
+### Render 재배포 (B2 — 빌드/시작 명령·환경변수·마이그레이션)
+
+**지금 배포 중인 것과 다르다.** `render.yaml`은 지금 `rootDir: server`만 빌드·실행해서 **레거시 `app/`을 정적 서빙**한다(React 앱은 배포 안 됨, ADR-0005 "배경" 참고). 병합 시 React 빌드를 같이 내보내려면 서버가 `app/` 대신 `dist/`를 서빙하도록 **`server/server.js`를 고쳐야 한다** — 이건 아직 안 했다(아래 "병합 전 점검"의 위험 #1).
+
+| 항목                           | 지금(레거시)                                                                                                                                                                                                                                                                     | 병합 후(React, 제안)                                                                                                                     |
+| ------------------------------ | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------- |
+| `rootDir`                      | `server`                                                                                                                                                                                                                                                                         | 저장소 루트(프런트 빌드와 서버 설치를 한 서비스에서 같이 함 — ADR-0005의 "정적 사이트 분리"는 더 큰 구조이고, 여기선 단일 서비스로 가정) |
+| 빌드 명령                      | `npm install`                                                                                                                                                                                                                                                                    | `npm ci && npm run build && npm --prefix server ci` (프런트 `dist/` 생성 + 서버 의존성 설치)                                             |
+| 시작 명령                      | `npm start`(`server/` 안에서 `node server.js`)                                                                                                                                                                                                                                   | `node server/server.js` — **단, server.js가 `app/` 대신 `dist/`를 서빙하도록 먼저 고쳐야 동작한다**                                      |
+| 환경변수(이름·용도만, 값 없음) | `AIRPORT_SERVICE_KEY`(항공편·혼잡도), `KAKAO_REST_API_KEY`(길찾기·장소검색), `ODSAY_API_KEY`(대중교통, 선택), `DATABASE_URL`(예약 요청 저장), `ADMIN_USER`/`ADMIN_PASSWORD`(관리자 화면, 둘 다 있어야 `/admin` 열림) — 전체 설명은 [server/.env.example](../server/.env.example) | 동일(새로 필요한 변수 없음)                                                                                                              |
+| DB 마이그레이션 적용           | 서버 시작 시 자동(`server/booking.js`의 `runMigrations` — `server/migrations/*.sql`을 이름순으로 적용, 적용분은 `schema_migrations` 테이블에 기록, 재시작해도 멱등)                                                                                                              | 동일 — 별도 배포 단계 필요 없음. `DATABASE_URL`만 가리키는 DB가 맞는지 확인                                                              |
+
+### render.yaml 이름 변경의 실제 효과 (B3)
+
+Render는 Blueprint(`render.yaml`) 동기화 시 **`name` 값으로 기존 서비스와 매칭**한다 — 이름이 같으면 그 서비스 설정을 덮어쓰고(adopt), 이름이 다르면 **새 서비스를 만든다**(Render 공식 문서·커뮤니티 답변 확인, 아래 출처). 즉 `dropshopping` → `timestay`로 바꾸면:
+
+- 기존 `dropshopping` 서비스는 **자동으로 이름이 바뀌지도, 삭제되지도 않는다.** 그대로 남아서 계속 돈다(무료 플랜도 과금 대상 리소스로 남을 수 있음).
+- 새 `timestay` 서비스가 **새로** 만들어지고, URL도 새로 받는다(`*.onrender.com` 서브도메인이 이름을 따라간다 — 커스텀 도메인을 썼다면 재연결 필요).
+- 정리 순서(제안): ① `timestay` 서비스가 정상 동작 확인 → ② 커스텀 도메인·외부 링크를 새 서비스로 옮김 → ③ Render 대시보드에서 `dropshopping` 서비스를 수동으로 Suspend 또는 Delete(블루프린트가 자동으로 안 해준다).
+- **미확인**: 이 매칭·생성 동작은 Render 공식 문서(Blueprint YAML Reference)와 커뮤니티 답변으로 확인했지만, 실제로 `render blueprint` 동기화를 돌려서 확인한 적은 없다 — 동기화 화면이 "diff 미리보기"를 보여주므로, 실제 적용 전에 그 화면에서 "새로 만듦"으로 표시되는지 한 번 더 확인한다.
+
+출처: [Render Blueprint YAML Reference](https://render.com/docs/blueprint-spec), [Render community — Migration from Existing Services to Blueprints](https://community.render.com/t/migration-from-existing-services-to-blueprints/5131)("Adding a render.yaml will 'adopt' the services if the names defined in the render.yaml match what your services are named"), [Render community — staging/prod 블루프린트 패턴](https://community.render.com/t/best-practices-for-staging-prod-environments-like-a-pipeline-using-blueprints/4007)(이름이 겹치면 블루프린트가 임의 접두사를 붙여 구분한다)
+
+### 병합 후 할 일
+
+| #   | 내용                                                                                          | 왜                                                                                                                                                                                |
+| --- | --------------------------------------------------------------------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| 1   | **Render `timestay` 서비스 주소가 정해지면 Kakao 개발자 콘솔에 그 도메인을 등록**(Web 플랫폼) | 카카오맵 JS SDK·카카오 로컬 검색은 등록된 도메인에서만 동작한다(지금은 `http://localhost:3001`만 등록돼 있을 가능성). 새 주소를 안 등록하면 지도·주변 장소 검색이 조용히 실패한다 |
+
+### 데모 게이트 (B4 — 이미 돼 있음)
+
+둘 다 이미 구현돼 있다(Time-Safe·예약 단계에서):
+
+- 전송 차단: [BookingScreen.tsx:120](../src/features/booking/BookingScreen.tsx#L120) — `canSubmit = demo && model.canGoOut && ...`. 운영 빌드(`VITE_DEMO_MODE` 없음)에서는 `demo`가 거짓이라 제출 버튼이 막힌다.
+- 화면 표시: [BookingScreen.tsx:40-44](../src/features/booking/BookingScreen.tsx#L40-L44) — 데모 모드일 때만 `demo.banner`(공지 문구) 노출, [BookingScreen.tsx:438](../src/features/booking/BookingScreen.tsx#L438) — 데모가 아니면 `booking.submit.notReady` 안내문 표시.
+- 전환점: [app-mode.tsx:7](../src/app/app-mode.tsx#L7) — `ENV_DEMO_MODE = VITE_DEMO_MODE === "true" || import.meta.env.DEV`. **운영 빌드에 `VITE_DEMO_MODE`를 넣지 않으면 자동으로 막힌다**(ADR-0005 "운영 배포 금지 조건"에 이미 문서화돼 있던 내용, 2026-10-18 실제 코드로 재확인).
+- 코드 변경 없음 — 둘 다 "화면 표시"와 "전송 차단"을 **동시에** 이미 하고 있어서 "어느 쪽이 작은지" 비교할 필요가 없었다.
+
+### README 교체 (B5)
+
+루트 [README.md](../README.md)를 새 구조(실제 `src/`/`server/`/`docs/`/`design/` 트리, TimeStay 이름) 기준으로 다시 썼다. 레거시 전용 상세 안내(항공편·이동시간·카카오맵 API 설명, 알려진 제한사항)는 그대로 [docs/legacy-readme.md](legacy-readme.md)로 옮겨서 **정보 손실 없이 보존**했다. [SETUP.md](../SETUP.md)의 README 참조도 그 경로로 갱신, [docs/README.md](README.md) 색인에 행 추가.
+
+## 병합 전 점검 (C) — 여기서 멈춤, 사용자 확인 후 병합
+
+### 새 클론 검증
+
+**✅ 통과(2026-10-18, 이번 병합 준비 커밋들 포함한 현재 상태)** — 로컬 새 클론(`git clone --branch migration/react-ts`, origin 아닌 로컬 저장소에서 떠서 네트워크 지연 없음)에서:
+
+- 프런트: `npm ci`(161개 패키지, 취약점 0) → `npm run lint` 통과 → `npm test` 170개 통과 → `npm run build` 통과(가변 폰트 포함 정상 산출)
+- 서버: `npm ci`(85개 패키지, 취약점 0) → `npm test`(docker Postgres 일회용 컨테이너) 23개 통과(마이그레이션 멱등·B8 동시요청·fail-closed·오류 코드 일치까지)
+
+병합 직전에는 **원격**(`origin/migration/react-ts`) 기준으로 한 번 더 같은 검증을 돌린다 — 로컬 클론은 아직 push 전 상태를 봤다.
+
+### 변경 요약
+
+(병합 PR 기준 — `migration/react-ts` 전체를 `main`에 합치는 경우, `git diff main...migration/react-ts --stat`로 정확한 수치를 다시 뽑아야 한다. 방향만 적는다.)
+
+- **삭제되는 레거시 파일**: 지금은 없다. `app/index.html`과 `app/assets/`는 5단계("레거시 비교 검증 후 `legacy/`로 이동")가 끝나야 옮겨진다 — **아직 안 끝났다**(코스 빌더·예약·짐 케어·마이 화면 비교 전). 지금 병합하면 `app/`이 레포에 그대로 남는다(서빙만 끊긴다, 아래 위험 #1).
+- **추가된 것**: `src/`(React 앱 전체), `server/booking.js`+`migrations/`+`admin/`(예약 요청 API), `docs/`(공식·화면 명세·결정), `design/reference/`, 새 루트 설정 파일들(`SETUP.md`, `.nvmrc`, `.gitattributes` 등)
+
+### Render에서 실패할 수 있는 지점 3가지
+
+| #   | 지점                                                                                                                                                                                                                   | 대응                                                                                                                   |
+| --- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ---------------------------------------------------------------------------------------------------------------------- |
+| 1   | **서버가 아직 `app/`을 서빙한다** — `render.yaml`만 고치고 `server/server.js`의 정적 서빙 경로(`express.static(path.join(__dirname, "..", "app"))`)를 안 고치면, 빌드는 돼도 배포된 사이트는 여전히 레거시 화면이 뜬다 | 병합 PR에 `server.js`가 `dist/`를 서빙하도록 바꾸는 커밋을 포함시킨다(지금 이 세션에는 없음 — 별도 작업 필요)          |
+| 2   | **아직 이식 안 된 화면**(4단계 "진행 중" — 짐 케어·마이·호텔 찾기 등)이 React 앱에 없거나 깨져 있다                                                                                                                    | 병합 = 운영 교체이므로, 병합 전에 "지금 React 앱에 없는 화면은 무엇이고 사용자가 그걸 받아들이는지" 한 번 더 확인 필요 |
+| 3   | **DB 없이 배포**(`DATABASE_URL` 미설정) — 예약 요청 API가 500으로 막히고 화면엔 "보내지 못했어요"만 뜬다(서비스 전체가 죽진 않음, booking.js의 fail 동작)                                                              | 배포 전에 Render 환경변수에 `DATABASE_URL`·`ADMIN_USER`·`ADMIN_PASSWORD`가 들어갔는지 확인(위 "Render 재배포" 표)      |
+
+### 되돌리는 방법 (legacy-final 태그 기준)
+
+**지금은 태그를 만들지 않는다** — 병합 직전에 사용자가 만든다. 명령(참고용, 실행 안 함):
+
+```bash
+# 병합 직전, main이 지금 배포 중인 레거시 상태를 가리킬 때
+git checkout main
+git tag legacy-final
+git push origin legacy-final
+```
+
+되돌리기:
+
+```bash
+# 코드만 되돌리기
+git checkout main
+git reset --hard legacy-final   # main을 legacy-final 시점으로
+git push origin main --force-with-lease   # 신중히 — main은 Render 자동 배포
+
+# Render는 별도로: "Render 재배포" 섹션에서 만든 timestay 서비스를 멈추고
+# 수동으로 보관해 둔 dropshopping 서비스를 다시 활성화(위 "render.yaml 이름 변경의 실제 효과" 참고)
+```
+
+### 병합 PR 순서 (제안, 아직 실행 안 함)
+
+1. `migration/react-ts`에서 새 클론 검증(위 "새 클론 검증") 통과 확인
+2. `main`에서 `git tag legacy-final && git push origin legacy-final`(위 명령)
+3. GitHub에서 `migration/react-ts` → `main` PR 생성, 이 STATUS.md의 "병합 전 점검" 섹션을 PR 설명에 링크
+4. 리뷰·CI(`.github/workflows/ci.yml`) 통과 확인
+5. 병합 직전에 `server/server.js`를 `dist/` 서빙으로 바꾸는 커밋이 포함됐는지 재확인(위 위험 #1) — 안 됐으면 이 PR에 추가하거나 병합을 보류
+6. 병합(머지 커밋, squash 아님 — 이력 보존) → Render가 `main` 자동 배포 감지 → 새 `render.yaml`로 `timestay` 서비스 생성됨(위 "render.yaml 이름 변경의 실제 효과")
+7. `timestay` 서비스에 환경변수 입력(위 표) → 배포 로그 확인 → 실제 URL로 화면 확인
+8. 확인되면 `dropshopping` 서비스 Suspend(바로 Delete 안 함 — 문제 생기면 비교용으로 잠깐 남겨둠)
+
+## 2026-10-18 — PR #1: origin/main 병합 (완료, 아직 main 병합 안 함)
+
+[PR #1](https://github.com/JAW1006/ONSTOP/pull/1) `migration/react-ts` → `main`에서, `migration/react-ts..origin/main`에 있던 13개 커밋을 `git merge origin/main`(병합 커밋, rebase·force-push 없음)으로 통합했다.
+
+### main에만 있던 13개 커밋 = 내용은 이미 이 브랜치에 있던 것(해시만 다름)
+
+`migration/react-ts..origin/main`이 13개 커밋을 보여줬지만(72bf654~6afc54e, 2026-08-18~09-18, 레거시 `app/index.html` 실제 기능·버그 수정 + `render.yaml` 신설 + 카카오 JS 키 교체), 각 커밋을 `git rev-parse <hash>^{tree}`로 비교한 결과 **13개 전부 `migration/react-ts` 자신의 초기 역사에 있는 커밋과 트리 해시가 완전히 같았다.** 이 브랜치의 "Set up Vite + React + TS project" 커밋이 정확히 main의 13번째 커밋(`6afc54e`, 라이브 T1 보안대기 반영)과 같은 내용 바로 다음에서 시작한다 — 즉 **13개 커밋은 React 이식이 시작된 지점 그 자체**이고, 이미 `docs/results/2026-10-16-legacy-analysis.md`의 분석 대상(커밋 `e665a38`, `6afc54e`와 트리 동일)이었다. 이전에 STATUS.md에 적혀 있던 "로컬 main은 origin/main과 커밋 해시가 갈라져 있다(force-push 이력, 파일 내용은 동일)"와 같은 현상이다.
+
+- **(a) 레거시 기능/버그 수정 — 이식 필요 없음.** 백포트할 신규 기능 없음(이미 스펙에 다 들어가 있었음).
+- **(b) 인프라 — `render.yaml`은 main이 만든 최초 버전(`name: dropshopping`, env 3개)과 우리 버전이 트리까지 동일한 공통 조상에서 갈라져, 우리 쪽이 이름(`timestay`)·env(예약 요청 3개 추가)를 더 진행시킨 상태.** 유효, 충돌 해결에서 `ours` 채택.
+- **(c) 키 — `git log -p origin/main` 전체(app/, server/)에서 서버 쪽 비밀키(AIRPORT_SERVICE_KEY·KAKAO_REST_API_KEY·ODSAY_API_KEY·DATABASE_URL·ADMIN_PASSWORD) 실제 값은 이력에 전혀 없음**(전부 `process.env.*` 참조뿐). `app/index.html`에 카카오맵 **JavaScript 키**(공개·도메인 제한용, 비밀 아님)만 평문으로 있고, 우리 쪽 `app/index.html`에도 같은 값이 이미 있어 새로 노출된 게 아니다. **폐기·재발급 필요 없음.**
+- **(d) 문서·로고 — 리브랜딩(DropShopping→TimeStay) 커밋도 트리까지 동일하게 이미 양쪽에 있었다.**
+
+### 충돌 8개 — 전부 `ours`로 해결(근거: 8개 전부 origin/main 쪽 내용이 공유 시작점과 바이트까지 동일, 새로 가져올 내용 없음)
+
+| 파일                                              | 해결                                                                                                   |
+| ------------------------------------------------- | ------------------------------------------------------------------------------------------------------ |
+| `README.md`                                       | ours(새 구조 기준 README). main 내용은 `docs/legacy-readme.md`에 이미 보존                             |
+| `render.yaml`                                     | ours(`timestay` + 예약 요청 env 3개 — main 설정의 상위집합)                                            |
+| `server/server.js`                                | ours(main의 모든 수정이 이미 동일하게 들어 있고, 그 위에 `booking.js`/`error-codes.js` 연동이 더 있음) |
+| `server/.env.example`                             | ours(main의 안내 문구를 내용상 포함하는 더 상세한 버전)                                                |
+| `logo/README.md`, `logo/preview.html`             | ours(리브랜딩 문구는 동일, 포맷·레이아웃만 우리 쪽이 더 진행)                                          |
+| `server/package.json`, `server/package-lock.json` | 자동 병합(충돌 없음, `HEAD`와 diff 0 — main이 기여한 새 내용 없음)                                     |
+
+### 병합 직후 검증 (전부 통과)
+
+- `git diff origin/main HEAD -- app/` → **빈 diff**(레거시 앱 100% 동일)
+- `git diff origin/main HEAD -- logo/ app/assets/` → `logo/README.md`·`logo/preview.html`만 차이(의도된 차이, 위 표 참고), `app/assets/`(호텔 사진 10장 포함)는 **빈 diff**
+- `git diff origin/main HEAD -- server/server.js`의 삭제된 줄(`-`) 37개 전부 확인 — **실제 기능 삭제 없음.** 전부 (i) Prettier 줄바꿈 스타일 차이(예: `.trim().toUpperCase()` 한 줄→여러 줄) 또는 (ii) `/api/security-wait`가 평평한 `{error:"문자열"}`에서 `fail()`/`ERROR_CODES` 기반으로 바뀐 것(이미 계획된 리팩터, 메시지 내용은 그대로 옮겨짐)뿐
+- `server/package.json`·`.env.example`·`render.yaml` → main 대비 **전부 우리 쪽 추가분만** 있음(제거된 설정 없음) — diff 직접 확인
+
+### 새 클론 재검증 (병합 커밋 포함한 상태, 로컬 클론)
+
+프런트: `npm ci`(161개, 취약점 0) → lint 통과 → test 170개 통과 → build 통과
+서버: `npm ci`(85개, 취약점 0) → test(docker Postgres) 23개 통과
+
+### push·PR·CI
+
+`git push origin migration/react-ts`(force 아님) → PR #1 `mergeable: MERGEABLE`(충돌 해소됨). CI 5개 중 4개 통과(포맷·비밀값·프런트·서버 통합 테스트). **커밋 메시지 검사만 실패** — 원인: 이 잡이 `git log --no-merges "$before..$after"`로 범위를 계산하는데, 병합으로 main의 13개 옛 커밋이 이 브랜치에 처음으로 "도달 가능"해져서 전부 새로 검사 대상에 들어갔다(그 커밋들은 2026-10-18 컨벤션 적용 이전이라 형식이 안 맞음). `--no-merges`는 병합 커밋 자체만 빼고 그 조상은 못 거른다 — **merge가 끼면 이 잡이 구조적으로 이렇게 실패한다.** 병합 커밋 자체(`fix: merge origin/main, ...`)는 형식이 맞고, CI가 검사하는 다른 4개는 모두 통과했다. CI 스크립트를 `--first-parent`로 고치면 해결되지만 이번 작업 범위 밖이라 고치지 않았다 — 다음에 결정 필요.
+
+## 디자인 이식 진행
+
+기준: [design-tokens.md](design/design-tokens.md). 단계 순서(사용자 지시): 1 기반 → 2 시작 흐름 → 3 홈·Time-Safe → 4 코스·호텔 찾기 → 5 호텔 상세·예약 요청·예약 상태·내역 → 6 수하물·저장·마이·설정 → 7 전역 상태 → 8 호텔 응답·파트너.
+
+| 단계 | 내용                                          | 상태                                                                                                                                                                         |
+| ---- | --------------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| 1    | 기반 — 색 토큰·폰트·시스템 영역·공통 컴포넌트 | **코드 완료, 시각 검증 대기**(합격 아님) — 390px/360px 스크린샷 대비(`docs/design-diff/stage1/`)를 브라우저 도구 연결 끊김으로 못 했다(2026-10-18). 통과 처리는 그 검증 이후 |
+| 2-8  | 화면 이식                                     | 대기                                                                                                                                                                         |
+
+### 화면 이식 완료 후 정리할 것
+
+| #   | 내용                                                                                         | 비고                                                                      |
+| --- | -------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------- |
+| 1   | 옛 `--ts-*` 토큰(`--ts-blue`·`--ts-ink`·`--ts-gold`·`--ts-success`·`--ts-line` 등) 전부 제거 | 8단계 화면이 모두 v2 컴포넌트로 옮겨가면 `src/styles/tokens.css`에서 삭제 |
+| 2   | `--ts-v2-*`/`--color-v2-*`의 `v2` 접두사 제거(옛 토큰이 빠져서 이름 충돌이 없어지면)         | 아래 "이식 후 수정 목록" #3과 같은 작업                                   |
+| 3   | 옛 공통 컴포넌트(`src/components/ui/button.tsx`·`chip.tsx` 등, 구 화면 전용) 삭제            | 구 화면이 전부 v2로 바뀌면 참조가 없어진다                                |
+
+### 이식 후 수정 목록 (지금은 안 바꿈, 전부 화면 이식 단계에서 재검토)
+
+| #   | 내용                                                                                                                        | 비고                                                                                                                                                       |
+| --- | --------------------------------------------------------------------------------------------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| 1   | reference `AppHeader`의 `flight` 상수가 미사용(App.tsx:182, oxlint no-unused-vars) — reference 결함, 그대로 둠              | 이식한 `AppHeader`는 `flightLabel`을 prop으로 받게 바꿔서 이 결함을 베끼지 않았다                                                                          |
+| 2   | reference `TimeBar`/`TransitTimeBar`의 데모 기본값(`defaultTimeSegments` 등, 한국어 라벨 내장)                              | 이식본은 `segments`를 필수 prop으로 받는다(데모값 기본 export 없음) — "데모 값 프로덕션 제외" 규칙에 맞춤. 실제 화면 이식 때 호출부가 번역된 라벨을 넘긴다 |
+| 3   | `--ts-v2-*`/`--color-v2-*` 네임스페이스는 임시 — 기존 화면(`--ts-blue` 등)과 색 이름이 겹쳐서(success/gold/ink/line) 분리함 | 8단계 화면 이식이 모두 끝나 구 토큰·컴포넌트가 빠지면 `v2` 접두사를 없앤다                                                                                 |
+
+## 브랜치·배포
+
+| 항목                 | 상태                                                                                                                                                                                                          |
+| -------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| 작업 브랜치          | `migration/react-ts` (main 금지 — Render 자동 배포)                                                                                                                                                           |
+| `wip/server-booking` | 2026-10-18 백업 전용 브랜치. 레거시 `main` 위에서 만든 예약 요청 작업(결제 폼·T2 통합·DB 1차안)을 잃지 않게 담아둔 것 — **그대로 머지하지 않는다.** 살릴 부분은 이미 이 브랜치로 옮겼다(아래 2026-10-18 항목) |
+| 로컬 `main`          | `origin/main`과 커밋 해시가 갈라져 있다(force-push 이력, **파일 내용은 동일**). main으로 돌아갈 일이 생기면 `git branch -f main origin/main`으로 맞춘다                                                       |
+| 새 환경변수          | `DATABASE_URL`, `ADMIN_USER`, `ADMIN_PASSWORD` — `server/.env.example` 참고. 환경별로 다른 DB·자격증명을 쓴다                                                                                                 |
+| push                 | 가능 — 이 저장소만 `credential.https://github.com.username = JAW1006`(로컬 설정). `main`에는 올리지 않음                                                                                                      |
+| 백업                 | git bundle 파일(`migration/react-ts` + `main`, 전체 이력) — 경로는 사용자 PC에만 기록(개인 사용자명 포함이라 문서에서 뺌). 복원: `git clone -b migration/react-ts <bundle> <폴더>`                            |
+
+## 2026-10-18 — 예약 요청 서버 API
+
+레거시 `main`에서 만들던 예약 요청 서버 작업을 이 브랜치로 옮겼다. 프런트는 **이미 있는 `src/features/booking/`을 쓰고**, 서버만 새로 넣었다.
+
+| 결정                      | 내용                                                                                                                                                                                                                                  |
+| ------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| **B8 "진행 중 1건" 기준** | **정규화된 이메일**(소문자·공백 제거). 숙소와 무관하게 1건. DB 부분 유니크 인덱스로 보장해서 동시 요청에도 2건이 생기지 않는다. 걸리면 `409`이고 **응답에 기존 요청 내용을 담지 않는다**(존재 여부만). 한계: 다른 이메일로는 우회된다 |
+| 관리자 인증               | `/admin`과 관리자 API는 HTTP Basic(`ADMIN_USER`/`ADMIN_PASSWORD`). 둘 중 하나라도 비면 **실제 핸들러를 등록하지 않고 503**(fail-closed) — 인증 없이 열린 채 배포되는 경우를 구조적으로 막는다                                         |
+| 스키마 관리               | `server/migrations/*.sql`(이름순 적용, `schema_migrations`에 기록). 코드에서 `CREATE TABLE` 안 한다. 표준 Postgres만 — 공급자를 옮겨도 그대로 돈다                                                                                    |
+| ADR-0002(DB)              | **제안 상태 유지.** 구현만 벤더 중립(`DATABASE_URL` + 표준 SQL)으로 먼저 했다. 공급자 확정은 요금·리전·보관기간 확인 후                                                                                                               |
+| 로그                      | 이메일·이름을 로그·오류 메시지에 쓰지 않는다. pg가 유니크 위반 시 `err.detail`에 이메일을 담으므로 `detail`은 로그에 넣지 않는다                                                                                                      |
+| 서버 분리                 | 예약 기능은 `server/booking.js`, `server.js`에는 연결 코드만. 외부 API 프록시는 손대지 않았다                                                                                                                                         |
+
+**버린 것**(이 브랜치에 이미 더 나은 구현이 있어서):
+
+| 버린 것                                          | 대신 쓰는 것                                                                                               |
+| ------------------------------------------------ | ---------------------------------------------------------------------------------------------------------- |
+| `app/index.html`의 연락처·요청 폼(전화번호 수집) | `src/features/booking/BookingScreen.tsx` — 동의 3개·필드별 검증·오류 상태·테스트 있음. 연락처는 **이메일** |
+| `/api/security-wait?terminal=` 통합안            | 이미 있는 `/api/security-wait` + `/api/security-wait/t2`                                                   |
+
+**교훈** → [AGENTS.md](../AGENTS.md) 0장 규칙으로 남겼다: 작업 시작 전 브랜치와 이 문서를 확인하고, 이미 있는 구현·명세를 따른다.
+
+### main 병합 전 확인 — 예약 API 오류 응답 모양을 읽는 프런트 코드 (2026-10-18 조사)
+
+`docs/conventions.md`에 맞춰 `server/booking.js`의 오류 응답을 `{error:"snake_code"}` → `{error:{code:"UPPER_SNAKE",message}}`로 바꿨다. **main에 합칠 때 같이 고쳐야 하는 코드가 있는지** 전체 브랜치·`src/`를 뒤졌다.
+
+| 확인 대상                                                                           | 결과                                                                                                                       |
+| ----------------------------------------------------------------------------------- | -------------------------------------------------------------------------------------------------------------------------- |
+| `origin/main`의 `server/server.js`·`app/index.html`                                 | **예약 요청 API 자체가 없다**(`booking-requests` 문자열 자체가 없음) — main에는 고칠 코드가 없다                           |
+| `origin/wip/server-booking`(main에서 만들다 백업만 해 둔 브랜치)의 `app/index.html` | `submitBookingRequest()`가 `res.ok`만 보고 응답 본문(`.error`/`.message`)은 읽지 않는다 — 모양이 바뀌어도 깨지지 않는다    |
+| 같은 브랜치의 `server/admin/index.html`(옛 버전)                                    | `res.ok`조차 안 보고 `fetch().json()`을 그대로 쓴다 — 오류 모양과 무관하게 이미 취약하던 코드(별도 문제, 이번 변경과 무관) |
+| `src/features/booking/requests.tsx`(이 브랜치, migration/react-ts)                  | 서버 API를 아직 호출하지 않는다(메모리 저장소만) — 역시 무관                                                               |
+| 옛 소문자 코드 리터럴(`"active_request_exists"` 등 13개) 전체 검색                  | `main`·`src/`·히스토리 전체에서 **0건**                                                                                    |
+
+**결론: main을 포함해 어디에도 이 오류 모양을 직접 읽는 코드가 없다.** 병합 시 추가로 고칠 프런트 코드는 없음. (참고로 `wip/server-booking`은 "그대로 머지하지 않는다"로 이미 표시돼 있다 — [브랜치·배포](#브랜치배포).)
+
+### docx에만 있던 내용 (2026-10-18 대조)
+
+`TimeStay_기술개요_로드맵.docx`(2026-09-06, 레거시 기준)를 `docs/*.md`와 대조했다. 바이너리는 diff가 안 되고 .md와 갈라지므로 **저장소에서 빼고** `local-docs/`(gitignore)로 옮겼다.
+
+아래는 .md에 **없는** 내용이다 — 살릴 것은 .md로 옮겨야 한다.
+
+| #   | docx 내용                                                                                                                            | 옮길 곳                                                                        | 비고                                                                                                                                                                         |
+| --- | ------------------------------------------------------------------------------------------------------------------------------------ | ------------------------------------------------------------------------------ | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| 1   | **앱 2단계: React Native 전환** — 핵심 화면(코스 빌더·지도)을 RN으로 재작성, 카카오맵 웹 SDK → 네이티브 SDK 또는 `react-native-maps` | [roadmap](product/roadmap.md) "앱 전환 대비"                                   | 지금 roadmap은 Capacitor 준비(C1~C6)까지만 있다                                                                                                                              |
+| 2   | **동선 최적화: 카카오모빌리티 다중경유지 API 또는 TSP 근사**                                                                         | [time-fit](formulas/time-fit.md), [external-apis](operations/external-apis.md) | 현재 A6는 순차 경로(탐욕)뿐. 다중경유지 API 쿼터·요금 **미확인**                                                                                                             |
+| 3   | **카카오모빌리티 보행자 길찾기 별도 제휴 신청** 시 도보 실경로 적용                                                                  | [external-apis](operations/external-apis.md)                                   | 현재 도보는 직선×1.3 근사                                                                                                                                                    |
+| 4   | **백그라운드 위치 기반 "게이트 임박 알림"**, 딥링크(파트너 프로모션)                                                                 | [ADR-0006](decisions/ADR-0006-return-alert.md)                                 | ADR-0006은 앱 내 카운트다운·캘린더·기기 알림까지만. 백그라운드 위치는 개인정보 영향 큼 → legal 확인 필요                                                                     |
+| 5   | **지도 공급자 전환 검토 결론** — 네이버지도는 핵심 이슈(네이티브 POI 클릭) 해결 불확실, 전환 비용 대비 실익 재검토 필요              | [external-apis](operations/external-apis.md)                                   | 현재 그 문서에는 네이버 Directions **요금**만 있고 지도 공급자 전환 판단이 없다                                                                                              |
+| 6   | **수집 전략 수치** — 카카오 로컬 18개 업종 코드 + 뷰티 브랜드 7곳 키워드, 업종당 페이지네이션으로 최대 45곳                          | [design/data](design/data.md)                                                  | 레거시 구현 기준. 이식본과 같은지 확인 필요                                                                                                                                  |
+| 7   | 관리자용 **파트너·요금 관리 도구**                                                                                                   | [roadmap](product/roadmap.md)                                                  | 지금 `/admin`은 예약 요청 확인만. 숙소·가격표 관리는 없다                                                                                                                    |
+| 8   | ⚠ **"카카오 API 응답 캐싱(반복 조회 비용 절감)"**                                                                                    | —                                                                              | **반영하지 말 것.** [external-apis](operations/external-apis.md)의 응답 저장·캐시 금지(운영정책 제5조 제20호)와 **정면으로 어긋난다**. docx가 그 제약을 모른 상태에서 쓰였다 |
+
+docx의 나머지(서비스 개요, 레거시 스택 — importmap·Babel Standalone, 구현 완료 기능, 결제·요금·예약 연동 제한, 1.2km 도보 근사, Capacitor 1단계, 웹 서비스화 단계)는 이미 .md에 있다.
+
+## 2026-10-18 — 설치 검증 (빈 클론부터)
+
+**방법**: 이 작업 폴더가 아니라 `/tmp`(스크래치패드)에 `origin`에서 **새로** 클론해서([SETUP.md](../SETUP.md)가 생기기 전부터, 작성 중에도 계속) 그 문서만 보고 명령을 쳤다. `node_modules`·`dist`가 전혀 없는 상태에서 시작했는지 매 라운드 확인했다. macOS(이 작업 환경, Node 26)와 **진짜 Linux 컨테이너**(`docker run node:22-bookworm`, Node **22** — `.nvmrc` 핀과 정확히 같은 버전) 둘 다에서 실행했다.
+
+### 실제로 친 명령 (성공한 라운드, macOS)
+
+```bash
+git clone https://github.com/JAW1006/ONSTOP.git fresh-clone && cd fresh-clone
+git checkout migration/react-ts
+
+npm ci            # ✅ (EBADENGINE 경고만 — 아래 "Node 버전" 참고)
+npm run lint      # ✅ oxlint
+npm test          # ✅ Vitest 169개
+npm run build     # ✅ tsc -b && vite build
+npx prettier --check .   # ✅
+
+cd server
+npm ci            # ⚠️ npm audit: 4건(심각 1) — 고쳤다(아래)
+cp .env.example .env
+npm test          # ✅ docker compose로 Postgres 띄워서 23개 (처음 실행하는 환경)
+
+# 둘 다 띄워서 확인
+cd server && npm start &     # :3001, 키 없어도 뜬다
+npm run dev &                 # :5173
+curl http://localhost:5173/              # 200, React 루트 div 있음
+curl http://localhost:5173/api/security-wait   # 500(프록시가 :3001까지 실제로 감 — 404면 프록시 깨진 것)
+```
+
+### 같은 걸 Linux 컨테이너에서 (Node 22, 핀과 동일)
+
+```bash
+docker run --rm node:22-bookworm bash -c '
+  apt-get update -qq && apt-get install -y -qq git
+  git clone --branch migration/react-ts --depth 1 https://github.com/JAW1006/ONSTOP.git /app
+  cd /app && npm ci && npm run lint && npm test && npm run build
+'
+# ✅ 전부 통과 — lint 0/0, 테스트 169개, build 성공
+
+docker run --rm node:22-bookworm bash -c '
+  ... git clone 동일 ...
+  cd /app/server && npm ci && cp .env.example .env
+  npm run test:nodb   # ✅ 2개(DB 필요한 쪽은 "건너뜀" 메시지와 함께 스킵)
+  npm start &         # ✅ 뜸, 키 없다는 경고 5줄 정상 출력
+'
+```
+
+**Docker-in-Docker로 `cd server && npm test`(docker compose가 띄우는 Postgres 경로)는 Linux에서 직접 돌리지 않았다** — 호스트 Docker 소켓 공유가 추가로 필요해서다. 대신 **CI(`ubuntu-latest`)가 같은 경로를 GitHub Actions의 Postgres 서비스 컨테이너로 돈다**(`.github/workflows/ci.yml`의 `server` 잡) — 메커니즘은 다르지만(로컬은 `docker compose`, CI는 서비스 컨테이너) 둘 다 "Linux + 진짜 Postgres"를 검증한다. **로컬 `docker compose` 경로 자체는 macOS에서만 직접 확인했다** — Linux에서 돌릴 사람이 있다면 한 번 더 확인 권장.
+
+### 고친 결함 (각각 별도 커밋)
+
+| 커밋      | 결함                                                                                                                                                                                                                                        | 어떻게 발견                                                    |
+| --------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | -------------------------------------------------------------- |
+| `a002466` | Node 버전·패키지 매니저 고정 없음, `.gitattributes` 없음                                                                                                                                                                                    | 요구사항 점검(지시받은 항목)                                   |
+| `f7e62f2` | `SETUP.md` 자체가 없었음. 루트 `README.md`가 지금도 레거시(`app/index.html`, 빌드 없음) 기준으로만 쓰여 있어 그대로 따라가면 이식본이 아니라 레거시를 보게 됨                                                                               | README.md를 "처음 보는 사람" 입장으로 다시 읽음(지시받은 항목) |
+| `6a214fe` | `server/scripts/test-with-db.sh`의 Docker 안내가 macOS만(`open -a Docker`) — Linux에서 못 쓰는 명령만 보여줌                                                                                                                                | Linux 컨테이너로 실제 실행해서 발견                            |
+| `ea5d592` | `server/npm ci` 직후 `npm audit`에 4건(심각 1 — `proxy-addr` IP 스푸핑, `qs` 서비스거부/배열제한 우회, `express`·`body-parser` 전이). `npm audit fix`로 `express^4.19.2` 범위 안에서(package.json 안 바꿈) 해소, 수정 후 테스트 23개 재통과 | `npm ci` 표준 출력을 그냥 읽음 — 이전엔 아무도 안 봤다         |
+
+#### `ea5d592` 세부 — 어떤 패키지가 왜 바뀌었나 (2026-10-18 추가 조사)
+
+| 패키지        | 전     | 후     | 메이저 상승?                                            |
+| ------------- | ------ | ------ | ------------------------------------------------------- |
+| `proxy-addr`  | 2.0.7  | 2.0.8  | 아니오(패치) — **심각도 "critical"이었던 건 이것 하나** |
+| `qs`          | 6.15.3 | 6.16.1 | 아니오(마이너, 6.x 안)                                  |
+| `body-parser` | 1.20.6 | 1.20.8 | 아니오(패치)                                            |
+| `express`     | 4.22.2 | 4.22.3 | 아니오(패치, `package.json`의 `^4.19.2` 범위 그대로)    |
+
+`package.json`은 안 바뀌었다 — `package-lock.json`의 해석된(resolved) 버전만 올라갔다(`npm ci`가 쓰는 파일).
+
+**`proxy-addr`(심각 1건) 실제 노출 여부 확인** — 이 취약점(GHSA-jqcg-44mw-7w3h)은 Express의 `trust proxy` 설정이 켜져 있어야(그리고 그 설정이 `X-Forwarded-For`를 신뢰하는 범위를 느슨하게 잡았어야) 악용 가능하다. 이 리포에서 확인한 결과:
+
+| 확인                                           | 결과                                                                                                                                         |
+| ---------------------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------- |
+| `app.set("trust proxy", ...)` 설정 여부        | **없음** — `server.js`·`booking.js` 전체에 한 곳도 없다. Express 기본값(`false`)이 그대로 적용돼 `req.ip`가 `X-Forwarded-For`를 아예 안 본다 |
+| `req.ip`/`req.ips`/`X-Forwarded-For` 사용 여부 | **없음** — 코드 전체에서 참조하는 곳이 없다                                                                                                  |
+| 레이트 리밋(IP 기준 요청 제한)                 | **없음** — `express-rate-limit` 등 미설치, 자체 구현도 없다                                                                                  |
+| **B8(예약 요청 중복 방지)가 IP에 의존하는지**  | **아니다.** `booking.js`의 B8은 `email_normalized`(정규화된 이메일) 하나로만 판정하고 DB 부분 유니크 인덱스로 보장한다. IP는 전혀 안 본다    |
+
+**결론**: `proxy-addr` 취약점은 패치할 가치가 있었지만(무료이고, 나중에 레이트리밋을 추가할 때 자동으로 안전해지므로), **지금 코드가 그 경로를 전혀 쓰지 않아 실제 노출은 없었다.** `server.js`에 `trust proxy`를 의도적으로 안 켠 이유와, 나중에 IP 기준 기능(레이트리밋 등)을 추가할 때 주의할 점을 주석으로 남겼다(`server.js` 상단).
+
+#### `CONGESTION_NOT_CONFIGURED`를 프런트가 받으면 Time-Safe가 어떻게 되는지 (2026-10-18 확인)
+
+**전체 오류가 아니라 기준값(50분) 하한으로 조용히 떨어진다.** 코드 추적 + 테스트 2개(기존 1개 + 신규 1개)로 확인:
+
+| 단계 | 코드                                                                                    | 동작                                                                                                                                                      |
+| ---- | --------------------------------------------------------------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| 1    | `src/features/time-safe/api.ts`의 `fetchSecurityWaitMin`                                | `try/catch` + `!res.ok`면 그냥 `null`을 반환한다 — **본문의 `error.code`를 보지 않는다.** 그래서 `CONGESTION_NOT_CONFIGURED`든 다른 5xx든 똑같이 처리된다 |
+| 2    | `useSecurityWait`(React Query)                                                          | `queryFn`이 던지지 않으므로 `isError`가 절대 `true`가 안 된다. `data`만 `null`                                                                            |
+| 3    | `src/domain/time-safe.ts`의 `securityBufferMin(terminal, liveWaitMin=null, baseMin=50)` | `liveWaitMin == null`이면 **`baseMin`(50) 그대로 반환** — 이미 있던 단위 테스트 `["P01", null, 50, false]`(`time-safe.test.ts`)가 정확히 이 경우를 덮는다 |
+| 4    | `isLiveSecurityApplied`                                                                 | `false` — "실시간 반영" 배지가 안 뜬다(실패를 성공처럼 보이게 하지 않음)                                                                                  |
+
+**통합 테스트로 추가 확인**(`src/features/home/HomeScreen.test.tsx`, 신규): `/api/security-wait`가 500 + `CONGESTION_NOT_CONFIGURED`를 돌려주는 상황에서 홈 화면을 렌더링해 — 실시간이 있을 때와 똑같은 계산 결과(`2h 11m`, `immigration ~50 min`)가 나오고, "Live" 배지가 없고, 화면에 오류 문구가 전혀 없는 것까지 확인했다. **DB 없이 돈다(`npm test`에 포함, 169개 → 170개).**
+
+한계: `/api/flight/*` 등 다른 엔드포인트도 똑같이 "코드를 안 보고 `!res.ok`만 본다" 방식이라 지금은 전부 똑같이 안전하지만, 위 "필수 선행 작업"에서 코드를 붙이고 나면 프런트가 **코드별로 다르게 반응해야 하는 경우**(예: 특정 코드만 재시도)가 생길 수 있다 — 그때 이 "본문 안 봄" 전제를 다시 확인해야 한다.
+
+### 점검했지만 결함 아님(확인됨)
+
+| #   | 항목                                                         | 결과                                                                                                                                                                                         |
+| --- | ------------------------------------------------------------ | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| 1   | `.env.example`(루트·`server/`)이 모든 필수 환경변수를 담는지 | `process.env.*`/`import.meta.env.*` 전수 검색 결과와 정확히 일치. 비밀값 커밋 없음(기존에 확인된 것 재확인)                                                                                  |
+| 2   | 패키지 매니저 고정                                           | 이미 npm만 쓴다 — `yarn.lock`/`pnpm-lock.yaml` 없음, 두 `package.json` 각각 `package-lock.json` 하나씩(모노레포 성격상 2개인 건 정상 — "한 종류"의 의미를 "같은 매니저"로 봤다)              |
+| 3   | CI가 SETUP.md와 같은 명령으로 돌아가는지                     | `.github/workflows/ci.yml`의 `web`/`server` 잡이 SETUP.md 2·3장과 명령이 정확히 같다(`npm ci`→`lint`→`test`→`build`, server는 `npm ci`→`npm test`)                                           |
+| 4   | 기본 브랜치 vs 작업 브랜치                                   | GitHub 기본 브랜치는 `main`(Render 자동 배포 때문에 의도적으로 유지), 작업은 `migration/react-ts` — AGENTS.md 0장에 이미 명시돼 있고 일치함. 바꾸지 않았다(인프라 설정이라 임의로 안 건드림) |
+
+### 고치지 못한 것 (영향·방향만 기록)
+
+| #   | 내용                                                                                                                                                                                                                                 | 영향                                                                                                                                                                                                                | 방향                                                                                                                      |
+| --- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------- |
+| 1   | **`.nvmrc`(22)와 실제 테스트 환경(macOS, Node 26)이 다르다.** 이 PC에 nvm 등 버전 매니저가 없어 `nvm use`로 22를 맞춰서 돌려보지 못했다 — macOS 검증은 전부 Node 26 기준이다. Linux 컨테이너 검증은 Node 22로 했다(그쪽은 핀과 일치) | `engines`는 경고만 내고 설치·실행을 막지 않는다(`EBADENGINE` warning). Node 26에서도 전부 통과했지만 **"22에서 안 되는 걸 26이 가려주고 있을 가능성"은 Linux 컨테이너 결과로만 배제했다**, macOS 자체로는 배제 못함 | nvm 설치 후 `nvm use`로 재확인 권장. 안 된다면 `.nvmrc`를 실제 동작 버전으로 올리거나, CI의 `node-version: "22"`를 올린다 |
+| 2   | Windows에서 실제로 실행해보지 못했다(이 작업 환경에 Windows가 없음) — 아래 "Windows 위험 지점"은 코드를 읽고 추론한 목록이다, 실행해서 확인한 게 아니다                                                                              | 목록에 있는 지점은 실제로 막힐 가능성이 높지만, 빠진 게 있을 수 있다                                                                                                                                                | Windows PC(또는 GitHub Actions `windows-latest` 잡 추가)로 실제 확인 필요                                                 |
+| 3   | 로컬 `docker compose` 기반 `cd server && npm test` 경로를 Linux에서 직접 실행해보지 못함(위 설명)                                                                                                                                    | 낮음 — CI가 같은 종류의 검증(Linux + 진짜 Postgres)을 다른 메커니즘으로 이미 한다                                                                                                                                   | Linux 사용자가 있으면 한 번 확인                                                                                          |
+
+### Windows 위험 지점 (추론만, 실행 안 함)
+
+| #   | 지점                                                      | 왜                                                                                                                                                                                                        |
+| --- | --------------------------------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| 1   | `cd server && npm test`(및 `npm run test:db`)             | `package.json`이 `bash scripts/test-with-db.sh`를 직접 호출한다. 네이티브 `cmd.exe`/PowerShell에는 `bash`가 없다 — **Git Bash나 WSL 안에서 npm을 돌려야 한다.** SETUP.md에 이 요구사항이 명시돼 있지 않다 |
+| 2   | 셔뱅(`#!/usr/bin/env bash`) 스크립트 전반                 | 위와 같은 이유. `.gitattributes`로 **파일 자체가 CRLF로 깨지는 것**은 막았지만(2026-10-18 추가), **bash 인터프리터가 없는 문제**는 못 막는다 — 서로 다른 문제다                                           |
+| 3   | `docker-compose.test.yml`의 `tmpfs:` 마운트               | Docker Desktop(Windows)은 WSL2 안의 Linux VM에서 컨테이너를 돌리므로 `tmpfs`는 그 안에서는 정상 동작할 가능성이 높다 — 다만 **실행해서 확인한 적 없음**, Hyper-V 백엔드 등 다른 구성에서는 다를 수 있다   |
+| 4   | 경로 구분자                                               | 앱 코드·스크립트에 하드코딩된 `\` 없음, 전부 `/`만 사용(Node의 `fs`/`path` API가 Windows에서도 `/`를 받아들인다) — **위험 낮음**, 점검은 했지만 실행 확인은 안 함                                         |
+| 5   | `npm run dev`의 `localhost:5173` 고정(`strictPort: true`) | OS 무관한 Vite 설정이라 위험 낮지만, 5173 포트가 Windows에서 다른 프로세스(Hyper-V 예약 포트 범위 등)에 걸릴 가능성은 확인 안 함                                                                          |
+
+## 2026-10-18 — 디자인 이식 1단계(기반)
+
+범위는 [design-tokens.md](design/design-tokens.md) 1절 "할 일" 그대로. 화면은 옮기지 않았다(어느 화면도 아직 v2 컴포넌트를 쓰지 않는다).
+
+- **색 토큰**: `src/styles/tokens.css`에 `--ts-v2-*`(브랜드+4개 글자용 ink 포함) 추가, `src/styles/index.css`의 `@theme inline`에 `--color-v2-*`로 노출. 기존 `--ts-*`(화면에서 이미 쓰는 중)는 손대지 않았다.
+- **폰트**: `@fontsource-variable/{noto-sans,noto-sans-kr,noto-sans-sc,noto-sans-jp,space-grotesk}`(가변 폰트) 번들, 원격 import 없음. `.ts-v2-root`(새 컴포넌트만 감싸는 범위) 안에서만 `:lang()` 규칙 적용 — 기존 화면의 전역 `body` 폰트는 그대로.
+  - 처음엔 고정 가중치 `@fontsource/*`(400/500/600/700 각각 별 파일)로 넣었다가, 실제 쓰는 가중치(400·600·700)만 남겨도 `npm run build` 결과 **2,130개 파일 · 52MB**였다(CJK 폰트는 가중치별로 유니코드 범위 서브셋이 수백 개로 쪼개진다). 가변 폰트로 바꾸니 **357개 파일 · 14MB**(가중치 축 전체를 1개 파일/서브셋으로 담아서 — 쓰는 가중치가 늘어도 파일이 안 늘어난다). 전부 `@fontsource-variable/*`로 교체, 번들 CSS도 1.28MB → 326KB로 줄었다. `npm test`(170)·`npm run lint`·`npm run build` 재확인
+  - 네트워크상 유니코드 범위별로 필요한 서브셋만 내려받으므로(브라우저가 실제 쓰는 글자의 `unicode-range`만 요청) `dist/assets`에 있는 357개 전부가 매 방문자에게 다 나가는 건 아니다 — 다만 전부 앱 번들에는 포함된다(빌드 산출물 크기로는 14MB)
+- **시스템 영역**: 상태바·홈 인디케이터 코드 없음. `--ts-v2-tabbar-content-height: 72px` + `env(safe-area-inset-bottom)`. `.ts-v2-root`는 `100dvh` 기준.
+- **공통 컴포넌트** (`src/components/ui/v2/`): `icon.tsx`(경로 그대로 복제), `button.tsx`, `pill.tsx`, `field.tsx`, `brand.tsx`, `app-header.tsx`, `tab-bar.tsx`, `time-bar.tsx`, `transit-time-bar.tsx`(범례만 2열로, 의도된 차이 b). 기존 `src/components/ui/button.tsx`·`chip.tsx`(구 화면용)는 손대지 않았다.
+- **i18n**: 탭바 라벨은 기존 `nav.*`(이미 5개 언어 검수 완료) 재사용. 새 키(`brand.subtitle`, `timeBar.*`, `transitTimeBar.*`)는 ko/en을 직접 채우고 ja/zh/vi는 기계적으로 옮긴 값 — [i18n-todo.md](../docs/i18n-todo.md)에 목록.
+- **검증**: `npm run lint`(src 범위), `npm test`(170 통과), `npm run build` 모두 통과.
+
+### 못한 것 — 스크린샷 대비 검증
+
+사용자가 요청한 "390px/360px에서 reference와 나란히 캡처해 `docs/design-diff/stage1/`에 저장" 검증은 **이번 세션에서 브라우저 도구 연결이 끊겨 못 했다.** 코드 수준으로는 레퍼런스의 class/CSS 값(색·크기·레이아웃)을 그대로 Tailwind 유틸리티로 옮겼는지 직접 대조했지만, 실제 렌더링 픽셀 대비는 확인되지 않았다. 다음 세션에서 브라우저 도구가 돌아오면 이 검증을 먼저 한다.
+
+### reference와 다른 점(결함 아님, 설계상 필요)
+
+| 구분                           | reference                                                                | 이식본                                                                | 이유                                                                                                                        |
+| ------------------------------ | ------------------------------------------------------------------------ | --------------------------------------------------------------------- | --------------------------------------------------------------------------------------------------------------------------- |
+| (a) 글자용 ink 색              | 없음                                                                     | `danger-ink`/`success-ink`/`travel-ink`/`gold-ink` 추가               | 사용자 지시 (a) — WCAG 대비 실패 보정                                                                                       |
+| (b) TransitTimeBar 범례        | 구간 폭 비례 4열 그리드(좁은 구간 글자 줄바꿈 깨짐)                      | 2열 범례(견본+이름+분+출처 뱃지), 구간 폭과 무관한 고정 그리드        | 사용자 지시 (b)                                                                                                             |
+| TimeBar/TransitTimeBar 폭 계산 | `data-size="N"`/`data-minutes="N"` 정수별 고정 CSS 클래스(예시값만 대응) | `style={{ flex: N }}` 인라인 계산                                     | design-tokens.md 5절 "폭은 분 비율로 계산한다. 고정 퍼센트 금지" — 레퍼런스의 예시 전용 정적 클래스는 새 분 값에 대응 못 함 |
+| TimeBar/TransitTimeBar 기본값  | `defaultTimeSegments` 등 한국어 라벨 내장 데모 기본 export               | `segments` 필수 prop(기본값 없음)                                     | design-tokens.md 6절 "데모 값... 프로덕션 빌드에서 제외"                                                                    |
+| AppHeader                      | 미사용 `flight` 상수(App.tsx:182, reference 자체 결함)                   | `flightLabel` prop으로 받음                                           | reference 결함을 복제하지 않음(reference는 수정 금지라 그 파일 자체는 그대로 둠)                                            |
+| Icon                           | 커스텀 SVG path, lucide-react 미사용                                     | 동일 — lucide-react로 바꾸지 않고 reference의 path 배열을 그대로 옮김 | "허용되는 의도된 차이는 두 가지뿐" 규칙을 지키기 위해 모양을 그대로 복제                                                    |
+
+## 결정됨
+
+| #                 | 결정                                                                                                                                                                                                                                                                               | 공식                                                                                                                                                         | 적용                                                                    |
+| ----------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------ | ----------------------------------------------------------------------- |
+| 예약 요청 서버    | 저장·조회·취소 + 관리자 목록·상태 변경. 결제 없음, 호텔 자동 전달 없음                                                                                                                                                                                                             | [api/booking-requests](api/booking-requests.md)                                                                                                              | 적용 — 진짜 Postgres 통합 테스트 22개 통과(아래 "예약 요청 API 테스트") |
+| B1                | 코스 경로 **공항 → 호텔 → 장소들 → 호텔(짐 찾기) → 공항**. 데이유즈 블록을 고르면 **호텔 복귀 ≤ 블록 종료**가 코스 제약, 예약 화면 경고(B3)도 이 기준. 코스 사용 시간이 늘어 추천이 더 보수적                                                                                      | [time-fit](formulas/time-fit.md), [결과](results/2026-10-16-hotel-return-route.md)                                                                           | 적용                                                                    |
+| 예약 요청 (B2–B8) | 코스 없이도 요청(근사), 블록 초과·복귀 늦음은 경고 + 확인 체크, 연락처는 이름(영문 허용)·이메일만, 상태 요청됨·확정·거절·만료·취소됨(만료 시간은 호텔 응답 속도로 정함), 거절·만료 시 대안 숙소 제안, 진행 중 요청 1건, 요청됨만 즉시 취소(확정 후는 호텔 문의 + 연락처·규정 표시) | [screens/booking](design/screens/booking.md)                                                                                                                 | 적용(데모)                                                              |
+| 요청 모드         | 가격표 있는 호텔 = 상품 선택 후 요청, 없는 호텔 = **견적 요청**(호텔이 가격·가능 여부 회신). 데모는 데모용 가격표 파일(`src/data/demo-offers.json`, 사용자 입력)                                                                                                                   | [screens/booking](design/screens/booking.md), [dayuse-pricing](formulas/dayuse-pricing.md)                                                                   | 적용(데모)                                                              |
+| 늦은 체크인 슬롯  | 슬롯이 코스의 호텔 도착보다 늦으면 **코스 전체를 그만큼 늦춰** 계산(대기 시간은 사용 시간에 포함)                                                                                                                                                                                  | [time-fit](formulas/time-fit.md), [dayuse-pricing](formulas/dayuse-pricing.md)                                                                               | 적용(데모)                                                              |
+| 호텔 참여 상태    | 확정 / 협의 중 / 미참여. **운영은 확정 호텔만 노출**, 데모는 전부(상태 표시). 기본값 미참여                                                                                                                                                                                        | [screens/booking](design/screens/booking.md)                                                                                                                 | 적용(데모)                                                              |
+| A9                | 데이유즈 가격은 **계산식 추정 금지** — 호텔별 실제 판매 블록·가격표(`DayuseOffer`/`DayuseProduct`)로. 값은 호텔 인터뷰로 입력, 없으면 "가격 확인 중". `TIER_STEP_RATIO` 폐기 예정                                                                                                  | [dayuse-pricing](formulas/dayuse-pricing.md), [data-verification](design/data-verification.md) 수동 입력 구역, [hotel-interview](product/hotel-interview.md) | 문서 확정, 구현은 예약 화면 때                                          |
+| 화면 순서         | 데이유즈 예약 → 마이 → 짐 케어. 첫 예약은 **결제 없이 "예약 요청 → 호텔 확인"**                                                                                                                                                                                                    | [roadmap](product/roadmap.md), [screens/booking](design/screens/booking.md)                                                                                  | 명세 작성, 구현은 사용자 확인 후                                        |
+| 결제·정산         | ADR-0004는 **제안 상태 유지**(A 플랫폼 정산 / B 호텔 직접 결제 + 월 수수료 청구). 호텔 인터뷰·법적 확인 후 결정                                                                                                                                                                    | [ADR-0004](decisions/ADR-0004-payment.md)                                                                                                                    | 결정 전                                                                 |
+| 복귀 알림 방향    | 앱 안 카운트다운·캘린더(.ics) 먼저 → 앱 출시 때 기기 내 예약 알림 → 웹 푸시는 보조. iOS 제약은 WebKit 원문(2023-02-16)으로 확인                                                                                                                                                    | [ADR-0006](decisions/ADR-0006-return-alert.md)                                                                                                               | 방향 확정, ADR은 제안                                                   |
+| 앱 전환 대비      | 모노레포에 `apps/mobile` 자리, 서버 주소 `VITE_API_BASE`(`apiUrl`), 저장소 접근은 `src/lib/storage.ts` 한 곳                                                                                                                                                                       | [roadmap](product/roadmap.md) "앱 전환 대비"                                                                                                                 | 계획                                                                    |
+| 좌표 교체         | 레거시 좌표는 카카오 응답 저장 금지 조항 위반 가능성 → 제휴 업체 제공·직접 측정 등으로 교체(5단계 계획)                                                                                                                                                                            | [external-apis](operations/external-apis.md)                                                                                                                 | 계획                                                                    |
+| 법률 우선순위     | 숙소 사진 사용 허락(허락 없으면 사진 내리고 대체 표시), "외출 가능 ≠ 입국 가능" 안내·면책 문구                                                                                                                                                                                     | [legal-checklist](legal-checklist.md) 0장                                                                                                                    | 확인 전                                                                 |
+| A6                | 코스 계산을 순차 경로(공항→호텔→장소들→공항)로. 구간 캐시, 실패 시 근사 "약 N분". 기존 별 모양은 비교용으로 유지                                                                                                                                                                   | [time-fit](formulas/time-fit.md)                                                                                                                             | 적용(코스 지도)                                                         |
+| 코스 색·선        | 체류 연한 파랑, 코스 화면 카테고리 배지 회색+아이콘·글자, 청록은 임시(역할 토큰 `--ts-role-route`), 선 모양으로 수단 구분                                                                                                                                                          | [design-tokens](design/design-tokens.md)                                                                                                                     | 적용                                                                    |
+| 요약 패널         | 지도 아래 고정                                                                                                                                                                                                                                                                     | [screens/course-map](design/screens/course-map.md)                                                                                                           | 적용                                                                    |
+| ODsay 선택 필드   | `/api/transit`에 `distanceM`·`busTransitCount`·`subwayTransitCount`(있을 때만). 칩은 값이 없으면 시간만                                                                                                                                                                            | [api/environment](api/environment.md)                                                                                                                        | 적용                                                                    |
+| 알림 문구         | 기능 없는 알림 문구 4개 삭제(`timeSafe.pushScheduled`, `course.step.return.sub`, `confirm.alertOn`, `my.menu.timeSafeAlerts`). 복귀 알림 방식은 [ADR-0006](decisions/ADR-0006-return-alert.md)에서 결정                                                                            | [i18n-review](design/i18n-review.md) "삭제한 레거시 키"                                                                                                      | 적용                                                                    |
+| 자동 추천 0곳     | 남은 시간에 들어가는 장소가 없으면 안내 문구(`course.autoBuild.empty`, 미검수)                                                                                                                                                                                                     | [screens/course-map](design/screens/course-map.md)                                                                                                           | 적용                                                                    |
+| 근사값·조회 시점  | 코스 빌더·자동 추천은 **보수적 근사**(직선 × 6분/km, 도보 ×1.3, 미검증)만, 후보 구간 미리 조회 없음. **실제 경로는 코스 확정(저장) 후에만** 조회. ODsay 쿼터·상업 이용은 사용자가 콘솔에서 확인·문의 중                                                                            | [time-fit](formulas/time-fit.md), [external-apis](operations/external-apis.md)                                                                               | 적용                                                                    |
+| 번역 정책         | **공개 전 모든 번역(레거시 185 + 추가·변경 36)을 원어민 검수**. 검수 표 2개 유지                                                                                                                                                                                                   | [i18n-review](design/i18n-review.md), [i18n-review-legacy](design/i18n-review-legacy.md)                                                                     | 진행 전                                                                 |
+| A7                | 자동 추천 설명 "OR-Tools 최적화 · …" → "시간에 맞춰 자동 추천 · 카테고리마다 남은 시간에 들어가는 장소를 1곳씩 담아요"(5개 언어, 미검수). 버퍼 안내 문구는 홈 이식 때 "예상 소요 반영 …"으로 이미 대체                                                                             | [i18n-review](design/i18n-review.md)                                                                                                                         | 적용                                                                    |
+| 탑승동            | 탑승동(P02) 연결편에 T1 출국장 실시간 대기 적용(사용자 결정). 셔틀 버퍼는 미검증·미적용                                                                                                                                                                                            | [time-safe](formulas/time-safe.md)                                                                                                                           | 적용                                                                    |
+| T2                | 출국장 실시간 대기를 T1·T2 모두(`/api/security-wait/t2` 추가), 홈 배지는 터미널 기준 "T1/T2 실시간 확인 · 현재 N분" 또는 "실시간 아님"                                                                                                                                             | [time-safe](formulas/time-safe.md), [api/incheon-congestion](api/incheon-congestion.md)                                                                      | 적용                                                                    |
+| 카카오맵 도메인   | `http://localhost:5173` 등록 완료(사용자, 2026-10-16). 이 주소에서 JS SDK 인증·지도 타일 로드 확인. 개발 서버 포트는 5173 고정(`strictPort`). `127.0.0.1`로는 열지 않는다(Vite가 localhost만 수신)                                                                                 | [api/environment](api/environment.md)                                                                                                                        | 확인                                                                    |
+| ODsay 키          | 서버용 키 + 개발 PC 공인 IP 등록 후 `/api/transit` 정상(2026-10-16: 호텔 오라→원보만두 95분·2,800원, 웨스턴그레이스→원보만두 76분·3,700원). **배포 시 Render 서버 IP도 ODsay에 등록 필요**                                                                                         | [api/environment](api/environment.md)                                                                                                                        | 확인                                                                    |
+| API 형식          | 항공편 시각은 `HHMM`만(날짜 없음) — 2026-10-16 실제 호출로 확인. A2 날짜 경로·24h 경고는 현재 API로는 쓰이지 않음                                                                                                                                                                  | [api/incheon-flights](api/incheon-flights.md)                                                                                                                | 확인                                                                    |
+| A2                | 자정 넘김: 날짜 우선, 없으면 출발 < 도착이면 익일, 24h 초과 경고                                                                                                                                                                                                                   | [time-safe](formulas/time-safe.md)                                                                                                                           | 적용 (날짜 경로는 API 미검증)                                           |
+| A3                | T1 출국 실시간 대기: `max(기준값, 실시간)`                                                                                                                                                                                                                                         | [time-safe](formulas/time-safe.md)                                                                                                                           | 적용                                                                    |
+| A1                | 버퍼 3요소 구조 확정(입국심사 / 출국 보안검색·출국심사 / 게이트 여유), 기본값 50/50/30                                                                                                                                                                                             | [time-safe](formulas/time-safe.md)                                                                                                                           | 적용 — **값은 미검증**                                                  |
+| A5                | 외출 가능 시간 / 코스 가용 시간 용어 분리                                                                                                                                                                                                                                          | [GLOSSARY](GLOSSARY.md)                                                                                                                                      | 적용                                                                    |
+| 요약              | 일정 요약 "사용 X / 가용 Y" = (이동 + 체류 + 준비) / 외출 가능 시간 — (b)                                                                                                                                                                                                          | [GLOSSARY](GLOSSARY.md), [time-fit](formulas/time-fit.md)                                                                                                    | domain 적용(`scheduleSummary`), 화면은 코스 이식 때                     |
+| 외출 불가 CTA     | 외출 불가면 "스마트 코스 추천" 비활성 + 이유 문구(레거시와 다름)                                                                                                                                                                                                                   | [screens/time-safe](design/screens/time-safe.md)                                                                                                             | 적용                                                                    |
+| 버퍼 표기         | 버퍼 구성 줄은 "예상/약"을 붙여 미확정임을 표시                                                                                                                                                                                                                                    | [screens/time-safe](design/screens/time-safe.md)                                                                                                             | 적용                                                                    |
+| i18n              | react-i18next + 언어별 JSON(ko/en/zh/ja/vi), 의미 기반 키, ko→en 폴백, 키 타입 검사                                                                                                                                                                                                | [ADR-0001](decisions/ADR-0001-react-migration.md), [키 대응표](design/i18n-keys.md)                                                                          | 적용 (190개 추출)                                                       |
+
+## 결정 필요
+
+| #                 | 내용                                                                                                                                                                                                                                        | 근거 문서                                                                                                      |
+| ----------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | -------------------------------------------------------------------------------------------------------------- |
+| 운영 ADR          | DB(ADR-0002)·인증(0003)·결제·정산 구조(0004, 제안 — A/B 비교·법적 확인 L1~L7)·환경·배포(0005)·복귀 알림(0006, 방향만 확정) — 모두 초안                                                                                                      | [decisions/](decisions/)                                                                                       |
+| DB 공급자         | ADR-0002를 확정하려면: Render PG vs Supabase 요금·백업, 데이터 **리전**(국외 이전 — legal 2-4), 보관 기간·파기(legal 2-1), dev/staging/prod DB 분리, SSL CA 번들. 구현은 벤더 중립이라 **지금 막혀 있지 않다**                              | [ADR-0002](decisions/ADR-0002-database.md) "결정 전에 할 일"                                                   |
+| 요청 만료 기한    | 자동 만료를 켤 기한 값(호텔 응답 속도 — 인터뷰 2-2·2-6). 지금 `expiresAt`은 항상 null이고 `expired`는 관리자 수기만                                                                                                                         | [screens/booking](design/screens/booking.md) 6번                                                               |
+| 동의 문구 버전    | 서버가 `consentVersion`을 저장한다. legal 확인으로 문구가 확정되면 버전 값을 정해 프런트·문서에 같이 박는다                                                                                                                                 | [legal-checklist](legal-checklist.md) 2-1·7-6                                                                  |
+| 외부 API          | 공공데이터 운영계정 전환, ODsay 쿼터·상업 이용(**사용자 확인 중**), 경로 API 대안(TMAP 등, 미확인), 카카오모빌리티 쿼터·계약, 카카오 응답 저장 금지 준수(레거시 좌표 교체)                                                                  | [operations/external-apis](operations/external-apis.md)                                                        |
+| 법률              | 0장(사진 허락·외출≠입국) 먼저, 나머지 전 항목 확인(결론 없음, 전문가 확인 필요)                                                                                                                                                             | [legal-checklist](legal-checklist.md)                                                                          |
+| 데이터            | 숙소·장소 미검증 값 116개                                                                                                                                                                                                                   | [design/data-verification](design/data-verification.md)                                                        |
+| A1-값             | 버퍼 값 근거. 현재 ① `ARRIVAL_IMMIGRATION_MIN` 50(기획서) / ② `DEPARTURE_SECURITY_MIN` 50(레거시) / ③ `GATE_MARGIN_MIN` 30(레거시) — 전부 미검증. 입국 대기는 분 단위 공개 API 없음(인원 수만 제공)                                         | [time-safe](formulas/time-safe.md), [조사](results/2026-10-16-arrival-wait-data.md)                            |
+| A9-값             | 호텔 10곳의 판매 블록·가격·시작 가능 시각·연장·취소·노쇼 — 인터뷰로 입력                                                                                                                                                                    | [data-verification](design/data-verification.md) 수동 입력 구역, [hotel-interview](product/hotel-interview.md) |
+| 홈 숙소 카드 가격 | 홈 데이유즈 카드가 아직 레거시 추정 가격("₩50,000~")·시간 범위(3–9h)를 표시 — A9(추정 가격 금지)와 어긋남. 가격표 기준으로 바꿀지, 가격 없으면 "견적 요청" 표시로 바꿀지                                                                    | [results](results/2026-10-16-booking-screen.md)                                                                |
+| A13               | 브랜드 컬러: 앱(Blue/Gold) vs 로고 README(Teal/Coral)                                                                                                                                                                                       | [design-tokens](design/design-tokens.md)                                                                       |
+| 수수료            | 수수료 계산 기준·반올림                                                                                                                                                                                                                     | [dayuse-pricing](formulas/dayuse-pricing.md)                                                                   |
+| 탑승동 셔틀 버퍼  | 탑승동(P02, 게이트 101~132) 출발은 T1 출국장 통과 후 셔틀트레인을 탄다. 이 이동·대기에 별도 버퍼가 필요한지 **미검증** — 지금은 추가 버퍼 없음(게이트 여유 30분 안에 흡수된다고 가정, 근거 없음). 근거 후보는 아래 "탑승동 셔틀트레인 근거" | [time-safe](formulas/time-safe.md)                                                                             |
+| 입국 실시간       | 입국장 대기인원 → 분 환산(창구 수·처리량 가정 필요). 근거 확보 전 보류 권장                                                                                                                                                                 | [조사](results/2026-10-16-arrival-wait-data.md)                                                                |
+| 컨벤션 집행 장치  | [conventions.md](conventions.md)를 사람이 안 보고 지나쳐도 걸러내는 장치(ESLint 이름 규칙, Prettier, 오류 코드·i18n 일치 테스트, CI 추가) — 제안만 있고 **설치 전**(2026-10-18, 아래 "컨벤션 불일치" 참고). 설치 여부·범위는 사용자 확인 후 | [conventions.md](conventions.md)                                                                               |
+
+## 컨벤션 불일치 (2026-10-18 조사, [conventions.md](conventions.md) 기준)
+
+`docs/conventions.md`를 쓰기 전부터 있던 코드 중 그 문서와 어긋나는 부분. **지금 당장 고치지 않는다** — 새로 그 코드를 만지는 작업에서 자연스럽게 정리하거나, 아래 각 줄에 적힌 영향이 실제로 문제가 될 때 고친다.
+
+| #   | 어디                                                                                               | 내용                                                                                                                                                                                                                                                                       | 영향                                                                                                                                                                          |
+| --- | -------------------------------------------------------------------------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| 1   | `server/server.js` (레거시 프록시 — `/api/flight/*`, `/api/route`, `/api/places*`, `/api/transit`) | ⚠️ **부분 해소(2026-10-18).** `/api/security-wait`·`/api/security-wait/t2`(출국장 혼잡도)는 `CONGESTION_*` 코드로 옮겼다([api/errors.md](api/errors.md)). **나머지(`/api/flight/*`, `/api/route`, `/api/places*`, `/api/transit`)는 여전히** `{ error: "자유 영어 문장" }` | 지금은 문제 없음(프런트가 이 응답의 `error`를 사람이 읽는 문구로만 쓴다). 다시 만질 일이 생기면 같은 방식으로 도메인 접두사(`FLIGHT_`/`ROUTE_`/`PLACES_`/`TRANSIT_`)로 옮긴다 |
+| 2   | ~~`src/domain/dayuse-pricing.ts`~~                                                                 | ✅ **2026-10-18 해소.** `slotMin`(`productStartsAt`·`defaultProduct`·`blockEndMin`·`bookingCheck`)을 `checkInMin`으로 통일. [GLOSSARY](GLOSSARY.md) "체크인 슬롯"에 기록                                                                                                   | —                                                                                                                                                                             |
+| 3   | ~~`src/domain/time-fit.ts`, `src/data/index.ts`~~                                                  | ✅ **2026-10-18 해소.** `move`→`moveMin`, `dur`→`durMin`(+ 같은 문제였던 `roomMove`→`roomMoveMin`, `rankMove`→`rankMoveMin`도 같이). `legacy-data.json`·추출 스크립트까지 포함. [GLOSSARY](GLOSSARY.md) "이동(분)"·"체류(분)"                                              | —                                                                                                                                                                             |
+| 4   | `src/domain/time-fit.ts`, `dayuse-pricing.ts`                                                      | 불리언을 반환하는데 `is`/`has`/`can` 접두사가 없는 함수: `fitsBudget`, `fitsSequential`, `wouldFit`, `wouldFitSequential`, `productStartsAt`(컨벤션 3장 "참고")                                                                                                            | 낮음 — 영어로 자연스럽게 읽히는 서술형. 새 불리언 함수만 `is`/`has`/`can`을 기본으로 한다                                                                                     |
+| 5   | 전체 커밋 이력(68cf883 이전, 40여 개)                                                              | 접두사 없는 자유 영어 명령형(`Add...`, `Fix...`, `Port...`) — 2026-10-18부터 `feat:`/`fix:`/… 접두사 적용                                                                                                                                                                  | 과거 커밋은 다시 쓰지 않는다. `git log`에서 접두사 있는 커밋과 없는 커밋이 2026-10-18을 기준으로 섞여 보이는 게 정상이다                                                      |
+
+## 운영 배포 금지·예약 요청 운영 기준 (2026-10-16 결정 · 2026-10-18 유지)
+
+**운영(프로덕션) 배포 금지**: 서버가 예약 요청을 **실제로 호텔에 전달하고 회신을 받기 전까지** prod에 배포하지 않는다([ADR-0005](decisions/ADR-0005-environments-deploy.md) "운영 배포 금지 조건").
+
+- 2026-10-18: 서버 저장이 생겼지만 **금지는 그대로다.** 저장·회신 반영(수기)은 되지만 **호텔 자동 전달과 이메일 발송이 없다** — 금지의 핵심 조건이 그것이다.
+- 프런트 요청은 여전히 데모다. 프런트는 아직 메모리 저장소를 쓰고 서버 API로 교체되지 않았다.
+- 요청 버튼은 **데모 표시가 있는 환경**(`VITE_DEMO_MODE=true` 또는 개발 서버)에서만 동작한다. 그 밖의 빌드에서는 비활성이고 "준비 중"으로 표시한다. **서버가 생겼다는 이유로 이 게이트를 열지 않는다.**
+- 관리자 화면은 자격증명이 없으면 503으로 닫힌다(fail-closed). 이 동작을 느슨하게 만들지 않는다.
+
+**예약 요청을 운영에서 켜는 기준(모두 충족)**
+
+| #   | 기준                                                                                                           | 확인 위치                                                                           |
+| --- | -------------------------------------------------------------------------------------------------------------- | ----------------------------------------------------------------------------------- |
+| 1   | 참여 상태 **확정** 호텔이 1곳 이상(몇 곳부터 공개할지는 결정 필요)                                             | data-verification 수동 입력 구역, [hotel-interview](product/hotel-interview.md) 0-6 |
+| 2   | 그 호텔의 요청 접수 방법·응답 기한(만료 시간) 확인                                                             | 인터뷰 0-5·2-6                                                                      |
+| 3   | 그 호텔의 연락처(앱 표시 허락)·확정 후 취소 규정 입력                                                          | 인터뷰 4-5~4-8                                                                      |
+| 4   | 서버가 요청 저장·호텔 전달·회신 반영·이메일 발송 — **저장·회신 반영(수기)만 됨. 호텔 전달·이메일 발송 미구현** | [api/booking-requests](api/booking-requests.md) "미구현 / 의존"                     |
+| 5   | legal 0장(사진·외출≠입국), 개인정보 수집·제3자 제공 동의 문구, 7장(제휴 형태) 확인                             | [legal-checklist](legal-checklist.md)                                               |
+
+**대안 — 정보 보기 모드**(기준 충족 전 운영을 열어야 할 때)
+
+| 안        | 내용                                                                                      | 확인 필요                                     |
+| --------- | ----------------------------------------------------------------------------------------- | --------------------------------------------- |
+| 정보 보기 | Time-Safe·코스 계산은 그대로, 숙소는 "곧 예약 가능"으로 정보만(가격 없음), 요청 버튼 없음 | 미참여 호텔 정보 표시 가능 여부(legal 7-3)    |
+| 외부 연결 | 숙소 카드에서 호텔 공식 사이트·연락처로 연결                                              | 링크·상표 사용(legal 7-2), 연결 대상 정확성   |
+| 숙소 숨김 | 확정 호텔이 없으면 숙소 영역을 숨기고 코스는 공항 기준으로만                              | 코스 계산이 숙소를 전제로 함 — 화면 설계 필요 |
+
+## 탑승동 셔틀트레인 근거 (2026-10-16 조사, 전부 미검증)
+
+| 내용                                                                    | 출처                                                                                                                                                                   | 확인 상태                                                  |
+| ----------------------------------------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ---------------------------------------------------------- |
+| T1 ↔ 탑승동 셔틀트레인 **5분 주기** 운행                                | 인천공항 공식 "탑승동 → 제1 여객터미널" 안내 [airport.kr/ap_ko/933](https://www.airport.kr/ap_ko/933/subview.do)                                                       | 검색 요약으로만 확인 — **원문 미확인**(페이지가 동적 로딩) |
+| T1 → 탑승동 약 5분 소요, 24시간 운행, 탑승 후 터미널로 되돌아갈 수 없음 | 인천공항 영문 출국 안내 [airport.kr/ap_cnt/en/dep/process/deppro.do](https://airport.kr/ap_cnt/en/dep/process/deppro.do)                                               | 검색 요약으로만 확인 — 원문 가져오기 실패                  |
+| 열차 주행 1분30초~1분50초, 05:00~22:30 구간별 2편성                     | [이데일리 "공항24시" 셔틀트레인 기사](https://m.edaily.co.kr/News/Read?newsId=01302166622652264&mediaCodeNo=257)                                                       | 언론, 작성 시점이 오래돼 현재와 다를 수 있음               |
+| 6분 간격 운행                                                           | [위키백과 인천국제공항 셔틀트레인](https://ko.wikipedia.org/wiki/%EC%9D%B8%EC%B2%9C%EA%B5%AD%EC%A0%9C%EA%B3%B5%ED%95%AD_%EC%85%94%ED%8B%80%ED%8A%B8%EB%A0%88%EC%9D%B8) | 비공식, 공식 5분과 다름                                    |
+| 승강장 이동·대기 포함 실제 소요 약 20분                                 | [나무위키 인천국제공항 셔틀트레인](https://namu.wiki/w/%EC%9D%B8%EC%B2%9C%EA%B5%AD%EC%A0%9C%EA%B3%B5%ED%95%AD%20%EC%85%94%ED%8B%80%ED%8A%B8%EB%A0%88%EC%9D%B8)         | 비공식, 측정 근거 없음                                     |
+
+정리: 열차 대기(최대 5~6분) + 주행(약 5분 이내)만 보면 10분 안팎, 승강장까지 걷는 시간을 포함하면 최대 20분이라는 비공식 설명도 있다. 공식 원문 확인 전까지 별도 버퍼는 넣지 않는다.
+
+## 사용자 조치 필요
+
+| #                    | 내용                                                                                                                                                                                               |
+| -------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| 호텔 데이터 입력     | `src/data/hotel-partners.json`의 참여 상태·연락처·취소 규정·가격표(인터뷰 결과), 데모용 `src/data/demo-offers.json`(데모 가격표 — 값은 사용자가 입력)                                              |
+| ODsay 쿼터·상업 이용 | 콘솔 등급·일일 한도, 상업 서비스 이용 가능 여부 확인(그 전까지 빌더는 근사만)                                                                                                                      |
+| 호텔 인터뷰          | 5곳 이상 — [hotel-interview](product/hotel-interview.md) 질문, 답변은 data-verification 수동 입력 구역에                                                                                           |
+| 카카오맵 JS 키       | 레포 루트에 `.env.local`을 만들고 `VITE_KAKAO_JS_KEY=<레거시 지도와 같은 앱의 JavaScript 키>`를 넣는다(`.env.example` 참고, git에 안 올라감). 비어 있으면 코스 화면 지도 자리에 안내 문구만 나온다 |
+| 실제 지도 확인       | 아래 "실제 지도 확인 절차"                                                                                                                                                                         |
+
+## 실제 지도 확인 절차 (코스 지도)
+
+테스트는 모의 지도로만 했다. 실제 카카오맵은 아래 순서로 확인한다.
+
+**준비**
+
+1. `server/.env`가 채워져 있는지 확인(키는 건드리지 않는다).
+2. 레포 루트 `.env.local`에 `VITE_KAKAO_JS_KEY` 입력(위 "사용자 조치 필요").
+3. 터미널 1: `cd server && npm start` (3001) · 터미널 2: `npm run dev` (5173 고정).
+4. 브라우저로 **`http://localhost:5173`**(127.0.0.1 아님) → 온보딩에서 **오늘 실제 운항하는** 도착편·연결편 조회(당일 편만 조회됨) → 스마트 코스 추천 → 코스 탭.
+
+**확인 항목**
+
+| #   | 확인              | 기대                                                                                                                  |
+| --- | ----------------- | --------------------------------------------------------------------------------------------------------------------- |
+| 1   | 지도가 뜨는가     | 안내 문구가 아니라 지도 타일. 실패하면 키 값, 도메인 등록(`http://localhost:5173`), 카카오맵 제품 활성화 순으로 확인  |
+| 2   | 숙소를 고르기 전  | 공항(✈ 남색)과 호텔 10곳(작은 회색 H). 회색 H를 누르면 그 숙소가 선택된다                                             |
+| 3   | 숙소 선택 후      | 선택 호텔은 금색 H + 이름, 공항→호텔 선 + 칩, 호텔→공항 **빨간 긴 파선** + "복귀" 칩                                  |
+| 4   | 장소 2~3곳 추가   | 파랑 번호 핀 1·2·3, 구간이 공항→호텔→1→2→…→공항 순서로 이어짐. 칩 시간 합 = 요약 막대의 "이동 N분"                    |
+| 5   | 선 모양           | 대중교통 굵은 실선, 택시 보통 실선, 도보 가는 점선, 복귀 빨간 긴 파선 — **도보 점선과 복귀 파선이 확실히 구분되는지** |
+| 6   | 색                | 이동 선·칩은 모두 같은 청록(구간마다 색이 바뀌지 않음), 복귀만 빨강                                                   |
+| 7   | 칩                | 수단 아이콘 + 시간(크게) + 거리(작게, 실제 값일 때만). 근사 구간은 "약 N분"                                           |
+| 8   | 구간 선택         | 칩이나 선을 누르면 그 구간만 굵고 진하게, 나머지는 옅게 + 지도 아래 한 줄 정보. 다시 누르면 해제                      |
+| 9   | 확대              | 레벨 6 이하로 확대하면 후보·참고용 회색 점이 보이고, 점을 누르면 장소 상세 시트(참고용은 이름만)                      |
+| 10  | 확대 중 화면 유지 | 장소를 넣고 빼도 확대해 보던 위치로 되돌아가지 않는다(숙소를 바꿀 때만 중심 이동)                                     |
+| 11  | 저장된 코스       | 저장 후 지도에 다른 호텔·후보 점 없이 코스만 보인다                                                                   |
+
+결과는 `docs/results/YYYY-MM-DD-course-map-real.md`에 스크린샷과 함께 남긴다.
+
+## 자료 갱신 필요
+
+| #              | 내용                                                                                                                                                                                                                              |
+| -------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| 앱 화면 이미지 | 지원서·소개 자료의 앱 화면 캡처는 레거시(3시간 1분, 버퍼 구성 줄 없음, 외출 불가여도 CTA 활성) 기준이다. 새 화면(2시간 11분, "예상 소요 반영" 줄, 외출 불가 시 CTA 비활성, 코스 지도 v2)으로 **다시 캡처 필요** — 버퍼 값 확정 후 |
+| 지원서 예시    | 지원서 이미지의 "4h21m − 입국심사 50분 − 게이트 30분 = **3h01m**" 예시가 현재 앱 기본값(50/50/30 → **2h11m**)과 맞지 않는다. 값 확정 후 이미지·문구 갱신 필요. 계산 비교는 [time-safe](formulas/time-safe.md) "합계 비교"         |
+
+## 개선 후보
+
+| #                       | 내용                                                                                                                                                                         |
+| ----------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| 번들 크기               | 메인 JS 605KB(빌드 경고 기준 500KB 초과, 코스 지도 이식 후). 화면 이식이 끝난 뒤 라우트별 지연 로딩(`lazy`)으로 분할                                                         |
+| 로고 이미지             | `logo-mark.png` 405KB(30~40px로 표시) — 레거시와 같은 파일. 작은 PNG/SVG로 교체 검토                                                                                         |
+| 근사 계수 검증          | 보수적 계수(6분/km)는 실측 2건 기준. 확정 후 실제 경로와 근사의 차이를 모아 계수 조정(근사가 실제보다 짧아지는 사례가 없는지)                                                |
+| 구간 상세 시트          | 칩 탭 시 한 줄 정보(수단·시간·거리·환승·요금)만 구현. 노선 단계별 안내 시트는 미구현                                                                                         |
+| 확정 후 취소 요청 상태  | (B8 후보) 확정된 요청을 앱에서 "취소 요청" → 호텔 확인 후 취소됨. 호텔별 확정 후 취소 규정(인터뷰 4-5~4-8)을 확인한 뒤 추가 — 지금은 "호텔에 문의" 안내 + 연락처·규정 표시만 |
+| 짐을 호텔에 맡기지 않음 | (B1 후보) 짐이 없거나 공항에 맡긴 사용자는 호텔 복귀를 생략하는 옵션 — 지금은 만들지 않음(2026-10-16 결정)                                                                   |
+| 짐 찾기·샤워 시간       | 호텔 복귀 후 머무는 시간은 0분으로 계산(기존 "숙소 체류 없음" 유지). 실제 소요를 인터뷰로 확인해 반영 여부 검토                                                              |
+| 진행 방향 화살표        | 레거시의 선 위 화살표·구간 번호 배지는 옮기지 않음(칩으로 대체)                                                                                                              |
+
+## 검증 부족
+
+| #                  | 내용                                                                                                                                   | 계획                                                    |
+| ------------------ | -------------------------------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------- |
+| 실제 카카오맵 화면 | 코스 지도는 모의 지도로만 테스트                                                                                                       | 사용자 확인 — 위 "실제 지도 확인 절차"                  |
+| `/admin` 화면 조작 | 목록·필터·확정/거절/만료/취소 버튼은 **자동 테스트가 API만** 검증한다. 화면에서 버튼이 전이 규칙대로만 보이는지는 사람이 확인해야 한다 | `ADMIN_USER`/`ADMIN_PASSWORD`를 넣고 `/admin` 열어 확인 |
+
+## 예약 요청 API 테스트 (2026-10-18)
+
+**진짜 PostgreSQL**에 붙는 통합 테스트 22개 — `server/booking.test.js`. 모의 DB가 아니다.
+
+| 명령                             | 내용                                                                                                                                        |
+| -------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------- |
+| `cd server && npm test`          | docker compose로 **일회용 Postgres**(포트 5433, tmpfs — 컨테이너를 내리면 데이터 소멸)를 띄우고 전부 실행, 끝나면 자동 정리                 |
+| `cd server && npm run test:nodb` | Docker가 없을 때. DB가 필요 없는 경로만 돌고 통합 테스트는 **건너뛴다**(건너뛴 사실을 출력)                                                 |
+| CI                               | `.github/workflows/ci.yml`의 `server` 잡이 Postgres **서비스 컨테이너**로 매 푸시마다 실행. 건너뛰면 CI가 실패한다(조용히 통과하는 것 방지) |
+
+안전 가드 — 이 테스트는 `booking_requests`를 TRUNCATE하므로 3중으로 막는다:
+
+| 가드                                  | 동작                                                  |
+| ------------------------------------- | ----------------------------------------------------- |
+| `TEST_DATABASE_URL` 없음              | 건너뜀(실행 안 함)                                    |
+| `TEST_DATABASE_URL` == `DATABASE_URL` | **중단** — 실제 DB를 비울 수 있다                     |
+| 호스트가 로컬이 아님                  | **중단** — 일회용이 확실하면 `ALLOW_REMOTE_TEST_DB=1` |
+
+덮는 범위(위 "DB 연결 후 확인할 것" 11개를 자동화한 것):
+마이그레이션 적용·재실행 멱등·B8 인덱스 존재 · 생성(201·`TS-` 8자·필드 보존·`expiresAt` null) · 견적 모드 · 입력 검증 400 6종 · **B8**(같은 이메일 409·대소문자 정규화·동시 요청 4건 중 1건만 성공·본문에 내용 없음) · 조회(맞는/틀린 이메일·없는 번호가 구분 안 됨·`email_required`) · 취소(요청됨만·재시도 409·확정은 불가·남의 이메일 불가·취소 후 재요청 가능) · 전이(confirmed→declined/expired/requested 거부·종료 상태 거부·사유 필수·없는 상태값 400) · 인증(무인증·틀린 비번·틀린 사용자 401, 정상 200, PATCH도 필요, 고객용은 인증 없이 동작, status 필터) · 로그에 이메일·이름·pg `detail` 없음 · **fail-closed**(자격증명 미설정 시 503, 인증을 들고 가도 안 열림, 고객용은 정상)
+
+## 검증 완료
+
+| #                        | 내용                                                                                                                                   | 근거                                                                                                                       |
+| ------------------------ | -------------------------------------------------------------------------------------------------------------------------------------- | -------------------------------------------------------------------------------------------------------------------------- |
+| 코스 계산·자동 추천 이식 | 레거시 화면을 같은 입력(항공편 3종 × 장소 0·1·3·자동 추천)으로 조작한 값 = 옮긴 레거시 함수 값. 새 화면과의 차이는 A1·A6로 모두 설명됨 | [results/2026-10-16-course-map-compare](results/2026-10-16-course-map-compare.md), `time-fit.test.ts` "레거시 화면 관측값" |

@@ -1,0 +1,65 @@
+// 도메인 상수의 유일한 위치. 공식 원본은 docs/formulas/*.md이며, md에서도 같은 이름으로 참조한다.
+// 값이나 이름을 바꿀 때는 md · 이 파일 · 테스트를 한 번에 고친다.
+
+export const MINUTES_PER_DAY = 1440;
+
+/* ---- Time-Safe (docs/formulas/time-safe.md) ---- */
+/** 도착편 미조회 시 데모 도착 시각(10:30) */
+export const DEFAULT_ARRIVE = 10 * 60 + 30;
+/** 연결편 미조회 시 고정 체류 예산(분) */
+export const LAYOVER_BUDGET = 360;
+// 버퍼 3요소 구조는 확정(2026-10-16). 값은 미검증 — 보수적 기본값 50/50/30, 근거 확인 후 갱신(docs/STATUS.md "A1-값").
+/** ① 입국심사(도착 후, 짐 찾기 포함, 분) — 기획서 50분, 미검증 */
+export const ARRIVAL_IMMIGRATION_MIN = 50;
+/** ② 출국 보안검색·출국심사(공항 복귀 후, 분) — 레거시 코드 50분, 미검증. T1·T2 실시간 대기의 하한 */
+export const DEPARTURE_SECURITY_MIN = 50;
+/** ③ 게이트 여유(분) — 레거시 코드 30분("출발 20분 전 탑승 마감 + 여유"), 미검증 */
+export const GATE_MARGIN_MIN = 30;
+/** 외출 가능 시간이 이보다 적으면 외출 불가(분) */
+export const MIN_STAY = 60;
+/**
+ * 출국장 실시간 대기시간을 제공하는 터미널 코드 → 표시 이름. P01 = 제1터미널(statusOfDepartureCongestion),
+ * P02 = 탑승동 — 출국 수속은 T1 출국장에서 하므로 T1 값 적용(2026-10-16 결정). 셔틀트레인 이동·대기용 별도 버퍼는 미검증·미적용(docs/STATUS.md),
+ * P03 = 제2터미널(statusOfDepartureCongestionT2).
+ */
+export const LIVE_SECURITY_TERMINALS: Readonly<Record<string, "T1" | "T2">> = { P01: "T1", P02: "T1", P03: "T2" };
+/** 온보딩 이후 항공편 재조회 주기 */
+export const FLIGHT_POLL_INTERVAL_MS = 120_000;
+
+/* ---- Time-Fit (docs/formulas/time-fit.md) ---- */
+/** 코스 준비(짐 맡기기 등, 분) — 외출 가능 시간에서 빼서 코스 가용 시간을 만든다. 미검증 */
+export const COURSE_PREP_MIN = 20;
+/** 코스 빌더 활동 카테고리(휴식 Rest는 의도적으로 제외) */
+export const ACT_KEYS = ["Food", "Massage", "Shopping", "Beauty", "Sightseeing", "Brand"] as const;
+/** 이보다 가까우면 도보(직선거리 km) */
+export const WALK_MAX_KM = 1.2;
+/** 이보다 멀면 대중교통 우선(직선거리 km) */
+export const TRANSIT_MIN_KM = 6;
+/** 도보 추정 속도(km/h) — 미검증 */
+export const WALK_SPEED_KMH = 4.5;
+/** [레거시] 실측 전 실시간 장소 임시 이동시간(분/km, ≈30km/h) — 미검증. 레거시 비교용 liveEstimateMin에만 쓴다 */
+export const LIVE_PLACE_MIN_PER_KM = 2;
+/**
+ * 코스 빌더 보수적 근사(분/직선 km) — 실제 경로는 코스 확정 후에만 조회한다(2026-10-16 결정).
+ * 실측 2건(자동차 16분/3.16km = 5.1, 대중교통 95분/17.9km = 5.3)보다 길게 잡았다. 미검증
+ */
+export const CONSERVATIVE_MIN_PER_KM = 6;
+/** 도보 근사 우회 계수(직선거리 × 이 값) — 미검증 */
+export const WALK_DETOUR_FACTOR = 1.3;
+
+/* ---- 데이유즈 (docs/formulas/dayuse-pricing.md) ---- */
+/** 1시간 추가 가격 = 기본가 ÷ 기본시간 × 이 비율 — 근거 없음(미검증) */
+export const TIER_STEP_RATIO = 0.5;
+/** 추가 가격 반올림 단위(원) */
+export const TIER_PRICE_ROUND_KRW = 1000;
+/** 체크인 후보 간격(분) */
+export const CHECKIN_SLOT_STEP = 30;
+/** 체크인 후보 개수 */
+export const CHECKIN_SLOT_COUNT = 6;
+/** 데이유즈 플랫폼 수수료율 — 사업 계획(2026), 미검증 */
+export const DAYUSE_COMMISSION_RATE = 0.12;
+/** 액티비티 플랫폼 수수료율 — 사업 계획(2026), 미검증 */
+export const ACTIVITY_COMMISSION_RATE = 0.15;
+/** 제휴 노출 CPC 범위(원/클릭) — 사업 계획(2026), 미검증 */
+export const CPC_MIN_KRW = 200;
+export const CPC_MAX_KRW = 500;

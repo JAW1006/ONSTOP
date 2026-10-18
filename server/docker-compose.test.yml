@@ -1,0 +1,27 @@
+# 통합 테스트용 일회용 PostgreSQL — 모의 DB가 아니라 진짜 Postgres다.
+# 데이터는 볼륨 없이 컨테이너 안에만 둔다(tmpfs) → 컨테이너를 내리면 전부 사라진다.
+#
+#   cd server && npm run test:db
+#
+# 포트 5433을 쓴다 — 로컬에 다른 Postgres(5432)가 있어도 겹치지 않고,
+# 실수로 운영 DB에 붙는 일도 막는다.
+services:
+  postgres-test:
+    image: postgres:16-alpine
+    container_name: timestay-postgres-test
+    environment:
+      POSTGRES_USER: timestay
+      POSTGRES_PASSWORD: timestay-test-only
+      POSTGRES_DB: timestay_test
+    ports:
+      - "5433:5432"
+    # 디스크에 쓰지 않는다 — 테스트 데이터가 남지 않고 더 빠르다.
+    tmpfs:
+      - /var/lib/postgresql/data
+    command: >
+      postgres -c fsync=off -c synchronous_commit=off -c full_page_writes=off
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U timestay -d timestay_test"]
+      interval: 1s
+      timeout: 3s
+      retries: 30

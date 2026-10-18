@@ -1,0 +1,162 @@
+@import "tailwindcss";
+@import "tw-animate-css";
+@import "./tokens.css";
+
+/*
+ * v2 폰트 — design-tokens.md 2절("원격 import 금지"), @fontsource로 번들.
+ * 가변 폰트(@fontsource-variable)를 쓴다 — 고정 가중치별 @fontsource보다 용량이 훨씬 작다
+ * (2026-10-18 실측, npm run build 결과: 고정 가중치 400/600/700 3종 = 2,130개 파일/52MB →
+ * 가변 1종 = 357개 파일/14MB, docs/STATUS.md 참고). 쓰는 가중치가 늘어나도 파일이 늘지 않는다.
+ */
+@import "@fontsource-variable/space-grotesk/wght.css";
+@import "@fontsource-variable/noto-sans/wght.css";
+@import "@fontsource-variable/noto-sans-kr/wght.css";
+@import "@fontsource-variable/noto-sans-sc/wght.css";
+@import "@fontsource-variable/noto-sans-jp/wght.css";
+
+/* tokens.css 변수를 Tailwind 유틸리티(bg-primary, text-ink, rounded-xl …)로 노출 */
+@theme inline {
+  --font-sans: var(--ts-font-sans);
+
+  /* 타이포 스케일 — design-tokens.md "타이포그래피" (레거시 17종 → 8단계) */
+  --text-micro: 10px;
+  --text-caption: 11px;
+  --text-body: 12.5px;
+  --text-emph: 14px;
+  --text-section: 16px;
+  --text-title: 22px;
+  --text-display: 28px;
+  --text-display-lg: 36px;
+
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --color-card: var(--card);
+  --color-card-foreground: var(--card-foreground);
+  --color-popover: var(--popover);
+  --color-popover-foreground: var(--popover-foreground);
+  --color-primary: var(--primary);
+  --color-primary-foreground: var(--primary-foreground);
+  --color-secondary: var(--secondary);
+  --color-secondary-foreground: var(--secondary-foreground);
+  --color-muted: var(--muted);
+  --color-muted-foreground: var(--muted-foreground);
+  --color-accent: var(--accent);
+  --color-accent-foreground: var(--accent-foreground);
+  --color-destructive: var(--destructive);
+  --color-border: var(--border);
+  --color-input: var(--input);
+  --color-ring: var(--ring);
+
+  --color-blue: var(--ts-blue);
+  --color-blue-deep: var(--ts-blue-deep);
+  --color-ink: var(--ts-ink);
+  --color-gold: var(--ts-gold);
+  --color-gold-deep: var(--ts-gold-deep);
+  --color-red: var(--ts-red);
+  --color-lime: var(--ts-lime);
+  --color-tint: var(--ts-tint);
+  --color-sub: var(--ts-sub);
+  --color-faint: var(--ts-faint);
+  --color-line: var(--ts-line);
+  --color-backdrop: var(--ts-backdrop);
+  --color-success: var(--ts-success);
+  --color-success-bg: var(--ts-success-bg);
+  --color-danger-bg: var(--ts-danger-bg);
+  --color-disabled: var(--ts-disabled);
+  --color-ad-bg: var(--ts-ad-bg);
+  --color-ad-border: var(--ts-ad-border);
+  --color-role-place: var(--ts-role-place);
+  --color-role-base: var(--ts-role-base);
+  --color-role-route: var(--ts-role-route);
+  --color-role-route-text: var(--ts-role-route-text);
+  --color-role-return: var(--ts-role-return);
+  --color-role-prep: var(--ts-role-prep);
+  --color-role-stay: var(--ts-role-stay);
+  --color-role-spare: var(--ts-role-spare);
+  --color-role-candidate: var(--ts-role-candidate);
+  --color-role-airport: var(--ts-role-airport);
+  --color-on-dark: var(--ts-on-dark);
+  --color-on-dark-sub: var(--ts-on-dark-sub);
+  --color-on-dark-muted: var(--ts-on-dark-muted);
+  --color-on-dark-danger: var(--ts-on-dark-danger);
+  --color-on-dark-danger-sub: var(--ts-on-dark-danger-sub);
+  --color-on-dark-danger-bg: var(--ts-on-dark-danger-bg);
+
+  --radius-sm: var(--ts-radius-sm);
+  --radius-md: var(--ts-radius-md);
+  --radius-lg: var(--ts-radius-lg);
+  --radius-xl: var(--ts-radius-xl);
+  --radius-2xl: var(--ts-radius-sheet);
+  --radius-3xl: var(--ts-radius-hero);
+  --radius-panel: var(--ts-radius-panel);
+
+  --shadow-card: var(--ts-shadow-card);
+  --shadow-primary: var(--ts-shadow-primary);
+  --shadow-fab: var(--ts-shadow-fab);
+
+  /* ---- v2 (디자인 이식, 단계 1) — src/components/ui/v2/*만 쓴다. 기존 화면은 위 색을 그대로 쓴다 ---- */
+  --font-v2-sans: "Noto Sans", "Noto Sans KR", "Noto Sans SC", "Noto Sans JP", sans-serif;
+  --font-v2-display: "Space Grotesk", "Noto Sans KR", sans-serif;
+
+  --color-v2-brand: var(--ts-v2-brand);
+  --color-v2-brand-dark: var(--ts-v2-brand-dark);
+  --color-v2-brand-soft: var(--ts-v2-brand-soft);
+  --color-v2-success: var(--ts-v2-success);
+  --color-v2-success-soft: var(--ts-v2-success-soft);
+  --color-v2-success-ink: var(--ts-v2-success-ink);
+  --color-v2-travel: var(--ts-v2-travel);
+  --color-v2-travel-ink: var(--ts-v2-travel-ink);
+  --color-v2-prep: var(--ts-v2-prep);
+  --color-v2-stay: var(--ts-v2-stay);
+  --color-v2-margin: var(--ts-v2-margin);
+  --color-v2-track: var(--ts-v2-track);
+  --color-v2-gold: var(--ts-v2-gold);
+  --color-v2-gold-soft: var(--ts-v2-gold-soft);
+  --color-v2-gold-ink: var(--ts-v2-gold-ink);
+  --color-v2-danger: var(--ts-v2-danger);
+  --color-v2-danger-soft: var(--ts-v2-danger-soft);
+  --color-v2-danger-ink: var(--ts-v2-danger-ink);
+  --color-v2-ink: var(--ts-v2-ink);
+  --color-v2-ink-soft: var(--ts-v2-ink-soft);
+  --color-v2-line: var(--ts-v2-line);
+  --color-v2-pale: var(--ts-v2-pale);
+  --color-v2-paper: var(--ts-v2-paper);
+  --color-v2-canvas: var(--ts-v2-canvas);
+}
+
+@layer base {
+  * {
+    @apply border-border;
+  }
+  html,
+  body {
+    margin: 0;
+    background: var(--ts-backdrop);
+    color: var(--foreground);
+    font-family: var(--ts-font-sans);
+  }
+
+  /*
+   * v2 디자인 이식 범위 — .ts-v2-root 아래에서만 적용한다(기존 화면은 위 --ts-font-sans를 그대로 쓴다).
+   * design-tokens.md 2절·3절: 언어별 폰트는 :lang(), 시스템 영역은 safe-area-inset만, 높이는 100dvh.
+   */
+  .ts-v2-root {
+    min-height: 100dvh;
+    font-family: var(--font-v2-sans);
+    color: var(--color-v2-ink);
+    background: var(--color-v2-canvas);
+  }
+  .ts-v2-root:lang(ko) {
+    font-family: "Noto Sans KR", var(--font-v2-sans);
+  }
+  .ts-v2-root:lang(zh-CN) {
+    font-family: "Noto Sans SC", var(--font-v2-sans);
+  }
+  .ts-v2-root:lang(ja) {
+    font-family: "Noto Sans JP", var(--font-v2-sans);
+  }
+  .ts-v2-root:lang(vi),
+  .ts-v2-root:lang(en) {
+    font-family: var(--font-v2-sans);
+  }
+}

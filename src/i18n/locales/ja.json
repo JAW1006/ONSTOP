@@ -1,0 +1,487 @@
+{
+  "booking": {
+    "active": "進行中のリクエストがあります。リクエストは一度に1件までです。",
+    "activeLink": "予約を見る",
+    "browseStays": "宿泊先を見る",
+    "checkoutPastReturn": "チェックアウトが復帰推奨時刻({{time}})より後です。実際にはその前に出る必要があります。",
+    "chooseCheckIn": "チェックイン時刻を選択",
+    "chooseTimeBlock": "タイムブロックを選択",
+    "consent": {
+      "privacy": "氏名・メールアドレスの収集・利用に同意します（リクエストの送信と返信のみに使用）",
+      "terms": "時間の計算は参考値であり、搭乗の責任は自分にあることに同意します",
+      "thirdParty": "このリクエストのため氏名・メールアドレスを宿泊先に提供することに同意します",
+      "title": "同意事項"
+    },
+    "contact": {
+      "email": "メールアドレス",
+      "emailConfirm": "メールアドレス（確認）",
+      "error": {
+        "email": "メールアドレスの形式をご確認ください",
+        "emailMismatch": "メールアドレスが一致しません",
+        "name": "お名前を入力してください"
+      },
+      "minimal": "リクエストに必要なのはお名前とメールアドレスだけです",
+      "name": "お名前（ローマ字可）",
+      "nameHint": "パスポートと同じローマ字表記をおすすめします",
+      "title": "連絡先"
+    },
+    "earliestCheckIn": "宿泊先までの移動時間を考慮すると{{time}}以降にチェックイン可能",
+    "empty": "まだ予約履歴がありません",
+    "entryNotice": "入国できるかどうか（国籍・ビザ・乗継条件）は{{appName}}では確認していません。空港を出る前に公式案内でご確認ください。",
+    "entryNoticeLink": "HiKorea入国案内",
+    "entryNoticeShort": "入国条件は先に公式案内でご確認ください。",
+    "fromAirportApprox": "空港から約{{n}}分",
+    "includes": "シャワー・休憩・荷物預かり込み",
+    "makeCourse": "コースを作る",
+    "notFound": "宿泊先が見つかりません",
+    "participation": {
+      "negotiating": "提携協議中",
+      "none": "未提携"
+    },
+    "payment": {
+      "methods": "簡単決済・Alipay・WeChat Pay・カード",
+      "pay": "支払う",
+      "title": "お支払い内容",
+      "total": "合計金額"
+    },
+    "plan": {
+      "count": "コースビルダーで追加した{{n}}件のアクティビティ",
+      "title": "予定に含まれるスケジュール"
+    },
+    "product": {
+      "noneStartable": "この時刻に開始できるプランはありません。別の時刻を選んでください。",
+      "startWindow": "{{from}}–{{to}}開始のみ",
+      "vatExcluded": "税別",
+      "vatIncluded": "税込"
+    },
+    "quote": {
+      "noTime": "この時刻からは宿泊先を利用する時間が残りません。早い時刻か空港に近い宿泊先を選んでください。",
+      "note": "料金と利用可否はホテルからご連絡します",
+      "title": "デイユース見積もりリクエスト",
+      "window": "希望利用時間 {{from}} – {{to}}（宿泊先の出発期限まで）"
+    },
+    "request": {
+      "title": "デイユース予約リクエスト"
+    },
+    "submit": {
+      "notReady": "予約リクエストはまだ準備中です",
+      "note": "ホテルから返答があればメールでお知らせします",
+      "noteTypical": "ホテルから返答があればメールでお知らせします · 通常{{n}}分以内",
+      "product": "予約リクエストを送る",
+      "quote": "見積もりリクエストを送る"
+    },
+    "subtitle": "タイムブロックを予約",
+    "summary": {
+      "block": "{{h}}時間 · {{from}}–{{to}}",
+      "policy": "キャンセル・ノーショー・延長の規定",
+      "policyPending": "ホテル確認後にご案内",
+      "price": "予定金額",
+      "priceNote": "お支払いはホテル確認後にご案内します",
+      "quote": "見積もり待ち",
+      "title": "リクエスト内容"
+    },
+    "timing": {
+      "ack": "予定を減らすか、ホテルと調整します",
+      "airport": "空港到着予定",
+      "checkIn": "チェックイン",
+      "end": "利用終了",
+      "hotelReturn": "宿泊先に戻る（荷物）",
+      "late": "空港到着予定{{time}}は目標{{target}}より{{min}}分遅れます。スポットを減らすか早い時刻を選んでください。",
+      "noCourse": "コースを作ると宿泊先に戻る時刻まで確認できます",
+      "title": "時間の確認",
+      "wait": "チェックインまで{{n}}分待ちます — コース全体がその分遅れます"
+    },
+    "title": "デイユース予約"
+  },
+  "bookings": {
+    "alt": {
+      "courseHint": "宿泊先を変える場合は、新しい宿泊先でコースを作り直してください",
+      "price": "料金を見る",
+      "quote": "見積もりを依頼",
+      "title": "ほかの宿泊先"
+    },
+    "cancel": "リクエストを取り消す",
+    "cancelConfirm": {
+      "body": "ホテル確認前のため、すぐに取り消されます。",
+      "title": "このリクエストを取り消しますか？",
+      "yes": "取り消す"
+    },
+    "confirmed": {
+      "cancelHint": "キャンセルはホテルにお問い合わせください",
+      "note": "ホテルが確認しました"
+    },
+    "contact": "ホテル連絡先",
+    "contactPending": "連絡先確認中",
+    "declined": {
+      "note": "ホテルはこのリクエストをお受けできません",
+      "reason": "理由：{{reason}}"
+    },
+    "expired": {
+      "note": "回答期限が過ぎました"
+    },
+    "mode": {
+      "product": "予約リクエスト",
+      "quote": "見積もりリクエスト"
+    },
+    "policy": "キャンセル規定",
+    "policyPending": "規定確認中",
+    "requestId": "リクエスト番号 {{id}}",
+    "requested": {
+      "note": "ホテル確認中"
+    },
+    "status": {
+      "cancelled": "キャンセル済み",
+      "confirmed": "確定",
+      "declined": "お断り",
+      "expired": "期限切れ",
+      "requested": "リクエスト済み"
+    },
+    "title": "予約一覧"
+  },
+  "brand": {
+    "tagline": {
+      "line1": "荷物は預けて、",
+      "line2": "乗継時間はインチョンで"
+    },
+    "subtitle": ""
+  },
+  "category": {
+    "beauty": "ビューティー",
+    "brand": "ブランド",
+    "food": "グルメ",
+    "massage": "マッサージ",
+    "rest": "休憩",
+    "shopping": "ショッピング",
+    "sightseeing": "観光"
+  },
+  "common": {
+    "back": "戻る",
+    "backToHome": "ホームへ",
+    "badge": {
+      "demo": "デモ",
+      "live": "リアルタイム",
+      "partnerAd": "提携 広告",
+      "topPick": "おすすめ"
+    },
+    "comingSoon": "準備中",
+    "dismiss": "閉じる",
+    "more": "もっと見る",
+    "next": "次へ",
+    "remove": "削除",
+    "showMoreCount": "もっと見る(あと{{n}}件)"
+  },
+  "confirm": {
+    "bookingNumber": "予約番号",
+    "complete": "予約完了",
+    "included": "含む",
+    "includedValue": "シャワー・休憩・荷物預かり",
+    "returnAt": "復帰 {{time}}",
+    "stay": "宿泊先",
+    "subtitle": "マイ予約",
+    "title": "予約確認"
+  },
+  "course": {
+    "autoBuild": {
+      "cta": "Time-Fit 自動コース作成",
+      "empty": "残り時間に収まるスポットがありません。カテゴリを変えるか、空港に近い宿泊先を選んでみてください。",
+      "note": "時間に合わせて自動おすすめ・カテゴリごとに残り時間に収まるスポットを1件ずつ追加"
+    },
+    "bookThisStay": "この宿泊先を予約する →",
+    "budget": {
+      "arriveReturn": "到着 {{arrive}} · 復帰推奨 {{return}}",
+      "hours": "乗継の余裕 {{h}}時間",
+      "over": "{{min}}分オーバー",
+      "spare": "余裕{{min}}分"
+    },
+    "category": {
+      "note": "(複数選択可)",
+      "title": "② アクティビティカテゴリを追加"
+    },
+    "header": {
+      "terminal": "仁川 {{terminal}}",
+      "title": "マイコース"
+    },
+    "leg": {
+      "approxMinutes": "約{{n}}分",
+      "hotelReturn": "宿泊先へ",
+      "km": "{{km}}km",
+      "minutes": "{{n}}分",
+      "mode": {
+        "taxi": "タクシー",
+        "transit": "公共交通",
+        "walk": "徒歩"
+      },
+      "return": "復帰",
+      "transfers": "乗り換え{{n}}回"
+    },
+    "map": {
+      "allPlacesNote": "地図を拡大すると宿泊先周辺の実際の飲食店・カフェ・コンビニ・マート・観光名所・ビューティー(オリーブヤングなど)が小さな点で表示されます・点をタップすると情報が表示され、そこで予定に追加/削除できます・すでに予定に入っている場所は番号付きの大きなピンで表示・拡大時、病院・薬局は参考用の点のみ表示(予定には追加されません)",
+      "legend": "線の形 = 移動手段：太い実線 公共交通・実線 タクシー・点線 徒歩・赤い長い破線 空港への復帰。「約」= 実際の経路を取得できず概算した値",
+      "pickRoomNote": "地図に提携デイユース宿泊先が全てピンで表示されます・ピンをタップするとその宿泊先が選択されます",
+      "referenceOnly": "参考用・予定には追加できません",
+      "routeLegend": "線上の番号と色は訪問順(ピン番号と対応)・線の種類は移動手段: ●●● 車・┄┄ 徒歩・⋯⋯ 公共交通",
+      "unavailable": "地図を読み込めません。このドメインがKakao Developersに登録されているか確認してください。"
+    },
+    "places": {
+      "add": "予定に追加",
+      "chooseCategory": "カテゴリを選択してください",
+      "chooseRoomFirst": "先に宿泊先を選択してください",
+      "combined": "{{list}} を組み合わせ",
+      "fits": "乗継時間内で可能",
+      "roomFirstHint": "① デイユース宿泊先を先に選ぶと、アクティビティを追加できます。",
+      "tight": "時間がタイト",
+      "title": "アクティビティスポット"
+    },
+    "room": {
+      "required": "(必須・コースの拠点)",
+      "title": "① デイユース宿泊先を選択"
+    },
+    "route": {
+      "estimateNote": "作成中は余裕を持って見積もった移動時間（約N分）で計算します。保存すると実際の経路で確認します。",
+      "live": "実際の移動時間(徒歩・公共交通・車)を反映中",
+      "loading": "実際の移動時間を照会中…"
+    },
+    "save": "コースを保存",
+    "schedule": {
+      "emptyHint": "宿泊先を選ぶとスケジュールが作成されます",
+      "overWarning": "乗継時間を{{min}}分超過しています。スポットを減らすか、短いコースに変更してください。",
+      "pickRoom": {
+        "bold": "拠点",
+        "prefix": "デイユース宿泊先を",
+        "suffix": "として先に選んでください。"
+      },
+      "summary": "{{n}}件のアクティビティ · 合計{{h}}時間{{m}}分",
+      "title": "マイ乗継スケジュール"
+    },
+    "step": {
+      "arrive": {
+        "sub": "手荷物ケア受付",
+        "title": "空港到着・荷物を預ける"
+      },
+      "checkIn": {
+        "sub": "デイユース拠点・荷物預かり・シャワー利用可(移動{{move}}分)",
+        "title": "{{room}} にチェックイン"
+      },
+      "hotelReturn": {
+        "sub": "移動{{move}}分 · デイユース終了までに戻ってください",
+        "title": "{{room}}に戻る · 荷物受け取り"
+      },
+      "place": {
+        "sub": "{{area}}・滞在{{dur}}分(移動{{move}}分)",
+        "subNoStay": "{{area}}(移動{{move}}分)"
+      },
+      "return": {
+        "target": "到着目標 {{time}}",
+        "title": "空港へ復帰"
+      }
+    },
+    "subtitle": "カテゴリ → スポット選択 → 予定自動生成",
+    "summary": {
+      "available": "/ 利用可能 {{time}}",
+      "blockOver": "宿泊先に戻るのは{{time}}の予定で、デイユース終了（{{end}}）より{{min}}分遅れます。スポットを減らすか、より長い時間を選んでください。",
+      "expectedReturn": "空港到着の予想",
+      "lastDeparture": "最後のスポットを出発",
+      "lastDepartureHotel": "宿泊先を出発",
+      "lateThan": "{{time}}（目標 {{target}} より遅い）",
+      "noRoom": "宿泊先を選ぶと移動時間が計算されます",
+      "overWarning": "このままでは飛行機に間に合わない可能性があります。スポットを減らすか滞在時間を短くしてください。",
+      "returnTarget": "空港到着の目標",
+      "segment": {
+        "over": "超過 {{n}}分",
+        "prep": "準備 {{n}}分",
+        "spare": "余裕 {{n}}分",
+        "stay": "滞在 {{n}}分",
+        "travel": "移動 {{n}}分",
+        "wait": "チェックイン待ち{{n}}分"
+      },
+      "until": "{{time}}まで",
+      "used": "使用 {{time}}"
+    },
+    "title": "乗継コースを作る"
+  },
+  "dayuse": {
+    "feature": {
+      "luggage": "荷物預かり",
+      "rest": "休憩",
+      "shower": "シャワー"
+    },
+    "perBlock": "/ブロック",
+    "timeBlock": "タイムブロック"
+  },
+  "demo": {
+    "banner": "デモ — リクエストはホテルに送信されません"
+  },
+  "flight": {
+    "arrivalLine": "{{airline}} {{flightId}}・到着予想 {{time}}",
+    "change": "他のフライトを入力",
+    "delayed": "{{n}}分遅延",
+    "departs": "出発",
+    "departureLine": "{{airline}} {{flightId}}・出発予定 {{time}}",
+    "error": {
+      "noArrivalTime": "到着時刻の情報がありません",
+      "noDepartureTime": "出発時刻の情報がありません",
+      "notFound": "一致する便が見つかりません"
+    },
+    "from": "出発地",
+    "gate": "ゲート",
+    "notice": {
+      "arrivalChanged": "到着時刻が変更されました・{{old}} → {{new}}",
+      "returnByChanged": "乗継便の時刻が変更されました・復帰推奨 {{old}} → {{new}}"
+    },
+    "onTime": "定刻",
+    "refresh": "フライトを再照会",
+    "status": "状況",
+    "terminal": "ターミナル",
+    "to": "行き先"
+  },
+  "home": {
+    "dayuse": {
+      "subtitle": "3–9時間の柔軟予約・シャワー/休憩",
+      "title": "デイユース・タイムブロック予約"
+    },
+    "greeting": "こんにちは、トラベラーさん!👋",
+    "hotPlaces": {
+      "subtitle": "提携スポットまとめ",
+      "title": "ホットプレイス"
+    },
+    "luggageBanner": {
+      "subtitle": "空港保管・ホテル/商業エリア配送 → 身軽に移動",
+      "title": "手荷物ケア(Luggage-Free)"
+    },
+    "subtitle": "自由時間にぴったりの仁川コースをご用意しました。",
+    "timeFit": {
+      "build": {
+        "bold": "自分だけの乗継コース",
+        "cta": "作成",
+        "prefix": "カテゴリを選んで",
+        "suffix": "を作ってみましょう"
+      },
+      "subtitle": "興味に合わせて選ぶと乗継予定を自動生成",
+      "title": "Time-Fit おすすめコース"
+    }
+  },
+  "luggage": {
+    "banner": {
+      "bold": "身軽に",
+      "prefix": "重いスーツケースは預けて",
+      "suffix": "移動しましょう。フライトの復帰時間に合わせて荷物を空港へお戻しします。"
+    },
+    "option": {
+      "inAirport": {
+        "description": "T1・T2スマートロッカーで即時保管",
+        "title": "空港内保管"
+      },
+      "toDistrict": {
+        "description": "永宗島・チャイナタウン拠点で受取",
+        "title": "商業エリアへ配送"
+      },
+      "toHotel": {
+        "description": "デイユース宿泊先へ荷物ピックアップ・配送",
+        "title": "ホテルへ配送"
+      }
+    },
+    "subtitle": "Luggage-Free",
+    "title": "手荷物ケア"
+  },
+  "my": {
+    "bookingCount": "予約{{n}}件",
+    "greeting": "こんにちは、トラベラーさん!",
+    "menu": {
+      "bookingHistory": "予約履歴",
+      "coupons": "クーポン",
+      "language": "言語設定",
+      "passport": "パスポート認証"
+    },
+    "subtitle": "マイページ",
+    "title": "マイページ"
+  },
+  "nav": {
+    "booking": "予約",
+    "course": "コース",
+    "home": "ホーム",
+    "luggage": "荷物ケア",
+    "my": "マイ"
+  },
+  "onboarding": {
+    "flights": {
+      "arrivalLabel": "今乗ってきた到着便",
+      "arrivalPlaceholder": "例: KE085",
+      "cannotGoOutHint": "外出できる時間がないため、コースをおすすめできません。空港内でお待ちください。",
+      "connectionLabel": "次の乗継便",
+      "connectionPlaceholder": "例: MU2043",
+      "cta": "スマートコースをおすすめ",
+      "lookingUp": "照会中…",
+      "lookup": "リアルタイム照会",
+      "needBothHint": "到着便と乗継便を両方リアルタイム照会すると次に進めます。",
+      "note": "Time-Safeが自由時間を自動計算",
+      "retryHint": "便名をご確認の上、再度照会してください。",
+      "title": "乗継便を入力してください"
+    },
+    "interests": {
+      "note": "複数選択可・Time-Fitのおすすめに使用",
+      "title": "興味のあるアクティビティを選んでください"
+    },
+    "language": {
+      "title": "言語を選択してください"
+    }
+  },
+  "savedCourse": {
+    "edit": "編集",
+    "empty": "まだ保存されたコースがありません",
+    "subtitle": "保存済みコース",
+    "title": "保存済みコース"
+  },
+  "timeSafe": {
+    "arrive": "到着",
+    "bufferBreakdown": "予想所要時間を反映：入国審査 約{{immigration}}分・保安検査・出国審査 約{{security}}分・ゲート余裕 約{{gate}}分",
+    "bufferNote": "保安検査{{sec}}分+搭乗締切{{gate}}分=合計{{total}}分のバッファを反映(宿泊先→空港の移動時間は今は含みません)",
+    "cannotGoOut": {
+      "description": "保安検査と搭乗締切の時間を引くと、外出して戻ってくる余裕がありません。空港内でお待ちください。",
+      "title": "外出不可"
+    },
+    "heading": "TIME-SAFE 計算結果",
+    "liveDepartureApplied": "出発便のリアルタイム反映",
+    "liveSecurityWait": "出国場のリアルタイム待ち時間を反映(T1)",
+    "needArrival": "到着便を照会すると、ここに乗継時間が表示されます。",
+    "needConnection": "乗継便を照会すると乗継時間が計算されます。",
+    "outingAvailable": "空港外で滞在可能",
+    "outingAvailableShort": "実際に滞在可能(バッファ除く)",
+    "returnBy": "復帰推奨",
+    "returnRecommended": "空港復帰推奨",
+    "security": {
+      "live": "出国場リアルタイム確認（{{terminal}}）・現在 約{{n}}分",
+      "notLive": "出国場のリアルタイム情報なし・予想値を使用"
+    },
+    "totalConnection": "到着〜出発の総乗継時間 {{dur}}",
+    "warning": {
+      "departBeforeArrival": "乗継便の出発が到着より早くなっています。フライトをご確認ください。",
+      "over24h": "到着から出発まで24時間を超えています。フライトの日付をご確認ください。"
+    }
+  },
+  "unit": {
+    "hourRange": "{{a}}–{{b}}時間",
+    "hours": "{{h}}時間",
+    "hoursMinutes": "{{h}}時間{{m}}分",
+    "minFromAirport": "空港から{{n}}分",
+    "minutes": "{{n}}分",
+    "nextDay": "翌日",
+    "stayMin": "滞在{{n}}分",
+    "transferMin": "移動{{n}}分"
+  },
+  "timeBar": {
+    "legend": {
+      "prep": "準備",
+      "travel": "移動",
+      "stay": "滞在",
+      "margin": "余裕"
+    },
+    "source": {
+      "baseline": "安全基準"
+    },
+    "ariaLabel": "時間構成: {{segments}}、合計{{total}}分"
+  },
+  "transitTimeBar": {
+    "ariaLabel": "乗り継ぎ総時間{{total}}分: {{breakdown}}",
+    "nestedCourse": "外出可能時間内のコース"
+  }
+}

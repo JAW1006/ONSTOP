@@ -1,0 +1,163 @@
+/*
+ * TimeStay 디자인 토큰 — 단일 출처: docs/design/design-tokens.md
+ * 값을 바꾸면 md 표도 같이 고친다. 레거시(app/index.html의 C 팔레트·인라인 스타일)에서 추출한 값.
+ *
+ * 1층: --ts-*  브랜드 원시 토큰 (레거시 이름 그대로)
+ * 2층: shadcn/ui 시맨틱 토큰 (--background, --primary …) → 1층을 참조
+ */
+:root {
+  /* ---- color: brand ---- */
+  --ts-blue: #2f7be6;
+  --ts-blue-deep: #164fae;
+  --ts-ink: #153a52;
+  --ts-gold: #f2b134;
+  --ts-gold-deep: #d9971a;
+  --ts-red: #e23b3b;
+  --ts-lime: #8dbe36;
+
+  /* ---- color: surface / text ---- */
+  --ts-bg: #f1f5fa;
+  --ts-card: #ffffff;
+  --ts-tint: #eaf1fb;
+  --ts-sub: #5e7185;
+  --ts-faint: #a9b4c4;
+  --ts-line: #e3eaf3;
+  --ts-white: #ffffff;
+  --ts-backdrop: #e6ecf6; /* 데스크톱에서 폰 프레임 바깥 */
+
+  /* ---- color: status ---- */
+  --ts-success: #2e9e5b;
+  --ts-success-bg: #e7f7ee;
+  --ts-danger-bg: #fdecea;
+  --ts-disabled: #c4d2e4;
+  --ts-ad-bg: #fff3dc;
+  --ts-ad-border: #f5d089;
+  --ts-overlay: rgb(16 24 38 / 0.45);
+
+  /* ---- color: ink(어두운) 배경 위 글자 — Time-Safe 결과 카드, 항공편 배너 ---- */
+  --ts-on-dark: #cfe0f5;
+  --ts-on-dark-sub: #bfd3f0;
+  --ts-on-dark-muted: #9fb6d4;
+  --ts-on-dark-danger: #ff8a8a;
+  --ts-on-dark-danger-sub: #f0c7c7;
+  --ts-on-dark-danger-bg: rgb(226 59 59 / 0.16);
+
+  /* ---- color: category (CAT_META) ---- */
+  --ts-cat-food: var(--ts-gold);
+  --ts-cat-massage: var(--ts-lime);
+  --ts-cat-shopping: var(--ts-blue);
+  --ts-cat-rest: var(--ts-ink);
+  --ts-cat-beauty: var(--ts-red);
+  --ts-cat-sightseeing: var(--ts-lime);
+  --ts-cat-brand: var(--ts-gold-deep);
+
+  /* ---- color: 역할(코스 지도) — 색은 역할 하나에만 쓴다. 이름은 색이 아니라 역할. design-tokens.md "색 역할 규칙" ---- */
+  --ts-role-place: var(--ts-blue); /* 내가 고른 장소 핀(번호) */
+  --ts-role-base: var(--ts-gold-deep); /* 호텔(거점) 핀 */
+  --ts-role-route: #0e8c84; /* 이동: 가는 길 선·막대 이동 구간 — 임시(로고 색 A13 미정) */
+  --ts-role-route-text: #0b7a73; /* 이동 칩 글자(흰 배경 대비 4.5:1 이상) — 임시 */
+  --ts-role-return: var(--ts-red); /* 복귀 구간·초과·경고 */
+  --ts-role-prep: var(--ts-faint); /* 준비 구간 */
+  --ts-role-stay: #7fa8e8; /* 체류 구간(막대) — 장소(파랑) 계열을 연하게 */
+  --ts-role-spare: var(--ts-line); /* 여유 */
+  --ts-role-candidate: var(--ts-faint); /* 아직 안 고른 후보 장소 점 */
+  --ts-role-airport: var(--ts-ink); /* 공항 핀 */
+
+  /* ---- 선 스타일(코스 지도) — 카카오맵 strokeStyle은 features/course/map-style.ts에 같은 이름으로 ---- */
+  --ts-line-transit-width: 6px; /* 대중교통: 굵은 실선 */
+  --ts-line-taxi-width: 4px; /* 택시(자동차 경로): 보통 실선 */
+  --ts-line-walk-width: 3px; /* 도보: 가는 점선 */
+  --ts-line-return-width: 4px; /* 공항 복귀: 빨간 긴 파선 */
+  --ts-line-selected-boost: 2px; /* 선택 구간 두께 추가 */
+  --ts-line-dimmed-opacity: 0.3; /* 선택 안 된 구간 불투명도 */
+  --ts-line-opacity: 0.9;
+
+  /* ---- gradient ---- */
+  --ts-grad-primary: linear-gradient(135deg, var(--ts-blue), var(--ts-blue-deep));
+
+  /* ---- radius ---- */
+  --ts-radius-sm: 10px;
+  --ts-radius-md: 12px;
+  --ts-radius-lg: 14px;
+  --ts-radius-xl: 18px;
+  --ts-radius-sheet: 20px;
+  --ts-radius-hero: 22px;
+  --ts-radius-panel: 26px; /* 온보딩 본문 패널 상단 */
+  --ts-radius-pill: 999px;
+
+  /* ---- shadow ---- */
+  --ts-shadow-card: 0 2px 14px rgb(40 70 130 / 0.07);
+  --ts-shadow-primary: 0 6px 16px rgb(47 123 230 / 0.32);
+  --ts-shadow-fab: 0 6px 16px rgb(47 123 230 / 0.45);
+  --ts-shadow-toast: 0 6px 16px rgb(0 0 0 / 0.25);
+  --ts-shadow-device: 0 20px 60px rgb(30 50 110 / 0.25);
+
+  /* ---- device frame (데스크톱 미리보기용 폰 테두리) ---- */
+  --ts-device-bezel: #101826;
+  --ts-device-radius: 34px;
+
+  /* ---- layout ---- */
+  --ts-app-width: 390px;
+  --ts-nav-height: 66px;
+  --ts-fab-size: 56px;
+  --ts-page-x: 16px;
+
+  /* ---- typography ---- */
+  --ts-font-sans: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+
+  /* ---- shadcn/ui semantic ---- */
+  --radius: var(--ts-radius-lg);
+  --background: var(--ts-bg);
+  --foreground: var(--ts-ink);
+  --card: var(--ts-card);
+  --card-foreground: var(--ts-ink);
+  --popover: var(--ts-card);
+  --popover-foreground: var(--ts-ink);
+  --primary: var(--ts-blue);
+  --primary-foreground: var(--ts-white);
+  --secondary: var(--ts-tint);
+  --secondary-foreground: var(--ts-blue-deep);
+  --muted: var(--ts-line);
+  --muted-foreground: var(--ts-sub);
+  --accent: var(--ts-tint);
+  --accent-foreground: var(--ts-blue-deep);
+  --destructive: var(--ts-red);
+  --border: var(--ts-line);
+  --input: var(--ts-line);
+  --ring: var(--ts-blue);
+
+  /* ---- v2 (디자인 이식, 단계 1) — 단일 출처: docs/design/design-tokens.md ----
+   * Figma Make UI Kit(design/reference/)에서 옮긴 값. `success`/`gold`/`ink`/`line`은
+   * 위 1층 --ts-* 토큰과 이름이 같지만 값이 다르므로 `--ts-v2-` 접두사로 분리했다.
+   * 화면 이식이 끝나 구 토큰(--ts-*)이 전부 빠지면 이 접두사를 없앤다(docs/STATUS.md "이식 후 수정 목록").
+   */
+  --ts-v2-brand: #2764e7;
+  --ts-v2-brand-dark: #1647af;
+  --ts-v2-brand-soft: #eaf1ff;
+  --ts-v2-success: #23845a;
+  --ts-v2-success-soft: #e6f4ec;
+  --ts-v2-travel: #168b8a;
+  --ts-v2-prep: #d4dae3;
+  --ts-v2-stay: #9cccec;
+  --ts-v2-margin: #efd99c;
+  --ts-v2-track: #edf0f4;
+  --ts-v2-gold: #b88a35;
+  --ts-v2-gold-soft: #f7efd9;
+  --ts-v2-danger: #d74a42;
+  --ts-v2-danger-soft: #fff0ee;
+  --ts-v2-ink: #142037;
+  --ts-v2-ink-soft: #4b5870;
+  --ts-v2-line: #dce2eb;
+  --ts-v2-pale: #f0f3f7;
+  --ts-v2-paper: #ffffff;
+  --ts-v2-canvas: #f6f8fb;
+
+  /* 글자용 어두운 색 — 글자·얇은 선 아이콘에만. design-tokens.md 1절 참고 */
+  --ts-v2-danger-ink: #b3342c;
+  --ts-v2-success-ink: #17694a;
+  --ts-v2-travel-ink: #0f6f6e;
+  --ts-v2-gold-ink: #7a5a1c;
+
+  /* ---- v2 layout ---- */
+  --ts-v2-tabbar-content-height: 72px;
+}
