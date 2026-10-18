@@ -43,6 +43,19 @@
 
 **교훈** → [AGENTS.md](../AGENTS.md) 0장 규칙으로 남겼다: 작업 시작 전 브랜치와 이 문서를 확인하고, 이미 있는 구현·명세를 따른다.
 
+### main 병합 전 확인 — 예약 API 오류 응답 모양을 읽는 프런트 코드 (2026-10-18 조사)
+`docs/conventions.md`에 맞춰 `server/booking.js`의 오류 응답을 `{error:"snake_code"}` → `{error:{code:"UPPER_SNAKE",message}}`로 바꿨다. **main에 합칠 때 같이 고쳐야 하는 코드가 있는지** 전체 브랜치·`src/`를 뒤졌다.
+
+| 확인 대상 | 결과 |
+|---|---|
+| `origin/main`의 `server/server.js`·`app/index.html` | **예약 요청 API 자체가 없다**(`booking-requests` 문자열 자체가 없음) — main에는 고칠 코드가 없다 |
+| `origin/wip/server-booking`(main에서 만들다 백업만 해 둔 브랜치)의 `app/index.html` | `submitBookingRequest()`가 `res.ok`만 보고 응답 본문(`.error`/`.message`)은 읽지 않는다 — 모양이 바뀌어도 깨지지 않는다 |
+| 같은 브랜치의 `server/admin/index.html`(옛 버전) | `res.ok`조차 안 보고 `fetch().json()`을 그대로 쓴다 — 오류 모양과 무관하게 이미 취약하던 코드(별도 문제, 이번 변경과 무관) |
+| `src/features/booking/requests.tsx`(이 브랜치, migration/react-ts) | 서버 API를 아직 호출하지 않는다(메모리 저장소만) — 역시 무관 |
+| 옛 소문자 코드 리터럴(`"active_request_exists"` 등 13개) 전체 검색 | `main`·`src/`·히스토리 전체에서 **0건** |
+
+**결론: main을 포함해 어디에도 이 오류 모양을 직접 읽는 코드가 없다.** 병합 시 추가로 고칠 프런트 코드는 없음. (참고로 `wip/server-booking`은 "그대로 머지하지 않는다"로 이미 표시돼 있다 — [브랜치·배포](#브랜치배포).)
+
 ### docx에만 있던 내용 (2026-10-18 대조)
 `TimeStay_기술개요_로드맵.docx`(2026-09-06, 레거시 기준)를 `docs/*.md`와 대조했다. 바이너리는 diff가 안 되고 .md와 갈라지므로 **저장소에서 빼고** `local-docs/`(gitignore)로 옮겼다.
 
