@@ -125,11 +125,11 @@
 
 | 검사 | 아니면 |
 |---|---|
-| `roomId` `mode` `checkInMin` `endMin` `name` `email` `lang` 존재, 타입 맞음 | `400 invalid_field` |
-| `mode`가 `product`면 `hours` 필요 | `400 invalid_field` |
-| `email` 형식 | `400 invalid_email` |
-| `consent` 3개 모두 `true` | `400 consent_required` |
-| 진행 중 요청 없음(B8) | `409 active_request_exists` |
+| `roomId` `mode` `checkInMin` `endMin` `name` `email` `lang` 존재, 타입 맞음 | `400 BOOKING_INVALID_FIELD` |
+| `mode`가 `product`면 `hours` 필요 | `400 BOOKING_INVALID_FIELD` |
+| `email` 형식 | `400 BOOKING_INVALID_EMAIL` |
+| `consent` 3개 모두 `true` | `400 BOOKING_CONSENT_REQUIRED` |
+| 진행 중 요청 없음(B8) | `409 BOOKING_ACTIVE_REQUEST_EXISTS` |
 
 - 금액·시각은 **검증하지 않고 받은 그대로 저장**한다. 계산의 단일 출처는 `src/domain`이고 서버는 그 결과를 보관만 한다. 서버가 다시 계산하면 두 곳이 갈라진다.
 - `endMin`은 자정을 넘으면 1440을 넘는 값이 올 수 있다(A2). 상한을 두지 않는다.
@@ -141,8 +141,8 @@
 
 | 상황 | 응답 |
 |---|---|
-| `email` 없음 | `400 email_required` |
-| 요청번호 없음 **또는** 이메일 불일치 | `404 not_found` — **두 경우를 구분하지 않는다**(요청번호 존재 여부 노출 방지) |
+| `email` 없음 | `400 BOOKING_EMAIL_REQUIRED` |
+| 요청번호 없음 **또는** 이메일 불일치 | `404 BOOKING_NOT_FOUND` — **두 경우를 구분하지 않는다**(요청번호 존재 여부 노출 방지) |
 
 ### `POST /api/booking-requests/:id/cancel` — 사용자 취소
 ```json
@@ -152,9 +152,9 @@
 
 | 상황 | 응답 |
 |---|---|
-| 요청번호 없음 또는 이메일 불일치 | `404 not_found` |
-| `status`가 `requested`가 아님 | `409 not_cancellable` + `status` |
-| 이미 `cancelled` | `409 not_cancellable` (멱등 아님 — 화면이 상태를 먼저 본다) |
+| 요청번호 없음 또는 이메일 불일치 | `404 BOOKING_NOT_FOUND` |
+| `status`가 `requested`가 아님 | `409 BOOKING_NOT_CANCELLABLE` (`error.status`에 현재 상태) |
+| 이미 `cancelled` | `409 BOOKING_NOT_CANCELLABLE` (멱등 아님 — 화면이 상태를 먼저 본다) |
 
 `confirmed`는 앱에서 취소할 수 없다(booking.md 4번 — 호텔 연락처·취소 규정 표시). `DELETE`를 쓰지 않는 이유: 레코드를 지우지 않고 상태만 바꾼다.
 
@@ -174,24 +174,39 @@ Basic 인증 필요. 호텔에 전화·메일로 확인한 결과를 수기로 �
 
 | 검사 | 아니면 |
 |---|---|
-| `status`가 5개 중 하나 | `400 invalid_status` |
-| 위 상태 표의 전이 허용 | `409 invalid_transition` + `from`, `to` |
-| `declined`면 `declineReason` 필요 | `400 decline_reason_required` |
+| `status`가 5개 중 하나 | `400 BOOKING_INVALID_STATUS` |
+| 위 상태 표의 전이 허용 | `409 BOOKING_INVALID_TRANSITION` (`error.from`, `error.to`) |
+| `declined`면 `declineReason` 필요 | `400 BOOKING_DECLINE_REASON_REQUIRED` |
 
 ## 에러 형식
-```json
-{ "error": "active_request_exists", "message": "사람이 읽을 설명" }
-```
-`message`에 **이메일·이름을 넣지 않는다.**
+[docs/conventions.md](../conventions.md) "오류 응답"을 따른다 — 중첩 모양, 코드는 `도메인_이유`(대문자 스네이크).
 
-| 코드 | 언제 |
-|---|---|
-| `400` | 필드 누락·형식 오류·동의 누락 |
-| `401` | 관리자 Basic 인증 실패 |
-| `404` | 요청번호 없음 또는 이메일 불일치 |
-| `409` | B8 위반, 취소 불가 상태, 허용되지 않는 전이 |
-| `500` | `DATABASE_URL` 미설정(`database_not_configured`), 그 외 서버 오류 |
-| `503` | 관리자 자격증명 미설정으로 관리자 기능이 닫혀 있음 |
+```json
+{ "error": { "code": "BOOKING_ACTIVE_REQUEST_EXISTS", "message": "사람이 읽을 설명(디버그·관리자용)" } }
+```
+
+- `code`가 안정적인 식별자다. 5개 언어 고객용 화면은 `message`를 직접 보여주지 않고 `code`를 i18n 키로 변환해 쓴다(아직 프런트가 이 API를 호출하지 않아 실제 변환은 미구현 — "미구현 / 의존" 참고). `message`는 디버그·로그·관리자 화면(`/admin`)에서만 그대로 쓴다.
+- `message`에 **이메일·이름을 넣지 않는다.**
+- `status`(취소 불가 응답의 현재 상태)·`from`/`to`(전이 거부)처럼 코드별 추가 정보는 `error` 객체 **안에** 함께 담는다 — `error.status`, `error.from`, `error.to`.
+
+| 코드 | HTTP | 언제 |
+|---|---|---|
+| `BOOKING_INVALID_FIELD` | 400 | 필드 누락·형식 오류 |
+| `BOOKING_INVALID_EMAIL` | 400 | 이메일 형식 오류 |
+| `BOOKING_CONSENT_REQUIRED` | 400 | 동의 3개 중 누락 |
+| `BOOKING_EMAIL_REQUIRED` | 400 | 조회·취소에 이메일 누락 |
+| `BOOKING_DECLINE_REASON_REQUIRED` | 400 | 거절 처리에 사유 누락 |
+| `BOOKING_INVALID_STATUS` | 400 | 없는 상태값 |
+| `ADMIN_UNAUTHORIZED` | 401 | 관리자 Basic 인증 실패 |
+| `BOOKING_NOT_FOUND` | 404 | 요청번호 없음 또는 이메일 불일치 |
+| `BOOKING_ACTIVE_REQUEST_EXISTS` | 409 | B8 위반 |
+| `BOOKING_NOT_CANCELLABLE` | 409 | 취소 불가 상태 |
+| `BOOKING_INVALID_TRANSITION` | 409 | 허용되지 않는 상태 전이 |
+| `DATABASE_NOT_CONFIGURED` | 500 | `DATABASE_URL` 미설정 |
+| `SERVER_ERROR` | 500 | 그 외 서버 오류 |
+| `ADMIN_DISABLED` | 503 | 관리자 자격증명 미설정으로 관리자 기능이 닫혀 있음 |
+
+이 표는 [docs/api/errors.md](errors.md)에 전체 API 공통 목록으로도 있다 — **그쪽이 단일 출처**이며, 여기 표는 이 API가 실제로 쓰는 부분집합이다.
 
 ## 개인정보
 | 항목 | 규칙 |
@@ -241,3 +256,4 @@ Basic 인증 필요. 호텔에 전화·메일로 확인한 결과를 수기로 �
 |---|---|
 | 2026-10-18 | 최초 작성. B8을 이메일 기준으로 결정, 관리자 Basic 인증 + fail-closed, 마이그레이션 SQL 파일 방식 |
 | 2026-10-18 | 진짜 Postgres 통합 테스트 22개 추가(일회용 컨테이너 + CI 서비스 컨테이너). 입력 검증을 DB 확인보다 먼저 하도록 정리 |
+| 2026-10-18 | [docs/conventions.md](../conventions.md)에 맞춰 오류 응답을 평평한 `{ error: "snake_code", message }`에서 중첩 `{ error: { code: "UPPER_SNAKE", message } }`로 바꿈. 코드에 도메인 접두사(`BOOKING_`/`ADMIN_`/`DATABASE_`/`SERVER_`) 부여, 전체 목록은 [errors.md](errors.md)로 분리. `booking.js`·`booking.test.js`(22개)·`server/admin/index.html` 함께 수정, 테스트 재통과 확인 |

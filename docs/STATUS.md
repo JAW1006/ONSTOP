@@ -116,6 +116,18 @@ docx의 나머지(서비스 개요, 레거시 스택 — importmap·Babel Standa
 | 수수료 | 수수료 계산 기준·반올림 | [dayuse-pricing](formulas/dayuse-pricing.md) |
 | 탑승동 셔틀 버퍼 | 탑승동(P02, 게이트 101~132) 출발은 T1 출국장 통과 후 셔틀트레인을 탄다. 이 이동·대기에 별도 버퍼가 필요한지 **미검증** — 지금은 추가 버퍼 없음(게이트 여유 30분 안에 흡수된다고 가정, 근거 없음). 근거 후보는 아래 "탑승동 셔틀트레인 근거" | [time-safe](formulas/time-safe.md) |
 | 입국 실시간 | 입국장 대기인원 → 분 환산(창구 수·처리량 가정 필요). 근거 확보 전 보류 권장 | [조사](results/2026-10-16-arrival-wait-data.md) |
+| 컨벤션 집행 장치 | [conventions.md](conventions.md)를 사람이 안 보고 지나쳐도 걸러내는 장치(ESLint 이름 규칙, Prettier, 오류 코드·i18n 일치 테스트, CI 추가) — 제안만 있고 **설치 전**(2026-10-18, 아래 "컨벤션 불일치" 참고). 설치 여부·범위는 사용자 확인 후 | [conventions.md](conventions.md) |
+
+## 컨벤션 불일치 (2026-10-18 조사, [conventions.md](conventions.md) 기준)
+`docs/conventions.md`를 쓰기 전부터 있던 코드 중 그 문서와 어긋나는 부분. **지금 당장 고치지 않는다** — 새로 그 코드를 만지는 작업에서 자연스럽게 정리하거나, 아래 각 줄에 적힌 영향이 실제로 문제가 될 때 고친다.
+
+| # | 어디 | 내용 | 영향 |
+|---|---|---|---|
+| 1 | `server/server.js` (레거시 프록시 — `/api/flight/*`, `/api/route`, `/api/places*`, `/api/transit`, `/api/security-wait*`) | 오류 응답이 `{ error: "자유 영어 문장" }` — 코드도 없고 `message` 분리도 없다. `docs/api/errors.md`의 코드 체계와 전혀 다름 | 지금은 문제 없음(프런트가 이 응답의 `error`를 사람이 읽는 문구로만 쓴다). 이 엔드포인트들을 다시 만질 일이 생기면 `BOOKING_*`처럼 도메인 접두사(`FLIGHT_`/`ROUTE_`/`PLACES_`/`TRANSIT_`/`CONGESTION_`)로 옮긴다 |
+| 2 | `src/domain/dayuse-pricing.ts` | 같은 개념(체크인 슬롯, 분 단위)을 함수에 따라 `checkInMin`(구 로직: `defaultTier`, `isCheckoutPastReturn`)과 `slotMin`(신 로직: `productStartsAt`, `defaultProduct`, `blockEndMin`, `bookingCheck`)으로 다르게 부른다 | 혼동 가능성 — API 문서(`checkInMin`)와 `slotMin` 쪽 함수가 같은 값을 가리킨다는 걸 코드만 보고는 알기 어렵다. 이 파일을 다음에 고칠 때 한쪽으로 통일 검토 |
+| 3 | `src/domain/time-fit.ts`, `src/data/index.ts` | `CourseStop.move`·`CourseStop.dur`·`Place.move`가 분 단위인데 단위 접미사가 없다(컨벤션 4장 "알려진 예외") | 낮음 — 타입이 좁고 주석(`move = 이동(분), dur = 체류(분)`)이 있어 당장 혼동되진 않는다 |
+| 4 | `src/domain/time-fit.ts`, `dayuse-pricing.ts` | 불리언을 반환하는데 `is`/`has`/`can` 접두사가 없는 함수: `fitsBudget`, `fitsSequential`, `wouldFit`, `wouldFitSequential`, `productStartsAt`(컨벤션 3장 "참고") | 낮음 — 영어로 자연스럽게 읽히는 서술형. 새 불리언 함수만 `is`/`has`/`can`을 기본으로 한다 |
+| 5 | 전체 커밋 이력(68cf883 이전, 40여 개) | 접두사 없는 자유 영어 명령형(`Add...`, `Fix...`, `Port...`) — 2026-10-18부터 `feat:`/`fix:`/… 접두사 적용 | 과거 커밋은 다시 쓰지 않는다. `git log`에서 접두사 있는 커밋과 없는 커밋이 2026-10-18을 기준으로 섞여 보이는 게 정상이다 |
 
 ## 운영 배포 금지·예약 요청 운영 기준 (2026-10-16 결정 · 2026-10-18 유지)
 **운영(프로덕션) 배포 금지**: 서버가 예약 요청을 **실제로 호텔에 전달하고 회신을 받기 전까지** prod에 배포하지 않는다([ADR-0005](decisions/ADR-0005-environments-deploy.md) "운영 배포 금지 조건").

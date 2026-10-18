@@ -166,17 +166,17 @@ describe("예약 요청 API (진짜 Postgres)", suiteOpts, () => {
 
   it("2c. 잘못된 입력은 400이고 저장되지 않는다", async () => {
     const cases = [
-      [{ consent: { privacy: true, thirdParty: false, disclaimer: true } }, "consent_required"],
-      [{ email: "not-an-email" }, "invalid_email"],
-      [{ mode: "product", hours: null }, "invalid_field"],
-      [{ lang: "de" }, "invalid_field"],
-      [{ roomId: "" }, "invalid_field"],
-      [{ planIds: ["ok", ""] }, "invalid_field"],
+      [{ consent: { privacy: true, thirdParty: false, disclaimer: true } }, "BOOKING_CONSENT_REQUIRED"],
+      [{ email: "not-an-email" }, "BOOKING_INVALID_EMAIL"],
+      [{ mode: "product", hours: null }, "BOOKING_INVALID_FIELD"],
+      [{ lang: "de" }, "BOOKING_INVALID_FIELD"],
+      [{ roomId: "" }, "BOOKING_INVALID_FIELD"],
+      [{ planIds: ["ok", ""] }, "BOOKING_INVALID_FIELD"],
     ];
-    for (const [over, error] of cases) {
+    for (const [over, code] of cases) {
       const { status, body } = await create(over);
-      assert.equal(status, 400, `${error} 케이스는 400이어야 한다`);
-      assert.equal(body.error, error);
+      assert.equal(status, 400, `${code} 케이스는 400이어야 한다`);
+      assert.equal(body.error.code, code);
     }
     const { rows } = await pool.query("SELECT count(*)::int AS n FROM booking_requests");
     assert.equal(rows[0].n, 0);
@@ -187,7 +187,7 @@ describe("예약 요청 API (진짜 Postgres)", suiteOpts, () => {
     await create();
     const { status, body } = await create({ roomId: "다른-호텔" });
     assert.equal(status, 409);
-    assert.equal(body.error, "active_request_exists");
+    assert.equal(body.error.code, "BOOKING_ACTIVE_REQUEST_EXISTS");
     // 존재 여부만 알려준다 — 요청번호·숙소·시각이 새어나가면 안 된다.
     const text = JSON.stringify(body);
     assert.equal(/TS-/.test(text), false, "요청번호가 새어나갔다");
@@ -199,7 +199,7 @@ describe("예약 요청 API (진짜 Postgres)", suiteOpts, () => {
     await create({ email: "traveler@example.com" });
     const { status, body } = await create({ email: "  TRAVELER@Example.COM  " });
     assert.equal(status, 409);
-    assert.equal(body.error, "active_request_exists");
+    assert.equal(body.error.code, "BOOKING_ACTIVE_REQUEST_EXISTS");
   });
 
   it("4b. 동시에 보내도 DB가 막아서 한 건만 생긴다", async () => {
@@ -234,7 +234,7 @@ describe("예약 요청 API (진짜 Postgres)", suiteOpts, () => {
 
     const noEmail = await call("GET", `/api/booking-requests/${id}`);
     assert.equal(noEmail.status, 400);
-    assert.equal(noEmail.body.error, "email_required");
+    assert.equal(noEmail.body.error.code, "BOOKING_EMAIL_REQUIRED");
   });
 
   // --- 확인 6·7: 취소 -------------------------------------------------------
@@ -252,8 +252,8 @@ describe("예약 요청 API (진짜 Postgres)", suiteOpts, () => {
       body: { email: "traveler@example.com" },
     });
     assert.equal(second.status, 409);
-    assert.equal(second.body.error, "not_cancellable");
-    assert.equal(second.body.status, "cancelled");
+    assert.equal(second.body.error.code, "BOOKING_NOT_CANCELLABLE");
+    assert.equal(second.body.error.status, "cancelled");
   });
 
   it("6b. 확정된 요청은 앱에서 취소할 수 없다 (호텔 문의 안내)", async () => {
@@ -268,8 +268,8 @@ describe("예약 요청 API (진짜 Postgres)", suiteOpts, () => {
       body: { email: "traveler@example.com" },
     });
     assert.equal(res.status, 409);
-    assert.equal(res.body.error, "not_cancellable");
-    assert.equal(res.body.status, "confirmed");
+    assert.equal(res.body.error.code, "BOOKING_NOT_CANCELLABLE");
+    assert.equal(res.body.error.status, "confirmed");
   });
 
   it("6c. 다른 사람 이메일로는 취소할 수 없다", async () => {
@@ -308,9 +308,9 @@ describe("예약 요청 API (진짜 Postgres)", suiteOpts, () => {
         auth: authHeader(),
       });
       assert.equal(res.status, 409, `confirmed → ${to}는 막아야 한다`);
-      assert.equal(res.body.error, "invalid_transition");
-      assert.equal(res.body.from, "confirmed");
-      assert.equal(res.body.to, to);
+      assert.equal(res.body.error.code, "BOOKING_INVALID_TRANSITION");
+      assert.equal(res.body.error.from, "confirmed");
+      assert.equal(res.body.error.to, to);
     }
   });
 
@@ -326,7 +326,7 @@ describe("예약 요청 API (진짜 Postgres)", suiteOpts, () => {
       auth: authHeader(),
     });
     assert.equal(res.status, 409);
-    assert.equal(res.body.error, "invalid_transition");
+    assert.equal(res.body.error.code, "BOOKING_INVALID_TRANSITION");
   });
 
   it("9. 거절은 사유가 있어야 하고, 사유가 저장돼 조회에 나온다", async () => {
@@ -338,7 +338,7 @@ describe("예약 요청 API (진짜 Postgres)", suiteOpts, () => {
       auth: authHeader(),
     });
     assert.equal(noReason.status, 400);
-    assert.equal(noReason.body.error, "decline_reason_required");
+    assert.equal(noReason.body.error.code, "BOOKING_DECLINE_REASON_REQUIRED");
 
     const withReason = await call("PATCH", `/api/booking-requests/${id}`, {
       body: { status: "declined", declineReason: "해당 시간대 만실" },
@@ -358,7 +358,7 @@ describe("예약 요청 API (진짜 Postgres)", suiteOpts, () => {
       auth: authHeader(),
     });
     assert.equal(res.status, 400);
-    assert.equal(res.body.error, "invalid_status");
+    assert.equal(res.body.error.code, "BOOKING_INVALID_STATUS");
   });
 
   // --- 확인 10: 인증 --------------------------------------------------------
@@ -367,7 +367,7 @@ describe("예약 요청 API (진짜 Postgres)", suiteOpts, () => {
 
     const anon = await call("GET", "/api/booking-requests");
     assert.equal(anon.status, 401);
-    assert.equal(anon.body.error, "unauthorized");
+    assert.equal(anon.body.error.code, "ADMIN_UNAUTHORIZED");
 
     const wrongPw = await call("GET", "/api/booking-requests", { auth: authHeader(ADMIN.user, "틀림") });
     assert.equal(wrongPw.status, 401);
@@ -411,7 +411,7 @@ describe("예약 요청 API (진짜 Postgres)", suiteOpts, () => {
 
     const bad = await call("GET", "/api/booking-requests?status=paid", { auth: authHeader() });
     assert.equal(bad.status, 400);
-    assert.equal(bad.body.error, "invalid_status");
+    assert.equal(bad.body.error.code, "BOOKING_INVALID_STATUS");
   });
 
   // --- 확인 11: 로그 --------------------------------------------------------
@@ -460,7 +460,7 @@ describe("관리자 자격증명 미설정 (fail-closed)", suiteOpts, () => {
   it("관리자 API와 /admin은 503으로 닫히고, 인증을 들고 가도 열리지 않는다", async () => {
     const list = await fetch(`${closedBase}/api/booking-requests`);
     assert.equal(list.status, 503);
-    assert.equal((await list.json()).error, "admin_disabled");
+    assert.equal((await list.json()).error.code, "ADMIN_DISABLED");
 
     const withAuth = await fetch(`${closedBase}/api/booking-requests`, {
       headers: { Authorization: "Basic " + Buffer.from("test-admin:test-password").toString("base64") },

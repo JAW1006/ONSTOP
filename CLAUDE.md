@@ -1,7 +1,7 @@
 # TimeStay — 작업 규칙
 
 인천공항 환승 외국인을 위한 데이유즈 + AI 큐레이션 앱. 레거시 단일 HTML(`app/index.html`)을 React로 이식 중.
-문서 목차: [docs/README.md](docs/README.md) · 진행·결정 필요: [docs/STATUS.md](docs/STATUS.md) · 용어: [docs/GLOSSARY.md](docs/GLOSSARY.md)
+문서 목차: [docs/README.md](docs/README.md) · 진행·결정 필요: [docs/STATUS.md](docs/STATUS.md) · 용어: [docs/GLOSSARY.md](docs/GLOSSARY.md) · **이름 규칙: [docs/conventions.md](docs/conventions.md) — 코드를 쓰기 전에 읽는다**
 
 ## 스택 / 명령어
 Vite + React + TypeScript · Tailwind v4 + shadcn/ui(Radix) · React Router · TanStack Query · Vitest
@@ -30,6 +30,7 @@ Vite + React + TypeScript · Tailwind v4 + shadcn/ui(Radix) · React Router · T
 
 ## 반드시 지킬 규칙
 0. **작업 시작 전에 현재 브랜치와 [docs/STATUS.md](docs/STATUS.md)를 확인하고, 이미 있는 구현·명세를 따른다.** 같은 기능이 다른 브랜치나 `src/`에 이미 있으면 새로 만들지 않고 그것을 고친다. 절차와 이유는 [AGENTS.md](AGENTS.md) 0장.
+0-1. **코드를 쓰기 전에 [docs/conventions.md](docs/conventions.md)를 따른다.** 폴더·파일·함수·상수·DB/API 필드·오류 응답·커밋·브랜치 이름의 단일 출처다. 기존 코드를 이 문서에 맞춰 한꺼번에 고치지 않는다 — 새 코드부터 적용하고, 어긋나는 기존 코드는 STATUS.md "컨벤션 불일치"에 쌓아 둔다.
 1. **공식의 단일 출처는 `docs/formulas/*.md`.** 공식 수정 시 md를 먼저 갱신하고, 같은 변경에서 `src/domain` 코드와 테스트를 함께 고친다.
 2. 테스트의 입력·기댓값은 공식 md의 "예시" 표와 **같은 숫자**를 쓴다.
 3. 새 화면은 `docs/design/screens/<화면>.md`에 명세를 먼저 쓴다.

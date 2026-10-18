@@ -5,6 +5,7 @@
 | 날짜 | 영역 | 변경 |
 |---|---|---|
 | 2026-10-18 | 서버 | 예약 요청 API(`server/booking.js`): 생성·조회(요청번호+이메일)·취소 + 관리자 목록·상태 변경. B8 "진행 중 1건"은 **이메일 기준**으로 DB 부분 유니크 인덱스가 보장. 스키마는 `server/migrations/*.sql`로 관리(표준 Postgres만 — ADR-0002는 제안 유지). `/admin`은 Basic 인증, 자격증명 없으면 503 fail-closed. 로그에 이메일·이름 안 남김. **운영 배포 금지 유지**(호텔 자동 전달·이메일 발송 미구현) |
+| 2026-10-18 | 문서 | `docs/conventions.md` 신설 — 폴더·파일·함수·상수·DB/API·오류 응답·커밋·브랜치 이름 규칙. 오류 응답을 평평한 `{error:"snake"}`에서 중첩 `{error:{code:"UPPER_SNAKE",message}}`로 바꾸고 `docs/api/errors.md`를 단일 출처로 분리(server/booking.js·booking.test.js·admin 페이지 함께 수정, 테스트 재통과). 어긋나는 기존 코드는 STATUS.md "컨벤션 불일치"에 기록, 일괄 수정은 안 함 |
 | 2026-10-18 | 서버 | 예약 요청 API 통합 테스트 22개 — **진짜 Postgres**(일회용 docker 컨테이너 / CI 서비스 컨테이너). 마이그레이션 멱등, B8 동시요청, 취소, 전이 거부, 인증, fail-closed, 로그에 이메일 없음까지 자동 검증. 테이블을 TRUNCATE하므로 실제 DB를 가리키면 중단하는 가드 3중 |
 | 2026-10-18 | CI | GitHub Actions 신설(`.github/workflows/ci.yml`) — 프런트 테스트·빌드, 서버 통합 테스트(Postgres 서비스 컨테이너), 비밀값 검사(.env 추적·원격 접속 문자열·키 패턴) |
 | 2026-10-18 | 문서 | docx(2026-09-06)를 .md와 대조해 누락 8건을 STATUS에 기록하고 저장소에서 제외(`local-docs/`, gitignore). 바이너리 문서·`.env.*`를 .gitignore에 추가 |

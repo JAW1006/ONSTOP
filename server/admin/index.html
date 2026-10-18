@@ -113,7 +113,7 @@ async function loadRequests() {
   const res = await fetch("/api/booking-requests");
   if (!res.ok) {
     const body = await res.json().catch(() => ({}));
-    throw new Error(body.message || `목록을 불러오지 못했어요 (HTTP ${res.status})`);
+    throw new Error(body?.error?.message || `목록을 불러오지 못했어요 (HTTP ${res.status})`);
   }
   const body = await res.json();
   return body.requests || [];
@@ -127,7 +127,7 @@ async function setStatus(id, status, declineReason) {
   });
   if (!res.ok) {
     const body = await res.json().catch(() => ({}));
-    throw new Error(body.message || `상태를 바꾸지 못했어요 (HTTP ${res.status})`);
+    throw new Error(body?.error?.message || `상태를 바꾸지 못했어요 (HTTP ${res.status})`);
   }
 }
 

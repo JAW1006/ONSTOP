@@ -16,6 +16,26 @@ import pg from "pg";
 const __dirname = nodePath.dirname(fileURLToPath(import.meta.url));
 
 const STATUSES = ["requested", "confirmed", "declined", "expired", "cancelled"];
+
+// 오류 코드 — 단일 출처는 docs/api/errors.md다. 값을 바꾸거나 코드를 추가하면 그 문서도 같이 고친다.
+// 형식: 도메인_이유(대문자 스네이크). message는 디버그용/관리자 화면용이고, 고객용 다국어 화면은
+// code를 i18n 키로 변환해 쓴다(docs/conventions.md "오류 응답").
+const ERROR_CODES = {
+  BOOKING_INVALID_FIELD: "BOOKING_INVALID_FIELD",
+  BOOKING_INVALID_EMAIL: "BOOKING_INVALID_EMAIL",
+  BOOKING_CONSENT_REQUIRED: "BOOKING_CONSENT_REQUIRED",
+  BOOKING_EMAIL_REQUIRED: "BOOKING_EMAIL_REQUIRED",
+  BOOKING_ACTIVE_REQUEST_EXISTS: "BOOKING_ACTIVE_REQUEST_EXISTS",
+  BOOKING_NOT_FOUND: "BOOKING_NOT_FOUND",
+  BOOKING_NOT_CANCELLABLE: "BOOKING_NOT_CANCELLABLE",
+  BOOKING_INVALID_STATUS: "BOOKING_INVALID_STATUS",
+  BOOKING_INVALID_TRANSITION: "BOOKING_INVALID_TRANSITION",
+  BOOKING_DECLINE_REASON_REQUIRED: "BOOKING_DECLINE_REASON_REQUIRED",
+  ADMIN_UNAUTHORIZED: "ADMIN_UNAUTHORIZED",
+  ADMIN_DISABLED: "ADMIN_DISABLED",
+  DATABASE_NOT_CONFIGURED: "DATABASE_NOT_CONFIGURED",
+  SERVER_ERROR: "SERVER_ERROR",
+};
 const MODES = ["product", "quote"];
 const LANGS = ["ko", "en", "zh", "ja", "vi"];
 const PRICE_SOURCES = ["hotel", "demo"];
@@ -52,8 +72,8 @@ function logError(what, err) {
   console.error(`[booking] ${what} failed`, { code: err.code, constraint: err.constraint, message: err.message });
 }
 
-// 오류 본문에도 이메일·이름을 넣지 않는다.
-const fail = (res, status, error, message, extra) => res.status(status).json({ error, message, ...extra });
+// 오류 본문에도 이메일·이름을 넣지 않는다. 모양: { error: { code, message, ...extra } } — docs/conventions.md.
+const fail = (res, status, code, message, extra) => res.status(status).json({ error: { code, message, ...extra } });
 
 function rowToRequest(row) {
   return {
@@ -87,44 +107,44 @@ function parseNewRequest(body) {
   const bad = (error, message) => ({ error, message });
 
   const roomId = trimmed(b.roomId);
-  if (!roomId) return bad("invalid_field", "roomId is required");
-  if (!MODES.includes(b.mode)) return bad("invalid_field", `mode must be one of ${MODES.join(", ")}`);
-  if (!Number.isInteger(b.checkInMin)) return bad("invalid_field", "checkInMin must be an integer");
-  if (!Number.isInteger(b.endMin)) return bad("invalid_field", "endMin must be an integer");
+  if (!roomId) return bad(ERROR_CODES.BOOKING_INVALID_FIELD, "roomId is required");
+  if (!MODES.includes(b.mode)) return bad(ERROR_CODES.BOOKING_INVALID_FIELD, `mode must be one of ${MODES.join(", ")}`);
+  if (!Number.isInteger(b.checkInMin)) return bad(ERROR_CODES.BOOKING_INVALID_FIELD, "checkInMin must be an integer");
+  if (!Number.isInteger(b.endMin)) return bad(ERROR_CODES.BOOKING_INVALID_FIELD, "endMin must be an integer");
 
   const hours = b.hours ?? null;
-  if (hours !== null && !Number.isInteger(hours)) return bad("invalid_field", "hours must be an integer");
-  if (b.mode === "product" && hours === null) return bad("invalid_field", "hours is required when mode is product");
+  if (hours !== null && !Number.isInteger(hours)) return bad(ERROR_CODES.BOOKING_INVALID_FIELD, "hours must be an integer");
+  if (b.mode === "product" && hours === null) return bad(ERROR_CODES.BOOKING_INVALID_FIELD, "hours is required when mode is product");
 
   const price = b.price ?? null;
-  if (price !== null && !Number.isInteger(price)) return bad("invalid_field", "price must be an integer");
+  if (price !== null && !Number.isInteger(price)) return bad(ERROR_CODES.BOOKING_INVALID_FIELD, "price must be an integer");
 
   const priceSource = b.priceSource ?? null;
   if (priceSource !== null && !PRICE_SOURCES.includes(priceSource)) {
-    return bad("invalid_field", `priceSource must be one of ${PRICE_SOURCES.join(", ")}`);
+    return bad(ERROR_CODES.BOOKING_INVALID_FIELD, `priceSource must be one of ${PRICE_SOURCES.join(", ")}`);
   }
 
   const planIds = b.planIds ?? [];
   if (!Array.isArray(planIds) || planIds.some((id) => !trimmed(id))) {
-    return bad("invalid_field", "planIds must be an array of non-empty strings");
+    return bad(ERROR_CODES.BOOKING_INVALID_FIELD, "planIds must be an array of non-empty strings");
   }
 
   // 이름은 로마자 표기를 권장하지만 문자 종류를 제한하지 않는다(B4).
   const name = trimmed(b.name);
-  if (!name) return bad("invalid_field", "name is required");
+  if (!name) return bad(ERROR_CODES.BOOKING_INVALID_FIELD, "name is required");
 
   const email = trimmed(b.email);
-  if (!EMAIL_RE.test(email)) return bad("invalid_email", "email format is not valid");
+  if (!EMAIL_RE.test(email)) return bad(ERROR_CODES.BOOKING_INVALID_EMAIL, "email format is not valid");
 
-  if (!LANGS.includes(b.lang)) return bad("invalid_field", `lang must be one of ${LANGS.join(", ")}`);
+  if (!LANGS.includes(b.lang)) return bad(ERROR_CODES.BOOKING_INVALID_FIELD, `lang must be one of ${LANGS.join(", ")}`);
 
   // 동의 3개는 모두 필수다 — 하나라도 빠지면 요청을 만들지 않는다(legal 2-1·7-6·0-2).
   const consent = b.consent || {};
   if (consent.privacy !== true || consent.thirdParty !== true || consent.disclaimer !== true) {
-    return bad("consent_required", "privacy, thirdParty and disclaimer consents are all required");
+    return bad(ERROR_CODES.BOOKING_CONSENT_REQUIRED, "privacy, thirdParty and disclaimer consents are all required");
   }
   const consentVersion = trimmed(b.consentVersion);
-  if (!consentVersion) return bad("invalid_field", "consentVersion is required");
+  if (!consentVersion) return bad(ERROR_CODES.BOOKING_INVALID_FIELD, "consentVersion is required");
 
   return {
     value: {
@@ -194,7 +214,7 @@ function basicAuth(user, password) {
       if (got.length === expected.length && crypto.timingSafeEqual(got, expected)) return next();
     }
     res.set("WWW-Authenticate", 'Basic realm="TimeStay admin", charset="UTF-8"');
-    return fail(res, 401, "unauthorized", "admin credentials are required");
+    return fail(res, 401, ERROR_CODES.ADMIN_UNAUTHORIZED, "admin credentials are required");
   };
 }
 
@@ -216,14 +236,14 @@ export function mountBookingRequests(app) {
   // DATABASE_URL이 없으면 라우트는 붙이되 500으로 답한다 — 화면이 "보내지 못했어요"를 그대로 보여준다.
   const noDatabase = (res) => {
     if (pool) return false;
-    fail(res, 500, "database_not_configured", "DATABASE_URL is not configured on the server");
+    fail(res, 500, ERROR_CODES.DATABASE_NOT_CONFIGURED, "DATABASE_URL is not configured on the server");
     return true;
   };
 
   // 관리자 자격증명이 없으면 **실제 핸들러를 등록하지 않고** 503 스텁으로 대체한다.
   // 인증 없이 관리자 기능이 열린 채 배포되는 경우를 구조적으로 막는다(fail-closed).
   const adminClosed = (_req, res) =>
-    fail(res, 503, "admin_disabled", "admin access is not configured on this server");
+    fail(res, 503, ERROR_CODES.ADMIN_DISABLED, "admin access is not configured on this server");
   const requireAdmin = adminEnabled ? basicAuth(adminUser, adminPassword) : null;
 
   // --- 고객용 ---------------------------------------------------------------
@@ -249,16 +269,16 @@ export function mountBookingRequests(app) {
     } catch (err) {
       // B8 — 부분 유니크 인덱스에 걸린 경우. 응답에 기존 요청 내용을 담지 않는다(존재 여부만).
       if (err.code === "23505" && err.constraint === "booking_requests_one_active_per_email") {
-        return fail(res, 409, "active_request_exists", "there is already an active booking request for this contact");
+        return fail(res, 409, ERROR_CODES.BOOKING_ACTIVE_REQUEST_EXISTS, "there is already an active booking request for this contact");
       }
       logError("create booking request", err);
-      return fail(res, 500, "server_error", "failed to save the booking request");
+      return fail(res, 500, ERROR_CODES.SERVER_ERROR, "failed to save the booking request");
     }
   });
 
   app.get("/api/booking-requests/:id", async (req, res) => {
     const email = trimmed(req.query.email);
-    if (!email) return fail(res, 400, "email_required", "email query parameter is required");
+    if (!email) return fail(res, 400, ERROR_CODES.BOOKING_EMAIL_REQUIRED, "email query parameter is required");
     if (noDatabase(res)) return;
 
     try {
@@ -267,18 +287,18 @@ export function mountBookingRequests(app) {
         [req.params.id, normalizeEmail(email)],
       );
       // 요청번호가 없는 경우와 이메일이 틀린 경우를 구분하지 않는다 — 요청번호 존재 여부가 드러나지 않게.
-      if (!rows.length) return fail(res, 404, "not_found", "no booking request matches that number and contact");
+      if (!rows.length) return fail(res, 404, ERROR_CODES.BOOKING_NOT_FOUND, "no booking request matches that number and contact");
       return res.json({ request: rowToRequest(rows[0]) });
     } catch (err) {
       logError("read booking request", err);
-      return fail(res, 500, "server_error", "failed to read the booking request");
+      return fail(res, 500, ERROR_CODES.SERVER_ERROR, "failed to read the booking request");
     }
   });
 
   // 레코드를 지우지 않고 상태만 바꾸므로 DELETE가 아니다.
   app.post("/api/booking-requests/:id/cancel", json, async (req, res) => {
     const email = trimmed(req.body?.email);
-    if (!email) return fail(res, 400, "email_required", "email is required");
+    if (!email) return fail(res, 400, ERROR_CODES.BOOKING_EMAIL_REQUIRED, "email is required");
     if (noDatabase(res)) return;
 
     try {
@@ -296,13 +316,13 @@ export function mountBookingRequests(app) {
         "SELECT status FROM booking_requests WHERE id = $1 AND email_normalized = $2",
         [req.params.id, normalizeEmail(email)],
       );
-      if (!found.rows.length) return fail(res, 404, "not_found", "no booking request matches that number and contact");
-      return fail(res, 409, "not_cancellable", "only a requested booking can be cancelled in the app", {
+      if (!found.rows.length) return fail(res, 404, ERROR_CODES.BOOKING_NOT_FOUND, "no booking request matches that number and contact");
+      return fail(res, 409, ERROR_CODES.BOOKING_NOT_CANCELLABLE, "only a requested booking can be cancelled in the app", {
         status: found.rows[0].status,
       });
     } catch (err) {
       logError("cancel booking request", err);
-      return fail(res, 500, "server_error", "failed to cancel the booking request");
+      return fail(res, 500, ERROR_CODES.SERVER_ERROR, "failed to cancel the booking request");
     }
   });
 
@@ -319,7 +339,7 @@ export function mountBookingRequests(app) {
         .map((s) => s.trim())
         .filter(Boolean);
       if (wanted.some((s) => !STATUSES.includes(s))) {
-        return fail(res, 400, "invalid_status", `status must be one of ${STATUSES.join(", ")}`);
+        return fail(res, 400, ERROR_CODES.BOOKING_INVALID_STATUS, `status must be one of ${STATUSES.join(", ")}`);
       }
       if (noDatabase(res)) return;
 
@@ -331,7 +351,7 @@ export function mountBookingRequests(app) {
         return res.json({ requests: rows.map(rowToRequest), total: rows.length });
       } catch (err) {
         logError("list booking requests", err);
-        return fail(res, 500, "server_error", "failed to list booking requests");
+        return fail(res, 500, ERROR_CODES.SERVER_ERROR, "failed to list booking requests");
       }
     });
 
@@ -339,20 +359,20 @@ export function mountBookingRequests(app) {
     app.patch("/api/booking-requests/:id", requireAdmin, json, async (req, res) => {
       const { status } = req.body || {};
       if (!STATUSES.includes(status)) {
-        return fail(res, 400, "invalid_status", `status must be one of ${STATUSES.join(", ")}`);
+        return fail(res, 400, ERROR_CODES.BOOKING_INVALID_STATUS, `status must be one of ${STATUSES.join(", ")}`);
       }
       const reason = trimmed(req.body?.declineReason);
       if (status === "declined" && !reason) {
-        return fail(res, 400, "decline_reason_required", "declineReason is required when declining");
+        return fail(res, 400, ERROR_CODES.BOOKING_DECLINE_REASON_REQUIRED, "declineReason is required when declining");
       }
       if (noDatabase(res)) return;
 
       try {
         const found = await pool.query("SELECT status FROM booking_requests WHERE id = $1", [req.params.id]);
-        if (!found.rows.length) return fail(res, 404, "not_found", "no booking request with that number");
+        if (!found.rows.length) return fail(res, 404, ERROR_CODES.BOOKING_NOT_FOUND, "no booking request with that number");
         const from = found.rows[0].status;
         if (!TRANSITIONS[from].includes(status)) {
-          return fail(res, 409, "invalid_transition", "that status change is not allowed", { from, to: status });
+          return fail(res, 409, ERROR_CODES.BOOKING_INVALID_TRANSITION, "that status change is not allowed", { from, to: status });
         }
 
         // from을 WHERE에 넣어, 읽은 뒤 다른 요청이 상태를 바꾼 경우에는 덮어쓰지 않는다.
@@ -366,12 +386,12 @@ export function mountBookingRequests(app) {
           [status, reason || null, req.params.id, from],
         );
         if (!rows.length) {
-          return fail(res, 409, "invalid_transition", "the request status changed while processing");
+          return fail(res, 409, ERROR_CODES.BOOKING_INVALID_TRANSITION, "the request status changed while processing");
         }
         return res.json({ request: rowToRequest(rows[0]) });
       } catch (err) {
         logError("update booking request", err);
-        return fail(res, 500, "server_error", "failed to update the booking request");
+        return fail(res, 500, ERROR_CODES.SERVER_ERROR, "failed to update the booking request");
       }
     });
 
