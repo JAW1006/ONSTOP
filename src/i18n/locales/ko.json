@@ -27,7 +27,7 @@
     },
     "earliestCheckIn": "숙소까지 이동시간 고려 시 {{time}} 이후부터 체크인 가능",
     "empty": "아직 예약 내역이 없어요",
-    "entryNotice": "입국 가능 여부(국적·비자·환승 조건)는 TimeStay가 확인하지 않아요. 공항 밖으로 나가기 전에 공식 안내에서 확인해 주세요.",
+    "entryNotice": "입국 가능 여부(국적·비자·환승 조건)는 {{appName}}가 확인하지 않아요. 공항 밖으로 나가기 전에 공식 안내에서 확인해 주세요.",
     "entryNoticeLink": "하이코리아 입국 안내",
     "entryNoticeShort": "입국 조건은 공식 안내에서 먼저 확인해 주세요.",
     "fromAirportApprox": "공항 약 {{n}}분",

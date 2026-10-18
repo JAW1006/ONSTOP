@@ -27,7 +27,7 @@
     },
     "earliestCheckIn": "Earliest check-in is {{time}}, based on travel time to this stay",
     "empty": "No bookings yet",
-    "entryNotice": "TimeStay doesn't check whether you can enter Korea (nationality, visa, transit rules). Check the official guidance before leaving the airport.",
+    "entryNotice": "{{appName}} doesn't check whether you can enter Korea (nationality, visa, transit rules). Check the official guidance before leaving the airport.",
     "entryNoticeLink": "HiKorea entry guide",
     "entryNoticeShort": "Please check entry requirements in the official guidance first.",
     "fromAirportApprox": "~{{n}} min from airport",

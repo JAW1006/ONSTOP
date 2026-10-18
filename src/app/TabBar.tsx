@@ -2,6 +2,7 @@ import { CalendarCheck, House, Luggage, Route, User, type LucideIcon } from "luc
 import { useTranslation } from "react-i18next";
 import { Link, useLocation } from "react-router";
 import { useTrip } from "@/app/trip-state";
+import { APP_NAME } from "@/branding";
 import { cn } from "@/lib/utils";
 
 // 하단 탭: 홈 / 짐 케어 / 코스(가운데 FAB) / 예약 / 마이 — docs/design/screens/app-shell.md
@@ -15,7 +16,7 @@ export function TabBar() {
 
   return (
     <nav
-      aria-label="TimeStay"
+      aria-label={APP_NAME}
       className="absolute inset-x-0 bottom-0 flex h-(--ts-nav-height) items-center justify-around border-t border-line bg-card pb-1"
     >
       <TabItem to="/" active={pathname === "/"} icon={House} label={t("nav.home")} />

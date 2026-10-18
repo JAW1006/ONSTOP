@@ -4,6 +4,7 @@ import { useTranslation } from "react-i18next";
 import { Link, useNavigate, useParams } from "react-router";
 import { useAppMode } from "@/app/app-mode";
 import { useTrip } from "@/app/trip-state";
+import { APP_NAME } from "@/branding";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
@@ -183,7 +184,7 @@ export function BookingScreen() {
 
         {/* 외출 ≠ 입국 (B7 안 A) */}
         <p className="rounded-md border border-line bg-card px-3 py-2.5 text-caption leading-normal text-sub">
-          {t("booking.entryNotice")}{" "}
+          {t("booking.entryNotice", { appName: APP_NAME })}{" "}
           <a href={ENTRY_GUIDE_URL} target="_blank" rel="noreferrer" className="font-bold text-blue underline">
             {t("booking.entryNoticeLink")}
           </a>

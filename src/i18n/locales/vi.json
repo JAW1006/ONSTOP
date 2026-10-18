@@ -27,7 +27,7 @@
     },
     "earliestCheckIn": "Sớm nhất có thể nhận phòng từ {{time}}, tính theo thời gian di chuyển đến chỗ nghỉ",
     "empty": "Chưa có lượt đặt chỗ nào",
-    "entryNotice": "TimeStay không kiểm tra bạn có được nhập cảnh hay không (quốc tịch, thị thực, điều kiện quá cảnh). Hãy xem hướng dẫn chính thức trước khi rời sân bay.",
+    "entryNotice": "{{appName}} không kiểm tra bạn có được nhập cảnh hay không (quốc tịch, thị thực, điều kiện quá cảnh). Hãy xem hướng dẫn chính thức trước khi rời sân bay.",
     "entryNoticeLink": "Hướng dẫn nhập cảnh HiKorea",
     "entryNoticeShort": "Vui lòng kiểm tra điều kiện nhập cảnh trong hướng dẫn chính thức trước.",
     "fromAirportApprox": "Cách sân bay ~{{n}} phút",

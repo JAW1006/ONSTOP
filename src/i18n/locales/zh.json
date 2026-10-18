@@ -27,7 +27,7 @@
     },
     "earliestCheckIn": "考虑到前往住宿的移动时间,最早可于 {{time}} 后办理入住",
     "empty": "暂无预订记录",
-    "entryNotice": "TimeStay不会核实您能否入境（国籍、签证、转机条件）。离开机场前请查看官方指南。",
+    "entryNotice": "{{appName}}不会核实您能否入境（国籍、签证、转机条件）。离开机场前请查看官方指南。",
     "entryNoticeLink": "HiKorea入境指南",
     "entryNoticeShort": "请先在官方指南中确认入境条件。",
     "fromAirportApprox": "距机场约{{n}}分钟",

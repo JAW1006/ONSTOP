@@ -27,7 +27,7 @@
     },
     "earliestCheckIn": "宿泊先までの移動時間を考慮すると{{time}}以降にチェックイン可能",
     "empty": "まだ予約履歴がありません",
-    "entryNotice": "入国できるかどうか（国籍・ビザ・乗継条件）はTimeStayでは確認していません。空港を出る前に公式案内でご確認ください。",
+    "entryNotice": "入国できるかどうか（国籍・ビザ・乗継条件）は{{appName}}では確認していません。空港を出る前に公式案内でご確認ください。",
     "entryNoticeLink": "HiKorea入国案内",
     "entryNoticeShort": "入国条件は先に公式案内でご確認ください。",
     "fromAirportApprox": "空港から約{{n}}分",
