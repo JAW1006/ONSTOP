@@ -148,7 +148,9 @@ jobs:
             RANGE="${{ github.sha }}~1..${{ github.sha }}"
           fi
 
-          git log --no-merges --format=%s "$RANGE" > /tmp/subjects.txt
+          # --first-parent: 병합으로 들어온 다른 브랜치의 조상 커밋은 안 본다(이쪽 브랜치가 직접 만든 커밋만).
+          # --no-merges: 병합 커밋 자체(제목이 보통 "Merge ...")는 형식 검사 대상이 아니다.
+          git log --no-merges --first-parent --format=%s "$RANGE" > /tmp/subjects.txt
           echo "검사 범위: $RANGE"
           cat /tmp/subjects.txt
 
