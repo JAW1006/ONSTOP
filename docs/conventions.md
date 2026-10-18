@@ -49,9 +49,7 @@
 | `_RATE`, `_RATIO` | 비율(0~1) | `DAYUSE_COMMISSION_RATE`, `TIER_STEP_RATIO` |
 
 ### 변수
-시간·거리를 담는 변수는 단위를 이름에 붙인다 — `checkInMin`, `returnByMin`, `availableMin`, `haversineKm`. 거의 모든 코드가 이미 이렇게 쓰고 있다.
-
-**알려진 예외(안 고침)**: `CourseStop.move`, `CourseStop.dur`(둘 다 분 단위)와 `Place.move`가 접미사 없이 쓰인다. 레거시에서 그대로 넘어온 짧은 필드명이라 지금은 그대로 두지만, 새로 만드는 비슷한 필드는 `moveMin`/`durMin`처럼 접미사를 붙인다.
+시간·거리를 담는 변수는 단위를 이름에 붙인다 — `checkInMin`, `returnByMin`, `availableMin`, `haversineKm`, `moveMin`, `durMin`. 전부 이 규칙을 따른다(`CourseStop.move`/`dur`·`Place.move`는 2026-10-19에 `moveMin`/`durMin`으로 통일했다 — [GLOSSARY](GLOSSARY.md) "이동(분)"·"체류(분)").
 
 ## 5. DB ↔ API
 - DB 컬럼: `snake_case` (`room_id`, `check_in_min`).
@@ -127,3 +125,4 @@ type은 위 커밋 type과 같은 집합(`feat/`, `fix/`, `docs/`, `test/`, `ref
 |---|---|
 | 2026-10-18 | 최초 작성. 현재 코드·문서 조사를 바탕으로 기존 관행을 최대한 존중해 작성. 오류 응답 모양은 이 작성과 같은 작업에서 `server/booking.js`에 바로 적용(테스트 22개 재확인) |
 | 2026-10-19 | 오류 메시지 사용 원칙을 별도 절로 명시(영어 로그용, 화면 비표시, 개인정보 금지, 관리자 화면 예외) |
+| 2026-10-19 | `checkInMin`/`slotMin` 통일, `move`/`dur`에 `Min` 접미사 부여(실제로 코드에 적용 — STATUS.md "컨벤션 불일치" #2·#3 해소) |

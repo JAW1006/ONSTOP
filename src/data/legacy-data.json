@@ -18,7 +18,7 @@
       "cnt": 210,
       "tint": "#BBD3F5",
       "best": true,
-      "move": 16,
+      "moveMin": 16,
       "img": "hotel-aura-incheon.jpeg",
       "coord": {
         "lat": 37.454078,
@@ -41,7 +41,7 @@
       "rate": 4.3,
       "cnt": 110,
       "tint": "#D6C4E8",
-      "move": 26,
+      "moveMin": 26,
       "img": "western-grace-hotel.jpg",
       "coord": {
         "lat": 37.490257,
@@ -64,7 +64,7 @@
       "rate": 4.4,
       "cnt": 165,
       "tint": "#CFE0F5",
-      "move": 19,
+      "moveMin": 19,
       "img": "skytop-hotel.jpeg",
       "coord": {
         "lat": 37.491315,
@@ -87,7 +87,7 @@
       "rate": 4.3,
       "cnt": 120,
       "tint": "#C7E4D6",
-      "move": 19,
+      "moveMin": 19,
       "img": "jnpark-hotel.jpeg",
       "coord": {
         "lat": 37.445007,
@@ -110,7 +110,7 @@
       "rate": 4.6,
       "cnt": 380,
       "tint": "#E8C4D6",
-      "move": 21,
+      "moveMin": 21,
       "img": "goldentulip-yeongjong.jpg",
       "coord": {
         "lat": 37.492261,
@@ -133,7 +133,7 @@
       "rate": 4.2,
       "cnt": 96,
       "tint": "#F3D9B8",
-      "move": 23,
+      "moveMin": 23,
       "img": "rivera-incheon-airport.jpeg",
       "coord": {
         "lat": 37.48506,
@@ -156,7 +156,7 @@
       "rate": 4.4,
       "cnt": 140,
       "tint": "#A9C4E8",
-      "move": 24,
+      "moveMin": 24,
       "img": "blueocean-residence-3.jpeg",
       "coord": {
         "lat": 37.487023,
@@ -179,7 +179,7 @@
       "rate": 4.4,
       "cnt": 72,
       "tint": "#F7D9B0",
-      "move": 25,
+      "moveMin": 25,
       "img": "ocean-park-nine.jpeg",
       "coord": {
         "lat": 37.492751,
@@ -202,7 +202,7 @@
       "rate": 4.1,
       "cnt": 85,
       "tint": "#E3C4E8",
-      "move": 26,
+      "moveMin": 26,
       "img": "airsky-hotel.jpeg",
       "coord": {
         "lat": 37.490775,
@@ -225,7 +225,7 @@
       "rate": 4.5,
       "cnt": 88,
       "tint": "#F3C4B8",
-      "move": 26,
+      "moveMin": 26,
       "img": "ocean-soleil-view.jpeg",
       "coord": {
         "lat": 37.494514,
@@ -250,8 +250,8 @@
         "ja": "仁川チャイナタウン",
         "vi": "Phố người Hoa Incheon"
       },
-      "move": 40,
-      "dur": 45,
+      "moveMin": 40,
+      "durMin": 45,
       "price": 12000,
       "tint": "#F3C4B8",
       "coord": {
@@ -276,8 +276,8 @@
         "ja": "仁川新浦洞",
         "vi": "Sinpo-dong, Incheon"
       },
-      "move": 42,
-      "dur": 30,
+      "moveMin": 42,
+      "durMin": 30,
       "price": 15000,
       "tint": "#F7D9B0",
       "coord": {
@@ -302,8 +302,8 @@
         "ja": "雲西洞",
         "vi": "Unseo-dong"
       },
-      "move": 16,
-      "dur": 45,
+      "moveMin": 16,
+      "durMin": 45,
       "price": 13000,
       "tint": "#F3D9B8",
       "coord": {
@@ -328,8 +328,8 @@
         "ja": "雲西洞",
         "vi": "Unseo-dong"
       },
-      "move": 13,
-      "dur": 60,
+      "moveMin": 13,
+      "durMin": 60,
       "price": 45000,
       "tint": "#E8C4D6",
       "coord": {
@@ -354,8 +354,8 @@
         "ja": "雲西洞",
         "vi": "Unseo-dong"
       },
-      "move": 12,
-      "dur": 90,
+      "moveMin": 12,
+      "durMin": 90,
       "price": 70000,
       "tint": "#E3C4E8",
       "coord": {
@@ -380,8 +380,8 @@
         "ja": "雲西洞",
         "vi": "Unseo-dong"
       },
-      "move": 18,
-      "dur": 60,
+      "moveMin": 18,
+      "durMin": 60,
       "price": 50000,
       "tint": "#D6C4E8",
       "coord": {
@@ -406,8 +406,8 @@
         "ja": "雲西洞",
         "vi": "Unseo-dong"
       },
-      "move": 14,
-      "dur": 60,
+      "moveMin": 14,
+      "durMin": 60,
       "price": 0,
       "tint": "#BBD3F5",
       "coord": {
@@ -432,8 +432,8 @@
         "ja": "雲西洞",
         "vi": "Unseo-dong"
       },
-      "move": 17,
-      "dur": 30,
+      "moveMin": 17,
+      "durMin": 30,
       "price": 0,
       "tint": "#CFE0F5",
       "coord": {
@@ -458,8 +458,8 @@
         "ja": "雲西洞",
         "vi": "Unseo-dong"
       },
-      "move": 13,
-      "dur": 30,
+      "moveMin": 13,
+      "durMin": 30,
       "price": 0,
       "tint": "#C7E4D6",
       "coord": {
@@ -484,8 +484,8 @@
         "ja": "雲西洞",
         "vi": "Unseo-dong"
       },
-      "move": 15,
-      "dur": 120,
+      "moveMin": 15,
+      "durMin": 120,
       "price": 12000,
       "tint": "#BBD3F5",
       "coord": {
@@ -510,8 +510,8 @@
         "ja": "永宗島",
         "vi": "Đảo Yeongjong"
       },
-      "move": 8,
-      "dur": 90,
+      "moveMin": 8,
+      "durMin": 90,
       "price": 15000,
       "tint": "#CFE0F5",
       "coord": {
@@ -536,8 +536,8 @@
         "ja": "雲西洞",
         "vi": "Unseo-dong"
       },
-      "move": 14,
-      "dur": 60,
+      "moveMin": 14,
+      "durMin": 60,
       "price": 15000,
       "tint": "#C7E4D6",
       "coord": {
@@ -562,8 +562,8 @@
         "ja": "雲西洞",
         "vi": "Unseo-dong"
       },
-      "move": 18,
-      "dur": 60,
+      "moveMin": 18,
+      "durMin": 60,
       "price": 55000,
       "tint": "#E8C4D6",
       "coord": {
@@ -588,8 +588,8 @@
         "ja": "雲西洞",
         "vi": "Unseo-dong"
       },
-      "move": 18,
-      "dur": 50,
+      "moveMin": 18,
+      "durMin": 50,
       "price": 40000,
       "tint": "#F3C4B8",
       "coord": {
@@ -614,8 +614,8 @@
         "ja": "雲西洞",
         "vi": "Unseo-dong"
       },
-      "move": 18,
-      "dur": 45,
+      "moveMin": 18,
+      "durMin": 45,
       "price": 35000,
       "tint": "#F7D9B0",
       "coord": {
@@ -640,8 +640,8 @@
         "ja": "舞衣島",
         "vi": "Đảo Muui"
       },
-      "move": 30,
-      "dur": 90,
+      "moveMin": 30,
+      "durMin": 90,
       "price": 0,
       "tint": "#A9C4E8",
       "coord": {
@@ -666,8 +666,8 @@
         "ja": "永宗島",
         "vi": "Đảo Yeongjong"
       },
-      "move": 25,
-      "dur": 60,
+      "moveMin": 25,
+      "durMin": 60,
       "price": 0,
       "tint": "#F3D9B8",
       "coord": {
@@ -692,8 +692,8 @@
         "ja": "永宗島",
         "vi": "Đảo Yeongjong"
       },
-      "move": 20,
-      "dur": 30,
+      "moveMin": 20,
+      "durMin": 30,
       "price": 0,
       "tint": "#BBD3F5",
       "coord": {
@@ -718,8 +718,8 @@
         "ja": "仁川チャイナタウン",
         "vi": "Phố người Hoa Incheon"
       },
-      "move": 40,
-      "dur": 45,
+      "moveMin": 40,
+      "durMin": 45,
       "price": 0,
       "tint": "#F3C4B8",
       "coord": {
@@ -744,8 +744,8 @@
         "ja": "雲西洞",
         "vi": "Unseo-dong"
       },
-      "move": 14,
-      "dur": 15,
+      "moveMin": 14,
+      "durMin": 15,
       "price": 0,
       "tint": "#CFE0F5",
       "coord": {
@@ -770,8 +770,8 @@
         "ja": "雲西洞",
         "vi": "Unseo-dong"
       },
-      "move": 17,
-      "dur": 30,
+      "moveMin": 17,
+      "durMin": 30,
       "price": 0,
       "tint": "#E8C4D6",
       "coord": {
@@ -796,8 +796,8 @@
         "ja": "雲西洞",
         "vi": "Unseo-dong"
       },
-      "move": 14,
-      "dur": 60,
+      "moveMin": 14,
+      "durMin": 60,
       "price": 0,
       "tint": "#C7E4D6",
       "coord": {

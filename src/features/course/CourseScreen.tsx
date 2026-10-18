@@ -91,12 +91,12 @@ export function CourseScreen() {
     const picked = autoBuildSequential({
       selected: cats,
       interests: trip.interests,
-      places: candidates.map((p) => ({ ...p, rankMove: hotelTo(p).min })),
+      places: candidates.map((p) => ({ ...p, rankMoveMin: hotelTo(p).min })),
       legsFor,
       availableMin: available,
       block,
     });
-    const next = picked.map(({ rankMove: _r, ...p }) => p);
+    const next = picked.map(({ rankMoveMin: _r, ...p }) => p);
     trip.setCoursePlan(next);
     setEmptyResult(next.length === 0 ? { plan: next, key: contextKey } : null);
   };
@@ -333,7 +333,7 @@ function PlaceCard({ place, travel, on, fits, locked, onToggle, onInfo }: { plac
         <span className="mt-1 flex flex-wrap items-center gap-1 text-caption text-faint">
           <span>{localize(place.area, i18n.language)} ·</span>
           <TravelText travel={travel} />
-          {place.dur > 0 && <span>· {t("unit.stayMin", { n: place.dur })}</span>}
+          {place.durMin > 0 && <span>· {t("unit.stayMin", { n: place.durMin })}</span>}
         </span>
         <span className="mt-1.5 flex items-center gap-1.5">
           <Badge variant={fits ? "success" : "danger"}>{fits ? t("course.places.fits") : t("course.places.tight")}</Badge>
@@ -365,7 +365,7 @@ function PlaceDetail({ place, travel, on, fits, locked, onToggle }: { place: Cou
       <p className="text-body text-sub">{localize(place.area, i18n.language)}</p>
       <p className="flex flex-wrap items-center gap-1.5 text-body font-bold text-blue-deep">
         <TravelText travel={travel} />
-        {place.dur > 0 && <span>· {t("unit.stayMin", { n: place.dur })}</span>}
+        {place.durMin > 0 && <span>· {t("unit.stayMin", { n: place.durMin })}</span>}
         {place.price > 0 && <span>· {formatKrw(place.price)}~</span>}
       </p>
       <Badge variant={fits ? "success" : "danger"} className="self-start">

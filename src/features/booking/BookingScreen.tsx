@@ -275,7 +275,7 @@ export function BookingScreen() {
               {plan.map((p) => (
                 <li key={p.id} className="flex justify-between text-caption">
                   <span className="font-bold text-ink">{localize(p.name, lang)}</span>
-                  <span className="text-faint">{t("unit.stayMin", { n: p.dur })}</span>
+                  <span className="text-faint">{t("unit.stayMin", { n: p.durMin })}</span>
                 </li>
               ))}
             </ul>

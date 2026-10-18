@@ -20,7 +20,7 @@ export function useCourseModel(
   const points = routePoints(room?.coord ?? null, plan);
   const { legs, loading } = useRouteLegs(points, { live });
   const { result } = ts;
-  const raw = room ? sequentialCourse(result.exitAtMin, legs.map((l) => l.min), plan.map((p) => p.dur)) : null;
+  const raw = room ? sequentialCourse(result.exitAtMin, legs.map((l) => l.min), plan.map((p) => p.durMin)) : null;
   const course = raw && booking ? alignCheckIn(raw, booking.checkInMin) : raw;
   const summary = scheduleSummary(result.outingMin, course?.usedMin ?? 0);
   const plan_ = course ? returnPlan(result.returnByMin, course, booking?.endMin ?? null) : null;

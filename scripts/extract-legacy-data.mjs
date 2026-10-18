@@ -16,8 +16,12 @@ const PLACES = evalExpr(/const PLACES = (\{[\s\S]*?\n\});\n/, "PLACES");
 const AD_PLACES = [...evalExpr(/const AD_PLACES = (new Set\(\[[^\]]*\]\));/, "AD_PLACES")];
 const HOT_PLACE_IDS = evalExpr(/const HOT_PLACE_IDS = (\[[^\]]*\]);/, "HOT_PLACE_IDS");
 
-const rooms = ROOMS.map((r) => ({ ...r, img: r.img ? r.img.split("/").pop() : null }));
-const places = Object.entries(PLACES).flatMap(([cat, arr]) => arr.map((p) => ({ ...p, cat })));
+// 레거시 필드명 move/dur(분 단위)는 단위 접미사가 없어 docs/conventions.md 4장 규칙과 어긋난다 —
+// 추출 시점에 moveMin/durMin으로 바꿔서 내보낸다(이 스크립트를 다시 돌려도 이름이 유지되게).
+const rooms = ROOMS.map(({ move, ...r }) => ({ ...r, moveMin: move, img: r.img ? r.img.split("/").pop() : null }));
+const places = Object.entries(PLACES).flatMap(([cat, arr]) =>
+  arr.map(({ move, dur, ...p }) => ({ ...p, cat, moveMin: move, durMin: dur })),
+);
 
 const ids = [...rooms.map((r) => r.id), ...places.map((p) => p.id)];
 if (new Set(ids).size !== ids.length) throw new Error("duplicate id");

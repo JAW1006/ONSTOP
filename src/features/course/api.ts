@@ -92,7 +92,7 @@ export interface RefPoi {
 const toLivePlace = (p: RawPoi, cat: CoursePlace["cat"]): CoursePlace => {
   const text = { ko: p.name, en: p.name, zh: p.name, ja: p.name, vi: p.name };
   const area = { ko: p.category, en: p.category, zh: p.category, ja: p.category, vi: p.category };
-  return { id: `live-${p.id}`, cat, name: text, area, dur: 0, price: 0, tint: "", coord: { lat: p.lat, lng: p.lng }, live: true };
+  return { id: `live-${p.id}`, cat, name: text, area, durMin: 0, price: 0, tint: "", coord: { lat: p.lat, lng: p.lng }, live: true };
 };
 
 /** 숙소 주변 실시간 장소: 담을 수 있는 장소 + 참고용 점. 카카오 place id 기준 중복 제거(레거시 동일) */

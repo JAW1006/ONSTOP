@@ -137,8 +137,8 @@ docx의 나머지(서비스 개요, 레거시 스택 — importmap·Babel Standa
 | # | 어디 | 내용 | 영향 |
 |---|---|---|---|
 | 1 | `server/server.js` (레거시 프록시 — `/api/flight/*`, `/api/route`, `/api/places*`, `/api/transit`, `/api/security-wait*`) | 오류 응답이 `{ error: "자유 영어 문장" }` — 코드도 없고 `message` 분리도 없다. `docs/api/errors.md`의 코드 체계와 전혀 다름 | 지금은 문제 없음(프런트가 이 응답의 `error`를 사람이 읽는 문구로만 쓴다). 이 엔드포인트들을 다시 만질 일이 생기면 `BOOKING_*`처럼 도메인 접두사(`FLIGHT_`/`ROUTE_`/`PLACES_`/`TRANSIT_`/`CONGESTION_`)로 옮긴다 |
-| 2 | `src/domain/dayuse-pricing.ts` | 같은 개념(체크인 슬롯, 분 단위)을 함수에 따라 `checkInMin`(구 로직: `defaultTier`, `isCheckoutPastReturn`)과 `slotMin`(신 로직: `productStartsAt`, `defaultProduct`, `blockEndMin`, `bookingCheck`)으로 다르게 부른다 | 혼동 가능성 — API 문서(`checkInMin`)와 `slotMin` 쪽 함수가 같은 값을 가리킨다는 걸 코드만 보고는 알기 어렵다. 이 파일을 다음에 고칠 때 한쪽으로 통일 검토 |
-| 3 | `src/domain/time-fit.ts`, `src/data/index.ts` | `CourseStop.move`·`CourseStop.dur`·`Place.move`가 분 단위인데 단위 접미사가 없다(컨벤션 4장 "알려진 예외") | 낮음 — 타입이 좁고 주석(`move = 이동(분), dur = 체류(분)`)이 있어 당장 혼동되진 않는다 |
+| 2 | ~~`src/domain/dayuse-pricing.ts`~~ | ✅ **2026-10-19 해소.** `slotMin`(`productStartsAt`·`defaultProduct`·`blockEndMin`·`bookingCheck`)을 `checkInMin`으로 통일. [GLOSSARY](GLOSSARY.md) "체크인 슬롯"에 기록 | — |
+| 3 | ~~`src/domain/time-fit.ts`, `src/data/index.ts`~~ | ✅ **2026-10-19 해소.** `move`→`moveMin`, `dur`→`durMin`(+ 같은 문제였던 `roomMove`→`roomMoveMin`, `rankMove`→`rankMoveMin`도 같이). `legacy-data.json`·추출 스크립트까지 포함. [GLOSSARY](GLOSSARY.md) "이동(분)"·"체류(분)" | — |
 | 4 | `src/domain/time-fit.ts`, `dayuse-pricing.ts` | 불리언을 반환하는데 `is`/`has`/`can` 접두사가 없는 함수: `fitsBudget`, `fitsSequential`, `wouldFit`, `wouldFitSequential`, `productStartsAt`(컨벤션 3장 "참고") | 낮음 — 영어로 자연스럽게 읽히는 서술형. 새 불리언 함수만 `is`/`has`/`can`을 기본으로 한다 |
 | 5 | 전체 커밋 이력(68cf883 이전, 40여 개) | 접두사 없는 자유 영어 명령형(`Add...`, `Fix...`, `Port...`) — 2026-10-18부터 `feat:`/`fix:`/… 접두사 적용 | 과거 커밋은 다시 쓰지 않는다. `git log`에서 접두사 있는 커밋과 없는 커밋이 2026-10-18을 기준으로 섞여 보이는 게 정상이다 |
 

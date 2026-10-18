@@ -20,7 +20,7 @@ export interface Room {
   tint: string;
   best?: boolean;
   /** 공항→숙소 이동시간(분) — 실측 전 폴백 */
-  move: number;
+  moveMin: number;
   img: string | null;
   coord: LatLng;
 }
@@ -31,9 +31,9 @@ export interface Place {
   name: Localized;
   area: Localized;
   /** 숙소→장소 이동시간 더미값(분) — 실측 전 폴백 */
-  move: number;
+  moveMin: number;
   /** 체류(분) — 미검증 추정치 */
-  dur: number;
+  durMin: number;
   /** 원, 0이면 표시 안 함 — 미검증 추정치 */
   price: number;
   tint: string;
@@ -57,9 +57,9 @@ export const localize = (value: Localized, lang: string) => value[lang as Langua
 export const AIRPORT_COORD: LatLng = { lat: 37.446, lng: 126.4522 };
 
 /** 코스에 담을 수 있는 장소 — 정적 PLACES 또는 카카오 로컬 실시간 장소(live) */
-export interface CoursePlace extends Omit<Place, "move"> {
+export interface CoursePlace extends Omit<Place, "moveMin"> {
   /** 데이터 더미 이동시간(정적 장소만). 순차 경로 계산에는 쓰지 않는다 */
-  move?: number;
+  moveMin?: number;
   /** 카카오 로컬에서 가져온 실제 주변 장소(체류·가격 데이터 없음) */
   live?: boolean;
 }

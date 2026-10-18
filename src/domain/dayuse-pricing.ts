@@ -30,8 +30,8 @@ export function roomHourTiers(room: DayuseRoomPricing): HourTier[] {
 }
 
 /** 가장 이른 체크인 = 공항 밖으로 나가는 시각(Time-Safe exitAt) + COURSE_PREP_MIN + 공항→숙소 이동 */
-export function earliestCheckInMin(exitAtMin: number, roomMove: number): number {
-  return exitAtMin + COURSE_PREP_MIN + roomMove;
+export function earliestCheckInMin(exitAtMin: number, roomMoveMin: number): number {
+  return exitAtMin + COURSE_PREP_MIN + roomMoveMin;
 }
 
 /** 체크인 후보: 가장 이른 체크인 이후 첫 30분 정각부터 30분 간격 6개 */
@@ -92,13 +92,13 @@ export function minutesOfDay(s: string): number | null {
   return h < 24 && min < 60 ? h * 60 + min : null;
 }
 
-/** 이 슬롯에 시작할 수 있는 상품인가(startWindow 없으면 언제나). 슬롯은 도착일 기준 분(하루 넘김 허용) */
-export function productStartsAt(product: DayuseProduct, slotMin: number): boolean {
+/** 이 체크인 슬롯에 시작할 수 있는 상품인가(startWindow 없으면 언제나). 슬롯은 도착일 기준 분(하루 넘김 허용) */
+export function productStartsAt(product: DayuseProduct, checkInMin: number): boolean {
   if (!product.startWindow) return true;
   const from = minutesOfDay(product.startWindow.from);
   const to = minutesOfDay(product.startWindow.to);
   if (from == null || to == null) return false;
-  const t = ((slotMin % MINUTES_PER_DAY) + MINUTES_PER_DAY) % MINUTES_PER_DAY;
+  const t = ((checkInMin % MINUTES_PER_DAY) + MINUTES_PER_DAY) % MINUTES_PER_DAY;
   return from <= to ? t >= from && t <= to : t >= from || t <= to;
 }
 
@@ -111,14 +111,14 @@ export function offerProducts(offer: DayuseOffer | null | undefined): DayuseProd
  * 기본 선택(기존 규칙 유지): 이 슬롯에 시작할 수 있는 상품 중
  * 슬롯 + 시간 ≤ 복귀 목표인 가장 긴 상품, 없으면 가장 짧은 상품. 시작할 수 있는 상품이 없으면 null.
  */
-export function defaultProduct(products: readonly DayuseProduct[], slotMin: number, returnByMin: number): DayuseProduct | null {
-  const startable = products.filter((p) => productStartsAt(p, slotMin)).sort((a, b) => a.hours - b.hours);
-  return [...startable].reverse().find((p) => slotMin + p.hours * 60 <= returnByMin) ?? startable[0] ?? null;
+export function defaultProduct(products: readonly DayuseProduct[], checkInMin: number, returnByMin: number): DayuseProduct | null {
+  const startable = products.filter((p) => productStartsAt(p, checkInMin)).sort((a, b) => a.hours - b.hours);
+  return [...startable].reverse().find((p) => checkInMin + p.hours * 60 <= returnByMin) ?? startable[0] ?? null;
 }
 
 /** 이용 종료: 상품 요청 = 슬롯 + 상품 시간, 견적 요청 = 숙소 출발 기한 */
-export function blockEndMin(slotMin: number, product: DayuseProduct | null, hotelDepartureDeadlineMin: number): number {
-  return product ? slotMin + Math.round(product.hours * 60) : hotelDepartureDeadlineMin;
+export function blockEndMin(checkInMin: number, product: DayuseProduct | null, hotelDepartureDeadlineMin: number): number {
+  return product ? checkInMin + Math.round(product.hours * 60) : hotelDepartureDeadlineMin;
 }
 
 export interface BookingCheck {
@@ -133,8 +133,8 @@ export interface BookingCheck {
  * 예약 시각 계산 — 코스를 슬롯에 맞추고(늦으면 코스 전체 지연), 이용 종료와 숙소 복귀·공항 복귀를 비교한다.
  * course는 순차 경로 코스(진입 ②면 장소 없는 코스). product가 null이면 견적 요청.
  */
-export function bookingCheck(course: SequentialCourse, slotMin: number, product: DayuseProduct | null, returnByMin: number): BookingCheck {
-  const aligned = alignCheckIn(course, slotMin);
-  const end = blockEndMin(slotMin, product, returnByMin - aligned.returnLegMin);
+export function bookingCheck(course: SequentialCourse, checkInMin: number, product: DayuseProduct | null, returnByMin: number): BookingCheck {
+  const aligned = alignCheckIn(course, checkInMin);
+  const end = blockEndMin(checkInMin, product, returnByMin - aligned.returnLegMin);
   return { course: aligned, plan: returnPlan(returnByMin, aligned, end), endMin: end };
 }

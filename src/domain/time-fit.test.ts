@@ -3,17 +3,17 @@ import { describe, expect, it } from "vitest";
 import { autoBuild, buildCourseTimeline, courseAvailableMin, courseUsedMin, scheduleSummary, wouldFit } from "./time-fit";
 import { haversineKm, liveEstimateMin, pickTravelMode, routeSecToMin, transitMin, walkMin } from "./travel";
 
-// 레거시 데이터 그대로(ROOMS/PLACES의 move·dur)
+// 레거시 데이터 그대로(ROOMS/PLACES의 moveMin·durMin)
 const AURA_MOVE = 16;
-const footShop = { id: "airport-spa-foot", cat: "Massage", move: 13, dur: 60 };
-const wonbo = { id: "chinatown-dimsum", cat: "Food", move: 40, dur: 45 };
+const footShop = { id: "airport-spa-foot", cat: "Massage", moveMin: 13, durMin: 60 };
+const wonbo = { id: "chinatown-dimsum", cat: "Food", moveMin: 40, durMin: 45 };
 const places = [
-  { id: "sky72-outlet", cat: "Shopping", move: 14, dur: 60 },
-  { id: "olive-young-kbeauty", cat: "Shopping", move: 17, dur: 30 },
-  { id: "shinsegae-dutyfree", cat: "Shopping", move: 13, dur: 30 },
+  { id: "sky72-outlet", cat: "Shopping", moveMin: 14, durMin: 60 },
+  { id: "olive-young-kbeauty", cat: "Shopping", moveMin: 17, durMin: 30 },
+  { id: "shinsegae-dutyfree", cat: "Shopping", moveMin: 13, durMin: 30 },
   wonbo,
-  { id: "sinpo-market", cat: "Food", move: 42, dur: 30 },
-  { id: "yeongjong-noodles", cat: "Food", move: 16, dur: 45 },
+  { id: "sinpo-market", cat: "Food", moveMin: 42, durMin: 30 },
+  { id: "yeongjong-noodles", cat: "Food", moveMin: 16, durMin: 45 },
 ];
 
 describe("courseUsedMin — 준비 시간 제외(A5)", () => {
@@ -23,7 +23,7 @@ describe("courseUsedMin — 준비 시간 제외(A5)", () => {
   it("#2 숙소 + 더풋샵: 16 + (13+60) + 13 = 102", () => {
     expect(courseUsedMin(AURA_MOVE, [footShop])).toBe(102);
   });
-  it("#3 숙소 + 원보만두 + 더풋샵: 187 (복귀는 마지막 장소 move 재사용)", () => {
+  it("#3 숙소 + 원보만두 + 더풋샵: 187 (복귀는 마지막 장소 moveMin 재사용)", () => {
     expect(courseUsedMin(AURA_MOVE, [wonbo, footShop])).toBe(187);
   });
   it("#4 숙소·장소 없음: 0", () => {
@@ -77,16 +77,16 @@ describe("buildCourseTimeline", () => {
 
 describe("autoBuild — 기존 동작(탐욕법)", () => {
   it("#6 코스 가용 161, 관심사 [Shopping, Rest], 선택 [Food, Shopping] → 다이소, 7곡제면소", () => {
-    const r = autoBuild({ selected: ["Food", "Shopping"], interests: ["Shopping", "Rest"], places, roomMove: AURA_MOVE, availableMin: 161 });
+    const r = autoBuild({ selected: ["Food", "Shopping"], interests: ["Shopping", "Rest"], places, roomMoveMin: AURA_MOVE, availableMin: 161 });
     expect(r.map((p) => p.id)).toEqual(["shinsegae-dutyfree", "yeongjong-noodles"]);
     expect(courseUsedMin(AURA_MOVE, r)).toBe(136);
   });
   it("#7 코스 가용 80 → 다이소만", () => {
-    const r = autoBuild({ selected: ["Food", "Shopping"], interests: ["Shopping", "Rest"], places, roomMove: AURA_MOVE, availableMin: 80 });
+    const r = autoBuild({ selected: ["Food", "Shopping"], interests: ["Shopping", "Rest"], places, roomMoveMin: AURA_MOVE, availableMin: 80 });
     expect(r.map((p) => p.id)).toEqual(["shinsegae-dutyfree"]);
   });
   it("선택 카테고리가 없으면 ACT_KEYS 전체", () => {
-    const r = autoBuild({ selected: [], interests: [], places, roomMove: AURA_MOVE, availableMin: 1000 });
+    const r = autoBuild({ selected: [], interests: [], places, roomMoveMin: AURA_MOVE, availableMin: 1000 });
     expect(r.map((p) => p.cat)).toEqual(["Food", "Shopping"]);
   });
 });
@@ -120,11 +120,11 @@ describe("이동시간 — 기존 동작", () => {
 // 옮긴 레거시 함수가 이 관측값과 같아야 이식이 맞다 — docs/results/2026-10-16-course-map-compare.md
 describe("레거시 화면 관측값 = 레거시 함수(이식 확인)", () => {
   // 레거시 화면의 "총 N분"은 준비 20분 포함 → courseUsedMin(준비 제외) + COURSE_PREP_MIN과 비교
-  const total = (roomMove: number, stops: { move: number; dur: number }[]) => courseUsedMin(roomMove, stops) + 20;
+  const total = (roomMoveMin: number, stops: { moveMin: number; durMin: number }[]) => courseUsedMin(roomMoveMin, stops) + 20;
   const ROOM = 6; // 공항→호텔 오라
-  const himart = { id: "sky72-outlet", cat: "Shopping", move: 23, dur: 60 };
-  const olive = { id: "olive-young-kbeauty", cat: "Shopping", move: 24, dur: 30 };
-  const daiso = { id: "shinsegae-dutyfree", cat: "Shopping", move: 24, dur: 30 };
+  const himart = { id: "sky72-outlet", cat: "Shopping", moveMin: 23, durMin: 60 };
+  const olive = { id: "olive-young-kbeauty", cat: "Shopping", moveMin: 24, durMin: 30 };
+  const daiso = { id: "shinsegae-dutyfree", cat: "Shopping", moveMin: 24, durMin: 30 };
 
   it("장소 0개: 총 0시간 32분, 체크인 10:56, 복귀 11:02", () => {
     expect(total(ROOM, [])).toBe(32);
@@ -144,7 +144,7 @@ describe("레거시 화면 관측값 = 레거시 함수(이식 확인)", () => {
   it("자동 추천(관심사 쇼핑): 올리브영 1곳, 총 1시간 44분 — 레거시 예산 140·181·430 모두 같은 결과", () => {
     for (const budget of [140, 181, 430]) {
       // 레거시 BUDGET(준비 포함) → 코스 가용 시간(A5) = BUDGET − 20
-      const r = autoBuild({ selected: ["Shopping"], interests: ["Shopping", "Rest"], places: [himart, olive, daiso], roomMove: ROOM, availableMin: budget - 20 });
+      const r = autoBuild({ selected: ["Shopping"], interests: ["Shopping", "Rest"], places: [himart, olive, daiso], roomMoveMin: ROOM, availableMin: budget - 20 });
       expect(r.map((p) => p.id)).toEqual(["olive-young-kbeauty"]);
       expect(total(ROOM, r)).toBe(104);
     }

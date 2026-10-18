@@ -26,7 +26,7 @@ export function CourseTimeline({ model, plan, onRemove }: { model: CourseModel; 
       key: p.id,
       at: course.stops[i]!.arriveAt,
       title: localize(p.name, i18n.language),
-      sub: t(p.dur > 0 ? "course.step.place.sub" : "course.step.place.subNoStay", { area: localize(p.area, i18n.language), dur: p.dur, move: legs[i + 1]?.min ?? 0 }),
+      sub: t(p.durMin > 0 ? "course.step.place.sub" : "course.step.place.subNoStay", { area: localize(p.area, i18n.language), dur: p.durMin, move: legs[i + 1]?.min ?? 0 }),
       icon: categoryIcon(p.cat),
       tone: "bg-role-place",
       id: p.id,

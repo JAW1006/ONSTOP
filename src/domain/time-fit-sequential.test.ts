@@ -81,7 +81,7 @@ describe("sequentialCourse — 순차 경로(A6) + 호텔 복귀(B1)", () => {
     expect(alignCheckIn(early, 690)).toBe(early);
     // 블록 제약에 슬롯이 있으면 맞춘 코스로 판정: 슬롯 12:30, 종료 13:40이면 숙소 복귀 13:43 → 불가
     const legsS3 = () => [18, 12, 8, 8, 18];
-    const stops = [{ dur: 25 }, { dur: 20 }];
+    const stops = [{ durMin: 25 }, { durMin: 20 }];
     expect(fitsSequential(200, legsS3, stops, { startMin: START, checkInMin: 750, endMin: 820 })).toBe(false);
     expect(fitsSequential(200, legsS3, stops, { startMin: START, checkInMin: 750, endMin: 823 })).toBe(true);
   });
@@ -100,12 +100,12 @@ describe("autoBuildSequential / wouldFitSequential — S5", () => {
     "hotel>F1": 16, "F1>hotel": 16, "hotel>F2": 40, "F2>hotel": 40,
     "S1>F1": 5, "S1>F2": 30, "S2>F1": 6, "S2>F2": 31,
   };
-  type P = { id: string; cat: string; dur: number; rankMove: number };
+  type P = { id: string; cat: string; durMin: number; rankMoveMin: number };
   const places: P[] = [
-    { id: "S2", cat: "Shopping", dur: 30, rankMove: 17 },
-    { id: "S1", cat: "Shopping", dur: 30, rankMove: 13 },
-    { id: "F2", cat: "Food", dur: 45, rankMove: 40 },
-    { id: "F1", cat: "Food", dur: 45, rankMove: 16 },
+    { id: "S2", cat: "Shopping", durMin: 30, rankMoveMin: 17 },
+    { id: "S1", cat: "Shopping", durMin: 30, rankMoveMin: 13 },
+    { id: "F2", cat: "Food", durMin: 45, rankMoveMin: 40 },
+    { id: "F1", cat: "Food", durMin: 45, rankMoveMin: 16 },
   ];
   const legsFor = (stops: readonly P[]) => {
     const ids = ["airport", "hotel", ...stops.map((s) => s.id), ...(stops.length ? ["hotel"] : []), "airport"];

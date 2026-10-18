@@ -131,7 +131,7 @@ export function HomeScreen() {
                   <Photo icon={<Icon size={22} color="#fff" />} tint={p.tint} height={82} badge={t("common.badge.partnerAd")} />
                   <span className="mt-1.5 block text-body font-bold text-ink">{localize(p.name, i18n.language)}</span>
                   <span className="block text-micro text-faint">
-                    {localize(p.area, i18n.language)} · {t("unit.transferMin", { n: p.move })}
+                    {localize(p.area, i18n.language)} · {t("unit.transferMin", { n: p.moveMin })}
                   </span>
                 </button>
               </li>
@@ -155,8 +155,8 @@ function HotPlaceDetail({ place }: { place: Place }) {
       <Photo icon={<Icon size={28} color="#fff" />} tint={place.tint} height={120} badge={t("common.badge.partnerAd")} />
       <p className="text-body text-sub">{localize(place.area, i18n.language)}</p>
       <div className="flex flex-wrap gap-2">
-        <Badge className="px-2.5 py-1.5 text-body">{t("unit.transferMin", { n: place.move })}</Badge>
-        <Badge className="px-2.5 py-1.5 text-body">{t("unit.stayMin", { n: place.dur })}</Badge>
+        <Badge className="px-2.5 py-1.5 text-body">{t("unit.transferMin", { n: place.moveMin })}</Badge>
+        <Badge className="px-2.5 py-1.5 text-body">{t("unit.stayMin", { n: place.durMin })}</Badge>
         {place.price > 0 && <Badge className="px-2.5 py-1.5 text-body">{formatKrw(place.price)}~</Badge>}
       </div>
     </div>
