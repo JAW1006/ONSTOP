@@ -1,6 +1,6 @@
 # 진행 상태
 
-> 상태: 확정 · 최종 수정 2026-10-18
+> 상태: 확정 · 최종 수정 2026-10-19
 
 > 서비스 운영 계획: [product/roadmap](product/roadmap.md) (2026-10-16 공모전 종료, 실제 서비스 전환)
 
@@ -79,6 +79,90 @@
 | 8   | ⚠ **"카카오 API 응답 캐싱(반복 조회 비용 절감)"**                                                                                    | —                                                                              | **반영하지 말 것.** [external-apis](operations/external-apis.md)의 응답 저장·캐시 금지(운영정책 제5조 제20호)와 **정면으로 어긋난다**. docx가 그 제약을 모른 상태에서 쓰였다 |
 
 docx의 나머지(서비스 개요, 레거시 스택 — importmap·Babel Standalone, 구현 완료 기능, 결제·요금·예약 연동 제한, 1.2km 도보 근사, Capacitor 1단계, 웹 서비스화 단계)는 이미 .md에 있다.
+
+## 2026-10-19 — 설치 검증 (빈 클론부터)
+
+**방법**: 이 작업 폴더가 아니라 `/tmp`(스크래치패드)에 `origin`에서 **새로** 클론해서([SETUP.md](../SETUP.md)가 생기기 전부터, 작성 중에도 계속) 그 문서만 보고 명령을 쳤다. `node_modules`·`dist`가 전혀 없는 상태에서 시작했는지 매 라운드 확인했다. macOS(이 작업 환경, Node 26)와 **진짜 Linux 컨테이너**(`docker run node:22-bookworm`, Node **22** — `.nvmrc` 핀과 정확히 같은 버전) 둘 다에서 실행했다.
+
+### 실제로 친 명령 (성공한 라운드, macOS)
+
+```bash
+git clone https://github.com/JAW1006/ONSTOP.git fresh-clone && cd fresh-clone
+git checkout migration/react-ts
+
+npm ci            # ✅ (EBADENGINE 경고만 — 아래 "Node 버전" 참고)
+npm run lint      # ✅ oxlint
+npm test          # ✅ Vitest 169개
+npm run build     # ✅ tsc -b && vite build
+npx prettier --check .   # ✅
+
+cd server
+npm ci            # ⚠️ npm audit: 4건(심각 1) — 고쳤다(아래)
+cp .env.example .env
+npm test          # ✅ docker compose로 Postgres 띄워서 23개 (처음 실행하는 환경)
+
+# 둘 다 띄워서 확인
+cd server && npm start &     # :3001, 키 없어도 뜬다
+npm run dev &                 # :5173
+curl http://localhost:5173/              # 200, React 루트 div 있음
+curl http://localhost:5173/api/security-wait   # 500(프록시가 :3001까지 실제로 감 — 404면 프록시 깨진 것)
+```
+
+### 같은 걸 Linux 컨테이너에서 (Node 22, 핀과 동일)
+
+```bash
+docker run --rm node:22-bookworm bash -c '
+  apt-get update -qq && apt-get install -y -qq git
+  git clone --branch migration/react-ts --depth 1 https://github.com/JAW1006/ONSTOP.git /app
+  cd /app && npm ci && npm run lint && npm test && npm run build
+'
+# ✅ 전부 통과 — lint 0/0, 테스트 169개, build 성공
+
+docker run --rm node:22-bookworm bash -c '
+  ... git clone 동일 ...
+  cd /app/server && npm ci && cp .env.example .env
+  npm run test:nodb   # ✅ 2개(DB 필요한 쪽은 "건너뜀" 메시지와 함께 스킵)
+  npm start &         # ✅ 뜸, 키 없다는 경고 5줄 정상 출력
+'
+```
+
+**Docker-in-Docker로 `cd server && npm test`(docker compose가 띄우는 Postgres 경로)는 Linux에서 직접 돌리지 않았다** — 호스트 Docker 소켓 공유가 추가로 필요해서다. 대신 **CI(`ubuntu-latest`)가 같은 경로를 GitHub Actions의 Postgres 서비스 컨테이너로 돈다**(`.github/workflows/ci.yml`의 `server` 잡) — 메커니즘은 다르지만(로컬은 `docker compose`, CI는 서비스 컨테이너) 둘 다 "Linux + 진짜 Postgres"를 검증한다. **로컬 `docker compose` 경로 자체는 macOS에서만 직접 확인했다** — Linux에서 돌릴 사람이 있다면 한 번 더 확인 권장.
+
+### 고친 결함 (각각 별도 커밋)
+
+| 커밋      | 결함                                                                                                                                                                                                                                        | 어떻게 발견                                                    |
+| --------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | -------------------------------------------------------------- |
+| `a002466` | Node 버전·패키지 매니저 고정 없음, `.gitattributes` 없음                                                                                                                                                                                    | 요구사항 점검(지시받은 항목)                                   |
+| `f7e62f2` | `SETUP.md` 자체가 없었음. 루트 `README.md`가 지금도 레거시(`app/index.html`, 빌드 없음) 기준으로만 쓰여 있어 그대로 따라가면 이식본이 아니라 레거시를 보게 됨                                                                               | README.md를 "처음 보는 사람" 입장으로 다시 읽음(지시받은 항목) |
+| `6a214fe` | `server/scripts/test-with-db.sh`의 Docker 안내가 macOS만(`open -a Docker`) — Linux에서 못 쓰는 명령만 보여줌                                                                                                                                | Linux 컨테이너로 실제 실행해서 발견                            |
+| `ea5d592` | `server/npm ci` 직후 `npm audit`에 4건(심각 1 — `proxy-addr` IP 스푸핑, `qs` 서비스거부/배열제한 우회, `express`·`body-parser` 전이). `npm audit fix`로 `express^4.19.2` 범위 안에서(package.json 안 바꿈) 해소, 수정 후 테스트 23개 재통과 | `npm ci` 표준 출력을 그냥 읽음 — 이전엔 아무도 안 봤다         |
+
+### 점검했지만 결함 아님(확인됨)
+
+| #   | 항목                                                         | 결과                                                                                                                                                                                         |
+| --- | ------------------------------------------------------------ | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| 1   | `.env.example`(루트·`server/`)이 모든 필수 환경변수를 담는지 | `process.env.*`/`import.meta.env.*` 전수 검색 결과와 정확히 일치. 비밀값 커밋 없음(기존에 확인된 것 재확인)                                                                                  |
+| 2   | 패키지 매니저 고정                                           | 이미 npm만 쓴다 — `yarn.lock`/`pnpm-lock.yaml` 없음, 두 `package.json` 각각 `package-lock.json` 하나씩(모노레포 성격상 2개인 건 정상 — "한 종류"의 의미를 "같은 매니저"로 봤다)              |
+| 3   | CI가 SETUP.md와 같은 명령으로 돌아가는지                     | `.github/workflows/ci.yml`의 `web`/`server` 잡이 SETUP.md 2·3장과 명령이 정확히 같다(`npm ci`→`lint`→`test`→`build`, server는 `npm ci`→`npm test`)                                           |
+| 4   | 기본 브랜치 vs 작업 브랜치                                   | GitHub 기본 브랜치는 `main`(Render 자동 배포 때문에 의도적으로 유지), 작업은 `migration/react-ts` — AGENTS.md 0장에 이미 명시돼 있고 일치함. 바꾸지 않았다(인프라 설정이라 임의로 안 건드림) |
+
+### 고치지 못한 것 (영향·방향만 기록)
+
+| #   | 내용                                                                                                                                                                                                                                 | 영향                                                                                                                                                                                                                | 방향                                                                                                                      |
+| --- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------- |
+| 1   | **`.nvmrc`(22)와 실제 테스트 환경(macOS, Node 26)이 다르다.** 이 PC에 nvm 등 버전 매니저가 없어 `nvm use`로 22를 맞춰서 돌려보지 못했다 — macOS 검증은 전부 Node 26 기준이다. Linux 컨테이너 검증은 Node 22로 했다(그쪽은 핀과 일치) | `engines`는 경고만 내고 설치·실행을 막지 않는다(`EBADENGINE` warning). Node 26에서도 전부 통과했지만 **"22에서 안 되는 걸 26이 가려주고 있을 가능성"은 Linux 컨테이너 결과로만 배제했다**, macOS 자체로는 배제 못함 | nvm 설치 후 `nvm use`로 재확인 권장. 안 된다면 `.nvmrc`를 실제 동작 버전으로 올리거나, CI의 `node-version: "22"`를 올린다 |
+| 2   | Windows에서 실제로 실행해보지 못했다(이 작업 환경에 Windows가 없음) — 아래 "Windows 위험 지점"은 코드를 읽고 추론한 목록이다, 실행해서 확인한 게 아니다                                                                              | 목록에 있는 지점은 실제로 막힐 가능성이 높지만, 빠진 게 있을 수 있다                                                                                                                                                | Windows PC(또는 GitHub Actions `windows-latest` 잡 추가)로 실제 확인 필요                                                 |
+| 3   | 로컬 `docker compose` 기반 `cd server && npm test` 경로를 Linux에서 직접 실행해보지 못함(위 설명)                                                                                                                                    | 낮음 — CI가 같은 종류의 검증(Linux + 진짜 Postgres)을 다른 메커니즘으로 이미 한다                                                                                                                                   | Linux 사용자가 있으면 한 번 확인                                                                                          |
+
+### Windows 위험 지점 (추론만, 실행 안 함)
+
+| #   | 지점                                                      | 왜                                                                                                                                                                                                        |
+| --- | --------------------------------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| 1   | `cd server && npm test`(및 `npm run test:db`)             | `package.json`이 `bash scripts/test-with-db.sh`를 직접 호출한다. 네이티브 `cmd.exe`/PowerShell에는 `bash`가 없다 — **Git Bash나 WSL 안에서 npm을 돌려야 한다.** SETUP.md에 이 요구사항이 명시돼 있지 않다 |
+| 2   | 셔뱅(`#!/usr/bin/env bash`) 스크립트 전반                 | 위와 같은 이유. `.gitattributes`로 **파일 자체가 CRLF로 깨지는 것**은 막았지만(2026-10-19 추가), **bash 인터프리터가 없는 문제**는 못 막는다 — 서로 다른 문제다                                           |
+| 3   | `docker-compose.test.yml`의 `tmpfs:` 마운트               | Docker Desktop(Windows)은 WSL2 안의 Linux VM에서 컨테이너를 돌리므로 `tmpfs`는 그 안에서는 정상 동작할 가능성이 높다 — 다만 **실행해서 확인한 적 없음**, Hyper-V 백엔드 등 다른 구성에서는 다를 수 있다   |
+| 4   | 경로 구분자                                               | 앱 코드·스크립트에 하드코딩된 `\` 없음, 전부 `/`만 사용(Node의 `fs`/`path` API가 Windows에서도 `/`를 받아들인다) — **위험 낮음**, 점검은 했지만 실행 확인은 안 함                                         |
+| 5   | `npm run dev`의 `localhost:5173` 고정(`strictPort: true`) | OS 무관한 Vite 설정이라 위험 낮지만, 5173 포트가 Windows에서 다른 프로세스(Hyper-V 예약 포트 범위 등)에 걸릴 가능성은 확인 안 함                                                                          |
 
 ## 결정됨
 

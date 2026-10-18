@@ -14,6 +14,8 @@
 
 리포 전체가 **npm만** 쓴다(yarn·pnpm lockfile 없음). `npm install`을 다른 패키지 매니저로 하지 않는다 — lockfile이 깨진다.
 
+**Windows**: `cd server && npm test`(와 `npm run test:db`)는 안에서 bash 스크립트(`scripts/test-with-db.sh`)를 호출한다. 네이티브 `cmd.exe`/PowerShell에는 `bash`가 없으니 **Git Bash 또는 WSL 안에서** 돌린다. 나머지 명령(설치·lint·test·build·dev·start)은 OS 무관하다. 실제로 Windows에서 끝까지 확인한 적은 없다 — 문제가 있으면 [docs/STATUS.md](docs/STATUS.md) "Windows 위험 지점"에 추가한다.
+
 ## 1. 클론
 
 ```bash
