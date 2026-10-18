@@ -13,11 +13,13 @@ export DATABASE_URL=""
 
 if ! docker info >/dev/null 2>&1; then
   # 설치는 됐는데 엔진만 꺼진 경우가 흔하다 — 두 상황을 구분해서 안내한다.
-  if [ -d /Applications/Docker.app ] || command -v docker >/dev/null 2>&1; then
+  # macOS는 Docker Desktop(GUI 앱), Linux는 보통 systemd 서비스로 돈다 — 둘 다 적는다.
+  if command -v docker >/dev/null 2>&1; then
     cat >&2 <<'MSG'
 ✗ Docker는 설치돼 있지만 엔진이 꺼져 있다.
 
-     open -a Docker          # macOS — 엔진이 뜰 때까지 10~30초
+     open -a Docker                 # macOS — 엔진이 뜰 때까지 10~30초
+     sudo systemctl start docker    # Linux(systemd) — 보통 바로 뜬다
      cd server && npm test
 
   엔진을 켜지 않고 돌리려면 아래 "CI에서만 돌리기"를 보라.
@@ -26,8 +28,10 @@ MSG
     cat >&2 <<'MSG'
 ✗ Docker가 설치되지 않았다.
 
-     brew install --cask docker     # 또는 https://docker.com/products/docker-desktop
+     brew install --cask docker     # macOS — 또는 https://docker.com/products/docker-desktop
      open -a Docker                 # 처음 한 번 실행해 엔진을 켠다
+     # Linux: 배포판 패키지 매니저로 설치 — https://docs.docker.com/engine/install/
+     #   설치 후: sudo systemctl enable --now docker
      cd server && npm test
 MSG
   fi
