@@ -125,4 +125,39 @@
   --border: var(--ts-line);
   --input: var(--ts-line);
   --ring: var(--ts-blue);
+
+  /* ---- v2 (디자인 이식, 단계 1) — 단일 출처: docs/design/design-tokens.md ----
+   * Figma Make UI Kit(design/reference/)에서 옮긴 값. `success`/`gold`/`ink`/`line`은
+   * 위 1층 --ts-* 토큰과 이름이 같지만 값이 다르므로 `--ts-v2-` 접두사로 분리했다.
+   * 화면 이식이 끝나 구 토큰(--ts-*)이 전부 빠지면 이 접두사를 없앤다(docs/STATUS.md "이식 후 수정 목록").
+   */
+  --ts-v2-brand: #2764e7;
+  --ts-v2-brand-dark: #1647af;
+  --ts-v2-brand-soft: #eaf1ff;
+  --ts-v2-success: #23845a;
+  --ts-v2-success-soft: #e6f4ec;
+  --ts-v2-travel: #168b8a;
+  --ts-v2-prep: #d4dae3;
+  --ts-v2-stay: #9cccec;
+  --ts-v2-margin: #efd99c;
+  --ts-v2-track: #edf0f4;
+  --ts-v2-gold: #b88a35;
+  --ts-v2-gold-soft: #f7efd9;
+  --ts-v2-danger: #d74a42;
+  --ts-v2-danger-soft: #fff0ee;
+  --ts-v2-ink: #142037;
+  --ts-v2-ink-soft: #4b5870;
+  --ts-v2-line: #dce2eb;
+  --ts-v2-pale: #f0f3f7;
+  --ts-v2-paper: #ffffff;
+  --ts-v2-canvas: #f6f8fb;
+
+  /* 글자용 어두운 색 — 글자·얇은 선 아이콘에만. design-tokens.md 1절 참고 */
+  --ts-v2-danger-ink: #b3342c;
+  --ts-v2-success-ink: #17694a;
+  --ts-v2-travel-ink: #0f6f6e;
+  --ts-v2-gold-ink: #7a5a1c;
+
+  /* ---- v2 layout ---- */
+  --ts-v2-tabbar-content-height: 72px;
 }

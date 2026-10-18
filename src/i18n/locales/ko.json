@@ -142,7 +142,8 @@
     "tagline": {
       "line1": "짐은 맡기고,",
       "line2": "환승 시간을 인천에서"
-    }
+    },
+    "subtitle": "타임스테이"
   },
   "category": {
     "beauty": "뷰티",
@@ -466,5 +467,21 @@
     "nextDay": "익일",
     "stayMin": "체류 {{n}}분",
     "transferMin": "이동 {{n}}분"
+  },
+  "timeBar": {
+    "legend": {
+      "prep": "준비",
+      "travel": "이동",
+      "stay": "체류",
+      "margin": "여유"
+    },
+    "source": {
+      "baseline": "안전 기준"
+    },
+    "ariaLabel": "시간 구성: {{segments}}, 총 {{total}}분"
+  },
+  "transitTimeBar": {
+    "ariaLabel": "환승 총 시간 {{total}}분: {{breakdown}}",
+    "nestedCourse": "외출 가능 구간 안의 코스"
   }
 }

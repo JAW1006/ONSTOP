@@ -511,5 +511,41 @@
   "booking.quote.noTime": {
     "stage": "예약 — 견적 요청인데 숙소 출발 기한이 슬롯보다 이름(이용할 시간 없음)",
     "reviewed": false
+  },
+  "brand.subtitle": {
+    "stage": "디자인 이식 1단계 — 공통 AppHeader/Brand 로고 밑 음독(한국어만, 다른 언어는 빈 문자열)",
+    "reviewed": false
+  },
+  "timeBar.legend.prep": {
+    "stage": "디자인 이식 1단계 — 공통 TimeBar 범례",
+    "reviewed": false
+  },
+  "timeBar.legend.travel": {
+    "stage": "디자인 이식 1단계 — 공통 TimeBar 범례",
+    "reviewed": false
+  },
+  "timeBar.legend.stay": {
+    "stage": "디자인 이식 1단계 — 공통 TimeBar 범례",
+    "reviewed": false
+  },
+  "timeBar.legend.margin": {
+    "stage": "디자인 이식 1단계 — 공통 TimeBar 범례",
+    "reviewed": false
+  },
+  "timeBar.source.baseline": {
+    "stage": "디자인 이식 1단계 — 공통 TransitTimeBar 범례 출처 뱃지",
+    "reviewed": false
+  },
+  "timeBar.ariaLabel": {
+    "stage": "디자인 이식 1단계 — 공통 TimeBar aria-label",
+    "reviewed": false
+  },
+  "transitTimeBar.ariaLabel": {
+    "stage": "디자인 이식 1단계 — 공통 TransitTimeBar aria-label",
+    "reviewed": false
+  },
+  "transitTimeBar.nestedCourse": {
+    "stage": "디자인 이식 1단계 — 공통 TransitTimeBar 중첩 코스 라벨",
+    "reviewed": false
   }
 }

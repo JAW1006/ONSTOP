@@ -142,7 +142,8 @@
     "tagline": {
       "line1": "荷物は預けて、",
       "line2": "乗継時間はインチョンで"
-    }
+    },
+    "subtitle": ""
   },
   "category": {
     "beauty": "ビューティー",
@@ -466,5 +467,21 @@
     "nextDay": "翌日",
     "stayMin": "滞在{{n}}分",
     "transferMin": "移動{{n}}分"
+  },
+  "timeBar": {
+    "legend": {
+      "prep": "準備",
+      "travel": "移動",
+      "stay": "滞在",
+      "margin": "余裕"
+    },
+    "source": {
+      "baseline": "安全基準"
+    },
+    "ariaLabel": "時間構成: {{segments}}、合計{{total}}分"
+  },
+  "transitTimeBar": {
+    "ariaLabel": "乗り継ぎ総時間{{total}}分: {{breakdown}}",
+    "nestedCourse": "外出可能時間内のコース"
   }
 }

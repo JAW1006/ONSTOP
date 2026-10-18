@@ -29,6 +29,23 @@
 | 1   | `render.yaml`의 `name: dropshopping` → TimeStay 이름으로 변경(Render 서비스 식별자, 배포 도메인도 바뀜 — 재배포 순서 주의) | 2026-10-18 검색에서 발견. 지금은 안 바꿈(사용자 지시)                                                                                        |
 | 2   | `README.md`의 폴더 구조 트리 루트 `DropShopping/` → 새 이름                                                                | 같은 검색. README 자체는 이미 레거시 전용 안내로 표시돼 있다([README.md](../README.md) 상단 배너) — 병합 때 이 README를 교체하면서 같이 처리 |
 
+## 디자인 이식 진행
+
+기준: [design-tokens.md](design/design-tokens.md). 단계 순서(사용자 지시): 1 기반 → 2 시작 흐름 → 3 홈·Time-Safe → 4 코스·호텔 찾기 → 5 호텔 상세·예약 요청·예약 상태·내역 → 6 수하물·저장·마이·설정 → 7 전역 상태 → 8 호텔 응답·파트너.
+
+| 단계 | 내용                                          | 상태                      |
+| ---- | --------------------------------------------- | ------------------------- |
+| 1    | 기반 — 색 토큰·폰트·시스템 영역·공통 컴포넌트 | 완료(2026-10-18, 아래 참고) — **스크린샷 대비 검증은 못 함** |
+| 2-8  | 화면 이식                                     | 대기                       |
+
+### 이식 후 수정 목록 (지금은 안 바꿈, 전부 화면 이식 단계에서 재검토)
+
+| #   | 내용                                                                                                         | 비고                                                                                                                                                |
+| --- | -------------------------------------------------------------------------------------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------- |
+| 1   | reference `AppHeader`의 `flight` 상수가 미사용(App.tsx:182, oxlint no-unused-vars) — reference 결함, 그대로 둠 | 이식한 `AppHeader`는 `flightLabel`을 prop으로 받게 바꿔서 이 결함을 베끼지 않았다                                                                     |
+| 2   | reference `TimeBar`/`TransitTimeBar`의 데모 기본값(`defaultTimeSegments` 등, 한국어 라벨 내장)                | 이식본은 `segments`를 필수 prop으로 받는다(데모값 기본 export 없음) — "데모 값 프로덕션 제외" 규칙에 맞춤. 실제 화면 이식 때 호출부가 번역된 라벨을 넘긴다 |
+| 3   | `--ts-v2-*`/`--color-v2-*` 네임스페이스는 임시 — 기존 화면(`--ts-blue` 등)과 색 이름이 겹쳐서(success/gold/ink/line) 분리함 | 8단계 화면 이식이 모두 끝나 구 토큰·컴포넌트가 빠지면 `v2` 접두사를 없앤다                                                                           |
+
 ## 브랜치·배포
 
 | 항목                 | 상태                                                                                                                                                                                                          |
@@ -215,6 +232,32 @@ docker run --rm node:22-bookworm bash -c '
 | 3   | `docker-compose.test.yml`의 `tmpfs:` 마운트               | Docker Desktop(Windows)은 WSL2 안의 Linux VM에서 컨테이너를 돌리므로 `tmpfs`는 그 안에서는 정상 동작할 가능성이 높다 — 다만 **실행해서 확인한 적 없음**, Hyper-V 백엔드 등 다른 구성에서는 다를 수 있다   |
 | 4   | 경로 구분자                                               | 앱 코드·스크립트에 하드코딩된 `\` 없음, 전부 `/`만 사용(Node의 `fs`/`path` API가 Windows에서도 `/`를 받아들인다) — **위험 낮음**, 점검은 했지만 실행 확인은 안 함                                         |
 | 5   | `npm run dev`의 `localhost:5173` 고정(`strictPort: true`) | OS 무관한 Vite 설정이라 위험 낮지만, 5173 포트가 Windows에서 다른 프로세스(Hyper-V 예약 포트 범위 등)에 걸릴 가능성은 확인 안 함                                                                          |
+
+## 2026-10-18 — 디자인 이식 1단계(기반)
+
+범위는 [design-tokens.md](design/design-tokens.md) 1절 "할 일" 그대로. 화면은 옮기지 않았다(어느 화면도 아직 v2 컴포넌트를 쓰지 않는다).
+
+- **색 토큰**: `src/styles/tokens.css`에 `--ts-v2-*`(브랜드+4개 글자용 ink 포함) 추가, `src/styles/index.css`의 `@theme inline`에 `--color-v2-*`로 노출. 기존 `--ts-*`(화면에서 이미 쓰는 중)는 손대지 않았다.
+- **폰트**: `@fontsource/{noto-sans,noto-sans-kr,noto-sans-sc,noto-sans-jp,space-grotesk}` 번들(원격 import 없음). `.ts-v2-root`(새 컴포넌트만 감싸는 범위) 안에서만 `:lang()` 규칙 적용 — 기존 화면의 전역 `body` 폰트는 그대로.
+- **시스템 영역**: 상태바·홈 인디케이터 코드 없음. `--ts-v2-tabbar-content-height: 72px` + `env(safe-area-inset-bottom)`. `.ts-v2-root`는 `100dvh` 기준.
+- **공통 컴포넌트** (`src/components/ui/v2/`): `icon.tsx`(경로 그대로 복제), `button.tsx`, `pill.tsx`, `field.tsx`, `brand.tsx`, `app-header.tsx`, `tab-bar.tsx`, `time-bar.tsx`, `transit-time-bar.tsx`(범례만 2열로, 의도된 차이 b). 기존 `src/components/ui/button.tsx`·`chip.tsx`(구 화면용)는 손대지 않았다.
+- **i18n**: 탭바 라벨은 기존 `nav.*`(이미 5개 언어 검수 완료) 재사용. 새 키(`brand.subtitle`, `timeBar.*`, `transitTimeBar.*`)는 ko/en을 직접 채우고 ja/zh/vi는 기계적으로 옮긴 값 — [i18n-todo.md](../docs/i18n-todo.md)에 목록.
+- **검증**: `npm run lint`(src 범위), `npm test`(170 통과), `npm run build` 모두 통과.
+
+### 못한 것 — 스크린샷 대비 검증
+
+사용자가 요청한 "390px/360px에서 reference와 나란히 캡처해 `docs/design-diff/stage1/`에 저장" 검증은 **이번 세션에서 브라우저 도구 연결이 끊겨 못 했다.** 코드 수준으로는 레퍼런스의 class/CSS 값(색·크기·레이아웃)을 그대로 Tailwind 유틸리티로 옮겼는지 직접 대조했지만, 실제 렌더링 픽셀 대비는 확인되지 않았다. 다음 세션에서 브라우저 도구가 돌아오면 이 검증을 먼저 한다.
+
+### reference와 다른 점(결함 아님, 설계상 필요)
+
+| 구분                          | reference                                                             | 이식본                                                                      | 이유                                                                                                                |
+| ----------------------------- | ---------------------------------------------------------------------- | ---------------------------------------------------------------------------- | --------------------------------------------------------------------------------------------------------------------- |
+| (a) 글자용 ink 색             | 없음                                                                   | `danger-ink`/`success-ink`/`travel-ink`/`gold-ink` 추가                     | 사용자 지시 (a) — WCAG 대비 실패 보정                                                                                |
+| (b) TransitTimeBar 범례       | 구간 폭 비례 4열 그리드(좁은 구간 글자 줄바꿈 깨짐)                   | 2열 범례(견본+이름+분+출처 뱃지), 구간 폭과 무관한 고정 그리드               | 사용자 지시 (b)                                                                                                     |
+| TimeBar/TransitTimeBar 폭 계산 | `data-size="N"`/`data-minutes="N"` 정수별 고정 CSS 클래스(예시값만 대응) | `style={{ flex: N }}` 인라인 계산                                            | design-tokens.md 5절 "폭은 분 비율로 계산한다. 고정 퍼센트 금지" — 레퍼런스의 예시 전용 정적 클래스는 새 분 값에 대응 못 함 |
+| TimeBar/TransitTimeBar 기본값 | `defaultTimeSegments` 등 한국어 라벨 내장 데모 기본 export            | `segments` 필수 prop(기본값 없음)                                            | design-tokens.md 6절 "데모 값... 프로덕션 빌드에서 제외"                                                            |
+| AppHeader                     | 미사용 `flight` 상수(App.tsx:182, reference 자체 결함)                | `flightLabel` prop으로 받음                                                  | reference 결함을 복제하지 않음(reference는 수정 금지라 그 파일 자체는 그대로 둠)                                   |
+| Icon                          | 커스텀 SVG path, lucide-react 미사용                                  | 동일 — lucide-react로 바꾸지 않고 reference의 path 배열을 그대로 옮김       | "허용되는 의도된 차이는 두 가지뿐" 규칙을 지키기 위해 모양을 그대로 복제                                             |
 
 ## 결정됨
 

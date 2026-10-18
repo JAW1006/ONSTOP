@@ -142,7 +142,8 @@
     "tagline": {
       "line1": "Gửi hành lý lại,",
       "line2": "và tận hưởng thời gian quá cảnh tại Incheon"
-    }
+    },
+    "subtitle": ""
   },
   "category": {
     "beauty": "Làm đẹp",
@@ -466,5 +467,21 @@
     "nextDay": "Hôm sau",
     "stayMin": "Lưu trú {{n}} phút",
     "transferMin": "Di chuyển {{n}} phút"
+  },
+  "timeBar": {
+    "legend": {
+      "prep": "Chuẩn bị",
+      "travel": "Di chuyển",
+      "stay": "Lưu trú",
+      "margin": "Dự phòng"
+    },
+    "source": {
+      "baseline": "Mốc an toàn"
+    },
+    "ariaLabel": "Phân bổ thời gian: {{segments}}, tổng {{total}} phút"
+  },
+  "transitTimeBar": {
+    "ariaLabel": "Tổng thời gian transit {{total}} phút: {{breakdown}}",
+    "nestedCourse": "Lộ trình trong khoảng thời gian ra ngoài"
   }
 }

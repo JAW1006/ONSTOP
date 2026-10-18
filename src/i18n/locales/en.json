@@ -142,7 +142,8 @@
     "tagline": {
       "line1": "Drop your bags,",
       "line2": "and spend your layover in Incheon"
-    }
+    },
+    "subtitle": ""
   },
   "category": {
     "beauty": "Beauty",
@@ -466,5 +467,21 @@
     "nextDay": "Next day",
     "stayMin": "{{n}} min stay",
     "transferMin": "{{n}} min transfer"
+  },
+  "timeBar": {
+    "legend": {
+      "prep": "Prep",
+      "travel": "Travel",
+      "stay": "Stay",
+      "margin": "Buffer"
+    },
+    "source": {
+      "baseline": "Safety baseline"
+    },
+    "ariaLabel": "Time breakdown: {{segments}}, total {{total}} min"
+  },
+  "transitTimeBar": {
+    "ariaLabel": "Total transfer time {{total}} min: {{breakdown}}",
+    "nestedCourse": "Course within the outing window"
   }
 }

@@ -1,7 +1,7 @@
 # 번역 검수 요청 — 레거시 이후 추가·변경 문구
 
 > 상태: 초안 · 생성: `node scripts/i18n-review-table.mjs` (손으로 고치지 말 것)
-> 미검수 123 / 전체 123 · 원문은 ko, en은 개발자 작성, **zh·ja·vi는 기계 수준 초안** · 레거시에서 옮긴 문구는 [i18n-review-legacy](i18n-review-legacy.md)
+> 미검수 132 / 전체 132 · 원문은 ko, en은 개발자 작성, **zh·ja·vi는 기계 수준 초안** · 레거시에서 옮긴 문구는 [i18n-review-legacy](i18n-review-legacy.md)
 
 ## 검수 방법
 - 각 언어 칸의 뜻이 ko 원문과 같은지, 앱 버튼·안내문으로 자연스러운지 **원어민**이 확인한다(공개 전 전부 대상).
@@ -90,6 +90,7 @@
 | `bookings.status.expired` | 추가 | 요청 내역 — 상태 | 만료 | Expired | 已过期 | 期限切れ | Hết hạn | **미검수** |
 | `bookings.status.requested` | 추가 | 요청 내역 — 상태 | 요청됨 | Requested | 已请求 | リクエスト済み | Đã gửi | **미검수** |
 | `bookings.title` | 추가 | 요청 내역 — 헤더 | 내 예약 | My bookings | 我的预订 | 予約一覧 | Đặt chỗ của tôi | **미검수** |
+| `brand.subtitle` | 추가 | 디자인 이식 1단계 — 공통 AppHeader/Brand 로고 밑 음독(한국어만, 다른 언어는 빈 문자열) | 타임스테이 |  |  |  |  | **미검수** |
 | `common.back` | 추가 | 3단계 공통 UI(뒤로 버튼 aria-label) | 뒤로 | Back | 返回 | 戻る | Quay lại | **미검수** |
 | `course.autoBuild.empty` | 추가 | 코스 지도 — 자동 추천 결과가 0곳일 때 안내 | 남은 시간 안에 들어가는 장소가 없어요. 카테고리를 바꾸거나 공항에서 가까운 숙소를 골라 보세요. | No spot fits in the time left. Try other categories or a stay closer to the airport. | 没有能放进剩余时间的地点。请更换类别或选择离机场更近的住宿。 | 残り時間に収まるスポットがありません。カテゴリを変えるか、空港に近い宿泊先を選んでみてください。 | Không có địa điểm nào vừa với thời gian còn lại. Hãy đổi danh mục hoặc chọn chỗ nghỉ gần sân bay hơn. | **미검수** |
 | `course.autoBuild.note` | 레거시 변경 | A7 — 레거시 "OR-Tools 최적화…"를 실제 동작(카테고리별 탐욕 추천)에 맞게 변경 | 시간에 맞춰 자동 추천 · 카테고리마다 남은 시간에 들어가는 장소를 1곳씩 담아요 | Auto-picks to fit your time · adds one spot per category that fits the time left | 按时间自动推荐 · 每个类别添加一处能放进剩余时间的地点 | 時間に合わせて自動おすすめ・カテゴリごとに残り時間に収まるスポットを1件ずつ追加 | Tự động gợi ý theo thời gian · mỗi danh mục thêm 1 địa điểm vừa với thời gian còn lại | **미검수** |
@@ -128,11 +129,19 @@
 | `course.summary.used` | 추가 | 코스 지도 — 요약 "사용 X" | 사용 {{time}} | Used {{time}} | 已用 {{time}} | 使用 {{time}} | Đã dùng {{time}} | **미검수** |
 | `demo.banner` | 추가 | 예약 — 데모 띠(B6) | 데모 — 요청이 호텔에 전송되지 않아요 | Demo — requests are not sent to hotels | 演示 — 请求不会发送给酒店 | デモ — リクエストはホテルに送信されません | Bản demo — yêu cầu không được gửi tới khách sạn | **미검수** |
 | `onboarding.flights.cannotGoOutHint` | 추가 | 4단계 Time-Safe — 외출 불가 시 CTA 비활성 이유 | 외출 가능 시간이 없어 코스를 추천할 수 없어요. 공항 안에서 대기해주세요. | There is no time to leave the airport, so we can't suggest a course. Please wait inside the airport. | 没有可外出的时间，无法推荐路线。请在机场内等候。 | 外出できる時間がないため、コースをおすすめできません。空港内でお待ちください。 | Không có thời gian để ra ngoài sân bay nên chúng tôi không thể gợi ý lộ trình. Vui lòng chờ trong sân bay. | **미검수** |
+| `timeBar.ariaLabel` | 추가 | 디자인 이식 1단계 — 공통 TimeBar aria-label | 시간 구성: {{segments}}, 총 {{total}}분 | Time breakdown: {{segments}}, total {{total}} min | 时间构成：{{segments}}，共{{total}}分钟 | 時間構成: {{segments}}、合計{{total}}分 | Phân bổ thời gian: {{segments}}, tổng {{total}} phút | **미검수** |
+| `timeBar.legend.margin` | 추가 | 디자인 이식 1단계 — 공통 TimeBar 범례 | 여유 | Buffer | 余量 | 余裕 | Dự phòng | **미검수** |
+| `timeBar.legend.prep` | 추가 | 디자인 이식 1단계 — 공통 TimeBar 범례 | 준비 | Prep | 准备 | 準備 | Chuẩn bị | **미검수** |
+| `timeBar.legend.stay` | 추가 | 디자인 이식 1단계 — 공통 TimeBar 범례 | 체류 | Stay | 停留 | 滞在 | Lưu trú | **미검수** |
+| `timeBar.legend.travel` | 추가 | 디자인 이식 1단계 — 공통 TimeBar 범례 | 이동 | Travel | 移动 | 移動 | Di chuyển | **미검수** |
+| `timeBar.source.baseline` | 추가 | 디자인 이식 1단계 — 공통 TransitTimeBar 범례 출처 뱃지 | 안전 기준 | Safety baseline | 安全基准 | 安全基準 | Mốc an toàn | **미검수** |
 | `timeSafe.bufferBreakdown` | 추가 | 4단계 Time-Safe — 버퍼 구성 줄(예상치 표기) | 예상 소요 반영: 입국심사 약 {{immigration}}분 · 보안검색·출국심사 약 {{security}}분 · 게이트 여유 약 {{gate}}분 | Estimated times applied: immigration ~{{immigration}} min · security & exit check ~{{security}} min · gate margin ~{{gate}} min | 已计入预估时间：入境审查约{{immigration}}分钟 · 安检·出境审查约{{security}}分钟 · 登机口预留约{{gate}}分钟 | 予想所要時間を反映：入国審査 約{{immigration}}分・保安検査・出国審査 約{{security}}分・ゲート余裕 約{{gate}}分 | Đã tính thời gian ước tính: nhập cảnh khoảng {{immigration}} phút · an ninh & xuất cảnh khoảng {{security}} phút · dự phòng cửa ra máy bay khoảng {{gate}} phút | **미검수** |
 | `timeSafe.security.live` | 추가 | 4단계 T2 연동 — 홈 버퍼 줄의 출국장 실시간 배지(터미널·현재 대기) | 출국장 실시간 확인({{terminal}}) · 현재 대기 약 {{n}}분 | Live security wait checked ({{terminal}}) · now ~{{n}} min | 已查看出境大厅实时等待（{{terminal}}）· 当前约{{n}}分钟 | 出国場リアルタイム確認（{{terminal}}）・現在 約{{n}}分 | Đã kiểm tra thời gian chờ an ninh trực tiếp ({{terminal}}) · hiện khoảng {{n}} phút | **미검수** |
 | `timeSafe.security.notLive` | 추가 | 4단계 T2 연동 — 실시간 대기를 못 받은 경우(탑승동·조회 실패) | 출국장 실시간 아님 · 예상치 사용 | No live security data · using estimate | 无出境大厅实时数据 · 使用预估值 | 出国場のリアルタイム情報なし・予想値を使用 | Không có dữ liệu an ninh trực tiếp · dùng ước tính | **미검수** |
 | `timeSafe.warning.departBeforeArrival` | 추가 | 4단계 Time-Safe — 출발이 도착보다 빠름 경고 | 연결편 출발이 도착보다 빨라요. 항공편을 확인해주세요. | Your connecting flight departs before you arrive. Please check your flights. | 连接航班的出发时间早于到达时间。请确认航班。 | 乗継便の出発が到着より早くなっています。フライトをご確認ください。 | Chuyến bay nối chuyến khởi hành trước khi bạn đến. Vui lòng kiểm tra chuyến bay. | **미검수** |
 | `timeSafe.warning.over24h` | 추가 | 4단계 Time-Safe — 24시간 초과 경고 | 도착부터 출발까지 24시간이 넘어요. 항공편 날짜를 확인해주세요. | More than 24 hours between arrival and departure. Please check your flight dates. | 从到达到出发超过24小时。请确认航班日期。 | 到着から出発まで24時間を超えています。フライトの日付をご確認ください。 | Từ lúc đến đến lúc khởi hành hơn 24 giờ. Vui lòng kiểm tra ngày bay. | **미검수** |
+| `transitTimeBar.ariaLabel` | 추가 | 디자인 이식 1단계 — 공통 TransitTimeBar aria-label | 환승 총 시간 {{total}}분: {{breakdown}} | Total transfer time {{total}} min: {{breakdown}} | 中转总时间{{total}}分钟：{{breakdown}} | 乗り継ぎ総時間{{total}}分: {{breakdown}} | Tổng thời gian transit {{total}} phút: {{breakdown}} | **미검수** |
+| `transitTimeBar.nestedCourse` | 추가 | 디자인 이식 1단계 — 공통 TransitTimeBar 중첩 코스 라벨 | 외출 가능 구간 안의 코스 | Course within the outing window | 外出可用时间内的路线 | 外出可能時間内のコース | Lộ trình trong khoảng thời gian ra ngoài | **미검수** |
 
 ## 삭제한 레거시 키 (검수 대상 아님)
 | 키 | 사유 |

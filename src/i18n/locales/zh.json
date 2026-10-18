@@ -142,7 +142,8 @@
     "tagline": {
       "line1": "放下行李,",
       "line2": "在仁川度过转机时光"
-    }
+    },
+    "subtitle": ""
   },
   "category": {
     "beauty": "美容",
@@ -466,5 +467,21 @@
     "nextDay": "次日",
     "stayMin": "停留{{n}}分钟",
     "transferMin": "移动{{n}}分钟"
+  },
+  "timeBar": {
+    "legend": {
+      "prep": "准备",
+      "travel": "移动",
+      "stay": "停留",
+      "margin": "余量"
+    },
+    "source": {
+      "baseline": "安全基准"
+    },
+    "ariaLabel": "时间构成：{{segments}}，共{{total}}分钟"
+  },
+  "transitTimeBar": {
+    "ariaLabel": "中转总时间{{total}}分钟：{{breakdown}}",
+    "nestedCourse": "外出可用时间内的路线"
   }
 }
