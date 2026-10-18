@@ -167,6 +167,10 @@ type은 위 커밋 type과 같은 집합(`feat/`, `fix/`, `docs/`, `test/`, `ref
 
 **왜 ESLint/typescript-eslint가 아니라 oxlint인가**: 이 리포의 `typescript`는 `^7.0.2`인데, 2026-10-18 기준 `typescript-eslint`(와 `@typescript-eslint/parser`·`@typescript-eslint/eslint-plugin`)는 TypeScript 7을 실행 자체를 막는 가드가 있다(피어 범위 경고가 아니라 런타임 에러 — "`typescript-eslint` does not support TS 7.0"). `--legacy-peer-deps`로 설치는 되지만 실행이 안 된다. oxlint는 자체 TS/JSX 파서(Rust, Oxc)를 써서 `typescript` 패키지 버전과 무관하게 동작한다. typescript-eslint가 TS 7을 지원하게 되면 이 선택을 다시 검토할 수 있다.
 
+## 13. 날짜
+
+문서·커밋·코드 주석에 오늘 날짜를 쓸 때는 **`date` 명령이 찍은 값만 쓴다** — 대화 맥락으로 "자정을 넘겼겠다"고 추측하지 않는다. 2026-10-18 저녁에 실제로 하루 앞선 "2026-10-19"를 여러 문서에 적었다가 나중에 전부 고친 적이 있다([STATUS](STATUS.md) "설치 검증").
+
 ## 변경 이력
 
 | 날짜       | 내용                                                                                                                                                                   |
@@ -177,3 +181,4 @@ type은 위 커밋 type과 같은 집합(`feat/`, `fix/`, `docs/`, `test/`, `ref
 | 2026-10-18 | Prettier 도입(`.prettierrc.json`·`.prettierignore`), 리포 전체 1회 포맷, CI에 `format` 잡 추가. 포맷 커밋은 `.git-blame-ignore-revs`에 등록(아래)                      |
 | 2026-10-18 | 최소 린트 도입(미사용 변수·`src/domain` import 경계) — typescript-eslint가 TS 7을 지원하지 않아 oxlint로. CI `web` 잡에 `npm run lint` 추가                            |
 | 2026-10-18 | 커밋 메시지 형식을 CI `commitlint` 잡이 검사(그 푸시/PR이 들여온 커밋만, `git log` 범위 계산). 로컬 훅 없음                                                            |
+| 2026-10-18 | 13장(날짜) 신설 — 날짜는 `date` 명령 값만 쓴다                                                                                                                         |

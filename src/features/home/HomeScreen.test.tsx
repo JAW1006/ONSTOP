@@ -10,6 +10,10 @@ let arrivals: Record<string, Flight>;
 let departures: Record<string, Flight>;
 let securityGates: { waitTimeMin: number }[];
 let securityGatesT2: { waitTimeMin: number }[];
+// 서버가 CONGESTION_NOT_CONFIGURED(키 없음) 등으로 실패하는 경우를 흉내낸다 — docs/STATUS.md
+// "설치 검증"에서 확인한 실제 모양. fetchSecurityWaitMin은 !res.ok면 그냥 null을 돌려준다
+// (본문의 error.code는 안 본다), 그래서 500이면 충분하고 코드까지 흉내낼 필요는 없다.
+let securityWaitFails = false;
 
 const fetchMock = vi.fn(async (url: string) => {
   const u = new URL(url, "http://localhost");
@@ -19,7 +23,10 @@ const fetchMock = vi.fn(async (url: string) => {
     return arrivals[id] ? json(200, { flights: [arrivals[id]] }) : json(404, {});
   if (u.pathname === "/api/flight/departure")
     return departures[id] ? json(200, { flights: [departures[id]] }) : json(404, {});
-  if (u.pathname === "/api/security-wait") return json(200, { gates: securityGates });
+  if (u.pathname === "/api/security-wait") {
+    if (securityWaitFails) return json(500, { error: { code: "CONGESTION_NOT_CONFIGURED", message: "no key" } });
+    return json(200, { gates: securityGates });
+  }
   if (u.pathname === "/api/security-wait/t2") return json(200, { gates: securityGatesT2 });
   return json(500, {});
 });
@@ -91,6 +98,7 @@ beforeEach(async () => {
   };
   securityGates = [{ waitTimeMin: 20 }, { waitTimeMin: 30 }]; // 평균 25 < 기준 50
   securityGatesT2 = [{ waitTimeMin: 70 }];
+  securityWaitFails = false;
   vi.stubGlobal("fetch", fetchMock);
   fetchMock.mockClear();
   await i18n.changeLanguage("en");
@@ -132,6 +140,19 @@ describe("홈 — Time-Safe 카드", () => {
     home("KE085", "T1DEP");
     await waitFor(() => expect(card().textContent).toContain("1h 56m"));
     expect(card().textContent).toContain("Live security wait checked (T1) · now ~65 min");
+    expect(fetchMock).toHaveBeenCalledWith("/api/security-wait");
+  });
+
+  it("/api/security-wait가 CONGESTION_NOT_CONFIGURED(500)면 전체 오류가 아니라 기준값 50분으로 떨어진다", async () => {
+    securityWaitFails = true;
+    home("KE085", "T1DEP");
+    // #1과 같은 2h 11m — 실시간이 없을 때와 정확히 같은 수치(= 기준값 50분이 적용됐다는 뜻).
+    await waitFor(() => expect(card().textContent).toContain("2h 11m"));
+    expect(card().textContent).toContain("Estimated times applied: immigration ~50 min");
+    // "실시간 반영" 배지가 없어야 한다 — 실패를 실시간 성공으로 잘못 표시하면 안 된다.
+    expect(card().textContent).not.toContain("Live security wait checked");
+    // 화면에 오류 문구·에러 상태가 없어야 한다(조용히 기준값으로 떨어질 뿐, 전체 오류 아님).
+    expect(screen.queryByText(/error/i)).toBeNull();
     expect(fetchMock).toHaveBeenCalledWith("/api/security-wait");
   });
 
