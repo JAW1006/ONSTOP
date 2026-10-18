@@ -43,10 +43,27 @@
 
 **교훈** → [AGENTS.md](../AGENTS.md) 0장 규칙으로 남겼다: 작업 시작 전 브랜치와 이 문서를 확인하고, 이미 있는 구현·명세를 따른다.
 
+### docx에만 있던 내용 (2026-10-18 대조)
+`TimeStay_기술개요_로드맵.docx`(2026-09-06, 레거시 기준)를 `docs/*.md`와 대조했다. 바이너리는 diff가 안 되고 .md와 갈라지므로 **저장소에서 빼고** `local-docs/`(gitignore)로 옮겼다.
+
+아래는 .md에 **없는** 내용이다 — 살릴 것은 .md로 옮겨야 한다.
+| # | docx 내용 | 옮길 곳 | 비고 |
+|---|---|---|---|
+| 1 | **앱 2단계: React Native 전환** — 핵심 화면(코스 빌더·지도)을 RN으로 재작성, 카카오맵 웹 SDK → 네이티브 SDK 또는 `react-native-maps` | [roadmap](product/roadmap.md) "앱 전환 대비" | 지금 roadmap은 Capacitor 준비(C1~C6)까지만 있다 |
+| 2 | **동선 최적화: 카카오모빌리티 다중경유지 API 또는 TSP 근사** | [time-fit](formulas/time-fit.md), [external-apis](operations/external-apis.md) | 현재 A6는 순차 경로(탐욕)뿐. 다중경유지 API 쿼터·요금 **미확인** |
+| 3 | **카카오모빌리티 보행자 길찾기 별도 제휴 신청** 시 도보 실경로 적용 | [external-apis](operations/external-apis.md) | 현재 도보는 직선×1.3 근사 |
+| 4 | **백그라운드 위치 기반 "게이트 임박 알림"**, 딥링크(파트너 프로모션) | [ADR-0006](decisions/ADR-0006-return-alert.md) | ADR-0006은 앱 내 카운트다운·캘린더·기기 알림까지만. 백그라운드 위치는 개인정보 영향 큼 → legal 확인 필요 |
+| 5 | **지도 공급자 전환 검토 결론** — 네이버지도는 핵심 이슈(네이티브 POI 클릭) 해결 불확실, 전환 비용 대비 실익 재검토 필요 | [external-apis](operations/external-apis.md) | 현재 그 문서에는 네이버 Directions **요금**만 있고 지도 공급자 전환 판단이 없다 |
+| 6 | **수집 전략 수치** — 카카오 로컬 18개 업종 코드 + 뷰티 브랜드 7곳 키워드, 업종당 페이지네이션으로 최대 45곳 | [design/data](design/data.md) | 레거시 구현 기준. 이식본과 같은지 확인 필요 |
+| 7 | 관리자용 **파트너·요금 관리 도구** | [roadmap](product/roadmap.md) | 지금 `/admin`은 예약 요청 확인만. 숙소·가격표 관리는 없다 |
+| 8 | ⚠ **"카카오 API 응답 캐싱(반복 조회 비용 절감)"** | — | **반영하지 말 것.** [external-apis](operations/external-apis.md)의 응답 저장·캐시 금지(운영정책 제5조 제20호)와 **정면으로 어긋난다**. docx가 그 제약을 모른 상태에서 쓰였다 |
+
+docx의 나머지(서비스 개요, 레거시 스택 — importmap·Babel Standalone, 구현 완료 기능, 결제·요금·예약 연동 제한, 1.2km 도보 근사, Capacitor 1단계, 웹 서비스화 단계)는 이미 .md에 있다.
+
 ## 결정됨
 | # | 결정 | 공식 | 적용 |
 |---|---|---|---|
-| 예약 요청 서버 | 저장·조회·취소 + 관리자 목록·상태 변경. 결제 없음, 호텔 자동 전달 없음 | [api/booking-requests](api/booking-requests.md) | 적용 (DB 경로 **미검증** — 아래 "검증 부족") |
+| 예약 요청 서버 | 저장·조회·취소 + 관리자 목록·상태 변경. 결제 없음, 호텔 자동 전달 없음 | [api/booking-requests](api/booking-requests.md) | 적용 — 진짜 Postgres 통합 테스트 22개 통과(아래 "예약 요청 API 테스트") |
 | B1 | 코스 경로 **공항 → 호텔 → 장소들 → 호텔(짐 찾기) → 공항**. 데이유즈 블록을 고르면 **호텔 복귀 ≤ 블록 종료**가 코스 제약, 예약 화면 경고(B3)도 이 기준. 코스 사용 시간이 늘어 추천이 더 보수적 | [time-fit](formulas/time-fit.md), [결과](results/2026-10-16-hotel-return-route.md) | 적용 |
 | 예약 요청 (B2–B8) | 코스 없이도 요청(근사), 블록 초과·복귀 늦음은 경고 + 확인 체크, 연락처는 이름(영문 허용)·이메일만, 상태 요청됨·확정·거절·만료·취소됨(만료 시간은 호텔 응답 속도로 정함), 거절·만료 시 대안 숙소 제안, 진행 중 요청 1건, 요청됨만 즉시 취소(확정 후는 호텔 문의 + 연락처·규정 표시) | [screens/booking](design/screens/booking.md) | 적용(데모) |
 | 요청 모드 | 가격표 있는 호텔 = 상품 선택 후 요청, 없는 호텔 = **견적 요청**(호텔이 가격·가능 여부 회신). 데모는 데모용 가격표 파일(`src/data/demo-offers.json`, 사용자 입력) | [screens/booking](design/screens/booking.md), [dayuse-pricing](formulas/dayuse-pricing.md) | 적용(데모) |
@@ -191,24 +208,26 @@
 | # | 내용 | 계획 |
 |---|---|---|
 | 실제 카카오맵 화면 | 코스 지도는 모의 지도로만 테스트 | 사용자 확인 — 위 "실제 지도 확인 절차" |
-| **예약 요청 API의 DB 경로** | 작업 PC에 PostgreSQL·Docker가 없어 **DB에 붙는 경로를 한 번도 실행하지 못했다.** 확인된 것은 DB 없는 경로뿐: 입력 검증 400 6종, Basic 인증 401/통과, 자격증명 미설정 503, DB 미설정 500, `/admin` 서빙, 로그에 이메일 없음 | `DATABASE_URL`을 넣고 아래 항목을 실제로 확인한다 |
+| `/admin` 화면 조작 | 목록·필터·확정/거절/만료/취소 버튼은 **자동 테스트가 API만** 검증한다. 화면에서 버튼이 전이 규칙대로만 보이는지는 사람이 확인해야 한다 | `ADMIN_USER`/`ADMIN_PASSWORD`를 넣고 `/admin` 열어 확인 |
 
-### 예약 요청 API — DB 연결 후 확인할 것
-| # | 확인 | 기대 |
-|---|---|---|
-| 1 | 서버 시작 | 로그에 `applied migration 001_booking_requests.sql`, 두 번째 시작에는 안 나옴 |
-| 2 | `POST` 정상 요청 | `201` + `TS-` 8자 요청번호 |
-| 3 | 같은 이메일로 `POST` 재시도 (B8) | `409 active_request_exists`, 본문에 기존 요청 내용 없음 |
-| 4 | 대문자·공백 섞은 같은 이메일로 `POST` | 역시 `409` (정규화가 동작하는지) |
-| 5 | `GET /:id?email=` 맞는 이메일 / 틀린 이메일 | `200` / `404`(요청번호 존재 여부가 드러나지 않음) |
-| 6 | `POST /:id/cancel` 요청됨 → 재시도 | `200 cancelled` → `409 not_cancellable` |
-| 7 | 취소 후 같은 이메일로 새 `POST` | `201` (종료 상태는 B8에 안 걸림) |
-| 8 | 관리자 `PATCH` `confirmed` → `declined` | `409 invalid_transition` |
-| 9 | 관리자 `PATCH` `declined` (사유 없이 / 사유 있게) | `400 decline_reason_required` / `200` |
-| 10 | `/admin` 화면 | 목록·필터·확정/거절/만료/취소 버튼이 전이 규칙대로만 보임 |
-| 11 | 서버 로그 전체 | 이메일·이름이 한 줄도 없음 |
+## 예약 요청 API 테스트 (2026-10-18)
+**진짜 PostgreSQL**에 붙는 통합 테스트 22개 — `server/booking.test.js`. 모의 DB가 아니다.
 
-결과는 `docs/results/YYYY-MM-DD-booking-api.md`에 남긴다.
+| 명령 | 내용 |
+|---|---|
+| `cd server && npm test` | docker compose로 **일회용 Postgres**(포트 5433, tmpfs — 컨테이너를 내리면 데이터 소멸)를 띄우고 전부 실행, 끝나면 자동 정리 |
+| `cd server && npm run test:nodb` | Docker가 없을 때. DB가 필요 없는 경로만 돌고 통합 테스트는 **건너뛴다**(건너뛴 사실을 출력) |
+| CI | `.github/workflows/ci.yml`의 `server` 잡이 Postgres **서비스 컨테이너**로 매 푸시마다 실행. 건너뛰면 CI가 실패한다(조용히 통과하는 것 방지) |
+
+안전 가드 — 이 테스트는 `booking_requests`를 TRUNCATE하므로 3중으로 막는다:
+| 가드 | 동작 |
+|---|---|
+| `TEST_DATABASE_URL` 없음 | 건너뜀(실행 안 함) |
+| `TEST_DATABASE_URL` == `DATABASE_URL` | **중단** — 실제 DB를 비울 수 있다 |
+| 호스트가 로컬이 아님 | **중단** — 일회용이 확실하면 `ALLOW_REMOTE_TEST_DB=1` |
+
+덮는 범위(위 "DB 연결 후 확인할 것" 11개를 자동화한 것):
+마이그레이션 적용·재실행 멱등·B8 인덱스 존재 · 생성(201·`TS-` 8자·필드 보존·`expiresAt` null) · 견적 모드 · 입력 검증 400 6종 · **B8**(같은 이메일 409·대소문자 정규화·동시 요청 4건 중 1건만 성공·본문에 내용 없음) · 조회(맞는/틀린 이메일·없는 번호가 구분 안 됨·`email_required`) · 취소(요청됨만·재시도 409·확정은 불가·남의 이메일 불가·취소 후 재요청 가능) · 전이(confirmed→declined/expired/requested 거부·종료 상태 거부·사유 필수·없는 상태값 400) · 인증(무인증·틀린 비번·틀린 사용자 401, 정상 200, PATCH도 필요, 고객용은 인증 없이 동작, status 필터) · 로그에 이메일·이름·pg `detail` 없음 · **fail-closed**(자격증명 미설정 시 503, 인증을 들고 가도 안 열림, 고객용은 정상)
 
 ## 검증 완료
 | # | 내용 | 근거 |

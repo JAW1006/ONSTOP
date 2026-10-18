@@ -28,14 +28,23 @@
 - 공식 변경: `docs/formulas/*.md`를 먼저 고치고, 같은 변경에서 `src/domain` 코드와 테스트를 함께 고친다.
 - 끝나면 `docs/changelog.md`에 한 줄, 의미 있는 결정은 `docs/STATUS.md`에 남긴다.
 
-## 2. 운영 배포 금지를 풀지 않는다
+## 2. 바꾼 코드는 검사하고 올린다
+| 무엇 | 명령 |
+|---|---|
+| 프런트 | `npm ci && npm test && npm run build` |
+| 서버(예약 요청 API) | `cd server && npm test` — docker로 **일회용 Postgres**를 띄워 진짜 DB에 붙는다. Docker가 없으면 `npm run test:nodb`(통합 테스트는 건너뜀) |
+
+- CI(`.github/workflows/ci.yml`)가 푸시마다 같은 것 + 비밀값 검사를 돌린다.
+- **`server/.env`의 `DATABASE_URL`로 테스트·마이그레이션을 돌리지 않는다.** 실제 DB다. 테스트는 `TEST_DATABASE_URL`만 쓰고, 그 값이 `DATABASE_URL`과 같거나 원격이면 스스로 중단한다.
+
+## 3. 운영 배포 금지를 풀지 않는다
 예약 요청이 **실제로 호텔에 전달되고 회신을 받기 전까지** prod 배포 금지다([ADR-0005](docs/decisions/ADR-0005-environments-deploy.md), [STATUS](docs/STATUS.md)).
 프런트의 데모 게이트(`VITE_DEMO_MODE`)와 서버 관리자 인증의 fail-closed 동작을 **느슨하게 만들지 않는다.**
 
-## 3. 개인정보
+## 4. 개인정보
 - 수집은 이름·이메일만([booking](docs/design/screens/booking.md) B4). 전화·여권·국적을 받지 않는다.
 - **로그·오류 메시지에 이메일·이름을 쓰지 않는다**([api/booking-requests](docs/api/booking-requests.md) "개인정보").
 - 보관 기간·파기는 아직 정해지지 않았다([legal-checklist](docs/legal-checklist.md) 2-1). 자동 삭제 작업을 만들지 않는다.
 
-## 4. 검증 안 된 값은 "미검증"으로 둔다
+## 5. 검증 안 된 값은 "미검증"으로 둔다
 숫자에는 출처와 기준 연도를 붙인다. 근거 없이 그럴듯한 값을 채우지 않는다.

@@ -7,3 +7,10 @@ dist/
 .env
 .env.*
 !.env.example
+
+# 저장소에 넣지 않는 문서 — 바이너리는 diff·리뷰가 안 되고 docs/*.md와 갈라진다.
+# 문서의 단일 출처는 docs/*.md다(local-docs/README.md 참고).
+local-docs/
+*.docx
+*.doc
+*.pptx

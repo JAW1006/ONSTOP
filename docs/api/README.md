@@ -15,7 +15,7 @@
 ## 자체 API (우리가 만드는 것)
 | API | 문서 | 상태 |
 |---|---|---|
-| 예약 요청(생성·조회·취소·관리자) | [booking-requests.md](booking-requests.md) | 초안 — 명세 기준 구현 |
+| 예약 요청(생성·조회·취소·관리자) | [booking-requests.md](booking-requests.md) | 확정 — 구현 완료, 통합 테스트 22개 통과 |
 
 ## 기록 템플릿 (외부 API)
 ```md

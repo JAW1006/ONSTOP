@@ -4,7 +4,10 @@
   "private": true,
   "type": "module",
   "scripts": {
-    "start": "node server.js"
+    "start": "node server.js",
+    "test": "bash scripts/test-with-db.sh",
+    "test:db": "bash scripts/test-with-db.sh",
+    "test:nodb": "node --test booking.test.js"
   },
   "dependencies": {
     "cors": "^2.8.5",

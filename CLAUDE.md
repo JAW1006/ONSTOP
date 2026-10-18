@@ -10,7 +10,8 @@ Vite + React + TypeScript · Tailwind v4 + shadcn/ui(Radix) · React Router · T
 |---|---|
 | `npm run dev` | 개발 서버 (`/api` → `localhost:3001` 프록시) |
 | `cd server && npm start` | API 프록시(인천공항·카카오·ODsay) — dev 전에 켜둔다 |
-| `npm test` | Vitest |
+| `npm test` | Vitest (프런트) |
+| `cd server && npm test` | 예약 요청 API 통합 테스트 — docker로 **일회용 Postgres**를 띄워 실행(Docker 없으면 `npm run test:nodb`) |
 | `npm run build` | 타입체크 + 빌드 |
 
 ## 폴더 책임

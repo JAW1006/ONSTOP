@@ -1,10 +1,10 @@
 # 예약 요청 API (자체 API)
 
-> 상태: **초안 — 구현 전 명세** · 최종 수정 2026-10-18
+> 상태: **확정 — 구현 완료** · 최종 수정 2026-10-18 · 테스트: 진짜 Postgres 통합 테스트 22개 통과(아래 "테스트")
 > 이 문서는 **우리가 만드는 API**다. 같은 폴더의 다른 문서(외부 API 응답 기록)와 성격이 다르다.
 > 화면 명세: [design/screens/booking](../design/screens/booking.md) — 필드·상태·B8의 **단일 출처는 그쪽**이다. 이 문서는 그것을 API 모양으로 옮긴 것이다.
 > 관련 결정: [ADR-0002 DB](../decisions/ADR-0002-database.md)(제안 유지) · [ADR-0003 인증](../decisions/ADR-0003-auth.md)(비회원, 조회 OTP 미구현) · [ADR-0004 결제](../decisions/ADR-0004-payment.md)(결제 없음) · [ADR-0005 배포](../decisions/ADR-0005-environments-deploy.md)(운영 배포 금지)
-> 코드: `server/booking.js` · 테이블: `server/migrations/001_booking_requests.sql`
+> 코드: `server/booking.js` · 테이블: `server/migrations/001_booking_requests.sql` · 테스트: `server/booking.test.js`
 
 ## 목적과 범위
 환승객이 보낸 데이유즈 **예약 요청을 저장·조회·취소**하고, 운영자가 호텔 회신(확정·거절)을 반영한다.
@@ -222,7 +222,22 @@ Basic 인증 필요. 호텔에 전화·메일로 확인한 결과를 수기로 �
 | 5 | 보관 기간·파기([legal 2-1](../legal-checklist.md)) | 삭제 작업 |
 | 6 | 프런트 교체 — `BookingRequestStore`를 이 API로 | 지금은 메모리(데모) |
 
+## 테스트
+`server/booking.test.js` — **진짜 PostgreSQL**에 붙는 통합 테스트 22개(모의 DB 아님).
+
+| 명령 | 내용 |
+|---|---|
+| `cd server && npm test` | docker compose로 일회용 Postgres(5433, tmpfs)를 띄우고 실행 후 자동 정리 |
+| `cd server && npm run test:nodb` | Docker 없을 때 — 통합 테스트는 건너뛴다(건너뛴 사실을 출력) |
+| CI | `.github/workflows/ci.yml`의 `server` 잡이 Postgres 서비스 컨테이너로 실행. 건너뛰면 **CI 실패** |
+
+이 테스트는 `booking_requests`를 TRUNCATE하므로 가드가 3중이다: `TEST_DATABASE_URL`이 없으면 건너뜀,
+`DATABASE_URL`과 같으면 중단, 호스트가 로컬이 아니면 중단(`ALLOW_REMOTE_TEST_DB=1`로만 우회).
+
+덮는 범위는 [STATUS](../STATUS.md) "예약 요청 API 테스트"에 있다. 남은 수동 확인은 `/admin` 화면 조작뿐이다.
+
 ## 변경 이력
 | 날짜 | 내용 |
 |---|---|
 | 2026-10-18 | 최초 작성. B8을 이메일 기준으로 결정, 관리자 Basic 인증 + fail-closed, 마이그레이션 SQL 파일 방식 |
+| 2026-10-18 | 진짜 Postgres 통합 테스트 22개 추가(일회용 컨테이너 + CI 서비스 컨테이너). 입력 검증을 DB 확인보다 먼저 하도록 정리 |
